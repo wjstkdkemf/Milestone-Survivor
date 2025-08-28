@@ -1892,6 +1892,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b9bb3be18ad993f468e88881d4955944, type: 2}
   - {fileID: 11400000, guid: 2bcaabecd51198347a79c89c4e454606, type: 2}
   - {fileID: 11400000, guid: 22121a3cb6cd6ac40b9ddee768808d5f, type: 2}
+  - {fileID: 11400000, guid: f8a979ee65e56044b85646fd69516da9, type: 2}
   UpgadeUiObject:
   - {fileID: 1750811551}
   - {fileID: 1355833154}
@@ -7611,6 +7612,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 685480190755321929, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: magicCirclePrefab
+      value: 
+      objectReference: {fileID: 4857742709815181338, guid: 5f7e05c755299794db1380cf7418c8ee, type: 3}
     - target: {fileID: 1602106914877760716, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: m_Name
       value: Player

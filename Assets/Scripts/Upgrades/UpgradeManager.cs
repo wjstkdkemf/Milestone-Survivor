@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+
 public class UpgradeManager : MonoBehaviour
 {
     public static UpgradeManager Instance;
@@ -14,6 +15,7 @@ public class UpgradeManager : MonoBehaviour
     [SerializeField] private GameObject UpgradeObject;
     private List<UpgradeScriptableObject> spawnedUpgades = new List<UpgradeScriptableObject>();
 
+    [Header("Ability GameObjects")]
     [SerializeField] private GameObject TurretObject;
     [SerializeField] private GameObject OrbsObject;
     [SerializeField] private GameObject PlayerObject;
@@ -22,7 +24,9 @@ public class UpgradeManager : MonoBehaviour
     [SerializeField] private GameObject SwordSlashObject;
     [SerializeField] private GameObject LightningObject;
     [SerializeField] private GameObject KnifeThrowingAbility;
+    [SerializeField] private GameObject MeteorAbility; // Meteor GameObject field
 
+    [Header("Ability Levels")]
     public float TurretBonus = 0;
     public float OrbsBonus = 0;
     public float PlayerBonus = 0;
@@ -31,13 +35,16 @@ public class UpgradeManager : MonoBehaviour
     public float SwordSlashBonus = 0;
     public float LightningBonus = 0;
     public float KnifeThrowingBonus = 0;
+    public float MeteorAbilityBonus = 0; // Meteor level field
 
     private string saveUpgradeFilePath;
+
     private void Awake()
     {
         saveUpgradeFilePath = Path.Combine(Application.persistentDataPath, "PlayerUpgradeData.json");
         Instance = this;
     }
+
     private void Start()
     {
         foreach (UpgradeScriptableObject info in UpgadeToSpawn)
@@ -45,49 +52,55 @@ public class UpgradeManager : MonoBehaviour
             info.Points = 0;
         }
 
-        // Check if the current scene is a combat scene by looking for a tagged object
         if (GameObject.FindGameObjectWithTag("CombatScene") != null)
         {
-            Debug.Log("전투 씬을 감지하여 저장된 업그레이드를 로드합니다.");
+            Debug.Log("Combat scene detected, loading saved upgrades.");
             LoadUpgrades();
             ApplyBonusesToObjects();
         }
         else
         {
-            Debug.Log("전투 씬이 아니므로 업그레이드를 로드하지 않습니다.");
+            Debug.Log("Not a combat scene, not loading upgrades.");
         }
     }
 
     private void ApplyBonusesToObjects()
     {
-        if (TurretObject != null)
+        if (TurretObject != null && TurretBonus > 0)
         {
             TurretObject.GetComponent<Turret>().bulletNumber = (int)TurretBonus;
         }
-        if (OrbsObject != null)
+        if (OrbsObject != null && OrbsBonus > 0)
         {
             OrbsObject.GetComponent<Orbs>().orbCount = (int)OrbsBonus;
             OrbsObject.GetComponent<Orbs>().SpawnOrbs();
         }
-        if (RandomExplosionsObject != null)
+        if (RandomExplosionsObject != null && RandomExplosionsBonus > 0)
         {
             RandomExplosionsObject.GetComponent<RandomSpawner>().SpawnNumber = (int)RandomExplosionsBonus;
         }
-        if (SwordSlashObject != null)
+        if (SwordSlashObject != null && SwordSlashBonus > 0)
         {
             SwordSlashObject.GetComponent<SowrdSlash>().SlashCount = (int)SwordSlashBonus;
         }
-        if (LightningObject != null)
+        if (LightningObject != null && LightningBonus > 0)
         {
             LightningObject.GetComponent<AbilityLightning>().LightningNumber = (int)LightningBonus;
         }
-        if (KnifeThrowingAbility != null)
+        if (KnifeThrowingAbility != null && KnifeThrowingBonus > 0)
         {
             KnifeThrowingAbility.GetComponent<KnifeThrowingAbility>().KnifeCount = (int)KnifeThrowingBonus;
         }
+        if (MeteorAbility != null && MeteorAbilityBonus > 0)
+        {
+            MeteorAbility.GetComponent<MeteorStrikeAbility>().MeteorCount = (int)MeteorAbilityBonus;
+        }
     }
 
-    public void ResetUpgrade() // New Game 버튼에서 실행
+    // This function will be called by the upgrade card's button
+
+
+    public void ResetUpgrade()
     {
         TurretBonus = 0;
         OrbsBonus = 0;
@@ -97,51 +110,8 @@ public class UpgradeManager : MonoBehaviour
         SwordSlashBonus = 0;
         LightningBonus = 0;
         KnifeThrowingBonus = 0;
-
-
+        MeteorAbilityBonus = 0; // Reset meteor level
         SaveUpgrade();
-    }
-
-    private void Update()
-    {
-
-    }
-    void Generate()
-    {
-
-        int totalSpawnChance = 0;
-
-        // Calculate the total spawn chance for all objects
-        foreach (UpgradeScriptableObject spawnInfo in UpgadeToSpawn)
-        {
-            totalSpawnChance += spawnInfo.Chance;
-        }
-
-        // Generate a random value within the total spawn chance
-        int randomValue = Random.Range(0, totalSpawnChance);
-
-        // Determine which object should be spawned
-        foreach (UpgradeScriptableObject spawnInfo in UpgadeToSpawn)
-        {
-            if (randomValue < spawnInfo.Chance)
-            {
-                UpgradeScriptableObject objectToSpawn = spawnInfo;
-
-                // Check if the object has not been spawned before
-                if (!spawnedUpgades.Contains(objectToSpawn))
-                {
-
-                    UpgadeUiObject[spawnedUpgades.Count].GetComponent<UpgradeUi>().SetInfo(objectToSpawn);
-                    //  Debug.Log("Upgade" + objectToSpawn.Title);
-                    spawnedUpgades.Add(objectToSpawn);
-                    break;
-                }
-            }
-            else
-            {
-                randomValue -= spawnInfo.Chance;
-            }
-        }
     }
 
     public void SaveUpgrade()
@@ -150,32 +120,53 @@ public class UpgradeManager : MonoBehaviour
         {
             _TurretBonus = TurretBonus,
             _OrbsBonus = OrbsBonus,
-            _PlayerBonus =  PlayerBonus,
+            _PlayerBonus = PlayerBonus,
             _PetBonus = PetBonus,
             _RandomExplosionsBonus = RandomExplosionsBonus,
             _SwordSlashBonus = SwordSlashBonus,
             _LightningBonus = LightningBonus,
-            _KnifeThrowingBonus = KnifeThrowingBonus
+            _KnifeThrowingBonus = KnifeThrowingBonus,
+            _MeteorAbilityBonus = MeteorAbilityBonus // Save meteor level
         };
 
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(saveUpgradeFilePath, json);
-        Debug.Log($"Player Upgrade saved to {saveUpgradeFilePath}");
     }
 
+    public void LoadUpgrades()
+    {
+        if (File.Exists(saveUpgradeFilePath))
+        {
+            string json = File.ReadAllText(saveUpgradeFilePath);
+            UpgradeData data = JsonUtility.FromJson<UpgradeData>(json);
+            TurretBonus = data._TurretBonus;
+            OrbsBonus = data._OrbsBonus;
+            PlayerBonus = data._PlayerBonus;
+            PetBonus = data._PetBonus;
+            RandomExplosionsBonus = data._RandomExplosionsBonus;
+            SwordSlashBonus = data._SwordSlashBonus;
+            LightningBonus = data._LightningBonus;
+            KnifeThrowingBonus = data._KnifeThrowingBonus;
+            MeteorAbilityBonus = data._MeteorAbilityBonus; // Load meteor level
+        }
+    }
+
+    [System.Serializable]
+    public class UpgradeData
+    {
+        public float _TurretBonus;
+        public float _OrbsBonus;
+        public float _PlayerBonus;
+        public float _PetBonus;
+        public float _RandomExplosionsBonus;
+        public float _SwordSlashBonus;
+        public float _LightningBonus;
+        public float _KnifeThrowingBonus;
+        public float _MeteorAbilityBonus; // Add meteor level to data class
+    }
 
     public void DisplayUpgrades()
     {
-        /*foreach (UpgradeScriptableObject upgradeInfo in UpgadeToSpawn)
-        {
-            CheckForMaxUpgade(upgradeInfo);
-        }
-        UpgradeObject.SetActive(true);
-        GameManager.Instance.Pause = true;
-        for (int i = 0; i < UpgadeUiObject.Length; i++)
-        {
-            Generate();
-        }*/
         for (int i = UpgadeToSpawn.Count - 1; i >= 0; i--)
         {
             if (UpgadeToSpawn[i].Points >= UpgadeToSpawn[i].MaxPoints)
@@ -240,156 +231,37 @@ public class UpgradeManager : MonoBehaviour
             }
         }
     }
-    
+
     public void Close()
     {
         GameManager.Instance.Pause = false;
-        Debug.Log("업데이트창 종료");
-        
-        //AudioManager.instance.PlaySound("Upgrade");
+        Debug.Log("Upgrade window closed.");
         UpgradeObject.SetActive(false);
         spawnedUpgades.Clear();
     }
-    public void Test()
-    {
-        Debug.Log("it's working");
-    }
 
-    public void ShootProjectile()
-    {
+    public void ShootProjectile() { TurretBonus++; TurretObject.GetComponent<Turret>().bulletNumber++; }
+    public void RandomExplosions() { RandomExplosionsBonus++; RandomExplosionsObject.GetComponent<RandomSpawner>().SpawnNumber++; }
+    public void KnifeProjectile() { KnifeThrowingBonus++; KnifeThrowingAbility.GetComponent<KnifeThrowingAbility>().KnifeCount++; }
+    public void NewOrb() { OrbsBonus++; OrbsObject.GetComponent<Orbs>().orbCount++; OrbsObject.GetComponent<Orbs>().SpawnOrbs(); }
+    public void SpawnPet() { if (PlayerObject != null && PetObject != null) { Instantiate(PetObject, PlayerObject.transform.position, Quaternion.identity); } }
+    public void AddHealth() { PlayerObject.GetComponent<PlayerHealth>().MaxHealth *= 1.2f; }
+    public void AddSpeed() { PlayerStats.Instance.SpeedBonus += 5f; }
+    public void AddDamge() { PlayerStats.Instance.DamageBonus += 5f; }
+    public void Heal() { PlayerObject.GetComponent<PlayerHealth>().Heal(50); }
+    public void AttackSpeed() { PlayerStats.Instance.AttackSpeedBonnes += 5; }
+    public void SwordSlash() { SwordSlashBonus++; SwordSlashObject.GetComponent<SowrdSlash>().SlashCount++; }
+    public void ExperienceBonus() { PlayerStats.Instance.experienceBonus += 5; }
+    public void LightningBolt() { LightningBonus++; LightningObject.GetComponent<AbilityLightning>().LightningNumber++; }
+    public void ExperienceBoost() { PlayerStats.Instance.experienceBonus += 5; }
+    public void CheckForMaxUpgade(UpgradeScriptableObject info) { if (info.Points == info.MaxPoints) UpgadeToSpawn.Remove(info); }
 
-        if (TurretObject != null)
+    public void Meteor()
+    {
+        MeteorAbilityBonus++;
+        if (MeteorAbility != null)
         {
-            //   TurretObject.SetActive(true);
-            TurretBonus++;
-            TurretObject.GetComponent<Turret>().bulletNumber++;
+            MeteorAbility.GetComponent<MeteorStrikeAbility>().MeteorCount = (int)MeteorAbilityBonus;
         }
     }
-    public void RandomExplosions()
-    {
-
-        if (RandomExplosionsObject != null)
-        {
-            RandomExplosionsBonus++;
-            RandomExplosionsObject.GetComponent<RandomSpawner>().SpawnNumber++;
-        }
-    }
-    public void KnifeProjectile()
-    {
-        KnifeThrowingBonus++;
-        KnifeThrowingAbility.GetComponent<KnifeThrowingAbility>().KnifeCount++;
-    }
-    public void NewOrb()
-    {
-
-        if (OrbsObject != null)
-        {
-            OrbsObject.GetComponent<Orbs>().orbCount++;
-            OrbsObject.GetComponent<Orbs>().SpawnOrbs();
-        }
-
-    }
-    public void SpawnPet()
-    {
-
-        if (PlayerObject != null && PetObject != null)
-        {
-            GameObject PlayerPet = Instantiate(PetObject, PlayerObject.transform.position, Quaternion.identity);
-        }
-
-
-    }
-    public void AddHealth()
-    {
-
-        PlayerObject.GetComponent<PlayerHealth>().MaxHealth *= 1.2f;
-    }
-    public void AddSpeed()
-    {
-        PlayerStats.Instance.SpeedBonus += 5f;
-    }
-    public void AddDamge()
-    {
-        PlayerStats.Instance.DamageBonus += 5f;
-
-    }
-    public void Heal()
-    {
-
-        PlayerObject.GetComponent<PlayerHealth>().Heal(50);
-    }
-    public void AttackSpeed()
-    {
-        PlayerStats.Instance.AttackSpeedBonnes += 5;
-
-    }
-    public void SwordSlash()
-    {
-        if (SwordSlashObject != null)
-        {
-            SwordSlashBonus++;
-            SwordSlashObject.GetComponent<SowrdSlash>().SlashCount++;
-        }
-    }
-    public void ExperienceBonus()
-    {
-        PlayerStats.Instance.experienceBonus += 5;
-    }
-    public void LightningBolt()
-    {
-        if (LightningObject != null)
-        {
-            //   TurretObject.SetActive(true);
-            LightningBonus++;
-            LightningObject.GetComponent<AbilityLightning>().LightningNumber++;
-        }
-    }
-    public void LoadUpgrades()
-    {
-        if (File.Exists(saveUpgradeFilePath))
-        {
-            string json = File.ReadAllText(saveUpgradeFilePath);// 요기 건들기
-            UpgradeData data = JsonUtility.FromJson<UpgradeData>(json);
-            TurretBonus = data._TurretBonus;
-            OrbsBonus = data._OrbsBonus;
-            PlayerBonus = data._PlayerBonus;
-            PetBonus = data._PetBonus;
-            RandomExplosionsBonus = data._RandomExplosionsBonus;
-            SwordSlashBonus = data._SwordSlashBonus;
-            LightningBonus = data._LightningBonus;
-            KnifeThrowingBonus = data._KnifeThrowingBonus;
-
-            Debug.Log($"Player stats loaded from {saveUpgradeFilePath}");
-        }
-        else
-        {
-            //GoldAmount = 0; // Default value
-            Debug.Log("No save upgrade file found. Using default values.");
-        }
-    }
-
-    public void ExperienceBoost()
-    {
-        PlayerStats.Instance.experienceBonus += 5;
-    }
-
-    public void CheckForMaxUpgade(UpgradeScriptableObject info)
-    {
-        if (info.Points == info.MaxPoints)
-            UpgadeToSpawn.Remove(info);
-    }
-
-    [System.Serializable]
-    public class UpgradeData
-    {
-        public float _TurretBonus;
-        public float _OrbsBonus;
-        public float _PlayerBonus;
-        public float _PetBonus;
-        public float _RandomExplosionsBonus;
-        public float _SwordSlashBonus;
-        public float _LightningBonus;
-        public float _KnifeThrowingBonus;
-    }
-
 }

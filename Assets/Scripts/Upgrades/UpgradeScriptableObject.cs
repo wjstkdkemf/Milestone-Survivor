@@ -14,7 +14,14 @@ public class UpgradeScriptableObject : ScriptableObject
     public int Points;
     public int MaxPoints;
     public List<Upgrade> UpgradesList = new List<Upgrade>();
-    public enum UpgardeEnum { SpawnPet, ExtraBullet, AddHealth, Heal, AddSpeed, AddDamge, NewOrb , AttackSpeed , ShootProjectile, RandomExplosions, LightningBolt, ExperienceBonus, MeteorShower, AstralBarrier, StarlightInfusion, AcornBarrage, ForestGuardianForm, EntanglingVines, KnifeProjectile, ExperienceBoost, SwordSlash };
+    public enum UpgardeEnum
+    {
+        SpawnPet, ExtraBullet, AddHealth, Heal,
+        AddSpeed, AddDamge, NewOrb, AttackSpeed,
+        ShootProjectile, RandomExplosions, LightningBolt, ExperienceBonus,
+        MeteorShower, AstralBarrier, StarlightInfusion, AcornBarrage,
+        ForestGuardianForm, EntanglingVines, KnifeProjectile, ExperienceBoost, SwordSlash, 
+        Meteor , ChainLightning , Blizzard   };
     public UpgardeEnum Upgarde ;
     [Range(0,100)]
     public int Chance;
