@@ -1,36 +1,41 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GoldCoin : MonoBehaviour
 {
     public int GoldValue = 1;
+    public float attractionSpeed = 15f; // Speed can be adjusted for a better feel
     private bool isCollected = false;
-    public float attractionSpeed = 5f; // Speed at which crystals move toward the player
 
-    private Transform targetPlayer;
-
-    void Update()
-    {
-        if (targetPlayer != null && !isCollected)
-        {
-            // Move the crystal toward the player when within pickup range
-            transform.position = Vector3.MoveTowards(transform.position, targetPlayer.position, attractionSpeed * Time.deltaTime);
-        }
-    }
-
-    public void AttractToPlayer(Transform player)
-    {
-        targetPlayer = player;
-    }
-
-    public void Collect()
+    public void Collect(Transform playerTransform)
     {
         if (!isCollected)
         {
-          PlayerStats.Instance.AddCoin(GoldValue);
             isCollected = true;
-            Destroy(gameObject);
+            StartCoroutine(MoveAndCollect(playerTransform));
         }
+    }
+
+    private IEnumerator MoveAndCollect(Transform playerTransform)
+    {
+        // Disable the collider while moving
+        if (GetComponent<Collider2D>() != null)
+        {
+            GetComponent<Collider2D>().enabled = false;
+        }
+
+        // Move towards the player
+        while (transform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, attractionSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // Grant coin and destroy
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.AddCoin(GoldValue);
+        }
+        Destroy(gameObject);
     }
 }

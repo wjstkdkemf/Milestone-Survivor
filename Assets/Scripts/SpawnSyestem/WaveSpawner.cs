@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Collections; // Required for Coroutines
+
 public class WaveSpawner : MonoBehaviour
 {
     public List<Wave> WavesList = new List<Wave>();
@@ -9,7 +11,6 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private float waveTimer;
     [SerializeField] private float StartSpawnTimer;
     private float spawnTimer;
-    private float finishTimer;
 
     [SerializeField] private int TheCurantWave;
     private int SpawnedEnemys;
@@ -21,15 +22,13 @@ public class WaveSpawner : MonoBehaviour
     private int totalMonster = 0;
 
     private bool LastSpawn = false;
+    private bool isClearingStage = false; // Flag to ensure the clear coroutine runs only once
 
     void Start()
     {
-
-        //  GenerateWave();
-        totalMonster += totalMonster += WavesList[0].EnemyNumber;
+        totalMonster += WavesList[0].EnemyNumber;
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         if (GameObject.FindWithTag("Player") == null || !GameManager.Instance.CanSpawn)
@@ -46,7 +45,6 @@ public class WaveSpawner : MonoBehaviour
             }
             else if (SpawnAll && SpawnedEnemys <= WavesList[TheCurantWave].EnemyNumber)
             {
-
                 SpawnEnemy();
             }
             else
@@ -56,29 +54,16 @@ public class WaveSpawner : MonoBehaviour
             }
         }
 
-        //Debug.Log(SpawnedEnemys);
-        //Debug.Log(WavesList.Count);
         if (waveTimer <= 0)
         {
             if (TheCurantWave >= WavesList.Count - 1)
             {
-                //라운드 클리어 조건 -> 여기다가 업그레이드를 넣고
-                //업그레이드 카드 버튼에 내가 원하는 스테이지 종료 버튼 삽입
-                //GameOver.Instance.stageClear(true);
-                //GameOver.Instance.GameEnded(true);
-                Debug.Log(GameManager.Instance.activeEnemies);
                 LastSpawn = true;
 
-                if (GameManager.Instance.activeEnemies == 0)//&& GameManager.Instance.NumberOfKills == totalMonster
+                if (GameManager.Instance.activeEnemies == 0 && !isClearingStage)
                 {
-                    finishTimer += Time.fixedDeltaTime;
-                    GameManager.Instance.AllKill = true;
-                    if (finishTimer > 2.0f)
-                    {
-                        GameOver.Instance.stageClear(true);
-                    }
+                    StartCoroutine(ClearStageAfterItemCollection());
                 }
-               // PlayerStats.Instance.ShowUpgradeMenu();
             }
             else
             {
@@ -89,30 +74,52 @@ public class WaveSpawner : MonoBehaviour
         }
     }
 
+    private IEnumerator ClearStageAfterItemCollection()
+    {
+        isClearingStage = true;
+
+        // Trigger the collection of all items in PlayerXpPickup
+        GameManager.Instance.AllKill = true;
+
+        // Wait a brief moment to ensure the collection process has started
+        yield return new WaitForSeconds(0.5f);
+
+        // Wait until all XPCrystal and GoldCoin objects in the scene are collected
+        while (FindObjectsOfType<XPCrystal>().Length > 0 || FindObjectsOfType<GoldCoin>().Length > 0)
+        {
+            yield return null; // Wait for the next frame
+        }
+
+        // Wait for 1 second after all items are collected
+        yield return new WaitForSeconds(1f);
+
+        // Now, proceed to clear the stage
+        if(GameOver.Instance != null)
+        {
+            GameOver.Instance.stageClear(true);
+        }
+    }
+
     public void GenerateWave()
     {
         SpawnAll = WavesList[TheCurantWave].SpawnAll;
         if (WavesList[TheCurantWave].SpawnAll == false)
         {
-            StartSpawnTimer = WavesList[TheCurantWave].SpawnTimer; // gives a fixed time between each enemies
-                                                                   // wave duration is read only
+            StartSpawnTimer = WavesList[TheCurantWave].SpawnTimer;
         }
         else
         {
-            StartSpawnTimer = 0; // gives a fixed time between each enemies
-
+            StartSpawnTimer = 0;
         }
         waveTimer = WavesList[TheCurantWave].waveDuration;
-
-
     }
+
     void SpawnEnemy()
     {
         Vector3 spawnPosition = GetRandomSpawnPosition();
-        //  GameObject enemy = (GameObject)Instantiate(GetRandomEnemy(), spawnPosition, Quaternion.identity); // spawn first enemy in our list
         if (!WavesList[TheCurantWave].DontUseObjectPooling)
         {
-            ObjectPoolingManager.instance.spawnGameObject(GetRandomEnemy(), spawnPosition, Quaternion.identity); // spawn first enemy in our list
+            ObjectPoolingManager.instance.spawnGameObject(GetRandomEnemy(), spawnPosition, Quaternion.identity);
             SpawnedEnemys++;
         }
         else
@@ -120,8 +127,8 @@ public class WaveSpawner : MonoBehaviour
             Instantiate(GetRandomEnemy());
             SpawnedEnemys++;
         }
-
     }
+
     Vector3 GetRandomSpawnPosition()
     {
         if (WavesList[TheCurantWave].RandomPostions)
@@ -171,10 +178,10 @@ public class WaveSpawner : MonoBehaviour
             return spawningPotions[x].position;
         }
     }
+
     public GameObject GetRandomEnemy()
     {
         int totalPercentage = 0;
-
         foreach (var Enemy in WavesList[TheCurantWave].Enemys)
         {
             totalPercentage += Enemy.Chance;
@@ -192,11 +199,9 @@ public class WaveSpawner : MonoBehaviour
             randomValue -= Enemy.Chance;
         }
 
-        // Fallback in case of errors
         return WavesList[1].Enemys[0].Enemy;
     }
 }
-
 
 [System.Serializable]
 public class Wave
@@ -209,8 +214,8 @@ public class Wave
     public bool SpawnAll;
     public bool RandomPostions = true;
     public bool DontUseObjectPooling;
-
 }
+
 [System.Serializable]
 public class Enemys
 {
@@ -218,5 +223,3 @@ public class Enemys
     [Range(0, 100)]
     public int Chance;
 }
-
-

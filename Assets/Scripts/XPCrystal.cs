@@ -1,36 +1,41 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class XPCrystal : MonoBehaviour
 {
     public int xpValue = 10;
+    public float attractionSpeed = 15f; // Speed can be adjusted for a better feel
     private bool isCollected = false;
-    public float attractionSpeed = 5f; // Speed at which crystals move toward the player
-
-    private Transform targetPlayer;
-
-    void Update()
-    {
-        if (targetPlayer != null && !isCollected)
-        {
-            // Move the crystal toward the player when within pickup range
-            transform.position = Vector3.MoveTowards(transform.position, targetPlayer.position, attractionSpeed * Time.deltaTime);
-        }
-    }
-
-    public void AttractToPlayer(Transform player)
-    {
-        targetPlayer = player;
-    }
 
     public void Collect(PlayerXpPickup player)
     {
         if (!isCollected)
         {
-            PlayerStats.Instance.AddXP(xpValue);
             isCollected = true;
-            Destroy(gameObject);
+            StartCoroutine(MoveAndCollect(player.transform));
         }
+    }
+
+    private IEnumerator MoveAndCollect(Transform playerTransform)
+    {
+        // Disable the collider while moving to prevent it from being triggered again by other mechanics
+        if (GetComponent<Collider2D>() != null)
+        {
+            GetComponent<Collider2D>().enabled = false;
+        }
+
+        // Move towards the player until very close
+        while (transform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, attractionSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // Final processing: grant XP and destroy the object
+        if (PlayerStats.Instance != null)
+        {
+            PlayerStats.Instance.AddXP(xpValue);
+        }
+        Destroy(gameObject);
     }
 }

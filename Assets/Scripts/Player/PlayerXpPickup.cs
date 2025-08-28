@@ -7,20 +7,13 @@ public class PlayerXpPickup : MonoBehaviour
 
     public float xpPickupRange = 5f; // Default pickup range
 
-    public LayerMask CollectiblesLayer; // LayerMask to filter XP Crystals
+    public LayerMask CollectiblesLayer; // LayerMask to filter XP Crystals and Coins
 
     private void Update()
     {
-
-        // Automatically pick up nearby XP crystals
+        // Automatically pick up nearby items
         PickupNearbyXpCrystals();
         PickupNearbyGoldCoin();
-        // Optional: Press key to pick up all crystals in the scene
-        /* if (Input.GetKeyDown(KeyCode.C))
-         {
-             CollectAllXpCrystals(); // Pick up all crystals in the scene
-        CollectAllGoldCoin();
-         }*/
 
         if (GameManager.Instance.AllKill == true)
         {
@@ -33,7 +26,6 @@ public class PlayerXpPickup : MonoBehaviour
 
     void PickupNearbyXpCrystals()
     {
-        // Use Physics2D.OverlapCircleAll with a LayerMask for better performance
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, xpPickupRange, CollectiblesLayer);
 
         foreach (Collider2D collider in hitColliders)
@@ -41,54 +33,64 @@ public class PlayerXpPickup : MonoBehaviour
             XPCrystal crystal = collider.GetComponent<XPCrystal>();
             if (crystal != null)
             {
-                crystal.Collect(this); // Collect the crystal if it's within range
+                crystal.Collect(this);
             }
         }
     }
+
     void PickupNearbyGoldCoin()
     {
-        // Use Physics2D.OverlapCircleAll with a LayerMask for better performance
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, xpPickupRange, CollectiblesLayer);
 
         foreach (Collider2D collider in hitColliders)
         {
-            GoldCoin crystal = collider.GetComponent<GoldCoin>();
-            if (crystal != null)
+            GoldCoin goldCoin = collider.GetComponent<GoldCoin>();
+            if (goldCoin != null)
             {
-                crystal.Collect(); // Collect the crystal if it's within range
+                goldCoin.Collect(transform); // Pass player transform to the coin
             }
         }
     }
 
-    // Method to collect all XP crystals in the scene
     public void CollectAllXpCrystals()
     {
-        // Find all XP crystals in the scene by using the LayerMask
-        XPCrystal[] allCrystals = FindObjectsOfType<XPCrystal>();
+        StartCoroutine(CollectAllXpCrystalsRoutine());
+    }
 
+    private IEnumerator CollectAllXpCrystalsRoutine()
+    {
+        XPCrystal[] allCrystals = FindObjectsOfType<XPCrystal>();
         foreach (XPCrystal crystal in allCrystals)
         {
-            crystal.Collect(this); // Collect every crystal in the scene
+            if (crystal != null)
+            {
+                crystal.Collect(this);
+                yield return new WaitForSeconds(0.05f);
+            }
         }
     }
-    // Method to collect all XP crystals in the scene
+
     public void CollectAllGoldCoin()
     {
-        // Find all XP crystals in the scene by using the LayerMask
-        GoldCoin[] allCrystals = FindObjectsOfType<GoldCoin>();
+        StartCoroutine(CollectAllGoldCoinRoutine());
+    }
 
-        foreach (GoldCoin crystal in allCrystals)
+    private IEnumerator CollectAllGoldCoinRoutine()
+    {
+        GoldCoin[] allGoldCoins = FindObjectsOfType<GoldCoin>();
+        foreach (GoldCoin goldCoin in allGoldCoins)
         {
-            PlayerStats.Instance.AddCoin(5);
-            crystal.Collect(); // Collect every crystal in the scene
-
+            if (goldCoin != null)
+            {
+                goldCoin.Collect(transform);
+                yield return new WaitForSeconds(0.05f);
+            }
         }
     }
 
-    // Optional: Draw the pickup range in the scene view for debugging
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, xpPickupRange);
     }
 }
