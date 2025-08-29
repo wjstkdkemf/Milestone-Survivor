@@ -1,3 +1,4 @@
+
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using System.Linq;
 
 public class UpgradeManager : MonoBehaviour
 {
@@ -25,6 +27,7 @@ public class UpgradeManager : MonoBehaviour
     [SerializeField] private GameObject LightningObject;
     [SerializeField] private GameObject KnifeThrowingAbility;
     [SerializeField] private GameObject MeteorAbility; // Meteor GameObject field
+    [SerializeField] private GameObject LightningSparkObject;
 
     [Header("Ability Levels")]
     public float TurretBonus = 0;
@@ -36,6 +39,7 @@ public class UpgradeManager : MonoBehaviour
     public float LightningBonus = 0;
     public float KnifeThrowingBonus = 0;
     public float MeteorAbilityBonus = 0; // Meteor level field
+    public float LightningSparkBonus = 0;
 
     private string saveUpgradeFilePath;
 
@@ -47,9 +51,13 @@ public class UpgradeManager : MonoBehaviour
 
     private void Start()
     {
-        foreach (UpgradeScriptableObject info in UpgadeToSpawn)
+        if (!PersistentDataManager.Instance.upgradeChancesInitialized)
         {
-            info.Points = 0;
+            foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
+            {
+                PersistentDataManager.Instance.initialUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
+            }
+            PersistentDataManager.Instance.upgradeChancesInitialized = true;
         }
 
         if (GameObject.FindGameObjectWithTag("CombatScene") != null)
@@ -57,11 +65,98 @@ public class UpgradeManager : MonoBehaviour
             Debug.Log("Combat scene detected, loading saved upgrades.");
             LoadUpgrades();
             ApplyBonusesToObjects();
+            SyncChancesFromPersistentData();
+            SyncPointsFromPersistentData();
         }
         else
         {
-            Debug.Log("Not a combat scene, not loading upgrades.");
+            Debug.Log("Not a combat scene, resetting run data.");
+            ResetRunData();
         }
+    }
+
+    public void SyncChancesFromPersistentData()
+    {
+        if (!PersistentDataManager.Instance.currentChancesInitialized)
+        {
+            PersistentDataManager.Instance.currentUpgradeChances.Clear();
+            foreach (var upgrade in UpgadeToSpawn)
+            {
+                PersistentDataManager.Instance.currentUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
+            }
+            PersistentDataManager.Instance.currentChancesInitialized = true;
+        }
+        else
+        {
+            foreach (var upgrade in UpgadeToSpawn)
+            {
+                if (PersistentDataManager.Instance.currentUpgradeChances.ContainsKey(upgrade.Upgarde))
+                {
+                    upgrade.Chance = PersistentDataManager.Instance.currentUpgradeChances[upgrade.Upgarde];
+                }
+            }
+        }
+    }
+
+    public void SyncPointsFromPersistentData()
+    {
+        if (!PersistentDataManager.Instance.currentPointsInitialized)
+        {
+            PersistentDataManager.Instance.currentUpgradePoints.Clear();
+            foreach (var upgrade in UpgadeToSpawn)
+            {
+                PersistentDataManager.Instance.currentUpgradePoints[upgrade.Upgarde] = 0;
+            }
+            PersistentDataManager.Instance.currentPointsInitialized = true;
+        }
+        else
+        {
+            foreach (var upgrade in UpgadeToSpawn)
+            {
+                if (PersistentDataManager.Instance.currentUpgradePoints.ContainsKey(upgrade.Upgarde))
+                {
+                    upgrade.Points = PersistentDataManager.Instance.currentUpgradePoints[upgrade.Upgarde];
+                }
+            }
+        }
+    }
+
+    public void SaveCurrentChancesToPersistentData()
+    {
+        foreach (var upgrade in UpgadeToSpawn)
+        {
+            PersistentDataManager.Instance.currentUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
+        }
+        PersistentDataManager.Instance.SaveCurrentChances();
+    }
+
+    public void SaveCurrentPointsToPersistentData()
+    {
+        foreach (var upgrade in UpgadeToSpawn)
+        {
+            PersistentDataManager.Instance.currentUpgradePoints[upgrade.Upgarde] = upgrade.Points;
+        }
+        PersistentDataManager.Instance.SaveCurrentPoints();
+    }
+
+    public void ResetRunData()
+    {
+        // Reset Chances
+        foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
+        {
+            if (PersistentDataManager.Instance.initialUpgradeChances.ContainsKey(upgrade.Upgarde))
+            {
+                upgrade.Chance = PersistentDataManager.Instance.initialUpgradeChances[upgrade.Upgarde];
+            }
+        }
+        SaveCurrentChancesToPersistentData();
+
+        // Reset Points
+        foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
+        {
+            upgrade.Points = 0;
+        }
+        SaveCurrentPointsToPersistentData();
     }
 
     private void ApplyBonusesToObjects()
@@ -95,6 +190,10 @@ public class UpgradeManager : MonoBehaviour
         {
             MeteorAbility.GetComponent<MeteorStrikeAbility>().MeteorCount = (int)MeteorAbilityBonus;
         }
+        if (LightningSparkObject != null && LightningSparkBonus > 0)
+        {
+            LightningSparkObject.GetComponent<LightningSparkAbility>().bounces = (int)LightningSparkBonus;
+        }
     }
 
     // This function will be called by the upgrade card's button
@@ -111,6 +210,7 @@ public class UpgradeManager : MonoBehaviour
         LightningBonus = 0;
         KnifeThrowingBonus = 0;
         MeteorAbilityBonus = 0; // Reset meteor level
+        LightningSparkBonus = 0;
         SaveUpgrade();
     }
 
@@ -126,7 +226,8 @@ public class UpgradeManager : MonoBehaviour
             _SwordSlashBonus = SwordSlashBonus,
             _LightningBonus = LightningBonus,
             _KnifeThrowingBonus = KnifeThrowingBonus,
-            _MeteorAbilityBonus = MeteorAbilityBonus // Save meteor level
+            _MeteorAbilityBonus = MeteorAbilityBonus, // Save meteor level
+            _LightningSparkBonus = LightningSparkBonus
         };
 
         string json = JsonUtility.ToJson(data, true);
@@ -148,6 +249,7 @@ public class UpgradeManager : MonoBehaviour
             LightningBonus = data._LightningBonus;
             KnifeThrowingBonus = data._KnifeThrowingBonus;
             MeteorAbilityBonus = data._MeteorAbilityBonus; // Load meteor level
+            LightningSparkBonus = data._LightningSparkBonus;
         }
     }
 
@@ -163,6 +265,7 @@ public class UpgradeManager : MonoBehaviour
         public float _LightningBonus;
         public float _KnifeThrowingBonus;
         public float _MeteorAbilityBonus; // Add meteor level to data class
+        public float _LightningSparkBonus;
     }
 
     public void DisplayUpgrades()
@@ -240,6 +343,28 @@ public class UpgradeManager : MonoBehaviour
         spawnedUpgades.Clear();
     }
 
+    private void ApplyConditionalChance(UpgradeScriptableObject.UpgardeEnum upgradeType)
+    {
+        // This is where you can define the logic for conditional chances.
+        // You can expand this with more complex rules as needed.
+        if (upgradeType == UpgradeScriptableObject.UpgardeEnum.Meteor)
+        {
+            // Increase the chance of LightningSpark
+            var lightningSpark = UpgadeToSpawn.FirstOrDefault(u => u.Upgarde == UpgradeScriptableObject.UpgardeEnum.LightningSpark);
+            if (lightningSpark != null)
+            {
+                lightningSpark.Chance += 10;
+            }
+
+            // Set the chance of KnifeProjectile to 0
+            var knifeProjectile = UpgadeToSpawn.FirstOrDefault(u => u.Upgarde == UpgradeScriptableObject.UpgardeEnum.KnifeProjectile);
+            if (knifeProjectile != null)
+            {
+                knifeProjectile.Chance = 0;
+            }
+        }
+    }
+
     public void ShootProjectile() { TurretBonus++; TurretObject.GetComponent<Turret>().bulletNumber++; }
     public void RandomExplosions() { RandomExplosionsBonus++; RandomExplosionsObject.GetComponent<RandomSpawner>().SpawnNumber++; }
     public void KnifeProjectile() { KnifeThrowingBonus++; KnifeThrowingAbility.GetComponent<KnifeThrowingAbility>().KnifeCount++; }
@@ -253,6 +378,7 @@ public class UpgradeManager : MonoBehaviour
     public void SwordSlash() { SwordSlashBonus++; SwordSlashObject.GetComponent<SowrdSlash>().SlashCount++; }
     public void ExperienceBonus() { PlayerStats.Instance.experienceBonus += 5; }
     public void LightningBolt() { LightningBonus++; LightningObject.GetComponent<AbilityLightning>().LightningNumber++; }
+    public void LightningSpark() { LightningSparkBonus++; LightningSparkObject.GetComponent<LightningSparkAbility>().bounces++; }
     public void ExperienceBoost() { PlayerStats.Instance.experienceBonus += 5; }
     public void CheckForMaxUpgade(UpgradeScriptableObject info) { if (info.Points == info.MaxPoints) UpgadeToSpawn.Remove(info); }
 
@@ -263,5 +389,6 @@ public class UpgradeManager : MonoBehaviour
         {
             MeteorAbility.GetComponent<MeteorStrikeAbility>().MeteorCount = (int)MeteorAbilityBonus;
         }
+        ApplyConditionalChance(UpgradeScriptableObject.UpgardeEnum.Meteor);
     }
 }

@@ -31,12 +31,12 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if(TextKill!=null)
+        if (TextKill != null)
             TextKill.text = NumberOfKills.ToString();
 
         if (Player_Level_Count != null)
             Player_Level_Count.text = PlayerStats.Instance.level.ToString();
-            
+
         if (Pause)
         {
             if (Panel != null)
@@ -51,6 +51,11 @@ public class GameManager : MonoBehaviour
 
         }
 
+        foreach (UpgradeScriptableObject upgradeScriptableObject in UpgradeManager.Instance.UpgadeToSpawn)
+        {
+            if(upgradeScriptableObject.Upgarde == UpgradeScriptableObject.UpgardeEnum.KnifeProjectile || upgradeScriptableObject.Upgarde == UpgradeScriptableObject.UpgardeEnum.Meteor)
+            Debug.Log($"{upgradeScriptableObject.Upgarde} : {upgradeScriptableObject.Chance}");
+        }
     }
     public void SelectCharacter(int index)
     {

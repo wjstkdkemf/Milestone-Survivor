@@ -498,6 +498,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 676af077510a24e41bdea49d4d14de98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &122212689 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2553130878483079177, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+  m_PrefabInstance: {fileID: 5527235247806523884}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &163008177 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7645007112584721386, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
@@ -1893,6 +1898,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2bcaabecd51198347a79c89c4e454606, type: 2}
   - {fileID: 11400000, guid: 22121a3cb6cd6ac40b9ddee768808d5f, type: 2}
   - {fileID: 11400000, guid: f8a979ee65e56044b85646fd69516da9, type: 2}
+  - {fileID: 11400000, guid: 62d38727df371824dacfb3d718e1494f, type: 2}
   UpgadeUiObject:
   - {fileID: 1750811551}
   - {fileID: 1355833154}
@@ -1906,6 +1912,8 @@ MonoBehaviour:
   SwordSlashObject: {fileID: 5527235247806523885}
   LightningObject: {fileID: 5530119532609161567}
   KnifeThrowingAbility: {fileID: 1472393084}
+  MeteorAbility: {fileID: 1497000531}
+  LightningSparkObject: {fileID: 122212689}
   TurretBonus: 0
   OrbsBonus: 0
   PlayerBonus: 0
@@ -1914,6 +1922,8 @@ MonoBehaviour:
   SwordSlashBonus: 0
   LightningBonus: 0
   KnifeThrowingBonus: 0
+  MeteorAbilityBonus: 0
+  LightningSparkBonus: 0
 --- !u!114 &549850748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6071,6 +6081,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1483275605}
   m_CullTransparentMesh: 1
+--- !u!1 &1497000531 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6511584981777745055, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+  m_PrefabInstance: {fileID: 5527235247806523884}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1581589668 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7529896512275722556, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
@@ -7613,6 +7628,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 685480190755321929, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: cooldown
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 685480190755321929, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: MeteorCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 685480190755321929, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: enemyLayer.m_Bits
+      value: 256
+      objectReference: {fileID: 0}
+    - target: {fileID: 685480190755321929, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: magicCirclePrefab
       value: 
       objectReference: {fileID: 4857742709815181338, guid: 5f7e05c755299794db1380cf7418c8ee, type: 3}
@@ -7631,6 +7658,10 @@ PrefabInstance:
     - target: {fileID: 2448559933859754361, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3092116438448965625, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: segments
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 3563911299413944948, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: SpawnNumber
@@ -7687,6 +7718,10 @@ PrefabInstance:
     - target: {fileID: 6365943629407288110, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6511584981777745055, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: m_Name
+      value: MeteorAbliity
       objectReference: {fileID: 0}
     - target: {fileID: 7224490229183069942, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: orbCount

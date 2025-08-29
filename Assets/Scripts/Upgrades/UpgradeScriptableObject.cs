@@ -21,7 +21,7 @@ public class UpgradeScriptableObject : ScriptableObject
         ShootProjectile, RandomExplosions, LightningBolt, ExperienceBonus,
         MeteorShower, AstralBarrier, StarlightInfusion, AcornBarrage,
         ForestGuardianForm, EntanglingVines, KnifeProjectile, ExperienceBoost, SwordSlash, 
-        Meteor , ChainLightning , Blizzard   };
+        Meteor , Blizzard   , LightningSpark};
     public UpgardeEnum Upgarde ;
     [Range(0,100)]
     public int Chance;

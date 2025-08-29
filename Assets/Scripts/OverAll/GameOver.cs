@@ -59,6 +59,8 @@ public class GameOver : MonoBehaviour
         {
             PlayerStats.Instance.SaveStats();
             UpgradeManager.Instance.SaveUpgrade();
+            UpgradeManager.Instance.SaveCurrentChancesToPersistentData();
+            UpgradeManager.Instance.SaveCurrentPointsToPersistentData();
 
             ClearEncount();
 

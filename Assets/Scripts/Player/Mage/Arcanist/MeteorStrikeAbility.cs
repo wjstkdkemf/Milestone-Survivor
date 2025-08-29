@@ -2,11 +2,12 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class MeteorStrikeAbility : MonoBehaviour
 {
     [Header("Skill Stats")]
-    public int MeteorCount = 1; // The number of meteors to drop, controlled by UpgradeManager
+    public int MeteorCount = 0; // The number of meteors to drop, controlled by UpgradeManager
 
     [Header("Skill Timing")]
     public float cooldown = 10f;
@@ -33,7 +34,7 @@ public class MeteorStrikeAbility : MonoBehaviour
     {
         cooldownTimer += Time.deltaTime;
 
-        if (cooldownTimer >= cooldown)
+        if (cooldownTimer >= cooldown && MeteorCount > 0)
         {
             ActivateMeteorStrike();
         }

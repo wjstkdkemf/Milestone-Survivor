@@ -12,7 +12,7 @@ public class Knife : MonoBehaviour
     public void Initialize(Vector2 direction,float angle)
     {
         this.direction = direction.normalized;
-       transform.GetChild(0).transform.rotation= Quaternion.Euler(0,0,angle);
+        transform.GetChild(0).transform.rotation= Quaternion.Euler(0,0,angle);
         transform.rotation = Quaternion.identity;
     }
 

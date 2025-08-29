@@ -93,6 +93,7 @@ Transform:
   - {fileID: 6045766290614791112}
   - {fileID: 5217482860101473210}
   - {fileID: 2138655874184046269}
+  - {fileID: 1789450672767521351}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8833277829675109112
@@ -623,6 +624,57 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!1 &2553130878483079177
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1789450672767521351}
+  - component: {fileID: 3092116438448965625}
+  m_Layer: 6
+  m_Name: LigitningSparkAblilty
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1789450672767521351
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2553130878483079177}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6365943629407288110}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3092116438448965625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2553130878483079177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97323499f4b151c45870bc4edb348d04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireRate: 1
+  damage: 10
+  bounces: 3
+  range: 10
+  segments: 40
+  maxRandomness: 0.5
+  lightningSparkPrefab: {fileID: 2698642702478751034, guid: 0e01d48ea0f73d2448197aa4067c0427, type: 3}
 --- !u!1 &3128410848091009355
 GameObject:
   m_ObjectHideFlags: 0
@@ -996,8 +1048,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e473e1ca4b250514491b8b7140d4d822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MeteorCount: 1
   cooldown: 10
   warningDuration: 1
+  volleyDelay: 0.3
   searchRadius: 15
   densityCheckRadius: 4
   enemyLayer:
