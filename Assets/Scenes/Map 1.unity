@@ -2209,6 +2209,8 @@ MonoBehaviour:
   SwordSlashObject: {fileID: 5527235247806523885}
   LightningObject: {fileID: 5530119532609161567}
   KnifeThrowingAbility: {fileID: 1472393084}
+  MeteorAbility: {fileID: 0}
+  LightningSparkObject: {fileID: 0}
   TurretBonus: 0
   OrbsBonus: 0
   PlayerBonus: 0
@@ -2217,6 +2219,8 @@ MonoBehaviour:
   SwordSlashBonus: 0
   LightningBonus: 0
   KnifeThrowingBonus: 0
+  MeteorAbilityBonus: 0
+  LightningSparkBonus: 0
 --- !u!114 &549850748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8388,6 +8392,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2448559933859754361, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3092116438448965625, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: bounces
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3357528596641809239, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}

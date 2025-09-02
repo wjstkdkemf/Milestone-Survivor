@@ -61,7 +61,6 @@ public class EnCounterSystem : MonoBehaviour
 
         if (arg0.name == "Map 1") // SceneManager.GetActiveScene()
         {
-            Debug.Log(enCounterPos);
             PlayerTransform.position = enCounterPos;
         }
     }

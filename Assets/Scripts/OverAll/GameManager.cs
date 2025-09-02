@@ -50,12 +50,6 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
 
         }
-
-        foreach (UpgradeScriptableObject upgradeScriptableObject in UpgradeManager.Instance.UpgadeToSpawn)
-        {
-            if(upgradeScriptableObject.Upgarde == UpgradeScriptableObject.UpgardeEnum.KnifeProjectile || upgradeScriptableObject.Upgarde == UpgradeScriptableObject.UpgardeEnum.Meteor)
-            Debug.Log($"{upgradeScriptableObject.Upgarde} : {upgradeScriptableObject.Chance}");
-        }
     }
     public void SelectCharacter(int index)
     {

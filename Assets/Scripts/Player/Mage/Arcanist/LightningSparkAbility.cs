@@ -8,7 +8,7 @@ public class LightningSparkAbility : MonoBehaviour
 {
     public float fireRate = 1f;
     public int damage = 10;
-    public int bounces = 2;
+    public int bounces = 0;
     public float range = 10f;
     public int segments = 6;
     public float maxRandomness = 0.5f;
@@ -18,6 +18,11 @@ public class LightningSparkAbility : MonoBehaviour
 
     void Update()
     {
+        if (bounces <= 0)
+        {
+            return; // 스킬 레벨이 0 이하면 아무것도 하지 않음
+        }
+
         timer -= Time.deltaTime;
         if (timer <= 0)
         {
@@ -39,7 +44,7 @@ public class LightningSparkAbility : MonoBehaviour
 
         Vector2 lastPosition = transform.position;
 
-        for (int i = 0; i < bounces; i++)
+        for (int i = 0; i < bounces + 1; i++)
         {
             if (currentEnemy == null)
                 break;

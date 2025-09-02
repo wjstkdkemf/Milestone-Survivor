@@ -99,7 +99,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         GameManager.Instance.activeEnemies--;
 
         DropXPCrystal();  // New method to drop XP crystals based on monster type
-        Debug.Log(gameObject.name + " has died.");
+        //Debug.Log(gameObject.name + " has died.");
         if (DontUseObjectPooling == false)
         {
             ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);

@@ -278,13 +278,13 @@ public class PlayerStats : MonoBehaviour
             // --- 신규 유저를 위한 초기 설정 ---
             level = 1;
             currentXP = 0;
-            requiredXP = 50; // 예: 레벨 1의 요구 경험치는 50
+            requiredXP = 20; // 예: 레벨 1의 요구 경험치는 50
         }
     }
 
     public void LevelUpLess10()
     {
-        if (level == 2 || level == 5 || level == 8)
+        if (level < 10)//level == 2 || level == 5 || level == 8
         {
             MilestoneLevelUp();
         }

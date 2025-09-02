@@ -1,4 +1,3 @@
-
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,10 +42,18 @@ public class UpgradeManager : MonoBehaviour
 
     private string saveUpgradeFilePath;
 
+    // Job Class System
+    private bool isJobClassSet = false;
+    public enum JobClass { None, Mage, Shooter }
+    private JobClass currentJobClass = JobClass.None;
+    private Dictionary<JobClass, List<UpgradeScriptableObject.UpgardeEnum>> jobClassSkills = new Dictionary<JobClass, List<UpgradeScriptableObject.UpgardeEnum>>();
+
+
     private void Awake()
     {
         saveUpgradeFilePath = Path.Combine(Application.persistentDataPath, "PlayerUpgradeData.json");
         Instance = this;
+        InitializeJobClasses();
     }
 
     private void Start()
@@ -68,7 +75,7 @@ public class UpgradeManager : MonoBehaviour
             SyncChancesFromPersistentData();
             SyncPointsFromPersistentData();
         }
-        else
+        else if (GameObject.FindGameObjectWithTag("MainScene") != null)
         {
             Debug.Log("Not a combat scene, resetting run data.");
             ResetRunData();
@@ -157,6 +164,10 @@ public class UpgradeManager : MonoBehaviour
             upgrade.Points = 0;
         }
         SaveCurrentPointsToPersistentData();
+
+        // Reset Job Class
+        isJobClassSet = false;
+        currentJobClass = JobClass.None;
     }
 
     private void ApplyBonusesToObjects()
@@ -227,7 +238,8 @@ public class UpgradeManager : MonoBehaviour
             _LightningBonus = LightningBonus,
             _KnifeThrowingBonus = KnifeThrowingBonus,
             _MeteorAbilityBonus = MeteorAbilityBonus, // Save meteor level
-            _LightningSparkBonus = LightningSparkBonus
+            _LightningSparkBonus = LightningSparkBonus,
+            _currentJobClass = currentJobClass
         };
 
         string json = JsonUtility.ToJson(data, true);
@@ -250,6 +262,12 @@ public class UpgradeManager : MonoBehaviour
             KnifeThrowingBonus = data._KnifeThrowingBonus;
             MeteorAbilityBonus = data._MeteorAbilityBonus; // Load meteor level
             LightningSparkBonus = data._LightningSparkBonus;
+            currentJobClass = data._currentJobClass;
+
+            if (currentJobClass != JobClass.None)
+            {
+                isJobClassSet = true;
+            }
         }
     }
 
@@ -266,6 +284,8 @@ public class UpgradeManager : MonoBehaviour
         public float _KnifeThrowingBonus;
         public float _MeteorAbilityBonus; // Add meteor level to data class
         public float _LightningSparkBonus;
+        public JobClass _currentJobClass;
+
     }
 
     public void DisplayUpgrades()
@@ -338,9 +358,13 @@ public class UpgradeManager : MonoBehaviour
     public void Close()
     {
         GameManager.Instance.Pause = false;
-        Debug.Log("Upgrade window closed.");
         UpgradeObject.SetActive(false);
         spawnedUpgades.Clear();
+
+        if (!isJobClassSet)
+        {
+            CheckAndSetJobClassFromPoints();
+        }
     }
 
     private void ApplyConditionalChance(UpgradeScriptableObject.UpgardeEnum upgradeType)
@@ -364,6 +388,93 @@ public class UpgradeManager : MonoBehaviour
             }
         }
     }
+
+    // --- Job Class System Methods ---
+
+    private void InitializeJobClasses()
+    {
+        // Define Mage skills
+        jobClassSkills[JobClass.Mage] = new List<UpgradeScriptableObject.UpgardeEnum>
+        {
+            UpgradeScriptableObject.UpgardeEnum.Meteor,
+            UpgradeScriptableObject.UpgardeEnum.LightningBolt,
+            UpgradeScriptableObject.UpgardeEnum.LightningSpark,
+            UpgradeScriptableObject.UpgardeEnum.NewOrb,
+            UpgradeScriptableObject.UpgardeEnum.RandomExplosions,
+            UpgradeScriptableObject.UpgardeEnum.AddDamge,
+            UpgradeScriptableObject.UpgardeEnum.AttackSpeed,
+            UpgradeScriptableObject.UpgardeEnum.ExperienceBonus
+        };
+
+        // Define Shooter skills
+        jobClassSkills[JobClass.Shooter] = new List<UpgradeScriptableObject.UpgardeEnum>
+        {
+            UpgradeScriptableObject.UpgardeEnum.ShootProjectile,
+            UpgradeScriptableObject.UpgardeEnum.KnifeProjectile,
+            UpgradeScriptableObject.UpgardeEnum.SwordSlash,
+            UpgradeScriptableObject.UpgardeEnum.AddDamge,
+            UpgradeScriptableObject.UpgardeEnum.AttackSpeed,
+            UpgradeScriptableObject.UpgardeEnum.AddSpeed,
+            UpgradeScriptableObject.UpgardeEnum.ExperienceBonus
+        };
+    }
+
+    private void CheckAndSetJobClassFromPoints()
+    {
+        // Helper function to get points for a specific upgrade
+        int GetPoints(UpgradeScriptableObject.UpgardeEnum type)
+        {
+            var upgrade = UpgadeToSpawn.FirstOrDefault(u => u.Upgarde == type);
+            return upgrade != null ? upgrade.Points : 0;
+        }
+
+        // Mage class check
+        int magePoints = GetPoints(UpgradeScriptableObject.UpgardeEnum.Meteor) + GetPoints(UpgradeScriptableObject.UpgardeEnum.LightningBolt);
+        if (magePoints >= 2)
+        {
+            currentJobClass = JobClass.Mage;
+        }
+        // Shooter class check
+        else
+        {
+            int shooterPoints = GetPoints(UpgradeScriptableObject.UpgardeEnum.ShootProjectile) + GetPoints(UpgradeScriptableObject.UpgardeEnum.KnifeProjectile);
+            if (shooterPoints >= 2)
+            {
+                currentJobClass = JobClass.Shooter;
+            }
+        }
+
+        if (currentJobClass != JobClass.None)
+        {
+            Debug.Log($"Job class set to: {currentJobClass}");
+            isJobClassSet = true;
+            ApplyJobClassChanceBonuses();
+            SaveUpgrade(); // Save the job class change
+        }
+    }
+
+    private void ApplyJobClassChanceBonuses()
+    {
+        if (currentJobClass == JobClass.None) return;
+
+        List<UpgradeScriptableObject.UpgardeEnum> allowedSkills = jobClassSkills[currentJobClass];
+
+        foreach (var upgrade in UpgadeToSpawn)
+        {
+            if (allowedSkills.Contains(upgrade.Upgarde))
+            {
+                upgrade.Chance += 50; // Greatly increase chance for class skills
+            }
+            else
+            {
+                upgrade.Chance = 0; // Set chance to 0 for non-class skills
+            }
+        }
+        Debug.Log("Applied job class chance bonuses.");
+    }
+
+
+    // --- Modified Upgrade Methods ---
 
     public void ShootProjectile() { TurretBonus++; TurretObject.GetComponent<Turret>().bulletNumber++; }
     public void RandomExplosions() { RandomExplosionsBonus++; RandomExplosionsObject.GetComponent<RandomSpawner>().SpawnNumber++; }
