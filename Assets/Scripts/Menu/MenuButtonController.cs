@@ -17,7 +17,8 @@ public class MenuButtonController : MonoBehaviour
 	public GameObject AudioObject;
 	public GameObject GraphicsObject;
 	public GameObject UpgradeObject;
-	public bool Menu, Pause, Settings, SettingsTwo, CharacterSelection,PowerUp;
+    public GameObject LoadObject;
+	public bool Menu, Pause, Settings, SettingsTwo, CharacterSelection,PowerUp, Load;
 	public GameObject CurntButton;
 
 	private GameObject MaineMenuButton;
@@ -58,9 +59,6 @@ public class MenuButtonController : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-
-
-
 		if (EventSystem.current.currentSelectedGameObject == null)
 		{
 			EventSystem.current.SetSelectedGameObject(CurntButton);
@@ -162,11 +160,19 @@ public class MenuButtonController : MonoBehaviour
 		PowerUpObject.SetActive(true);
         
     }
+
+    public void LoadGame()
+    {
+        CurntButton = MaineMenuButton;
+        EventSystem.current.SetSelectedGameObject(CurntButton);
+        Load = true;
+        MaineMenuObject.SetActive(false);
+        LoadObject.SetActive(true);
+    }
+
     public void back()
 	{
-
-
-		if (Settings && SettingsTwo && !Menu&&!PowerUp&&!CharacterSelection)
+		if (Settings && SettingsTwo && !Menu && !PowerUp && !CharacterSelection)
 		{
 			CurntButton = SettingsButton;
 			EventSystem.current.SetSelectedGameObject(CurntButton);
@@ -185,7 +191,7 @@ public class MenuButtonController : MonoBehaviour
 			Settings = false;
 
 		}
-		else if (!Settings && !SettingsTwo && Pause && !Menu && !PowerUp && !CharacterSelection)
+		else if (!Settings && !SettingsTwo && Pause && !Menu && !PowerUp && !CharacterSelection && !Load)
 		{
 			//EventSystem.current.SetSelectedGameObject(null);
 			Pause = false;
@@ -225,23 +231,39 @@ public class MenuButtonController : MonoBehaviour
 			SettingsObject.SetActive(false);
 			Settings = false;
 
-		}else if (Menu&& CharacterSelection)
-        {
+		}
+		else if (Menu && CharacterSelection)
+		{
 			CharacterSelectionObject.SetActive(false);
-            CurntButton = MaineMenuButton;
-            EventSystem.current.SetSelectedGameObject(CurntButton);
-            MaineMenuObject.SetActive(true);
-            CharacterSelection = false;
-        }
-        else if (Menu && PowerUp)
-        {
-            PowerUpObject.SetActive(false);
-          //  CurntButton = MaineMenuButton;
-            EventSystem.current.SetSelectedGameObject(CurntButton);
-            MaineMenuObject.SetActive(true);
-            CharacterSelection = false;
-        }
-
+			CurntButton = MaineMenuButton;
+			EventSystem.current.SetSelectedGameObject(CurntButton);
+			MaineMenuObject.SetActive(true);
+			CharacterSelection = false;
+		}
+		else if (Menu && PowerUp)
+		{
+			PowerUpObject.SetActive(false);
+			//  CurntButton = MaineMenuButton;
+			EventSystem.current.SetSelectedGameObject(CurntButton);
+			MaineMenuObject.SetActive(true);
+			CharacterSelection = false;
+		}
+		else if (Load && !Menu && !PowerUp && !CharacterSelection)
+		{
+			CurntButton = PauseButton;
+			EventSystem.current.SetSelectedGameObject(CurntButton);
+			PauseObject.SetActive(true);
+			LoadObject.SetActive(false);
+			Load = false;
+		}
+		else if (Menu && Load)
+		{
+			LoadObject.SetActive(false);
+			CurntButton = MaineMenuButton;
+			EventSystem.current.SetSelectedGameObject(CurntButton);
+			MaineMenuObject.SetActive(true);
+			Load = false;
+		}
 
 
     }
@@ -267,5 +289,17 @@ public class MenuButtonController : MonoBehaviour
 
         SceneManager.LoadScene(scene);
 
+    }
+
+    public void OnLoadSlotClicked(int slotNumber)
+    {
+        if (SaveLoadManager.Instance != null)
+        {
+            SaveLoadManager.Instance.LoadGame(slotNumber);
+        }
+        else
+        {
+            Debug.LogError("SaveLoadManager instance not found!");
+        }
     }
 }
