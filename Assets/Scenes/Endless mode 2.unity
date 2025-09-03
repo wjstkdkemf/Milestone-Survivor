@@ -2822,9 +2822,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 549850746}
-        m_TargetAssemblyTypeName: UpgradeManager, Assembly-CSharp
-        m_MethodName: Close
+      - m_Target: {fileID: 738260975}
+        m_TargetAssemblyTypeName: UpgradeUi, Assembly-CSharp
+        m_MethodName: UpgradeFunction
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2834,9 +2834,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 738260975}
-        m_TargetAssemblyTypeName: UpgradeUi, Assembly-CSharp
-        m_MethodName: UpgradeFunction
+      - m_Target: {fileID: 549850746}
+        m_TargetAssemblyTypeName: UpgradeManager, Assembly-CSharp
+        m_MethodName: Close
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5529,9 +5529,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 549850746}
-        m_TargetAssemblyTypeName: UpgradeManager, Assembly-CSharp
-        m_MethodName: Close
+      - m_Target: {fileID: 1355833156}
+        m_TargetAssemblyTypeName: UpgradeUi, Assembly-CSharp
+        m_MethodName: UpgradeFunction
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5541,9 +5541,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1355833156}
-        m_TargetAssemblyTypeName: UpgradeUi, Assembly-CSharp
-        m_MethodName: UpgradeFunction
+      - m_Target: {fileID: 549850746}
+        m_TargetAssemblyTypeName: UpgradeManager, Assembly-CSharp
+        m_MethodName: Close
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8046,6 +8046,10 @@ PrefabInstance:
     - target: {fileID: 3133494083830416271, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3133494083830416271, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
       objectReference: {fileID: 549850746}
     - target: {fileID: 3133494083830416271, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
@@ -8062,6 +8066,14 @@ PrefabInstance:
     - target: {fileID: 3133494083830416271, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
       value: ClearEncount
+      objectReference: {fileID: 0}
+    - target: {fileID: 3133494083830416271, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UpgradeManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3133494083830416271, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: UpgradeUi, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3133494083830416271, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
@@ -8134,6 +8146,10 @@ PrefabInstance:
     - target: {fileID: 3619260185878124013, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3619260185878124013, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
       objectReference: {fileID: 549850746}
     - target: {fileID: 3619260185878124013, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
@@ -8150,6 +8166,14 @@ PrefabInstance:
     - target: {fileID: 3619260185878124013, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
       value: ClearEncount
+      objectReference: {fileID: 0}
+    - target: {fileID: 3619260185878124013, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UpgradeManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3619260185878124013, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: UpgradeUi, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3619260185878124013, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
@@ -8518,6 +8542,10 @@ PrefabInstance:
     - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 7645007112724364636}
+    - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
       objectReference: {fileID: 549850746}
     - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
@@ -8529,6 +8557,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: UpgradeFunction
+      objectReference: {fileID: 0}
+    - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
       value: Close
       objectReference: {fileID: 0}
     - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
@@ -8537,6 +8569,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UpgradeUi, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
       value: UpgradeManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 7645007112050736890, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
@@ -9062,6 +9098,17 @@ PrefabInstance:
       addedObject: {fileID: 1277205070}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+--- !u!114 &7645007112724364636 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7645007112050736895, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+  m_PrefabInstance: {fileID: 7645007112724364635}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1750811551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dff687bd3f260f4ca171c8c0ba68956, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8264722152264735543 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8474659783344776072, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}

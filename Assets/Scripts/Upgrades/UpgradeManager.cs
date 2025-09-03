@@ -429,7 +429,8 @@ public class UpgradeManager : MonoBehaviour
         }
 
         // Mage class check
-        int magePoints = GetPoints(UpgradeScriptableObject.UpgardeEnum.Meteor) + GetPoints(UpgradeScriptableObject.UpgardeEnum.LightningBolt);
+        int magePoints = GetPoints(UpgradeScriptableObject.UpgardeEnum.Meteor) + GetPoints(UpgradeScriptableObject.UpgardeEnum.LightningSpark);
+        Debug.Log($"magePoints: {magePoints}");
         if (magePoints >= 2)
         {
             currentJobClass = JobClass.Mage;
