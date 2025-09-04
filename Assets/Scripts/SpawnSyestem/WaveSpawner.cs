@@ -85,7 +85,7 @@ public class WaveSpawner : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         // Wait until all XPCrystal and GoldCoin objects in the scene are collected
-        while (FindObjectsOfType<XPCrystal>().Length > 0 || FindObjectsOfType<GoldCoin>().Length > 0)
+        while (FindObjectsByType<XPCrystal>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<GoldCoin>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<ItemObject>(FindObjectsSortMode.None).Length > 0)
         {
             yield return null; // Wait for the next frame
         }

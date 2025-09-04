@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5619459716242629193}
   - component: {fileID: 8454368606132760189}
   - component: {fileID: -639571069223099428}
+  - component: {fileID: 3761190193143665214}
   m_Layer: 8
   m_Name: Goblin
   m_TagString: Enemy
@@ -185,10 +186,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e7c57aa49be51248b81205e712a8661, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  expDropChance: 50
-  xpCrystalPrefab: {fileID: 8248385143105006687, guid: e5a13edbb0ea0524faff21d4e5b4c658, type: 3}
-  goldDropChance: 10
-  goldCoinPrefab: {fileID: 8248385143105006687, guid: 835ab7aede91ca948b2dd901bd25eb33, type: 3}
   rarity: 0
   maxhealth: 10
   health: 10
@@ -275,3 +272,22 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.3
+--- !u!114 &3761190193143665214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2797327662496399954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7777645e66800564694f86a2bbfd84ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lootTable:
+  - itemPrefab: {fileID: 8248385143105006687, guid: e5a13edbb0ea0524faff21d4e5b4c658, type: 3}
+    dropChance: 49.3
+  - itemPrefab: {fileID: 8248385143105006687, guid: 835ab7aede91ca948b2dd901bd25eb33, type: 3}
+    dropChance: 43.9
+  - itemPrefab: {fileID: 8306731627452137064, guid: b2c0886d0a03a32409ab5e7c28f57f41, type: 3}
+    dropChance: 100

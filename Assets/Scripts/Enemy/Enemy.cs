@@ -6,14 +6,6 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour, IDamageable
 {
-    [Range(0f, 100f)]
-    [SerializeField] private int expDropChance;
-    [SerializeField] private GameObject xpCrystalPrefab; // Prefab for normal XP crystal
-
-    [Range(0f, 100f)]
-    [SerializeField] private int goldDropChance;
-    [SerializeField] private GameObject goldCoinPrefab; // Prefab for boss XP crystal
-
     public EnemyRarity rarity;
     public float maxhealth;
     public float health;             // Base health for the enemy
@@ -98,7 +90,13 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         GameManager.Instance.NumberOfKills++;
         GameManager.Instance.activeEnemies--;
 
-        DropXPCrystal();  // New method to drop XP crystals based on monster type
+        // Attempt to drop loot
+        LootDrop lootDrop = GetComponent<LootDrop>();
+        if (lootDrop != null)
+        {
+            lootDrop.DropLoot();
+        }
+
         //Debug.Log(gameObject.name + " has died.");
         if (DontUseObjectPooling == false)
         {
@@ -278,23 +276,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         // Reset the flash routine to null
         flashRoutine = null;
     }
-    // New Method to handle XP crystal drops
-    private void DropXPCrystal()
-    {
-        int x = Random.Range(0, 100);
-        if (x <= expDropChance)
-            Instantiate(xpCrystalPrefab, transform.position, Quaternion.identity);
-        int y = Random.Range(0, 100);
-        if (y <= goldDropChance)
-            Instantiate(goldCoinPrefab, transform.position, Quaternion.identity);
-
-    }
-
-    private void DropCrystal(GameObject crystalPrefab)
-    {
-        GameObject crystal = Instantiate(crystalPrefab, transform.position, Quaternion.identity);
-    }
-
 
     // Method to get a random spawn position within a circle around the monster's death position
     private Vector2 GetRandomPositionAround(Vector2 centerPosition, float radius)

@@ -14,11 +14,13 @@ public class PlayerXpPickup : MonoBehaviour
         // Automatically pick up nearby items
         PickupNearbyXpCrystals();
         PickupNearbyGoldCoin();
+        PickupNearbyItems();
 
         if (GameManager.Instance.AllKill == true)
         {
             CollectAllXpCrystals();
             CollectAllGoldCoin();
+            //CollectAllItems();
             GameManager.Instance.AllKill = false;
         }
     }
@@ -48,6 +50,21 @@ public class PlayerXpPickup : MonoBehaviour
             if (goldCoin != null)
             {
                 goldCoin.Collect(transform); // Pass player transform to the coin
+            }
+        }
+    }
+
+    void PickupNearbyItems()
+    {
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, xpPickupRange, CollectiblesLayer);
+
+        foreach (Collider2D collider in hitColliders)
+        {
+            ItemObject itemObject = collider.GetComponent<ItemObject>();
+            if (itemObject != null)
+            {
+                Debug.Log("체크포인트");
+                itemObject.Collect(transform);
             }
         }
     }
@@ -83,6 +100,24 @@ public class PlayerXpPickup : MonoBehaviour
             if (goldCoin != null)
             {
                 goldCoin.Collect(transform);
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
+    }
+
+    public void CollectAllItems()
+    {
+        StartCoroutine(CollectAllItemsRoutine());
+    }
+
+    private IEnumerator CollectAllItemsRoutine()
+    {
+        ItemObject[] allItems = FindObjectsOfType<ItemObject>();
+        foreach (ItemObject item in allItems)
+        {
+            if (item != null)
+            {
+                item.Collect(transform);
                 yield return new WaitForSeconds(0.05f);
             }
         }

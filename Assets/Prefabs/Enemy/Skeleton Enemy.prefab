@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 837893974363675433}
   - component: {fileID: 3807338090571017181}
   - component: {fileID: 370785973193271850}
+  - component: {fileID: 4476612784929355896}
   m_Layer: 8
   m_Name: Skeleton Enemy
   m_TagString: Enemy
@@ -210,10 +211,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e7c57aa49be51248b81205e712a8661, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  expDropChance: 50
-  xpCrystalPrefab: {fileID: 8248385143105006687, guid: e5a13edbb0ea0524faff21d4e5b4c658, type: 3}
-  goldDropChance: 20
-  goldCoinPrefab: {fileID: 8248385143105006687, guid: 835ab7aede91ca948b2dd901bd25eb33, type: 3}
   rarity: 0
   maxhealth: 15
   health: 15
@@ -231,6 +228,7 @@ MonoBehaviour:
   CantBeKnocked: 0
   flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
   originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
+  IsActived: 0
   DontUseObjectPooling: 0
   boss: 0
 --- !u!58 &370785973193271850
@@ -268,3 +266,20 @@ CircleCollider2D:
   m_Offset: {x: 0.11, y: 0}
   serializedVersion: 2
   m_Radius: 0.3
+--- !u!114 &4476612784929355896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 736919748020417951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7777645e66800564694f86a2bbfd84ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lootTable:
+  - itemPrefab: {fileID: 8248385143105006687, guid: e5a13edbb0ea0524faff21d4e5b4c658, type: 3}
+    dropChance: 38
+  - itemPrefab: {fileID: 8248385143105006687, guid: 835ab7aede91ca948b2dd901bd25eb33, type: 3}
+    dropChance: 55.2
