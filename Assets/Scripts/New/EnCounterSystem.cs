@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class EnCounterSystem : MonoBehaviour
 {
@@ -17,12 +15,15 @@ public class EnCounterSystem : MonoBehaviour
     public int maxEncounter = 2;
     private int CurEncounter = 0;
 
-
-    //public List<Enemys> Monster;
     public MapMaker currentMap;
     private Vector2 lastPos;
     private float walkedDistance = 0.0f;
-    private static Vector2 enCounterPos;
+    private Vector2 enCounterPos;
+
+    // System References
+    private InfiniteTilemapManager tilemapManager;
+    private WaveSpawner waveSpawner;
+    private bool isEncounterActive = false;
 
     void Awake()
     {
@@ -35,64 +36,43 @@ public class EnCounterSystem : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-
-        SceneManager.sceneLoaded += TeleportPlayer;
-    }
-
-    void TeleportPlayer(Scene arg0, LoadSceneMode arg1)
-    {
-        if (PlayerTransform == null)
-        {
-            GameObject playerObject = GameObject.FindWithTag("Player");
-            if (playerObject != null)
-            {
-                Debug.Log("플레이어 위치를 찾음");
-                PlayerTransform = playerObject.transform;
-            }
-            else
-            {
-                Debug.Log("플레이어 위치를 못찾음");
-            }
-        }
-        else
-        {
-            lastPos = PlayerTransform.position;
-        }
-
-        if (arg0.name == "Map 1") // SceneManager.GetActiveScene()
-        {
-            PlayerTransform.position = enCounterPos;
-        }
     }
 
     void Start()
     {
-        if (PlayerTransform == null)
+        // Find the player
+        GameObject playerObject = GameObject.FindWithTag("Player");
+        if (playerObject != null)
         {
-            GameObject playerObject = GameObject.FindWithTag("Player");
-            if (playerObject != null)
-            {
-                PlayerTransform = playerObject.transform;
-            }
-            else
-            {
-                Debug.Log("플레이어 위치를 못찾음");
-            }
+            PlayerTransform = playerObject.transform;
+            lastPos = PlayerTransform.position;
         }
         else
         {
-            lastPos = PlayerTransform.position;
+            Debug.LogError("Player not found!");
+        }
+
+        // Get references to the managers
+        tilemapManager = FindObjectOfType<InfiniteTilemapManager>();
+        if (tilemapManager == null)
+        {
+            Debug.LogError("InfiniteTilemapManager not found!");
+        }
+
+        waveSpawner = WaveSpawner.Instance;
+        if (waveSpawner == null)
+        {
+            Debug.LogError("WaveSpawner instance not found!");
         }
     }
 
     void Update()
     {
-        if (currentMap != null && CurEncounter < maxEncounter)
+        if (currentMap != null && !isEncounterActive && CurEncounter < maxEncounter)
         {
             float currentMoveDistance = Vector2.Distance(PlayerTransform.position, lastPos);
             walkedDistance += currentMoveDistance;
             lastPos = PlayerTransform.position;
-
 
             if (walkedDistance >= setpDistance)
             {
@@ -100,7 +80,6 @@ public class EnCounterSystem : MonoBehaviour
 
                 if (Random.Range(0.0f, 100.0f) < encountpercent)
                 {
-                    enCounterPos = PlayerTransform.position;
                     StartEncount();
                 }
             }
@@ -121,22 +100,49 @@ public class EnCounterSystem : MonoBehaviour
 
     void StartEncount()
     {
-        CurEncounter++;
+        if (currentMap == null || tilemapManager == null || waveSpawner == null)
+        {
+            Debug.LogError("Cannot start encounter: a required component is missing.");
+            return;
+        }
+        isEncounterActive = true;
+        enCounterPos = PlayerTransform.position; // Save player's current position
 
-        SceneManager.LoadScene(currentMap.SceneName);
+        // 1. Generate the battle map at a distant location
+        tilemapManager.GenerateMap(currentMap.SceneName); // SceneName is used as the map theme
+
+        // 2. Start the monster waves defined in the MapMaker
+        waveSpawner.StartWaves(currentMap.waves);
+
+        // 3. Activate combat abilities
+        if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(true);
+
+        CurEncounter++;
     }
 
     public void ClearEncount()
     {
-        PlayerStats.Instance.SaveStats();
+        // Optional: Save stats if needed
+        // PlayerStats.Instance.SaveStats();
 
-        if (CurEncounter == maxEncounter)
+        if (CurEncounter >= maxEncounter)
         {
-            GameOver.Instance.GameEnded(true);
+            if(GameOver.Instance != null) GameOver.Instance.GameEnded(true);
         }
         else
         {
-             SceneManager.LoadScene("Map 1");
+            // 1. Clear the battle map
+            if(tilemapManager != null) tilemapManager.ClearMap();
+
+            // 2. Stop the monster spawner
+            if(waveSpawner != null) waveSpawner.StopWaves();
+
+            // 3. Deactivate combat abilities
+            if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(false);
+
+            // 4. Teleport player back to where the encounter started
+            if(PlayerTransform != null) PlayerTransform.position = enCounterPos;
+            isEncounterActive = false;
         }
     }
 }

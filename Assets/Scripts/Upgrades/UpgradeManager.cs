@@ -48,6 +48,7 @@ public class UpgradeManager : MonoBehaviour
     private JobClass currentJobClass = JobClass.None;
     private Dictionary<JobClass, List<UpgradeScriptableObject.UpgardeEnum>> jobClassSkills = new Dictionary<JobClass, List<UpgradeScriptableObject.UpgardeEnum>>();
 
+    private bool LoadData = false;
 
     private void Awake()
     {
@@ -58,28 +59,42 @@ public class UpgradeManager : MonoBehaviour
 
     private void Start()
     {
-        if (!PersistentDataManager.Instance.upgradeChancesInitialized)
+        if (LoadData)
         {
-            foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
+            if (!PersistentDataManager.Instance.upgradeChancesInitialized)
             {
-                PersistentDataManager.Instance.initialUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
+                foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
+                {
+                    PersistentDataManager.Instance.initialUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
+                }
+                PersistentDataManager.Instance.upgradeChancesInitialized = true;
             }
-            PersistentDataManager.Instance.upgradeChancesInitialized = true;
-        }
 
-        if (GameObject.FindGameObjectWithTag("CombatScene") != null)
-        {
-            Debug.Log("Combat scene detected, loading saved upgrades.");
             LoadUpgrades();
             ApplyBonusesToObjects();
             SyncChancesFromPersistentData();
             SyncPointsFromPersistentData();
         }
-        else if (GameObject.FindGameObjectWithTag("MainScene") != null)
+        else if (GameObject.FindGameObjectWithTag("Village") != null)
         {
-            Debug.Log("Not a combat scene, resetting run data.");
             ResetRunData();
         }
+
+        // Initially, set combat state to false
+        SetCombatState(false);
+    }
+
+    public void SetCombatState(bool isActive)
+    {
+        if (TurretObject != null) TurretObject.SetActive(isActive);
+        if (OrbsObject != null) OrbsObject.SetActive(isActive);
+        if (PetObject != null) PetObject.SetActive(isActive);
+        if (RandomExplosionsObject != null) RandomExplosionsObject.SetActive(isActive);
+        if (SwordSlashObject != null) SwordSlashObject.SetActive(isActive);
+        if (LightningObject != null) LightningObject.SetActive(isActive);
+        if (KnifeThrowingAbility != null) KnifeThrowingAbility.SetActive(isActive);
+        if (MeteorAbility != null) MeteorAbility.SetActive(isActive);
+        if (LightningSparkObject != null) LightningSparkObject.SetActive(isActive);
     }
 
     public void SyncChancesFromPersistentData()

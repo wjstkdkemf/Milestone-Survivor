@@ -5,7 +5,8 @@ using UnityEngine;
 public class MapMaker : MonoBehaviour
 {
     public int MapLevel;
-    public string SceneName;
+    public string SceneName; // This will now be used as the Theme Name for InfiniteTilemapManager
+    public List<Wave> waves = new List<Wave>(); // To store monster wave information
     public EnCounterSystem enCounterSystem;
 
     void Start()

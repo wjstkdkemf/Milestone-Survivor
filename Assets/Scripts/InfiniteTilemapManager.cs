@@ -1,33 +1,51 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using Unity.VisualScripting;
+
+[System.Serializable]
+public class MapTheme
+{
+    public string themeName;
+    public GameObject chunkPrefab;
+    public GameObject backgroundPrefab;
+    public List<GameObject> resourcePrefabs;
+    public int resourceCountPerChunk = 5;
+}
 
 public class InfiniteTilemapManager : MonoBehaviour
 {
-    public GameObject chunkPrefab;               // Prefab for each chunk
-    public int chunkSize = 10;                   // Size of each chunk in world units
-    public int loadRadius = 3;                   // Radius (in chunks) to load around the player
+    public static InfiniteTilemapManager Instance;
 
-    public GameObject backgroundPrefab;          // Prefab for background (spawns once per chunk)
-    public List<GameObject> resourcePrefabs;     // List of resource prefabs (e.g., trees, rocks)
-    public int resourceCountPerChunk = 5;        // Number of resource objects per chunk
+    [Header("Map Themes")]
+    public List<MapTheme> mapThemes;
 
+    [Header("Map Configuration")]
+    public Vector3 battleMapStartPosition = new Vector3(1000, 1000, 0);
+    public int chunkSize = 10;
+    public int loadRadius = 3;
+
+    private MapTheme currentTheme;
     private Transform player;
     private Dictionary<Vector2Int, GameObject> activeChunks = new Dictionary<Vector2Int, GameObject>();
-    private Queue<GameObject> chunkPool = new Queue<GameObject>(); // Pool to reuse chunks
-    private float chunkUpdateDelay = 0.5f;       // Delay between chunk updates
+    private Queue<GameObject> chunkPool = new Queue<GameObject>();
+    private float chunkUpdateDelay = 0.5f;
     private float lastChunkUpdateTime;
+    private bool isMapActive = false;
 
     private void Start()
     {
-        player = GameObject.FindWithTag("Player").transform;  // Ensure the player has the "Player" tag
-        InitializeChunkPool();
-        UpdateChunks();
+        Instance = this;
+        player = GameObject.FindWithTag("Player").transform;
+
+        //GenerateMap(mapThemes[0].themeName);
     }
 
     private void Update()
     {
-        // Only check for chunk updates after a delay
+        if (!isMapActive || player == null) return;
+
         if (Time.time - lastChunkUpdateTime >= chunkUpdateDelay)
         {
             lastChunkUpdateTime = Time.time;
@@ -35,13 +53,54 @@ public class InfiniteTilemapManager : MonoBehaviour
         }
     }
 
+    public void GenerateMap(string themeName)
+    {
+        currentTheme = mapThemes.FirstOrDefault(t => t.themeName == themeName);
+        if (currentTheme == null)
+        {
+            Debug.LogError($"Map theme '{themeName}' not found.");
+            return;
+        }
+
+        
+
+        if (player != null)
+        {
+            player.transform.position = battleMapStartPosition;
+        }
+        
+        transform.position = battleMapStartPosition;
+
+        InitializeChunkPool();
+        isMapActive = true;
+        UpdateChunks();
+    }
+
+    public void ClearMap()
+    {
+        isMapActive = false;
+        foreach (var chunk in activeChunks.Values)
+        {
+            if(chunk != null) Destroy(chunk);
+        }
+        activeChunks.Clear();
+
+        foreach (var chunk in chunkPool)
+        {
+            if(chunk != null) Destroy(chunk);
+        }
+        chunkPool.Clear();
+    }
+
     private void InitializeChunkPool()
     {
-        // Create a pool of chunks to avoid instantiation/destruction
+        if (currentTheme == null) return;
+
         int initialPoolSize = (loadRadius * 2 + 1) * (loadRadius * 2 + 1);
         for (int i = 0; i < initialPoolSize; i++)
         {
-            GameObject pooledChunk = Instantiate(chunkPrefab);
+            GameObject pooledChunk = Instantiate(currentTheme.chunkPrefab);
+            pooledChunk.transform.SetParent(transform);
             pooledChunk.SetActive(false);
             chunkPool.Enqueue(pooledChunk);
         }
@@ -55,7 +114,6 @@ public class InfiniteTilemapManager : MonoBehaviour
         );
 
         HashSet<Vector2Int> requiredChunks = new HashSet<Vector2Int>();
-
         for (int x = -loadRadius; x <= loadRadius; x++)
         {
             for (int y = -loadRadius; y <= loadRadius; y++)
@@ -70,16 +128,7 @@ public class InfiniteTilemapManager : MonoBehaviour
             }
         }
 
-        // Unload chunks that are too far from the player
-        List<Vector2Int> chunksToUnload = new List<Vector2Int>();
-        foreach (Vector2Int coord in activeChunks.Keys)
-        {
-            if (!requiredChunks.Contains(coord))
-            {
-                chunksToUnload.Add(coord);
-            }
-        }
-
+        List<Vector2Int> chunksToUnload = activeChunks.Keys.Where(coord => !requiredChunks.Contains(coord)).ToList();
         foreach (Vector2Int coord in chunksToUnload)
         {
             UnloadChunk(coord);
@@ -88,21 +137,22 @@ public class InfiniteTilemapManager : MonoBehaviour
 
     private void LoadChunk(Vector2Int coord)
     {
-        GameObject chunk;
+        if (currentTheme == null) return;
 
-        // Use a chunk from the pool if available, otherwise instantiate a new one
+        GameObject chunk;
+        Vector3 position = new Vector3(coord.x * chunkSize, coord.y * chunkSize, 0);
+
         if (chunkPool.Count > 0)
         {
             chunk = chunkPool.Dequeue();
-            chunk.transform.position = new Vector3(coord.x * chunkSize, coord.y * chunkSize, 0);
+            chunk.transform.position = position;
             chunk.SetActive(true);
         }
         else
         {
-            chunk = Instantiate(chunkPrefab, new Vector3(coord.x * chunkSize, coord.y * chunkSize, 0), Quaternion.identity, transform);
+            chunk = Instantiate(currentTheme.chunkPrefab, position, Quaternion.identity, transform);
         }
 
-        // Populate the chunk with background and resource objects
         GenerateChunkContent(chunk, coord);
         activeChunks.Add(coord, chunk);
     }
@@ -111,36 +161,41 @@ public class InfiniteTilemapManager : MonoBehaviour
     {
         if (activeChunks.TryGetValue(coord, out GameObject chunk))
         {
+            // Clear children before returning to pool
             foreach (Transform child in chunk.transform)
             {
-                Destroy(child.gameObject);  // Clear all children objects when unloading
+                Destroy(child.gameObject);
             }
 
-            chunk.SetActive(false);              // Deactivate instead of destroying
+            chunk.SetActive(false);
             activeChunks.Remove(coord);
-            chunkPool.Enqueue(chunk);            // Return to the pool for reuse
+            chunkPool.Enqueue(chunk);
         }
     }
 
     private void GenerateChunkContent(GameObject chunk, Vector2Int chunkCoord)
     {
-        // Seeded random generation to ensure the same layout each time the chunk is loaded
+        if (currentTheme == null) return;
+
         System.Random random = new System.Random(chunkCoord.GetHashCode());
 
-        // Spawn the background object once per chunk
-        GameObject background = Instantiate(backgroundPrefab, chunk.transform);
-        background.transform.localPosition = Vector3.zero;
-
-        // Spawn resource objects (trees, rocks) multiple times per chunk
-        for (int i = 0; i < resourceCountPerChunk; i++)
+        if (currentTheme.backgroundPrefab != null)
         {
-            GameObject resourcePrefab = resourcePrefabs[random.Next(resourcePrefabs.Count)];
-            GameObject resource = Instantiate(resourcePrefab, chunk.transform);
+            GameObject background = Instantiate(currentTheme.backgroundPrefab, chunk.transform);
+            background.transform.localPosition = Vector3.zero;
+        }
 
-            // Randomize position within the chunk
-            float posX = random.Next(0, chunkSize);
-            float posY = random.Next(0, chunkSize);
-            resource.transform.localPosition = new Vector3(posX, posY, 0);
+        if (currentTheme.resourcePrefabs != null && currentTheme.resourcePrefabs.Count > 0)
+        {
+            for (int i = 0; i < currentTheme.resourceCountPerChunk; i++)
+            {
+                GameObject resourcePrefab = currentTheme.resourcePrefabs[random.Next(currentTheme.resourcePrefabs.Count)];
+                GameObject resource = Instantiate(resourcePrefab, chunk.transform);
+
+                float posX = (float)(random.NextDouble() * chunkSize);
+                float posY = (float)(random.NextDouble() * chunkSize);
+                resource.transform.localPosition = new Vector3(posX, posY, 0);
+            }
         }
     }
 }

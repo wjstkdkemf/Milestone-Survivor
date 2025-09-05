@@ -5,6 +5,8 @@ using System.Collections; // Required for Coroutines
 
 public class WaveSpawner : MonoBehaviour
 {
+    public static WaveSpawner Instance;
+
     public List<Wave> WavesList = new List<Wave>();
     [SerializeField] private TMP_Text WaveText;
     [SerializeField] private Camera playerCamera;
@@ -19,20 +21,26 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private bool onlySideSpawn;
     [SerializeField] private List<Transform> spawningPotions;
 
-    private int totalMonster = 0;
-
     private bool LastSpawn = false;
-    private bool isClearingStage = false; // Flag to ensure the clear coroutine runs only once
+    private bool isClearingStage = false;
 
-    void Start()
+    private void Awake()
     {
-        totalMonster += WavesList[0].EnemyNumber;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void FixedUpdate()
     {
-        if (GameObject.FindWithTag("Player") == null || !GameManager.Instance.CanSpawn)
+        if (GameObject.FindWithTag("Player") == null || !GameManager.Instance.CanSpawn || WavesList.Count == 0)
             return;
+
         if (WaveText != null)
             WaveText.text = "Wave: " + (TheCurantWave + 1).ToString();
 
@@ -43,57 +51,81 @@ public class WaveSpawner : MonoBehaviour
                 SpawnEnemy();
                 spawnTimer = StartSpawnTimer;
             }
-            else if (SpawnAll && SpawnedEnemys <= WavesList[TheCurantWave].EnemyNumber)
+            else if (SpawnAll && SpawnedEnemys < WavesList[TheCurantWave].EnemyNumber)
             {
                 SpawnEnemy();
             }
             else
             {
                 spawnTimer -= Time.fixedDeltaTime;
-                waveTimer -= Time.fixedDeltaTime;
             }
         }
 
-        if (waveTimer <= 0)
+        waveTimer -= Time.fixedDeltaTime;
+
+        if (waveTimer <= 0 && !LastSpawn)
         {
             if (TheCurantWave >= WavesList.Count - 1)
             {
                 LastSpawn = true;
-
-                if (GameManager.Instance.activeEnemies == 0 && !isClearingStage)
-                {
-                    StartCoroutine(ClearStageAfterItemCollection());
-                }
             }
             else
             {
-                SpawnedEnemys = 0;
                 TheCurantWave++;
                 GenerateWave();
             }
         }
+
+        if (LastSpawn && GameManager.Instance.activeEnemies == 0 && !isClearingStage)
+        {
+            StartCoroutine(ClearStageAfterItemCollection());
+        }
+    }
+
+    public void StartWaves(List<Wave> newWaves)
+    {
+        if (newWaves == null || newWaves.Count == 0)
+        {
+            Debug.LogError("New waves list is null or empty.");
+            return;
+        }
+
+        StopWaves(); // Reset everything before starting
+
+        WavesList = new List<Wave>(newWaves); // Create a new list to avoid modifying the original
+        TheCurantWave = 0;
+        isClearingStage = false;
+        GameManager.Instance.CanSpawn = true;
+        GenerateWave();
+    }
+
+    public void StopWaves()
+    {
+        GameManager.Instance.CanSpawn = false;
+        if(WavesList != null) WavesList.Clear();
+        TheCurantWave = 0;
+        SpawnedEnemys = 0;
+        waveTimer = 0;
+        spawnTimer = 0;
+        LastSpawn = false;
+        isClearingStage = false;
+        StopAllCoroutines(); // Stop any running coroutines like ClearStageAfterItemCollection
     }
 
     private IEnumerator ClearStageAfterItemCollection()
     {
         isClearingStage = true;
-
-        // Trigger the collection of all items in PlayerXpPickup
         GameManager.Instance.AllKill = true;
 
-        // Wait a brief moment to ensure the collection process has started
         yield return new WaitForSeconds(0.5f);
 
-        // Wait until all XPCrystal and GoldCoin objects in the scene are collected
         while (FindObjectsByType<XPCrystal>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<GoldCoin>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<ItemObject>(FindObjectsSortMode.None).Length > 0)
         {
-            yield return null; // Wait for the next frame
+            yield return null;
         }
 
-        // Wait for 1 second after all items are collected
         yield return new WaitForSeconds(1f);
 
-        // Now, proceed to clear the stage
         if(GameOver.Instance != null)
         {
             GameOver.Instance.stageClear(true);
@@ -103,30 +135,29 @@ public class WaveSpawner : MonoBehaviour
     public void GenerateWave()
     {
         SpawnAll = WavesList[TheCurantWave].SpawnAll;
-        if (WavesList[TheCurantWave].SpawnAll == false)
-        {
-            StartSpawnTimer = WavesList[TheCurantWave].SpawnTimer;
-        }
-        else
-        {
-            StartSpawnTimer = 0;
-        }
+        StartSpawnTimer = WavesList[TheCurantWave].SpawnTimer;
         waveTimer = WavesList[TheCurantWave].waveDuration;
+        SpawnedEnemys = 0;
     }
 
     void SpawnEnemy()
     {
+        if (WavesList[TheCurantWave].Enemys.Count == 0) return;
+
         Vector3 spawnPosition = GetRandomSpawnPosition();
+        GameObject enemyToSpawn = GetRandomEnemy();
+
+        if(enemyToSpawn == null) return;
+
         if (!WavesList[TheCurantWave].DontUseObjectPooling)
         {
-            ObjectPoolingManager.instance.spawnGameObject(GetRandomEnemy(), spawnPosition, Quaternion.identity);
-            SpawnedEnemys++;
+            ObjectPoolingManager.instance.spawnGameObject(enemyToSpawn, spawnPosition, Quaternion.identity);
         }
         else
         {
-            Instantiate(GetRandomEnemy());
-            SpawnedEnemys++;
+            Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
         }
+        SpawnedEnemys++;
     }
 
     Vector3 GetRandomSpawnPosition()
@@ -134,42 +165,19 @@ public class WaveSpawner : MonoBehaviour
         if (WavesList[TheCurantWave].RandomPostions)
         {
             float randomX, randomY;
-            int side = 0; // 0: top, 1: bottom, 2: left, 3: right
-            if (onlySideSpawn)
-                side = Random.Range(2, 4);
-            else
-                side = Random.Range(0, 4);
+            int side = onlySideSpawn ? Random.Range(2, 4) : Random.Range(0, 4);
 
             switch (side)
             {
-                case 0: // Top
-                    randomX = Random.Range(0f, 1f);
-                    randomY = 1.2f; // Adjust this value to spawn above the camera view
-                    break;
-
-                case 1: // Bottom
-                    randomX = Random.Range(0f, 1f);
-                    randomY = -0.2f; // Adjust this value to spawn below the camera view
-                    break;
-
-                case 2: // Left
-                    randomX = -0.2f; // Adjust this value to spawn left of the camera view
-                    randomY = Random.Range(0f, 1f);
-                    break;
-
-                case 3: // Right
-                    randomX = 1.2f; // Adjust this value to spawn right of the camera view
-                    randomY = Random.Range(0f, 1f);
-                    break;
-
-                default:
-                    randomX = randomY = 0f;
-                    break;
+                case 0: randomX = Random.Range(0f, 1f); randomY = 1.2f; break; // Top
+                case 1: randomX = Random.Range(0f, 1f); randomY = -0.2f; break; // Bottom
+                case 2: randomX = -0.2f; randomY = Random.Range(0f, 1f); break; // Left
+                case 3: randomX = 1.2f; randomY = Random.Range(0f, 1f); break; // Right
+                default: randomX = 0f; randomY = 0f; break;
             }
 
             Vector3 spawnPosition = playerCamera.ViewportToWorldPoint(new Vector3(randomX, randomY, 0f));
-            spawnPosition.z = 0f; // Ensure the Z-coordinate is appropriate for your 2D setup
-
+            spawnPosition.z = 0f;
             return spawnPosition;
         }
         else
@@ -187,19 +195,20 @@ public class WaveSpawner : MonoBehaviour
             totalPercentage += Enemy.Chance;
         }
 
+        if (totalPercentage == 0) return null;
+
         int randomValue = random.Next(1, totalPercentage + 1);
 
         foreach (var Enemy in WavesList[TheCurantWave].Enemys)
         {
             if (randomValue <= Enemy.Chance)
             {
-                totalMonster++;
                 return Enemy.Enemy;
             }
             randomValue -= Enemy.Chance;
         }
 
-        return WavesList[1].Enemys[0].Enemy;
+        return null;
     }
 }
 

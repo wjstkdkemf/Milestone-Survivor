@@ -57,11 +57,11 @@ public class GameOver : MonoBehaviour
     {
         if (IsClear)
         {
-            PlayerStats.Instance.SaveStats();
-            UpgradeManager.Instance.SaveUpgrade();
-            UpgradeManager.Instance.SaveCurrentChancesToPersistentData();
-            UpgradeManager.Instance.SaveCurrentPointsToPersistentData();
-
+            // PlayerStats.Instance.SaveStats();
+            // UpgradeManager.Instance.SaveUpgrade();
+            // UpgradeManager.Instance.SaveCurrentChancesToPersistentData();
+            // UpgradeManager.Instance.SaveCurrentPointsToPersistentData();
+            InfiniteTilemapManager.Instance.ClearMap();
             ClearEncount();
 
             GameManager.Instance.CanSpawn = false;

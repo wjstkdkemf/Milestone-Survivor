@@ -51,6 +51,6 @@ public class CharacterSelection : MonoBehaviour
                 break;
         }
         Debug.Log("초기화 설정");
-        UpgradeManager.Instance.SaveUpgrade();
+        //UpgradeManager.Instance.SaveUpgrade();
     }
 }

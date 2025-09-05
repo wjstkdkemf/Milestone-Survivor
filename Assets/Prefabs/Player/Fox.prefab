@@ -20,7 +20,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &792867510129759242
 Transform:
   m_ObjectHideFlags: 0
@@ -176,6 +176,7 @@ MonoBehaviour:
   damagePlayer: 1
   damageEnemy: 1
   selfDestroy: 0
+  IsUsingObjetPooling: 0
   lifeTime: 3
   startWaitTime: 0.2
   playerLayer:
@@ -210,6 +211,5 @@ MonoBehaviour:
     m_Bits: 256
   baseDamage: 5
   chanceDoubleDamage: 0
-  lastAttackTime: 0
-  player: {fileID: 0}
+  Distance: 7
   maxDistanceFromPlayer: 7

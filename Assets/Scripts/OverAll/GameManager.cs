@@ -54,6 +54,6 @@ public class GameManager : MonoBehaviour
     public void SelectCharacter(int index)
     {
         DontDestroyOnLoad_.Instance.selectedCharacterIndex = index; // Save the selected character index
-        SceneManager.LoadScene("Map 1");
+        SceneManager.LoadScene("Village");
     }
 }
