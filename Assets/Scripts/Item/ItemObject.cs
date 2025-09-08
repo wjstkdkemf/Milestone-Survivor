@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections.Generic;
 public class ItemObject : MonoBehaviour
 {
     public ItemData itemData;
@@ -25,9 +25,10 @@ public class ItemObject : MonoBehaviour
 
             if (Vector3.Distance(transform.position, player.position) < 0.5f)
             {
-                // Here you would typically add the item to the player's inventory
-                // For now, we'll just log it.
-                Debug.Log("Picked up: " + itemData.itemName);
+                if (InventoryManager.Instance != null)
+                {
+                    InventoryManager.Instance.AddItem(itemData.itemName);
+                }
                 Destroy(gameObject);
             }
         }

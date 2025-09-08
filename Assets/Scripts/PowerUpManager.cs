@@ -5,7 +5,7 @@ using TMPro;
 
 public class PowerUpManager : MonoBehaviour
 {
- 
+    public static PowerUpManager Instance { get; private set;}
     public List<PowerUpScriptableObject> powerUps;
     public List<PowerUpButton> powerUpButtons;
     public PlayerStats playerStats;
@@ -17,19 +17,24 @@ public class PowerUpManager : MonoBehaviour
     public GameObject BuyButtons;
     public Image PowerUpIcon;
     public PowerUpButton powerUpButton;
-    private string saveFilePath;
 
     public bool InGame;
     private void Awake()
     {
-        saveFilePath = Application.persistentDataPath + "/powerUps.json";
-        LoadPowerUps();
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
     private void Start()
     {
         if (InGame)
             return;
-        //  LoadProgress();
+
         foreach (PowerUpButton button in powerUpButtons)
         {
             button.Initialize(this);
@@ -40,18 +45,50 @@ public class PowerUpManager : MonoBehaviour
     {
         powerUpButtons[0].Selected();
     }
-    private void Update()
+
+    // --- Integration with SaveLoadManager ---
+
+    public PowerUpSaveData GetSaveData()
     {
-        if (Input.GetKeyUp(KeyCode.S))
+        // Create dictionary from the list of scriptable objects
+        var powerUpLevels = new Dictionary<PowerUpType, int>();
+        foreach (var powerUp in powerUps)
         {
-            SavePowerUps();
-        
+            powerUpLevels[powerUp.powerUpType] = powerUp.CurrentLevel;
         }
-        if (Input.GetKeyUp(KeyCode.L))
-        {
-            LoadPowerUps();
-        }
+        return new PowerUpSaveData(powerUpLevels);
     }
+
+    public void LoadData(PowerUpSaveData data)
+    {
+        if (data == null) 
+        {
+            Debug.LogWarning("PowerUpSaveData is null, cannot load data.");
+            return;
+        }
+
+        var powerUpLevels = data.ToDictionary();
+
+        // Update ScriptableObjects from loaded data
+        foreach (var powerUp in powerUps)
+        {
+            if (powerUpLevels.ContainsKey(powerUp.powerUpType))
+            {
+                powerUp.CurrentLevel = powerUpLevels[powerUp.powerUpType];
+            }
+        }
+
+        // Update UI after loading
+        foreach (var button in powerUpButtons)
+        {
+            button.UpdateUI();
+        }
+        
+        Debug.Log("PowerUp data loaded and UI updated.");
+    }
+
+    // --- Existing UI and Purchase Logic ---
+
     public void SetInfo(PowerUpScriptableObject info, PowerUpButton button)
     {
         powerUpButton = button;
@@ -70,13 +107,10 @@ public class PowerUpManager : MonoBehaviour
     }
     public void Purchase()
     {
-
-
-        powerUpButton. Purchase();
-            powerUpButton.UpdateUI();
-            if (powerUpButton.powerUp.CurrentLevel >= powerUpButton.powerUp.upgradeValues.Length)
+        powerUpButton.Purchase();
+        powerUpButton.UpdateUI();
+        if (powerUpButton.powerUp.CurrentLevel >= powerUpButton.powerUp.upgradeValues.Length)
             BuyButtons.SetActive(false);
-        
     }
     public void DeselectOtherButtons()
     {
@@ -87,15 +121,13 @@ public class PowerUpManager : MonoBehaviour
     }
     public bool PurchasePowerUp(PowerUpScriptableObject powerUp)
     {
-
-
         if (powerUp.CurrentLevel >= powerUp.upgradeValues.Length)
         {
             Debug.Log("Power-up is already maxed out!");
             return false;
         }
 
-        float cost = powerUp.costPerLevel[powerUp.CurrentLevel]; // Exponential scaling
+        float cost = powerUp.costPerLevel[powerUp.CurrentLevel];
         if (playerStats.GoldAmount < cost)
         {
             Debug.Log("Not enough gold!");
@@ -123,74 +155,5 @@ public class PowerUpManager : MonoBehaviour
             powerup.powerUp.CurrentLevel=0;
             powerup.ResetUI();
         }
-       // playerStats.ResetPowerUps();
-    }
-
-    public void SavePowerUps()
-    {
-        Debug.Log("savePowerUps");
-        List<PowerUpData> powerUpDataList = new List<PowerUpData>();
-
-        foreach (var powerUp in powerUps)
-        {
-            powerUpDataList.Add(new PowerUpData(powerUp));
-        }
-
-        string json = JsonUtility.ToJson(new SerializablePowerUpList(powerUpDataList), true);
-        System.IO.File.WriteAllText(saveFilePath, json);
-    }
-    public void LoadPowerUps()
-    {
-        if (!System.IO.File.Exists(saveFilePath))
-            return;
-        Debug.Log("loadPowerUps");
-        string json = System.IO.File.ReadAllText(saveFilePath);
-        SerializablePowerUpList loadedData = JsonUtility.FromJson<SerializablePowerUpList>(json);
-
-        foreach (var loadedPowerUp in loadedData.powerUps)
-        {
-            foreach (var powerUp in powerUps)
-            {
-                if (powerUp.powerUpName == loadedPowerUp.powerUpName)
-                {
-                    powerUp.CurrentLevel = loadedPowerUp.currentLevel;
-                    powerUp.upgradeValues = loadedPowerUp.upgradeValues;
-                    powerUp.costPerLevel = loadedPowerUp.costPerLevel;
-                    powerUp.isPercentage = loadedPowerUp.isPercentage;
-                    break;
-                }
-            }
-        }
-    }
-}
-[System.Serializable]
-public class PowerUpData
-{
-    public string powerUpName;
-    public PowerUpType powerUpType;
-    public int currentLevel;
-    public float[] upgradeValues;
-    public float[] costPerLevel;
-    public bool isPercentage;
-
-    // Constructor to populate from the ScriptableObject
-    public PowerUpData(PowerUpScriptableObject powerUp)
-    {
-        powerUpName = powerUp.powerUpName;
-        powerUpType = powerUp.powerUpType;
-        currentLevel = powerUp.CurrentLevel;
-        upgradeValues = powerUp.upgradeValues;
-        costPerLevel = powerUp.costPerLevel;
-        isPercentage = powerUp.isPercentage;
-    }
-}
-[System.Serializable]
-public class SerializablePowerUpList
-{
-    public List<PowerUpData> powerUps;
-
-    public SerializablePowerUpList(List<PowerUpData> powerUps)
-    {
-        this.powerUps = powerUps;
     }
 }

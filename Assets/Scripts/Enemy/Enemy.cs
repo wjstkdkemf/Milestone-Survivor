@@ -19,7 +19,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public bool canRun = false;      // Can the enemy flee?
     public bool stopMoving = false;  // Flag to stop movement
     public GameObject DamageText;
-    protected Transform player;
+    public Transform player;
     private float coolDownTimer;
     protected bool facingRight = true;
     protected bool chasing = false;

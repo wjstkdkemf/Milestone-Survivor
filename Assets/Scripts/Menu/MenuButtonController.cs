@@ -290,16 +290,4 @@ public class MenuButtonController : MonoBehaviour
         SceneManager.LoadScene(scene);
 
     }
-
-    public void OnLoadSlotClicked(int slotNumber)
-    {
-        if (SaveLoadManager.Instance != null)
-        {
-            SaveLoadManager.Instance.LoadGame(slotNumber);
-        }
-        else
-        {
-            Debug.LogError("SaveLoadManager instance not found!");
-        }
-    }
 }

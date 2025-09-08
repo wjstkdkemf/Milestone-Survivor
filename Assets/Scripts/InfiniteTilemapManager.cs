@@ -60,9 +60,7 @@ public class InfiniteTilemapManager : MonoBehaviour
         {
             Debug.LogError($"Map theme '{themeName}' not found.");
             return;
-        }
-
-        
+        } 
 
         if (player != null)
         {

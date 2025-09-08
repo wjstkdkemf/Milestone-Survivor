@@ -38,12 +38,28 @@ public static class SaveManager
 [System.Serializable]
 public class PowerUpSaveData
 {
-    public Dictionary<PowerUpType, int> powerUpLevels;
-    public int playerGold;
+    public List<PowerUpType> powerUpTypes = new List<PowerUpType>();
+    public List<int> powerUpLevels = new List<int>();
 
-    public PowerUpSaveData(Dictionary<PowerUpType, int> levels, int gold)
+    public PowerUpSaveData(Dictionary<PowerUpType, int> levels)
     {
-        powerUpLevels = levels;
-        playerGold = gold;
+        foreach (var pair in levels)
+        {
+            powerUpTypes.Add(pair.Key);
+            powerUpLevels.Add(pair.Value);
+        }
+    }
+
+    public Dictionary<PowerUpType, int> ToDictionary()
+    {
+        var dict = new Dictionary<PowerUpType, int>();
+        for (int i = 0; i < powerUpTypes.Count; i++)
+        {
+            if (i < powerUpLevels.Count)
+            {
+                dict[powerUpTypes[i]] = powerUpLevels[i];
+            }
+        }
+        return dict;
     }
 }

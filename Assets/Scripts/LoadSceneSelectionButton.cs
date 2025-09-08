@@ -9,7 +9,7 @@ public class LoadSceneSelectionButton : MonoBehaviour, IPointerClickHandler
     public int slotId;
 
     [Header("UI References")]
-    public Image characterImage;
+    public Image characterImage; // Note: Character sprite isn't in the save data yet
     public TextMeshProUGUI levelText;
 
     [Header("Selection Visuals")]
@@ -27,19 +27,30 @@ public class LoadSceneSelectionButton : MonoBehaviour, IPointerClickHandler
             originalColor = buttonImage.color;
         }
 
-        // --- YOU WILL UPDATE THE UI WITH SAVED DATA HERE ---
-        // This is where you would load data for this specific slot
-        // and update the characterImage and levelText.
-        // For example:
-        // SavedData data = SaveLoadManager.Instance.GetSlotData(slotId);
-        // if (data != null) {
-        //     characterImage.sprite = data.characterSprite;
-        //     levelText.text = "Level: " + data.level;
-        // } else {
-        //     // Handle empty slot appearance
-        //     levelText.text = "Empty";
-        //     characterImage.enabled = false;
-        // }
+        // Try to get the save data for this slot
+        if (SaveLoadManager.Instance != null)
+        {
+            GameSaveData saveData = SaveLoadManager.Instance.GetSaveSlotData(slotId);
+
+            if (saveData != null && saveData.playerStatsData != null)
+            {
+                // We have data, update the UI
+                levelText.text = "Gold: " + saveData.playerStatsData.goldAmount;
+                // You could also show player level, etc.
+                // levelText.text += "\nLevel: " + saveData.playerStatsData.level;
+                if(characterImage) characterImage.enabled = true; // Or set sprite based on CharacterID
+            }
+            else
+            {
+                // No save data for this slot
+                levelText.text = "Empty Slot";
+                if(characterImage) characterImage.enabled = false;
+            }
+        }
+        else
+        {
+            levelText.text = "Error: SLM not found";
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)

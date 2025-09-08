@@ -63,7 +63,6 @@ public class PlayerXpPickup : MonoBehaviour
             ItemObject itemObject = collider.GetComponent<ItemObject>();
             if (itemObject != null)
             {
-                Debug.Log("체크포인트");
                 itemObject.Collect(transform);
             }
         }
