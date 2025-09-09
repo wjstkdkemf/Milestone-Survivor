@@ -18,7 +18,8 @@ public class MenuButtonController : MonoBehaviour
 	public GameObject GraphicsObject;
 	public GameObject UpgradeObject;
     public GameObject LoadObject;
-	public bool Menu, Pause, Settings, SettingsTwo, CharacterSelection,PowerUp, Load;
+	public GameObject InventoryObject;
+	public bool Menu, Pause, Settings, SettingsTwo, CharacterSelection, PowerUp, Load;
 	public GameObject CurntButton;
 
 	private GameObject MaineMenuButton;
@@ -83,11 +84,12 @@ public class MenuButtonController : MonoBehaviour
 
 		if (Input.GetKeyDown(KeyCode.Escape))
 		{
-
-
 			back();
+		}
 
-
+		if (Input.GetKeyDown(KeyCode.I))
+		{
+			InventoryButton();
 		}
 
 	}
@@ -106,7 +108,11 @@ public class MenuButtonController : MonoBehaviour
 			Application.Quit();
 
 		}
+	}
 
+	public void ClearMap()
+	{
+		SceneManager.LoadScene("Village");
 	}
 
 
@@ -267,13 +273,22 @@ public class MenuButtonController : MonoBehaviour
 
 
     }
+	public void InventoryButton()
+	{
+		if (!InventoryObject.activeSelf)
+			InventoryObject.SetActive(true);
+		else
+			InventoryObject.SetActive(false);
+	}
+
+
 	public void NewGame()
 	{
-        CurntButton = CharacterSelectionButton;
-        EventSystem.current.SetSelectedGameObject(CurntButton);
-        CharacterSelection = true;
-        MaineMenuObject.SetActive(false);
-        CharacterSelectionObject.SetActive(true);
+		CurntButton = CharacterSelectionButton;
+		EventSystem.current.SetSelectedGameObject(CurntButton);
+		CharacterSelection = true;
+		MaineMenuObject.SetActive(false);
+		CharacterSelectionObject.SetActive(true);
 		//SceneManager.LoadScene(1);
 
 	}

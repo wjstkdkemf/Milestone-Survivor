@@ -19,7 +19,7 @@ public class LoadSceneSelectionButton : MonoBehaviour, IPointerClickHandler
 
     private bool isSelected = false;
 
-    void Start()
+    void OnEnable()
     {
         buttonImage = GetComponent<Image>();
         if (buttonImage != null)
