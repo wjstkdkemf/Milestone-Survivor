@@ -8,12 +8,12 @@ namespace InventorySystem
     /// Holds essential save information for items
     /// </summary>
     [System.Serializable]
-    public class ItemData
+    public class ItemSaveData
     {
         public int amount;
         public int position;
         public string name;
-        public ItemData(int amount, string name, int position)
+        public ItemSaveData(int amount, string name, int position)
         {
             this.amount = amount;
             this.name = name;

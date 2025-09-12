@@ -37,7 +37,7 @@ namespace InventorySystem
         [Header("NOTE: All changes to items must be made here")]
         [Tooltip("Add templates for each allowable inventory item.")]
         [SerializeField]
-        public List<ItemInitializer> items; // Accepted items to add to the inventory.
+        public List<ItemData> items; // Accepted items to add to the inventory.
 
         [Space(10)] // Add some space.
 
@@ -79,6 +79,7 @@ namespace InventorySystem
             {
                 Destroy(gameObject);
                 Debug.LogError("There should only be one inventory controller in the scene");
+                return;
             }
             if (iUnderstandTheSetup)
             {
@@ -88,11 +89,6 @@ namespace InventorySystem
             {
                 Destroy(gameObject);
             }
-            if (!TestInstance()) return;
-            if (!TestSetup()) return;
-            TestChildObject();
-            AllignDictionaries();
-            InitializeItems();
         }
 
         /// <summary>
@@ -100,9 +96,13 @@ namespace InventorySystem
         /// </summary>
         private void Start()
         {
+            if (!TestInstance()) return;
+            if (!TestSetup()) return;
+            TestChildObject();
+            AllignDictionaries();
+            InitializeItems();
             LoadSave();
         }
-
         /// <summary>
         /// Constantly checks for input to pass to HighLightOnButtonPress
         /// </summary>
@@ -217,16 +217,17 @@ namespace InventorySystem
         private void InitializeItems()
         {
             itemManager.Clear();
-            foreach (ItemInitializer item in items)
+            foreach (ItemData itemData in items)
             {
-                InventoryItem newItem = new InventoryItem(item);
+                if (itemData == null) continue;
+                InventoryItem newItem = new InventoryItem(itemData);
                 if(!itemManager.ContainsKey(newItem.GetItemType()))
                 {
-                    itemManager.Add(item.GetItemType(), newItem);
+                    itemManager.Add(itemData.itemName, newItem);
                 }
                 else
                 {
-                    Debug.LogError("There can only be one of each ItemType");
+                    Debug.LogError("There can only be one of each ItemType: " + itemData.itemName);
                 }
             }
         }
@@ -386,9 +387,9 @@ namespace InventorySystem
             inventoryManager.Clear();
             itemManager.Clear();
             prevInventoryTracker.Clear();
-            foreach (ItemInitializer item in items)
+            foreach (ItemData item in items)
             {
-                itemManager.Add(item.GetItemType(), new InventoryItem(item));
+                itemManager.Add(item.itemName, new InventoryItem(item));
             }
             foreach (GameObject obj in allInventoryUI)
             {
@@ -546,8 +547,8 @@ namespace InventorySystem
                     {
                         continue;
                     }
-                    List<ItemData> items = pair.Value;
-                    foreach (ItemData item in items)
+                    List<ItemSaveData> items = pair.Value;
+                    foreach (ItemSaveData item in items)
                     {
 
                         if (item.name != null)
@@ -617,16 +618,17 @@ namespace InventorySystem
         /// </summary>
         private bool TestInventoryUI()
         {
+            Debug.Log("Running TestInventoryUI. Items in allInventoryUI list: " + allInventoryUI.Count);
             if (allInventoryUI.Count == 0 && Application.isPlaying)
             {
                 Debug.LogWarning("No InventoryUIManagers detected. Ensure to initialize all inventories in editor mode. If unexpected try unpacking InventoryController");
                 return false;
             }
-            foreach (GameObject inventories in allInventoryUI)
+            for (int i = 0; i < allInventoryUI.Count; i++)
             {
-                if (inventories == null)
+                if (allInventoryUI[i] == null)
                 {
-                    Debug.LogError("Inventories in allInventoryUI are null, try unpacking InventoryController and hitting \"Delete All Instantiated Objects\" button");
+                    Debug.LogError("Inventories in allInventoryUI are null at index " + i + ". Total items in list: " + allInventoryUI.Count + ". This can be caused by a serialization issue or a broken reference from the editor. Try re-running the setup steps.");
                     return false;
                 }
             }
@@ -757,9 +759,34 @@ namespace InventorySystem
         }
 
 
-        public List<ItemInitializer> GetItems()
+        public List<ItemData> GetItems()
         {
             return items;
+        }
+
+        public void RegisterExternalUI(GameObject uiObject)
+        {
+            Debug.Log("체크포인트 1");
+            if (allInventoryUI == null)
+            {
+                 Debug.Log("체크포인트 2");
+
+                allInventoryUI = new List<GameObject>();
+            }
+            if (uiObject != null && !allInventoryUI.Contains(uiObject))
+            {
+            Debug.Log("체크포인트 3");
+
+                allInventoryUI.Add(uiObject);
+            }
+        }
+
+        public void ClearRegisteredUI()
+        {
+            if (allInventoryUI != null)
+            {
+                allInventoryUI.Clear();
+            }
         }
 
         private void OnDestroy()

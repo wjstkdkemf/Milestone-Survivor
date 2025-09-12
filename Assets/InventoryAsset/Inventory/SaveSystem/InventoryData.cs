@@ -8,12 +8,12 @@ namespace InventorySystem
     [System.Serializable]
     public class InventoryData
     {
-        public Dictionary<string, List<ItemData>> inventories;
+        public Dictionary<string, List<ItemSaveData>> inventories;
 
         public string itemType;
         public InventoryData(Dictionary<string, Inventory> inventoryManager)
         {
-            inventories = new Dictionary<string, List<ItemData>>();
+            inventories = new Dictionary<string, List<ItemSaveData>>();
             foreach (var pair in inventoryManager)
             {
                 int position = 0;
@@ -21,11 +21,11 @@ namespace InventorySystem
                 {
                     continue;
                 }
-                List<ItemData> itemData = new List<ItemData>();
+                List<ItemSaveData> itemData = new List<ItemSaveData>();
                 Inventory inventory = pair.Value;
                 foreach(InventoryItem item in inventory.GetList())
                 {
-                    itemData.Add(new ItemData(item.GetAmount(),item.GetItemType(), position));
+                    itemData.Add(new ItemSaveData(item.GetAmount(),item.GetItemType(), position));
                     position++;
                 }
                 inventories.Add(inventory.GetName(), itemData);

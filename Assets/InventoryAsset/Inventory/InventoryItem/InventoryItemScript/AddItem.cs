@@ -12,7 +12,7 @@ namespace InventorySystem
         [SerializeField]
         private int amount;
         [HideInInspector]
-        private List<ItemInitializer> items;
+        private List<ItemData> items;
 
         [HideInInspector]
         private List<InventoryInitializer> inventories;
@@ -23,7 +23,7 @@ namespace InventorySystem
         [HideInInspector]
         public int SelectedInventoryIndex = 0;
         [SerializeField, HideInInspector]
-        private ItemInitializer item;
+        private ItemData item;
         [SerializeField, HideInInspector]
         private InventoryInitializer inventory;
         [SerializeField, HideInInspector]
@@ -62,17 +62,17 @@ namespace InventorySystem
             }
             if (amount != 0)
             {
-                InventoryController.instance.AddItem(inventory.GetInventoryName(), item.GetItemType(), amount);
+                InventoryController.instance.AddItem(inventory.GetInventoryName(), item.itemName, amount);
             }
             else
             {
-                InventoryController.instance.AddItem(inventory.GetInventoryName(), item.GetItemType());
+                InventoryController.instance.AddItem(inventory.GetInventoryName(), item.itemName);
             }
             gameObject.SetActive(false);
         }
-        public void SetItem(ItemInitializer init)
+        public void SetItem(ItemData data)
         {
-            item = init;
+            item = data;
         }
         public void SetInventory(InventoryInitializer init)
         {
@@ -86,11 +86,11 @@ namespace InventorySystem
         {
             return inventories;
         }
-        public void SetItemList(List<ItemInitializer> init)
+        public void SetItemList(List<ItemData> data)
         {
-            items = init;
+            items = data;
         }
-        public List<ItemInitializer> GetItemsList()
+        public List<ItemData> GetItemsList()
         {
             return items;
         }

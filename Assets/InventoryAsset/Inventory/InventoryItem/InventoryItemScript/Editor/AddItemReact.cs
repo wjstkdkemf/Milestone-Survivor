@@ -51,7 +51,7 @@ namespace InventorySystem
                 string[] itemNames = new string[script.GetItemsList().Count];
                 for (int i = 0; i < script.GetItemsList().Count; i++)
                 {
-                    itemNames[i] = script.GetItemsList()[i].GetItemType();
+                    itemNames[i] = script.GetItemsList()[i].itemName;
                 }
 
                 script.selectedItemIndex = EditorGUILayout.Popup("Select Item", script.selectedItemIndex, itemNames);

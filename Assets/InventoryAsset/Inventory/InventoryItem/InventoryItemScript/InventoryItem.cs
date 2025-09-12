@@ -24,18 +24,18 @@ namespace InventorySystem
         private int position;
         private string inventory;
         private string previousInventory;
-        public InventoryItem(ItemInitializer init)
+        public InventoryItem(ItemData data)
         {
             this.amount = 1;
-            this.itemType = init.GetItemType();
-            this.itemImage = init.GetItemImage();
-            this.maxStackAmount = init.GetItemStackAmount();
-            this.draggable = init.GetDraggable();
-            this.pressable = init.GetPressable();
-            this.itemEvent = init.GetEvent();
-            this.isNull = init.GetIsNull();
-            this.relatedGameObject = init.GetRelatedGameObject();
-            this.displayAmount = init.GetDisplayAmount();
+            this.itemType = data.itemName;
+            this.itemImage = data.icon;
+            this.maxStackAmount = data.maxStackAmount;
+            this.draggable = data.draggable;
+            this.pressable = data.pressable;
+            this.itemEvent = data.itemAction;
+            this.isNull = (data == null);
+            this.relatedGameObject = data.RelatedGameObject;
+            this.displayAmount = data.displayItemAmount;
         }
         public InventoryItem(InventoryItem other, int amount = 1)
         {
