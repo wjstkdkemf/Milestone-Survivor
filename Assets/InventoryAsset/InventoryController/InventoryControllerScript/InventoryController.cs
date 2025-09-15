@@ -102,6 +102,11 @@ namespace InventorySystem
             AllignDictionaries();
             InitializeItems();
             LoadSave();
+
+            if (InventoryManager.Instance.SceneName != 100)
+            {
+                LoadSave();//여기에 내가 원하는 saveID에 해당하는 인벤토리 로드 투입.
+            }
         }
         /// <summary>
         /// Constantly checks for input to pass to HighLightOnButtonPress

@@ -1,9 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
+using InventorySystem;
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
+    public int SceneName;
 
     private Dictionary<string, int> itemCounts = new Dictionary<string, int>();
     // If you need to store item prefabs, you can use another dictionary.
@@ -50,5 +52,19 @@ public class InventoryManager : MonoBehaviour
     {
         itemCounts.Clear();
         Debug.Log("Inventory cleared.");
+    }
+    public void InsertGame(int gameName = 100)
+    {
+        if (gameName == 100)
+            SceneName = LoadScreenManager.Instance.currentlySelectedSlot.slotId;
+        else
+            SceneName = gameName;
+    }
+    public void ClearMap()
+    {
+        foreach (var item in itemCounts)
+        {
+            InventoryController.instance.AddItem("ClearInventory", item.Key, item.Value);
+        }
     }
 }

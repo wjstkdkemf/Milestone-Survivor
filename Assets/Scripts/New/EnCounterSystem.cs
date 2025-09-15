@@ -12,7 +12,7 @@ public class EnCounterSystem : MonoBehaviour
     [Header("인카운트 설정")]
     [Range(0, 100)] public float encountpercent = 10.0f;
     public float setpDistance = 1.0f;
-    public int maxEncounter = 2;
+    public int maxEncounter = 1;
     private int CurEncounter = 0;
 
     public MapMaker currentMap;
