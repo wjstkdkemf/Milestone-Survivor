@@ -1,65 +1,53 @@
-using System.IO;
 using UnityEngine;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 
 namespace InventorySystem
 {
-    //Author Jaxon Schauer
-    /// <summary>
-    /// Static class, takes in inventory data converts it into binary and places into a save location
-    /// </summary>
+    // Author: Jaxon Schauer
+    // Modified by Gemini to use PlayerPrefs and JsonUtility
+
     public static class InventorySaveSystem
     {
-        public static void SaveInventory(Dictionary<string, Inventory> inventoryManager, string saveLocation)
+        // Saves the inventory data to PlayerPrefs as a JSON string.
+        public static void SaveInventory(Dictionary<string, Inventory> inventoryManager, string saveKey)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            string path = Application.persistentDataPath + "/" + saveLocation.ToString();
-            FileStream fileStream = new FileStream(path, FileMode.Create);
-            InventoryData InventoryData = new InventoryData(inventoryManager);
-            formatter.Serialize(fileStream, InventoryData);
-            fileStream.Close();
+            InventoryData inventoryData = new InventoryData(inventoryManager);
+            string jsonData = JsonUtility.ToJson(inventoryData, true);
+            PlayerPrefs.SetString(saveKey, jsonData);
+            Debug.Log($"<color=green>[InventorySaveSystem]</color> Inventory saved to PlayerPrefs with key: {saveKey}");
         }
-        public static InventoryData LoadItem(string saveLocation)
+
+        // Loads the inventory data from PlayerPrefs.
+        public static InventoryData LoadItem(string saveKey)
         {
-            string path = Application.persistentDataPath + "/" + saveLocation.ToString();
-            if (File.Exists(path))
+            if (PlayerPrefs.HasKey(saveKey))
             {
-                FileStream fileStream = new FileStream(path, FileMode.Open);
-                if (fileStream.Length == 0)
+                string jsonData = PlayerPrefs.GetString(saveKey);
+                if (string.IsNullOrEmpty(jsonData))
                 {
-                    fileStream.Close();
+                    Debug.LogWarning($"<color=orange>[InventorySaveSystem]</color> No data found for key: {saveKey}. Returning null.");
                     return null;
                 }
-                BinaryFormatter formatter = new BinaryFormatter();
-                InventoryData InventoryData = formatter.Deserialize(fileStream) as InventoryData;
-                fileStream.Close();
-                return InventoryData;
+
+                InventoryData inventoryData = JsonUtility.FromJson<InventoryData>(jsonData);
+                Debug.Log($"<color=green>[InventorySaveSystem]</color> Inventory loaded from PlayerPrefs with key: {saveKey}");
+                return inventoryData;
             }
             else
             {
-                Debug.LogError("Save File " + path + " does not exist");
+                Debug.LogWarning($"<color=orange>[InventorySaveSystem]</color> Save key not found: {saveKey}. Returning null.");
                 return null;
             }
         }
-        public static void Create(string saveLocation)
-        {
-            string path = Application.persistentDataPath + "/" + saveLocation.ToString();
-            if (!File.Exists(path))
-            {
-                FileStream fileStream = new FileStream(path, FileMode.Create);
-                fileStream.Close();
-            }
-        }
 
-        public static void Reset(string saveLocation)
+        // Deletes a specific inventory save from PlayerPrefs.
+        public static void Reset(string saveKey)
         {
-            string path = Application.persistentDataPath + "/" + saveLocation.ToString();
-            if (File.Exists(path))
+            if (PlayerPrefs.HasKey(saveKey))
             {
-                File.Delete(path);
+                PlayerPrefs.DeleteKey(saveKey);
+                Debug.Log($"<color=yellow>[InventorySaveSystem]</color> Inventory save deleted for key: {saveKey}");
             }
         }
     }
 }
-

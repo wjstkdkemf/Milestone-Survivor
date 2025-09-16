@@ -1,13 +1,14 @@
 [System.Serializable]
 public class GameSaveData
 {
-    public InventoryData inventoryData;
+    // This now stores the inventory as a JSON string, not a direct object.
+    public string inventoryJson;
     public PowerUpSaveData powerUpData;
     public PlayerStatsData playerStatsData;
 
-    public GameSaveData(InventoryData invData, PowerUpSaveData powData, PlayerStatsData statsData)
+    public GameSaveData(string invJson, PowerUpSaveData powData, PlayerStatsData statsData)
     {
-        inventoryData = invData;
+        inventoryJson = invJson;
         powerUpData = powData;
         playerStatsData = statsData;
     }

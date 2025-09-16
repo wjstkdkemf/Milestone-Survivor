@@ -60,7 +60,7 @@ public class InventoryManager : MonoBehaviour
         else
             SceneName = gameName;
     }
-    public void ClearMap()
+    public void ClearMapInventory()
     {
         foreach (var item in itemCounts)
         {

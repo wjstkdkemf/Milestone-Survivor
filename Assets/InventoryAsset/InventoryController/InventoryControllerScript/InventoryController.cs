@@ -1,16 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 
 namespace InventorySystem
 {
     //Author: Jaxon Schauer
-    /// <summary>
-    /// This class defines an inventory controller, which allows for creating new inventories and defining valid types of objects.
-    /// Only one InventoryController should be instantiated within a project. Multiple inventories can be created from one controller.
-    /// This controller manages all information being given to an inventory.
-    /// </summary>
+    //Modified by Gemini to integrate with a central SaveLoadManager
     public class InventoryController : MonoBehaviour
     {
         [Header("============[ Setup Confirmation ]============")]
@@ -21,9 +16,9 @@ namespace InventorySystem
         [Header("**********************************************")]
         [Tooltip("Toggle to confirm you understand the setup requirements.")]
         [SerializeField]
-        private bool iUnderstandTheSetup = false; // Ensure this is the sole instance of InventoryController.
+        private bool iUnderstandTheSetup = false;
 
-        [Space(10)] // Add some space for better organization.
+        [Space(10)]
 
         [Header("============[ Inventory Controller Setup ]============")]
         [Space(20)]
@@ -31,48 +26,40 @@ namespace InventorySystem
         [SerializeField]
         private Transform UI;
 
-        [Space(10)] // Add some space/
+        [Space(10)]
 
         [Header("========[ Items Setup ]========")]
         [Header("NOTE: All changes to items must be made here")]
         [Tooltip("Add templates for each allowable inventory item.")]
         [SerializeField]
-        public List<ItemData> items; // Accepted items to add to the inventory.
+        public List<ItemData> items;
 
-        [Space(10)] // Add some space.
+        [Space(10)]
 
         [Header("========[ Inventory Setup ]========")]
         [Header("NOTE: After initialization, changes here won't take effect.")]
         [Header("Modify the inventory under the UI component.")]
         [Tooltip("Add templates for each inventory to be initialized.")]
         [SerializeField]
-        public List<InventoryInitializer> initializeInventory = new List<InventoryInitializer>(); // Information about inventory setup.
-
-
-
+        public List<InventoryInitializer> initializeInventory = new List<InventoryInitializer>();
 
         [SerializeField, HideInInspector]
-        private List<InventoryInitializer> prevInventoryTracker; // Previously initialized inventories, so they are not initialized again.
+        private List<InventoryInitializer> prevInventoryTracker;
 
         [Tooltip("Prefab for the inventory manager that controls each of the inventory UI's.")]
         [SerializeField]
-        private GameObject inventoryManagerObj; // Prefab for the inventory manager.
+        private GameObject inventoryManagerObj;
 
         [SerializeField, HideInInspector]
-        private List<GameObject> allInventoryUI = new List<GameObject>(); // Holds all inventory UI instances for each inventory created.
-        private Dictionary<string, Inventory> inventoryManager = new Dictionary<string, Inventory>(); // Dictionary to map inventory names to their Inventory object.
-        private Dictionary<string, GameObject> inventoryUIDict = new Dictionary<string, GameObject>(); // Dictionary to map inventory names to their GameObject.
-        private Dictionary<string, InventoryItem> itemManager = new Dictionary<string, InventoryItem>(); // Dictionary to map item names to their objects.
-        private Dictionary<string, List<GameObject>> EnableDisableDict = new Dictionary<string, List<GameObject>>(); // Dictionary to map a key press to which inventory it should enable/disable.
+        private List<GameObject> allInventoryUI = new List<GameObject>();
+        private Dictionary<string, Inventory> inventoryManager = new Dictionary<string, Inventory>();
+        private Dictionary<string, GameObject> inventoryUIDict = new Dictionary<string, GameObject>();
+        private Dictionary<string, InventoryItem> itemManager = new Dictionary<string, InventoryItem>();
+        private Dictionary<string, List<GameObject>> EnableDisableDict = new Dictionary<string, List<GameObject>>();
 
         [SerializeField, HideInInspector]
-        public static InventoryController instance; // Shared instance of the InventoryController to enforce only one being created.
+        public static InventoryController instance;
 
-
-        /// <summary>
-        /// Check whether an instance of InventoryController has already been created. If it has, delete this instance.
-        /// Initialize inventories specified by the user in the controller.
-        /// </summary>
         private void Awake()
         {
             if (instance != null)
@@ -91,9 +78,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Loads any saved inventories on start <see cref="LoadSave"/>
-        /// </summary>
         private void Start()
         {
             if (!TestInstance()) return;
@@ -101,28 +85,98 @@ namespace InventorySystem
             TestChildObject();
             AllignDictionaries();
             InitializeItems();
-            LoadSave();
-
-            if (InventoryManager.Instance.SceneName != 100)
-            {
-                LoadSave();//여기에 내가 원하는 saveID에 해당하는 인벤토리 로드 투입.
-            }
+            // Automatic loading on start is removed. Loading will be handled by SaveLoadManager.
         }
-        /// <summary>
-        /// Constantly checks for input to pass to HighLightOnButtonPress
-        /// </summary>
+
         private void Update()
         {
             ToggleOnKeyInput();
         }
 
+        #region Save/Load Integration
+        
         /// <summary>
-        /// Uses <see cref="TestSetup"/> to check that the user has correctly set up the inventory
-        /// If the user has set up inventory correctly, then the initiaization functions are run, loading the new inventories and deleting missing inventories
+        /// Clears all items from all managed inventories. Used before loading new data.
         /// </summary>
+        public void ClearAllInventories()
+        {
+            foreach (var pair in inventoryManager)
+            {
+                pair.Value.Clear();
+            }
+            Debug.Log("<color=yellow>[InventoryController]</color> All inventories cleared.");
+        }
+
+        /// <summary>
+        /// Generates a JSON string representing the state of all save-enabled inventories.
+        /// </summary>
+        /// <returns>A JSON string of the inventory data.</returns>
+        public string GetSaveData()
+        {
+            if (inventoryManager == null)
+            {
+                Debug.LogError("[InventoryController] GetSaveData failed: inventoryManager is null.");
+                return "";
+            }
+            InventoryData data = new InventoryData(inventoryManager);
+            return JsonUtility.ToJson(data, true);
+        }
+
+        /// <summary>
+        /// Loads inventory states from a JSON string.
+        /// </summary>
+        /// <param name="jsonData">The JSON data to load from.</param>
+        public void LoadFromData(string jsonData)
+        {
+            if (string.IsNullOrEmpty(jsonData))
+            {
+                Debug.LogWarning("[InventoryController] LoadFromData received null or empty JSON data. Inventories will be empty.");
+                ClearAllInventories();
+                return;
+            }
+
+            InventoryData itemData = JsonUtility.FromJson<InventoryData>(jsonData);
+            if (itemData == null)
+            {
+                Debug.LogError("[InventoryController] Failed to deserialize JSON data. Inventories will not be loaded.");
+                return;
+            }
+
+            ClearAllInventories();
+
+            Dictionary<string, List<ItemSaveData>> loadedInventories = itemData.ToDictionary();
+
+            foreach (var pair in loadedInventories)
+            {
+                string invName = pair.Key;
+                if (!inventoryManager.ContainsKey(invName))
+                {
+                    Debug.LogWarning($"[InventoryController] Save data contains inventory '{invName}' which does not exist in the current scene. Skipping.");
+                    continue;
+                }
+
+                List<ItemSaveData> itemsToLoad = pair.Value;
+                foreach (ItemSaveData item in itemsToLoad)
+                {
+                    if (item.name != null && itemManager.ContainsKey(item.name))
+                    {
+                        InventoryItem copyItem = itemManager[item.name];
+                        InventoryItem newItem = new InventoryItem(copyItem, item.amount);
+                        AddItemPos(invName, newItem, item.position);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[InventoryController] Could not find item type '" + item.name + "' in item manager. It will not be loaded.");
+                    }
+                }
+            }
+            Debug.Log("<color=green>[InventoryController]</color> Successfully loaded inventories from data.");
+        }
+
+        #endregion
+
         public void InitializeInventories()
         {
-
             if (!TestSetup()) return;
             instance = this;
             AllignDictionaries();
@@ -132,10 +186,6 @@ namespace InventorySystem
             InitializeItems();
         }
 
-        /// <summary>
-        /// Handles the prevInventoryTracker list, allowing it to track the changes made from the previous initialization. This stops it from initializing
-        /// or deleting unecessary information when running the functions in <see cref="InitializeNewInventories"/> and <see cref="RemoveDeletedInventories"/>
-        /// </summary>
         private void UpdateInventoryTracker()
         {
             prevInventoryTracker.Clear();
@@ -147,10 +197,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Initializes any new inventories, giving the necessary information to the <see cref="Inventory"/> class 
-        /// and the <see cref="InventoryUIManager"/>. This allows them to work together to display and maintain the information of the inventory
-        /// </summary>
         private void InitializeNewInventories()
         {
             foreach (InventoryInitializer initializer in initializeInventory)
@@ -185,12 +231,8 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Removes any previously initialized inventories that have been removed. This frees up the space consumed by each inventory
-        /// </summary>
         private void RemoveDeletedInventories()
         {
-
             List<GameObject> toremove = new List<GameObject>();
             foreach (InventoryInitializer initializer in prevInventoryTracker)
             {
@@ -212,13 +254,9 @@ namespace InventorySystem
             {
                 allInventoryUI.Remove(remove);
                 DestroyImmediate(remove);
-
             }
         }
 
-        /// <summary>
-        /// Initializes the items into <see cref="itemManager"/>, allowing for the inventory to make deep copies of the items when needed
-        /// </summary>
         private void InitializeItems()
         {
             itemManager.Clear();
@@ -237,10 +275,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Adds an InventoryItem object to the specified inventory. Takes the name of the inventory as a string (which must be in <see cref="inventoryManager"/>), the item to be added as an InventoryItem, 
-        /// and the position the item should be added to as an int. Using <see cref = "Inventory.AddItemPos(int, InventoryItem)"/>
-        /// </summary>
         public void AddItemPos(string inventoryName, InventoryItem itemType, int position)
         {
             if (!(TestInventoryDict(inventoryName)))
@@ -256,11 +290,6 @@ namespace InventorySystem
             inventory.AddItemPos(position, itemType);
         }
 
-
-        /// <summary>
-        /// Adds an item to the specified inventory based on the item's name. Takes the name of the inventory as a string, the item to be added as a string, 
-        /// and the position the item should go in as an int. Uses <see cref="Inventory.AddItemPos(int, InventoryItem)"/>
-        /// </summary>
         public void AddItemPos(string inventoryName, string itemType, int position, int amount = 1)
         {
             if (!(TestInventoryDict(inventoryName) && TestItemDict(itemType)))
@@ -272,9 +301,6 @@ namespace InventorySystem
             inventory.AddItemPos(position, item);
         }
 
-        /// <summary>
-        /// Adds a new item to a specified inventory, in the lowest possible location. Uses <see cref="Inventory.AddItemAuto(InventoryItem, int)/>
-        /// </summary>
         public void AddItem(string inventoryName, string itemType, int amount = 1)
         {
             if (!(TestInventoryDict(inventoryName) && TestItemDict(itemType)))
@@ -286,9 +312,6 @@ namespace InventorySystem
             inventory.AddItemAuto(item, amount);
         }
 
-        /// <summary>
-        /// Removes items from a specific index of <see cref="Inventory.inventoryList"/>
-        /// </summary>
         public void RemoveItemPos(string inventoryName, int position, int amount)
         {
             if (!TestInventoryDict(inventoryName))
@@ -297,8 +320,8 @@ namespace InventorySystem
             }
             Inventory inventory = inventoryManager[inventoryName];
             inventory.RemoveItemInPosition(position, amount);
-
         }
+
         public void RemoveItem(string inventoryName,string itemType, int amount)
         {
             if (!(TestInventoryDict(inventoryName) && TestItemDict(itemType)))
@@ -308,9 +331,7 @@ namespace InventorySystem
             Inventory inventory = inventoryManager[inventoryName];
             inventory.RemoveItemAuto(itemType, amount);
         }
-        /// <summary>
-        /// Removes the item passed into the function
-        /// </summary>
+
         public void RemoveItem(string inventoryName, InventoryItem item, int amount = 1)
         {
             if (!(TestInventoryDict(inventoryName)))
@@ -326,9 +347,7 @@ namespace InventorySystem
             Inventory inventory = inventoryManager[inventoryName];
             inventory.RemoveItemInPosition(item, amount);
         }
-        /// <summary>
-        /// Checks if the given inventory has space for the given itemType. Returns false if space is available 
-        /// </summary>
+
         public bool InventoryFull(string inventoryName, string itemType)
         {
             if (!TestInventoryDict(inventoryName))
@@ -338,13 +357,12 @@ namespace InventorySystem
             Inventory inventory = inventoryManager[inventoryName];
             return inventory.Full(itemType);
         }
+
         public void InventoryClear(string inventoryName)
         {
             inventoryManager[inventoryName].Clear();
         }
-        /// <summary>
-        /// Checks the input string exist in the <see cref="inventoryManager"/> and is not null
-        /// </summary>
+
         private bool TestInventoryDict(string inventoryName)
         {
             if (inventoryName == null)
@@ -363,9 +381,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Checks the input string exist in the <see cref="itemManager"/> and is not null.
-        /// </summary>
         private bool TestItemDict(string itemType)
         {
             if (itemType == null)
@@ -384,9 +399,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// This is a debug function used to reset all lists and dictionaries. This will delete all existing inventories in the scnene
-        /// </summary>
         public void ResetInventory()
         {
             inventoryManager.Clear();
@@ -402,19 +414,8 @@ namespace InventorySystem
             }
             allInventoryUI.Clear();
             inventoryUIDict.Clear();
-            DeleteSaveInformation();
-        }
-        /// <summary>
-        /// Removes all saved information from scene
-        /// </summary>
-        public void DeleteSaveInformation()
-        {
-            InventorySaveSystem.Reset(SceneManager.GetActiveScene().name);
         }
 
-        /// <summary>
-        /// This utilizes the serialized list allInventoryUI to setup the dictionaries <see cref="inventoryManager"/> and <see cref="EnableDisableDict"/>
-        /// </summary>
         public void AllignDictionaries()
         {
             inventoryManager.Clear();
@@ -430,7 +431,6 @@ namespace InventorySystem
                 if (!inventoryUIDict.ContainsKey(inventoryInstance.GetInventoryName()))
                 {
                     inventoryUIDict.Add(inventoryInstance.GetInventoryName(), InventoryUI);
-
                 }
                 inventoryInstance.GetInventory().InitList();
                 inventoryManager.Add(inventoryInstance.GetInventoryName(), inventoryInstance.GetInventory());
@@ -453,9 +453,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Counts the amount of items with the itemtype of the input string exist in the input inventory string
-        /// </summary>
         public int CountItems(string inventoryName, string itemType)
         {
             if (!(TestInventoryDict(inventoryName) && TestItemDict(itemType)))
@@ -466,9 +463,6 @@ namespace InventorySystem
             return inventory.Count(itemType);
         }
 
-        /// <summary>
-        /// Adds the Toggle key from the given input char for a specific inventory 
-        /// </summary> 
         public void AddToggleKey(string InventoryName, char character)
         {
             if (EnableDisableDict.ContainsKey(character.ToString().ToLower()))
@@ -486,9 +480,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Removes the Toggle key from the given input char for a specific inventory 
-        /// </summary> 
         public void RemoveToggleKey(string InventoryName, char character)
         {
             if (EnableDisableDict.ContainsKey(character.ToString().ToLower()))
@@ -501,9 +492,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// called by <see cref="Update"/> to check if a user given keyinput has been pressed, and if so disable/enable the inventory. 
-        /// </summary>
         private void ToggleOnKeyInput()
         {
             if (Input.anyKeyDown)
@@ -528,48 +516,6 @@ namespace InventorySystem
             }
         }
 
-        /// <summary>
-        /// Loads saved file on <see cref="Start"/> based on the name of the scene. Adds any saved items back into their respective inventories 
-        /// </summary>
-        private void LoadSave()
-        {
-            InventorySaveSystem.Create(SceneManager.GetActiveScene().name);
-            if (InventorySaveSystem.LoadItem(SceneManager.GetActiveScene().name) != null)
-            {
-                InventoryData itemData = InventorySaveSystem.LoadItem(SceneManager.GetActiveScene().name);
-                foreach (var pair in itemData.inventories)
-                {
-                    if (pair.Key == null)
-                        continue;
-                    if (!inventoryManager.ContainsKey(pair.Key))
-                    {
-                        Debug.LogError(pair.Key + "does not exist in inventoryManager. This may be caused by having two scenes with the same name utilizing save mechanism");
-                        continue;
-                    }
-                    Inventory inventory = inventoryManager[pair.Key];
-
-                    if (!inventory.GetSaveInventory())
-                    {
-                        continue;
-                    }
-                    List<ItemSaveData> items = pair.Value;
-                    foreach (ItemSaveData item in items)
-                    {
-
-                        if (item.name != null)
-                        {
-                            InventoryItem copyItem = itemManager[item.name];
-                            InventoryItem newItem = new InventoryItem(copyItem, item.amount);
-                            AddItemPos(pair.Key, newItem, item.position);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Can be used to programatically create inventoryUI. This is a skeleton of what is likely needed. More customization is recommended for your situation.
-        /// </summary>
         public void CreateInventory(Transform instantiaterPos, string inventoryName, int row, int col,
             bool highlightable = false, bool draggable = false, bool saveInventory = false, bool isActive = true)
         {
@@ -592,21 +538,16 @@ namespace InventorySystem
             inventoryUI.SetInventoryName(inventoryName);
             inventoryUI.UpdateInventoryUI();
         }
-        /// <summary>
-        /// runs setup test sweet, returns false if there is a setup error.
-        /// </summary>
+        
         private bool TestSetup()
         {
-
             return TestIunderstandTheSetup()
                 && TestinventoryManagerObjSetup()
                 && TestInventoryUI()
                 && TestInveInitializerListSetup()
                 && TestUISetup();
-
-
-
         }
+
         private bool TestIunderstandTheSetup()
         {
             if(!iUnderstandTheSetup)
@@ -617,13 +558,8 @@ namespace InventorySystem
             return true;
         }
 
-
-        /// <summary>
-        /// Tests that the inventories in allInventoryUI are correctly instantiated
-        /// </summary>
         private bool TestInventoryUI()
         {
-            Debug.Log("Running TestInventoryUI. Items in allInventoryUI list: " + allInventoryUI.Count);
             if (allInventoryUI.Count == 0 && Application.isPlaying)
             {
                 Debug.LogWarning("No InventoryUIManagers detected. Ensure to initialize all inventories in editor mode. If unexpected try unpacking InventoryController");
@@ -640,9 +576,6 @@ namespace InventorySystem
             return true;
         }
 
-        /// <summary>
-        /// Checks the InventoryManagerUI exists in context
-        /// </summary
         public bool TestinventoryManagerObjSetup()
         {
             if (inventoryManagerObj == null)
@@ -653,15 +586,11 @@ namespace InventorySystem
             return true;
         }
 
-        /// <summary>
-        /// Checks there are no duplicate named inventories
-        /// </summary
         private bool TestInveInitializerListSetup()
         {
             for (int i = 0; i < initializeInventory.Count; i++)
             {
                 int countInstance = 0;
-
                 for (int j = 0; j < initializeInventory.Count; j++)
                 {
                     if (initializeInventory[i].GetInventoryName().Equals(initializeInventory[j].GetInventoryName()))
@@ -671,18 +600,13 @@ namespace InventorySystem
                     if (countInstance > 1)
                     {
                         Debug.LogError("There can only be one of each Inventory");
-
                         return false;
                     }
                 }
-
             }
             return true;
         }
 
-        /// <summary>
-        /// Tests the UI object has been chosen
-        /// </summary
         private bool TestUISetup()
         {
             if (UI == null)
@@ -693,9 +617,6 @@ namespace InventorySystem
             return true;
         }
 
-        /// <summary>
-        /// Test that an instance has been chosen
-        /// </summary
         private bool TestInstance()
         {
             if (instance == null)
@@ -706,9 +627,6 @@ namespace InventorySystem
             return true;
         }
 
-        /// <summary>
-        /// Test whether or not the inventory controller rhas the correct child object
-        /// </summary
         private void TestChildObject()
         {
             InventoryUIManager manager = transform.GetComponentInChildren<InventoryUIManager>();
@@ -727,6 +645,7 @@ namespace InventorySystem
                     Debug.LogWarning("Inventory Controller Does Not Have Child Object with InventoryUIManager");
             }
         }
+
         public bool checkEnabled(string inventoryName)
         {
             if (inventoryUIDict[inventoryName].activeSelf)
@@ -738,6 +657,7 @@ namespace InventorySystem
                 return false;
             }
         }
+
         public bool checkUI(GameObject obj)
         {
             if (inventoryUIDict.ContainsValue(obj))
@@ -746,23 +666,26 @@ namespace InventorySystem
             }
             return false;
         }
+
         public GameObject GetInventoryManagerPrefab()
         {
             return inventoryManagerObj;
         }
+
         public Inventory GetInventory(string inventoryName)
         {
             return inventoryManager[inventoryName];
         }
+
         public Transform GetUI()
         {
             return UI;
         }
+
         public InventoryItem GetItem(string inventoryName, int index)
         {
             return inventoryManager[inventoryName].InventoryGetItem(index);
         }
-
 
         public List<ItemData> GetItems()
         {
@@ -771,17 +694,12 @@ namespace InventorySystem
 
         public void RegisterExternalUI(GameObject uiObject)
         {
-            Debug.Log("체크포인트 1");
             if (allInventoryUI == null)
             {
-                 Debug.Log("체크포인트 2");
-
                 allInventoryUI = new List<GameObject>();
             }
             if (uiObject != null && !allInventoryUI.Contains(uiObject))
             {
-            Debug.Log("체크포인트 3");
-
                 allInventoryUI.Add(uiObject);
             }
         }
@@ -792,11 +710,6 @@ namespace InventorySystem
             {
                 allInventoryUI.Clear();
             }
-        }
-
-        private void OnDestroy()
-        {
-            InventorySaveSystem.SaveInventory(inventoryManager, SceneManager.GetActiveScene().name);
         }
     }
 }

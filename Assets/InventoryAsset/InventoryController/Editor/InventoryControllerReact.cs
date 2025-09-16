@@ -22,10 +22,7 @@ namespace InventorySystem
             {
                 EditorApplication.delayCall += script.ResetInventory;
             }
-            else if (GUILayout.Button("Delete All Saved Information"))
-            {
-                EditorApplication.delayCall += script.DeleteSaveInformation;
-            }
+            
         }
     }
 }

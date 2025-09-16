@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using InventorySystem;
 public class ItemObject : MonoBehaviour
 {
     public ItemData itemData;
@@ -25,9 +26,9 @@ public class ItemObject : MonoBehaviour
 
             if (Vector3.Distance(transform.position, player.position) < 0.5f)
             {
-                if (InventoryManager.Instance != null)
+                if (InventoryController.instance != null)
                 {
-                    InventoryManager.Instance.AddItem(itemData.itemName);
+                    InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);
                 }
                 Destroy(gameObject);
             }

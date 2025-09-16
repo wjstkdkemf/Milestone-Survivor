@@ -1,10 +1,14 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class SaveLoadManager : MonoBehaviour
 {
     public static SaveLoadManager Instance { get; private set; }
 
     public bool IsLoadingFromFile { get; private set; } = false;
+
+    // Temporary storage for transferring items between scenes.
+    public List<InventorySystem.ItemSaveData> itemsToTransfer = null;
 
     private const string SaveSlotKey = "SaveSlot_";
 
@@ -23,24 +27,28 @@ public class SaveLoadManager : MonoBehaviour
 
     public void SaveGame(int slotNumber)
     {
-        if (InventoryManager.Instance == null || PowerUpManager.Instance == null || PlayerStats.Instance == null)
+        // Check for the essential managers. InventoryManager is no longer needed.
+        if (InventorySystem.InventoryController.instance == null || PowerUpManager.Instance == null || PlayerStats.Instance == null)
         {
             Debug.LogError("A manager is missing. Cannot save game.");
             return;
         }
 
-        InventoryData invData = new InventoryData(InventoryManager.Instance.GetInventoryData());
+        // Get save data from each manager.
+        string invJson = InventorySystem.InventoryController.instance.GetSaveData();
         PowerUpSaveData powData = PowerUpManager.Instance.GetSaveData();
         PlayerStatsData statsData = PlayerStats.Instance.GetSaveData();
 
-        GameSaveData saveData = new GameSaveData(invData, powData, statsData);
+        // Create the main save data object.
+        GameSaveData saveData = new GameSaveData(invJson, powData, statsData);
 
+        // Serialize to JSON and save to PlayerPrefs.
         string jsonData = JsonUtility.ToJson(saveData, true);
         string saveKey = SaveSlotKey + slotNumber;
         PlayerPrefs.SetString(saveKey, jsonData);
         PlayerPrefs.Save();
 
-        Debug.Log($"Game Saved to Slot {slotNumber}.");
+        Debug.Log($"<color=green>[SaveLoadManager]</color> Game Saved to Slot {slotNumber}.");
     }
 
     public void LoadGame(int slotNumber)
@@ -49,28 +57,29 @@ public class SaveLoadManager : MonoBehaviour
 
         if (saveData != null)
         {
-            // Distribute data to the managers
-            InventoryManager.Instance.LoadInventoryData(saveData.inventoryData.ToDictionary());
+            // Distribute data to the managers.
+            InventorySystem.InventoryController.instance.LoadFromData(saveData.inventoryJson);
             PowerUpManager.Instance.LoadData(saveData.powerUpData);
             PlayerStats.Instance.LoadData(saveData.playerStatsData);
             IsLoadingFromFile = true; // Set the flag
-            Debug.Log($"Game Loaded from Slot {slotNumber}.");
+            Debug.Log($"<color=green>[SaveLoadManager]</color> Game Loaded from Slot {slotNumber}.");
         }
         else
         {
-            // No save data found, prepare for a new game
-            Debug.LogWarning($"No save data found for Slot {slotNumber}. Preparing for new game.");
+            // No save data found, prepare for a new game.
+            Debug.LogWarning($"<color=orange>[SaveLoadManager]</color> No save data found for Slot {slotNumber}. Preparing for new game.");
             ClearAllDataForNewGame();
         }
     }
 
     public void ClearAllDataForNewGame()
     {
-        if (InventoryManager.Instance != null) InventoryManager.Instance.ClearInventory();
+        // Clear data in all managers for a fresh start.
+        if (InventorySystem.InventoryController.instance != null) InventorySystem.InventoryController.instance.ClearAllInventories();
         if (PowerUpManager.Instance != null) PowerUpManager.Instance.LoadData(null); // Will load defaults
         if (PlayerStats.Instance != null) PlayerStats.Instance.LoadData(null); // Will load defaults
         IsLoadingFromFile = false; // Reset the flag
-        Debug.Log("All data has been reset for a new game.");
+        Debug.Log("<color=yellow>[SaveLoadManager]</color> All data has been reset for a new game.");
     }
 
     public GameSaveData GetSaveSlotData(int slotNumber)
@@ -80,6 +89,7 @@ public class SaveLoadManager : MonoBehaviour
         if (PlayerPrefs.HasKey(saveKey))
         {
             string jsonData = PlayerPrefs.GetString(saveKey);
+            if (string.IsNullOrEmpty(jsonData)) return null;
             return JsonUtility.FromJson<GameSaveData>(jsonData);
         }
         else
@@ -95,7 +105,7 @@ public class SaveLoadManager : MonoBehaviour
         {
             PlayerPrefs.DeleteKey(saveKey);
             PlayerPrefs.Save();
-            Debug.Log($"Save data for slot {slotNumber} deleted.");
+            Debug.Log($"<color=yellow>[SaveLoadManager]</color> Save data for slot {slotNumber} deleted.");
         }
     }
 }
