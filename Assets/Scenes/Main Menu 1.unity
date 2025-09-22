@@ -3055,6 +3055,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b70bbf452b073d74cbaf880ab145cf90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemsToTransfer: []
 --- !u!1 &521966021
 GameObject:
   m_ObjectHideFlags: 0
@@ -3630,6 +3631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b70bbf452b073d74cbaf880ab145cf90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  itemsToTransfer: []
 --- !u!114 &549850747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9530,14 +9532,14 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 549850747}
-        m_TargetAssemblyTypeName: InventoryManager, Assembly-CSharp
-        m_MethodName: InsertGame
+      - m_Target: {fileID: 549850746}
+        m_TargetAssemblyTypeName: SaveLoadManager, Assembly-CSharp
+        m_MethodName: SettingMode
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 1000
           m_BoolArgument: 1
@@ -15724,7 +15726,7 @@ PrefabInstance:
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 549850747}
+      objectReference: {fileID: 549850746}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
@@ -15747,7 +15749,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: InsertGame
+      value: SettingMode
       objectReference: {fileID: 0}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
@@ -15767,7 +15769,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: InventoryManager, Assembly-CSharp
+      value: SaveLoadManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
@@ -15779,7 +15781,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_IntArgument
-      value: 100
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_StringArgument
@@ -15883,6 +15885,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6756882608279908137, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8744751151450400958, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

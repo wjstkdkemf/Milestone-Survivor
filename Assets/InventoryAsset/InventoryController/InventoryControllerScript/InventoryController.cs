@@ -85,7 +85,24 @@ namespace InventorySystem
             TestChildObject();
             AllignDictionaries();
             InitializeItems();
-            // Automatic loading on start is removed. Loading will be handled by SaveLoadManager.
+
+            checkStartMode();
+        }
+
+        private void checkStartMode()
+        {
+            if(SaveLoadManager.Instance != null)
+            {
+                switch (SaveLoadManager.Instance.startMode)
+                {
+                    case SaveLoadManager.GameStartMode.NewGame:
+                        SaveLoadManager.Instance.ClearAllDataForNewGame();
+                        break;
+                    case SaveLoadManager.GameStartMode.LoadGame:
+                        SaveLoadManager.Instance.LoadGame(SaveLoadManager.Instance.selectedIndex);
+                        break;
+                }
+            }
         }
 
         private void Update()
@@ -433,7 +450,11 @@ namespace InventorySystem
                     inventoryUIDict.Add(inventoryInstance.GetInventoryName(), InventoryUI);
                 }
                 inventoryInstance.GetInventory().InitList();
-                inventoryManager.Add(inventoryInstance.GetInventoryName(), inventoryInstance.GetInventory());
+                if (!inventoryManager.ContainsKey(inventoryInstance.GetInventoryName()))
+                {
+                    Debug.Log(inventoryInstance.GetInventoryName() + " " + inventoryInstance.gameObject.name);
+                    inventoryManager.Add(inventoryInstance.GetInventoryName(), inventoryInstance.GetInventory());
+                }
                 foreach (char character in inventoryInstance.GetEnableDisable())
                 {
                     if (EnableDisableDict.ContainsKey(character.ToString().ToLower()))

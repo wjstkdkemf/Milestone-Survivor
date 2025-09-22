@@ -12,20 +12,19 @@ public class ManualInventoryRegistrar : MonoBehaviour
 
     void Awake()
     {
+
         InventoryController controller = InventoryController.instance;
 
         if (controller != null)
         {
-            // Clear any persistent "ghost" references from the editor
             controller.ClearRegisteredUI();
-
             if (inventoryUIs != null && inventoryUIs.Count > 0)
             {
                 foreach (GameObject ui in inventoryUIs)
                 {
                     controller.RegisterExternalUI(ui);
                 }
-                Debug.Log("ManualInventoryRegistrar: Cleared and re-registered " + inventoryUIs.Count + " external inventories.");
+                Debug.Log("ManualInventoryRegistrar: Successfully registered " + inventoryUIs.Count + " external inventories.");
             }
         }
         else

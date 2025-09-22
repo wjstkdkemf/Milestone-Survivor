@@ -1,11 +1,19 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class SaveLoadManager : MonoBehaviour
 {
+    // Defines how the game should start in the next scene.
+    
+    public enum GameStartMode { None, NewGame, LoadGame }
+    // Stores the choice from the main menu.
+    public GameStartMode startMode { get; set; } = GameStartMode.None;
+
     public static SaveLoadManager Instance { get; private set; }
 
     public bool IsLoadingFromFile { get; private set; } = false;
+    public int selectedIndex { get; set; }
 
     // Temporary storage for transferring items between scenes.
     public List<InventorySystem.ItemSaveData> itemsToTransfer = null;
@@ -107,5 +115,10 @@ public class SaveLoadManager : MonoBehaviour
             PlayerPrefs.Save();
             Debug.Log($"<color=yellow>[SaveLoadManager]</color> Save data for slot {slotNumber} deleted.");
         }
+    }
+
+    public void SettingMode(int mode)
+    {
+        startMode = (GameStartMode)mode;
     }
 }
