@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
 using InventorySystem;
 
 public class InventoryManager : MonoBehaviour
@@ -8,6 +9,7 @@ public class InventoryManager : MonoBehaviour
     public int SceneName;
 
     private Dictionary<string, int> itemCounts = new Dictionary<string, int>();
+    private InventoryData itemData;
     // If you need to store item prefabs, you can use another dictionary.
     // private Dictionary<string, GameObject> itemPrefabs = new Dictionary<string, GameObject>();
 
@@ -65,6 +67,98 @@ public class InventoryManager : MonoBehaviour
         foreach (var item in itemCounts)
         {
             InventoryController.instance.AddItem("ClearInventory", item.Key, item.Value);
+        }
+    }
+
+    public void StoreInventoryFrom(string inventoryName)
+    {
+        if (InventoryController.instance == null)
+        {
+            Debug.LogError("InventoryController not found.");
+            return;
+        }
+
+        Inventory inventory = InventoryController.instance.GetInventory(inventoryName);
+        if (inventory == null)
+        {
+            Debug.LogError($"Inventory '{inventoryName}' not found.");
+            return;
+        }
+
+        ClearInventory(); // Clear previous data before storing new data.
+
+        List<InventoryItem> items = inventory.GetList();
+        foreach (InventoryItem item in items)
+        {
+            if (item != null && !item.GetIsNull())
+            {
+                AddItem(item.GetItemType(), item.GetAmount());
+            }
+        }
+        Debug.Log($"Stored {itemCounts.Count} item types from {inventoryName}.");
+    }
+
+    public void RestoreInventoryTo(string inventoryName)
+    {
+        if (InventoryController.instance == null)
+        {
+            Debug.LogError("InventoryController not found.");
+            return;
+        }
+
+        foreach (var item in itemCounts)
+        {
+            InventoryController.instance.AddItem(inventoryName, item.Key, item.Value);
+        }
+        Debug.Log($"Restored {itemCounts.Count} item types to {inventoryName}.");
+
+        ClearInventory(); // Clear after restoring.
+    }
+    private string GetFullPath(string fileName)
+      {
+          return Path.Combine(Application.persistentDataPath, fileName);
+      }
+    public void SaveAllInventories(string fileName)
+    {
+        if (InventoryController.instance == null)
+        {
+            Debug.LogError("저장 실패: InventoryController 인스턴스를 찾을 수 없습니다.");
+            return;
+        }
+
+        // InventoryController에서 모든 인벤토리 데이터를 JSON 문자열로 가져옵니다.
+        string jsonData = InventoryController.instance.GetSaveData();
+
+        // JSON 문자열을 파일에 씁니다.
+        File.WriteAllText(GetFullPath(fileName), jsonData);
+
+        Debug.Log($"모든 인벤토리가 {GetFullPath(fileName)} 파일에 저장되었습니다.");
+    }
+    public void LoadAllInventories(string fileName)
+    {
+        if (InventoryController.instance == null)
+        {
+            Debug.LogError("로드 실패: InventoryController 인스턴스를 찾을 수 없습니다.");
+            return;
+        }
+
+        string path = GetFullPath(fileName);
+
+        if (File.Exists(path))
+        {
+            // 파일에서 JSON 문자열을 읽어옵니다.
+            string jsonData = File.ReadAllText(path);
+
+            // InventoryController를 사용해 JSON 데이터로부터 인벤토리를 복원합니다.
+            InventoryController.instance.LoadFromData(jsonData);
+
+            Debug.Log($"{path} 파일에서 모든 인벤토리를 불러왔습니다.");
+        }
+        else
+        {
+            Debug.LogWarning($"저장 파일을 찾을 수 없습니다: {path}. 인벤토리를 비웁니다.");
+            // 저장 파일이 없으면 모든 인벤토리를 깨끗하게 비웁니다.
+            InventoryController.instance.ClearAllInventories();
         }
     }
 }

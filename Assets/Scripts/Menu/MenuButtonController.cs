@@ -9,15 +9,15 @@ public class MenuButtonController : MonoBehaviour
 {
 	public static MenuButtonController Instance;
 
-    public GameObject MaineMenuObject;
-    public GameObject CharacterSelectionObject;
-    public GameObject PowerUpObject;
-    public GameObject PauseObject;
+	public GameObject MaineMenuObject;
+	public GameObject CharacterSelectionObject;
+	public GameObject PowerUpObject;
+	public GameObject PauseObject;
 	public GameObject SettingsObject;
 	public GameObject AudioObject;
 	public GameObject GraphicsObject;
 	public GameObject UpgradeObject;
-    public GameObject LoadObject;
+	public GameObject LoadObject;
 	public GameObject InventoryObject;
 	public bool Menu, Pause, Settings, SettingsTwo, CharacterSelection, PowerUp, Load;
 	public GameObject CurntButton;
@@ -27,9 +27,9 @@ public class MenuButtonController : MonoBehaviour
 	private GameObject SettingsButton;
 	private GameObject AudioButton;
 	private GameObject GraphicsButton;
-	public  GameObject PowerUpButton;
-    public GameObject CharacterSelectionButton;
-    public string FunctionName;
+	public GameObject PowerUpButton;
+	public GameObject CharacterSelectionButton;
+	public string FunctionName;
 
 	private void Awake()
 	{
@@ -50,7 +50,7 @@ public class MenuButtonController : MonoBehaviour
 		AudioButton = AudioObject.transform.GetChild(0).gameObject;
 		GraphicsButton = GraphicsObject.transform.GetChild(0).gameObject;
 
-        if (Menu)
+		if (Menu)
 		{
 			EventSystem.current.SetSelectedGameObject(MaineMenuButton);
 
@@ -158,26 +158,27 @@ public class MenuButtonController : MonoBehaviour
 
 	}
 
-    public void PowerUps()
-    {
-		CurntButton = PowerUpButton;
-        EventSystem.current.SetSelectedGameObject(CurntButton);
-        PowerUp = true;
-		PowerUpObject.SetActive(true);
-        
-    }
-
-    public void LoadGame()
-    {
-        CurntButton = MaineMenuButton;
-        EventSystem.current.SetSelectedGameObject(CurntButton);
-        Load = true;
-        MaineMenuObject.SetActive(false);
-        LoadObject.SetActive(true);
-    }
-
-    public void back()
+	public void PowerUps()
 	{
+		CurntButton = PowerUpButton;
+		EventSystem.current.SetSelectedGameObject(CurntButton);
+		PowerUp = true;
+		PowerUpObject.SetActive(true);
+
+	}
+
+	public void LoadGame()
+	{
+		CurntButton = MaineMenuButton;
+		EventSystem.current.SetSelectedGameObject(CurntButton);
+		Load = true;
+		MaineMenuObject.SetActive(false);
+		LoadObject.SetActive(true);
+	}
+
+	public void back()
+	{
+		Debug.Log(Settings + " " +  SettingsTwo + " " + !Menu +" "+ !PowerUp +" "+ !CharacterSelection);
 		if (Settings && SettingsTwo && !Menu && !PowerUp && !CharacterSelection)
 		{
 			CurntButton = SettingsButton;
@@ -272,7 +273,7 @@ public class MenuButtonController : MonoBehaviour
 		}
 
 
-    }
+	}
 	public void InventoryButton()
 	{
 		if (!InventoryObject.activeSelf)
@@ -299,10 +300,15 @@ public class MenuButtonController : MonoBehaviour
 
 	}
 
-    public void LoadScene(int scene = 0)
-    {
+	public void LoadScene(int scene = 0)
+	{
 
-        SceneManager.LoadScene(scene);
+		SceneManager.LoadScene(scene);
 
-    }
+	}
+	public void EndDungeun()
+	{
+		InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
+		SceneManager.LoadScene("Village");
+	}
 }

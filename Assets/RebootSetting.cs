@@ -17,10 +17,11 @@ public class RebootSetting : MonoBehaviour
 
         // This is the first instance.
         Instance = this;
-        DontDestroyOnLoad(this.gameObject); // Persist this object across scenes
+        //DontDestroyOnLoad(this.gameObject); // Persist this object across scenes
 
         // --- Perform your one-time setup here ---
         Debug.Log("RebootSetting: 첫 인스턴스 생성 및 1회 설정 실행");
+
         // You might need to ensure GameManager.Instance is ready before this is called.
         GameManager.Instance.GetComponent<CharacterSelection>().OnceSetting();
     }

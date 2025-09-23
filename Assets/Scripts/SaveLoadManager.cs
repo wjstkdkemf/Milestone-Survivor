@@ -6,7 +6,7 @@ public class SaveLoadManager : MonoBehaviour
 {
     // Defines how the game should start in the next scene.
     
-    public enum GameStartMode { None, NewGame, LoadGame }
+    public enum GameStartMode { None, NewGame, LoadGame , Running}
     // Stores the choice from the main menu.
     public GameStartMode startMode { get; set; } = GameStartMode.None;
 
@@ -49,7 +49,8 @@ public class SaveLoadManager : MonoBehaviour
 
         // Create the main save data object.
         GameSaveData saveData = new GameSaveData(invJson, powData, statsData);
-
+        Debug.Log("Loading Inventory JSON: " + saveData.inventoryJson);
+        
         // Serialize to JSON and save to PlayerPrefs.
         string jsonData = JsonUtility.ToJson(saveData, true);
         string saveKey = SaveSlotKey + slotNumber;
@@ -66,6 +67,7 @@ public class SaveLoadManager : MonoBehaviour
         if (saveData != null)
         {
             // Distribute data to the managers.
+            Debug.Log("Loading Inventory JSON: " + saveData.inventoryJson);
             InventorySystem.InventoryController.instance.LoadFromData(saveData.inventoryJson);
             PowerUpManager.Instance.LoadData(saveData.powerUpData);
             PlayerStats.Instance.LoadData(saveData.playerStatsData);
@@ -120,5 +122,6 @@ public class SaveLoadManager : MonoBehaviour
     public void SettingMode(int mode)
     {
         startMode = (GameStartMode)mode;
+        Debug.Log(startMode);
     }
 }

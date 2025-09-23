@@ -149,9 +149,10 @@ public class CharacterSelectionManager : MonoBehaviour
         }
     }
 
-    public void ConfirmCharacter() 
+    public void ConfirmCharacter()
     {
         PlayerStats.Instance.CharacterID = characterSelectionButton.characterInfo.Id;
+        SaveLoadManager.Instance.SettingMode(1);//세 게임
     }
 
     public void ResetCharacters()

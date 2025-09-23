@@ -59,7 +59,7 @@ public class UpgradeManager : MonoBehaviour
 
     private void Start()
     {
-        if (LoadData)
+        if (LoadData)//삭제해도 될예정. 만약 인게임 저장 기능을 구현해야 한다면 활용
         {
             if (!PersistentDataManager.Instance.upgradeChancesInitialized)
             {

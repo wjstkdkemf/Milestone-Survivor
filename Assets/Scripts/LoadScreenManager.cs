@@ -59,6 +59,7 @@ public class LoadScreenManager : MonoBehaviour
             {
                 //SaveLoadManager.Instance.LoadGame(currentlySelectedSlot.slotId);
                 SaveLoadManager.Instance.selectedIndex = currentlySelectedSlot.slotId;
+                SaveLoadManager.Instance.SettingMode(2);
             }
             else
             {

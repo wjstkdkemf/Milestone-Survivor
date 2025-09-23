@@ -69,6 +69,9 @@ public class PlayerStats : MonoBehaviour
         }
 
         // Update UI and apply stats for the new scene
+        ResetDataNotGold();
+        if(GameObject.FindGameObjectWithTag("Village") != null)
+            GameManager.Instance.GetComponent<CharacterSelection>().OnceSetting();
         UpdateExpBar();
         ApplyPowerUps();
     }
@@ -96,6 +99,25 @@ public class PlayerStats : MonoBehaviour
     public PlayerStatsData GetSaveData()
     {
         return new PlayerStatsData(this);
+    }
+    public void ResetDataNotGold()
+    {
+        StageCleared = 0;
+        CharacterID = 0;
+        level = 1;
+        currentXP = 0;
+        requiredXP = 50;
+
+        DamageBonus = 0;
+        SpeedBonus = 0;
+        HealthRegeneration = 0;
+        experienceBonus = 0;
+        projectileSpeedBonus = 0;
+        cooldownReduction = 0;
+        LuckBonus = 0;
+        KnockBackBonus = 0;
+        ArmorBonus = 0;
+        DoubleDamageChance = 0;
     }
 
     public void LoadData(PlayerStatsData data)

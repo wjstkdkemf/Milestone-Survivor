@@ -25,7 +25,7 @@ public class GameOver : MonoBehaviour
 
     public void GameEnded(bool IsWon = false)
     {
-        if (isOver)
+        /*if (isOver)
             return;
         if (Panel != null)
             Panel.SetActive(true);
@@ -49,6 +49,15 @@ public class GameOver : MonoBehaviour
 
         TimerText.text = "Time: " + Timer.text;
         KillsText.text = "Kills: " + Kills.text;
+        isOver = true;
+        GameManager.Instance.Pause = true;
+        */
+        if (isOver)
+            return;
+        if (Panel != null)
+            Panel.SetActive(true);
+
+        WinnerButton.SetActive(true);
         isOver = true;
         GameManager.Instance.Pause = true;
     }
@@ -86,5 +95,11 @@ public class GameOver : MonoBehaviour
                 enCounterSystem.ClearEncount();
             }
         }
+    }
+
+    public void MoveInventoryAndLoadScene(string sceneName)
+    {
+        InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
+        SceneManager.LoadScene(sceneName);
     }
 }

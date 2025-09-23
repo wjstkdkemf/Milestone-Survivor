@@ -93,13 +93,27 @@ namespace InventorySystem
         {
             if(SaveLoadManager.Instance != null)
             {
+                //Debug.Log(SaveLoadManager.Instance.startMode);
+                
                 switch (SaveLoadManager.Instance.startMode)
                 {
                     case SaveLoadManager.GameStartMode.NewGame:
+                        Debug.Log("체크포인트 1");
                         SaveLoadManager.Instance.ClearAllDataForNewGame();
+                        SaveLoadManager.Instance.SettingMode(3);
                         break;
                     case SaveLoadManager.GameStartMode.LoadGame:
                         SaveLoadManager.Instance.LoadGame(SaveLoadManager.Instance.selectedIndex);
+                        SaveLoadManager.Instance.SettingMode(3);
+                        break;
+                    case SaveLoadManager.GameStartMode.Running:
+                        if (GameObject.FindGameObjectWithTag("Village") != null)
+                        {
+                            Debug.Log("체크포인트 2");
+
+                            InventoryManager.Instance.LoadAllInventories("Current.json");
+                            InventoryManager.Instance.RestoreInventoryTo("Inventory");
+                        }
                         break;
                 }
             }
@@ -452,7 +466,7 @@ namespace InventorySystem
                 inventoryInstance.GetInventory().InitList();
                 if (!inventoryManager.ContainsKey(inventoryInstance.GetInventoryName()))
                 {
-                    Debug.Log(inventoryInstance.GetInventoryName() + " " + inventoryInstance.gameObject.name);
+                    //Debug.Log(inventoryInstance.GetInventoryName() + " " + inventoryInstance.gameObject.name);
                     inventoryManager.Add(inventoryInstance.GetInventoryName(), inventoryInstance.GetInventory());
                 }
                 foreach (char character in inventoryInstance.GetEnableDisable())

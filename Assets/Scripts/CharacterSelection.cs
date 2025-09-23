@@ -15,7 +15,6 @@ public class CharacterSelection : MonoBehaviour
         // Get the selected character from GameManager
         int selectedCharacter = PlayerStats.Instance.CharacterID;
 
-        Debug.Log(selectedCharacter);
 
         Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterAnimators[selectedCharacter];
         characterIconImage.sprite = characterIcons[selectedCharacter];
@@ -33,7 +32,6 @@ public class CharacterSelection : MonoBehaviour
         PlayerStats.Instance.LuckBonus += characterData[selectedCharacter].LuckBoost;
         PlayerStats.Instance.DamageBonus += characterData[selectedCharacter].Damage;
 
-        Debug.Log(selectedCharacter);
 
         switch (selectedCharacter)
         {

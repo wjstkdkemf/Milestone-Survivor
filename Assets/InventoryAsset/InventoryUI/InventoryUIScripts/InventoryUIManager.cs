@@ -883,7 +883,11 @@ namespace InventorySystem
 
         public void UpdateSlot(int location)
         {
-            if (positionToSlotDict.ContainsKey(location))
+            if (positionToSlotDict != null && positionToSlotDict.ContainsKey(location))
+            {
+                positionToSlotDict[location].GetComponent<Slot>().UpdateSlot();
+            }
+            /*if (positionToSlotDict.ContainsKey(location))
             {
                 positionToSlotDict[location].GetComponent<Slot>().UpdateSlot();
 
@@ -891,7 +895,7 @@ namespace InventorySystem
             else
             {
                 Debug.LogError("Dictionary does not contain slot at: " + location);
-            }
+            }*/
         }
 
         public Transform GetUI()

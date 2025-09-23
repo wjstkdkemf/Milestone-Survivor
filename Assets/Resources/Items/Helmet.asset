@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 24194fdcf80d65247848d4239f267514, type: 3}
   itemType: 0
   grade: 0
-  maxStackAmount: 1
+  maxStackAmount: 20
   displayItemAmount: 1
   draggable: 1
   pressable: 1
@@ -25,5 +25,6 @@ MonoBehaviour:
   itemAction:
     m_PersistentCalls:
       m_Calls: []
+  price: 0
   equipmentType: 0
   statModifiers: []
