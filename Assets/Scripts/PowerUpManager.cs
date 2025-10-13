@@ -63,7 +63,21 @@ public class PowerUpManager : MonoBehaviour
     {
         if (data == null) 
         {
-            Debug.LogWarning("PowerUpSaveData is null, cannot load data.");
+            Debug.LogWarning("저장된 파워업 데이터가 없어 기본값으로 초기화합니다.");
+
+            // 모든 파워업 레벨을 0으로 초기화
+            foreach (var powerUp in powerUps)
+            {
+                powerUp.CurrentLevel = 0;
+            }
+
+            // UI가 초기화된 상태를 반영하도록 업데이트
+            foreach (var button in powerUpButtons)
+            {
+                button.UpdateUI();
+            }
+
+            // 초기화 후 함수 종료
             return;
         }
 
