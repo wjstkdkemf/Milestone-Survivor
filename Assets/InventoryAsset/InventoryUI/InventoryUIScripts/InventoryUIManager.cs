@@ -248,11 +248,26 @@ namespace InventorySystem
 
             createSlots();
             SetSlotOrder();
+            ConfigureSlotTypes(); // 슬롯 타입 설정 함수 호출 추가
             SetBackground();
             UpdateInventory();
             InitSlotEnterExitDict();
             BackgroundActivity();
             initializeTestItems();
+        }
+
+        /// <summary>
+        /// 특정 인벤토리의 슬롯 타입을 코드로 설정합니다. (예: 장비창)
+        /// </summary>
+        private void ConfigureSlotTypes()
+        {
+            if (inventoryName == "HotBar")
+            {
+                // 슬롯 개수가 충분한지 확인하여 오류 방지
+                if (slots.Count > 0) slots[0].GetComponent<Slot>().slotType = "Helmet";
+                if (slots.Count > 1) slots[1].GetComponent<Slot>().slotType = "Armor";
+                if (slots.Count > 2) slots[2].GetComponent<Slot>().slotType = "Shoes";
+            }
         }
 
         /// <summary>
@@ -449,6 +464,7 @@ namespace InventorySystem
         {
             Slot slotInstance = slot.GetComponent<Slot>();
             InventoryItem item = slotInstance.GetItem();
+            Debug.Log(item.GetPressable() + " " + clickable);
             if (item.GetPressable() && clickable || item.GetIsNull() && clickable || item.GetPressable() && overRide || overRide && item.GetIsNull())
             {
                 if (previouslyHighlighted != null)
@@ -462,7 +478,9 @@ namespace InventorySystem
                 }
                 Highlight(slot);
                 slotInstance.GetItem().Selected();
-                previouslyHighlighted = slot;
+
+                Debug.Log(slotInstance.GetItem().ToString());
+                previouslyHighlighted = slot;     
             }
         }
 
@@ -935,6 +953,10 @@ namespace InventorySystem
         public Vector3 GetSlotSize()
         {
             return slotSize;
+        }
+        public List<GameObject> GetSlot()
+        {
+            return slots;
         }
         public Vector3 GetSlotGap()
         {

@@ -12,7 +12,9 @@ namespace InventorySystem
     {
         private int amount;
 
-        string itemType;
+        string itemName;
+        ItemType test;
+        EquipmentType itemType = EquipmentType.None;
         private Sprite itemImage;//Holds image of item
         private int maxStackAmount;
         private bool draggable;
@@ -22,13 +24,16 @@ namespace InventorySystem
         private bool isNull = false;//Checks if item exists
         private bool displayAmount;
         private int position;
+        private int price;
         private string inventory;
         private string previousInventory;
         public InventoryItem(ItemData data)
         {
+            this.test = data.itemType;
             this.amount = 1;
-            this.itemType = data.itemName;
+            this.itemName = data.itemName;
             this.itemImage = data.icon;
+            this.price = data.price;
             this.maxStackAmount = data.maxStackAmount;
             this.draggable = data.draggable;
             this.pressable = data.pressable;
@@ -36,6 +41,15 @@ namespace InventorySystem
             this.isNull = (data == null);
             this.relatedGameObject = data.RelatedGameObject;
             this.displayAmount = data.displayItemAmount;
+
+            if(data.itemType == ItemType.Equipment)
+            {
+                EquipmentData equi = data as EquipmentData;
+
+                this.itemType = equi.equipmentType;
+
+                Debug.Log("체크 " + this.itemType);
+            }
         }
         public InventoryItem(InventoryItem other, int amount = 1)
         {
@@ -45,7 +59,7 @@ namespace InventorySystem
             }
 
             this.amount = amount;
-            this.itemType = other.itemType != null ? string.Copy(other.itemType) : null;
+            this.itemName = other.itemName != null ? string.Copy(other.itemName) : null;
             this.itemImage = other.itemImage;
 
             this.maxStackAmount = other.maxStackAmount;
@@ -57,7 +71,8 @@ namespace InventorySystem
             this.displayAmount = other.GetDisplayAmount();
             this.inventory = other.inventory;
             this.position = other.position;
-            this.previousInventory= other.previousInventory;
+            this.previousInventory = other.previousInventory;
+            this.itemType = other.itemType;
         }
 
         public InventoryItem(bool isNull)
@@ -75,7 +90,7 @@ namespace InventorySystem
         }
         public string GetItemType()
         {
-            return itemType;
+            return itemName;
         }
         public Sprite GetItemImage()
         {
@@ -126,6 +141,14 @@ namespace InventorySystem
         {
             return position;
         }
+        public int GetPrice()
+        {
+            return price;
+        }
+        public EquipmentType GetEquipmentType()
+        {
+            return itemType;
+        }
         public void SetInventory(string inventory)
         {
             previousInventory = this.inventory;
@@ -138,6 +161,8 @@ namespace InventorySystem
         public override string ToString()
         {
             string result = $@"
+            test : {test}
+            ItemName: {itemName}
             ItemType: {itemType}
             Inventory: {inventory}
             previousInventory: {previousInventory}

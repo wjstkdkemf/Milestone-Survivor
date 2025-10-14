@@ -11,6 +11,9 @@ namespace InventorySystem
     /// </summary>
     public class Slot : MonoBehaviour, IPointerClickHandler
     {
+        [Tooltip("슬롯 타입을 지정합니다. (예: Helmet, Armor, Inventory)")]
+        public string slotType = "Inventory";
+
         [SerializeField]
         private int position;//The position if the inventories items list
         [SerializeField]
@@ -75,7 +78,6 @@ namespace InventorySystem
                 }
                 else
                 {
-
                     SlotItemHolder.SetActive(false);
                 }
             }
@@ -110,8 +112,26 @@ namespace InventorySystem
         /// </summary>
         public void OnPointerClick(PointerEventData eventData)
         {
-            inventoryUIManager.SetPressed(gameObject);
-            inventoryUIManager.MoveOnPress(gameObject);
+            // 더블클릭 감지
+            if (eventData.clickCount == 2)
+            {
+                // 현재 슬롯의 아이템 가져오기
+                InventoryItem currentItem = GetItem();
+
+                // 아이템이 없거나, 장착 불가능한 슬롯(예: 장비창)에서 더블클릭한 경우 무시
+                if (currentItem.GetIsNull() || slotType != "Inventory")
+                {
+                    return;
+                }
+
+                // 컨트롤러에게 장착 요청
+                InventoryController.instance.EquipItem(currentItem);
+            }
+            else // 싱글클릭
+            {
+                inventoryUIManager.SetPressed(gameObject);
+                inventoryUIManager.MoveOnPress(gameObject);
+            }
         }
         public void SetTextSize(float size)
         {

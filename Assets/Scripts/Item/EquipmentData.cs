@@ -9,7 +9,8 @@ public enum EquipmentType
     Armor, // 갑옷
     Gloves, // 장갑
     Boots, // 신발
-    Accessory // 장신구
+    Accessory, // 장신구
+    None = 100,
 }
 
 [CreateAssetMenu(fileName = "New Equipment Data", menuName = "Data/Equipment")]

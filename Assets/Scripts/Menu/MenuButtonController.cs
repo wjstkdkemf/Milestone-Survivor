@@ -34,6 +34,7 @@ public class MenuButtonController : MonoBehaviour
 	public GameObject PowerUpButton;
 	public GameObject CharacterSelectionButton;
 	public string FunctionName;
+	public bool ingame = false;
 
 	private void Awake()
 	{
@@ -330,7 +331,7 @@ public class MenuButtonController : MonoBehaviour
 		{
 			Inventory = true;
 			InventoryObject.SetActive(true);
-			if(SelectObject.activeSelf)
+			if(!ingame && SelectObject.activeSelf)
 				SelectObject.SetActive(false);
 		}
 		else

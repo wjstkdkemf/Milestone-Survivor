@@ -270,7 +270,7 @@ namespace InventorySystem
         /// <summary>
         /// Adds itemstypes into <see cref="itemPositions"/> and tracks their positions for quick add/remove and count functions.
         /// </summary>
-        private void AddItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
+        public void AddItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
         {
             string empty = "Empty";
             if (!item.GetIsNull())
@@ -417,12 +417,16 @@ namespace InventorySystem
             }
             
         }
-        /// <summary>
-        /// Handles item when it needs to be erased from inventory
-        /// </summary>
         public void RemoveItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
         {
+            // 아이템이 비어있으면(null item) 아무것도 하지 않고 즉시 리턴하여 오류를 방지합니다.
+            if (item.GetIsNull())
+            {
+                return;
+            }
+
             string empty = "Empty";
+
             itemPositions[item.GetItemType()].Remove(pos);
             if (itemPositions.ContainsKey(empty))
             {

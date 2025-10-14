@@ -193,6 +193,7 @@ namespace InventorySystem
                     {
                         InventoryItem copyItem = itemManager[item.name];
                         InventoryItem newItem = new InventoryItem(copyItem, item.amount);
+                        Debug.Log(newItem.GetItemType() + " " + newItem.GetEquipmentType());
                         AddItemPos(invName, newItem, item.position);
                     }
                     else
@@ -745,6 +746,84 @@ namespace InventorySystem
             {
                 allInventoryUI.Clear();
             }
+        }
+
+        // ===================[ 장비 장착/교체 로직 추가 ]===================
+
+        /// <summary>
+        /// 인벤토리의 이름으로 해당하는 InventoryUIManager를 찾아서 반환합니다.
+        /// </summary>
+        public InventoryUIManager GetInventoryUIByName(string name)
+        {
+            if (inventoryUIDict.ContainsKey(name))
+            {
+                return inventoryUIDict[name].GetComponent<InventoryUIManager>();
+            }
+            Debug.LogError($"[InventoryController] '{name}' 이라는 이름의 인벤토리를 찾을 수 없습니다.");
+            return null;
+        }
+
+        /// <summary>
+        /// 두 인벤토리의 특정 슬롯에 있는 아이템을 서로 교환합니다.
+        /// </summary>
+        public void SwapItems(string sourceInvName, int sourceIndex, string targetInvName, int targetIndex)
+        {
+            if (!inventoryManager.ContainsKey(sourceInvName) || !inventoryManager.ContainsKey(targetInvName))
+            {
+                Debug.LogError("[InventoryController] SwapItems 실패: 유효하지 않은 인벤토리 이름입니다.");
+                return;
+            }
+
+            Inventory sourceInv = inventoryManager[sourceInvName];
+            Inventory targetInv = inventoryManager[targetInvName];
+
+            InventoryItem sourceItem = new InventoryItem(sourceInv.InventoryGetItem(sourceIndex));
+            InventoryItem targetItem = new InventoryItem(targetInv.InventoryGetItem(targetIndex));
+
+            // 각 인벤토리에서 기존 아이템을 조용히 제거 (이벤트 발생 X)
+            sourceInv.RemoveItemHelper(sourceItem, sourceIndex, false);
+            targetInv.RemoveItemHelper(targetItem, targetIndex, false);
+
+            // 서로의 인벤토리에 아이템을 추가 (UI 갱신을 위해 이벤트 발생 O)
+            sourceInv.AddItemHelper(targetItem, sourceIndex, true);
+            targetInv.AddItemHelper(sourceItem, targetIndex, true);
+
+            Debug.Log($"'{sourceInvName}'의 {sourceIndex}번 슬롯과 '{targetInvName}'의 {targetIndex}번 슬롯 아이템 교환 완료");
+        }
+
+        /// <summary>
+        /// 아이템을 알맞은 장비 슬롯에 장착/교체합니다.
+        /// </summary>
+        public void EquipItem(InventoryItem itemToEquip)
+        {
+            // 1. 장착할 아이템이 EquipmentData 타입인지 확인
+            Debug.Log("체크포인트 " + itemToEquip.GetEquipmentType());
+            if (itemToEquip.GetEquipmentType() == EquipmentType.None)
+            {
+                Debug.Log($"'{itemToEquip.GetItemType()}' 아이템은 장비가 아닙니다.");
+                return;
+            }
+
+            // 2. 'Equipment' 라는 이름의 장비창 인벤토리를 찾음
+            InventoryUIManager equipmentUI = GetInventoryUIByName("HotBar");
+            if (equipmentUI == null) return;
+            
+            // 3. 장비창의 모든 슬롯을 확인하여 아이템 타입과 슬롯 타입이 맞는 곳을 찾음
+            foreach (GameObject slotObj in equipmentUI.GetSlot())
+            {
+                Slot targetSlot = slotObj.GetComponent<Slot>();
+                Debug.Log("체크포인트 2" + targetSlot.slotType);
+                // 4. 아이템의 장비 타입과 슬롯의 타입이 일치하는가?
+                if (targetSlot.slotType == itemToEquip.GetEquipmentType().ToString())
+                {
+                    // 5. 일치하는 슬롯을 찾았으면, 원래 아이템이 있던 슬롯과 아이템을 교체
+                    SwapItems(itemToEquip.GetInventory(), itemToEquip.GetPosition(),
+                              equipmentUI.GetInventoryName(), targetSlot.GetPosition());
+                    return; // 교체 완료 후 종료
+                }
+            }
+
+            Debug.LogWarning($"'{itemToEquip.GetEquipmentType()}' 타입을 장착할 수 있는 슬롯이 'Equipment' 인벤토리에 없습니다.");
         }
     }
 }
