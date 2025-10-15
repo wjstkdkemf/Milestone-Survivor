@@ -21,6 +21,7 @@ public class LoadSceneSelectionButton : MonoBehaviour, IPointerClickHandler
 
     void OnEnable()
     {
+        Debug.Log("세이브창로드체크");
         buttonImage = GetComponent<Image>();
         if (buttonImage != null)
         {

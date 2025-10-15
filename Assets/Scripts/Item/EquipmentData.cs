@@ -10,6 +10,7 @@ public enum EquipmentType
     Gloves, // 장갑
     Boots, // 신발
     Accessory, // 장신구
+    Ring,
     None = 100,
 }
 

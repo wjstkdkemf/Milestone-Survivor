@@ -125,7 +125,7 @@ namespace InventorySystem
                 }
 
                 // 컨트롤러에게 장착 요청
-                InventoryController.instance.EquipItem(currentItem);
+                InventoryController.instance.EquipItem(currentItem, transform.position);
             }
             else // 싱글클릭
             {

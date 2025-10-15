@@ -21,7 +21,7 @@ public class MenuButtonController : MonoBehaviour
 
 	public GameObject LoadObject;
 	public GameObject InventoryObject;
-	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Inventory;
+	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Save , Inventory;
 	public GameObject CurntButton;
 
 	private GameObject MaineMenuButton;
@@ -190,6 +190,12 @@ public class MenuButtonController : MonoBehaviour
 		MaineMenuObject.SetActive(false);
 		LoadObject.SetActive(true);
 	}
+	public void SaveGame()
+	{
+		Save = true;
+		PauseObject.SetActive(false);
+		LoadObject.SetActive(true);
+	}
 
 	public void back()
 	{
@@ -241,7 +247,7 @@ public class MenuButtonController : MonoBehaviour
 
 		}
 		// '일시정지' 메뉴에 있을 때, 게임으로 돌아갑니다.
-		else if (!Settings && !SettingsTwo && Pause && !Menu && !PowerUp && !CharacterSelection && !Load)
+		else if (!Settings && !SettingsTwo && Pause && !Menu && !PowerUp && !CharacterSelection && !Save)
 		{
 			EventSystem.current.SetSelectedGameObject(null);
 			Pause = false;
@@ -254,7 +260,7 @@ public class MenuButtonController : MonoBehaviour
 		}
 
 		// 게임 플레이 중 '뒤로가기'를 누르면 '일시정지' 메뉴를 엽니다.
-		else if (!Settings && !SettingsTwo && !Pause && !Menu && !PowerUp && !CharacterSelection)
+		else if (!Settings && !SettingsTwo && !Pause && !Menu && !PowerUp && !CharacterSelection && !Save)
 		{
 			CurntButton = PauseButton;
 			EventSystem.current.SetSelectedGameObject(CurntButton);
@@ -305,13 +311,13 @@ public class MenuButtonController : MonoBehaviour
 			PowerUp = false;
 		}
 		// 인게임 '불러오기' 화면에 있을 때, '일시정지' 메뉴로 돌아갑니다.
-		else if (Load && !Menu && !PowerUp && !CharacterSelection)
+		else if (Save && Pause && !Menu && !PowerUp && !CharacterSelection)
 		{
 			CurntButton = PauseButton;
 			EventSystem.current.SetSelectedGameObject(CurntButton);
 			PauseObject.SetActive(true);
 			LoadObject.SetActive(false);
-			Load = false;
+			Save = false;
 		}
 		// 메인 메뉴의 '불러오기' 화면에 있을 때, 메인 메뉴로 돌아갑니다.
 		else if (Menu && Load)
@@ -322,8 +328,6 @@ public class MenuButtonController : MonoBehaviour
 			MaineMenuObject.SetActive(true);
 			Load = false;
 		}
-
-
 	}
 	public void InventoryButton()
 	{

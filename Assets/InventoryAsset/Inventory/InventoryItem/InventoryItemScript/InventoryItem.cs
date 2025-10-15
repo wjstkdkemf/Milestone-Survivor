@@ -47,8 +47,6 @@ namespace InventorySystem
                 EquipmentData equi = data as EquipmentData;
 
                 this.itemType = equi.equipmentType;
-
-                Debug.Log("체크 " + this.itemType);
             }
         }
         public InventoryItem(InventoryItem other, int amount = 1)

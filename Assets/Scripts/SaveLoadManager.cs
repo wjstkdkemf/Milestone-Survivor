@@ -69,6 +69,9 @@ public class SaveLoadManager : MonoBehaviour
             // Distribute data to the managers.
             Debug.Log("Loading Inventory JSON: " + saveData.inventoryJson);
             InventorySystem.InventoryController.instance.LoadFromData(saveData.inventoryJson);
+            // 불러온 장비 아이템 효과를 다시 적용합니다.
+            InventorySystem.InventoryController.instance.ReapplyAllEquipmentEffects();
+
             PowerUpManager.Instance.LoadData(saveData.powerUpData);
             PlayerStats.Instance.LoadData(saveData.playerStatsData);
             IsLoadingFromFile = true; // Set the flag

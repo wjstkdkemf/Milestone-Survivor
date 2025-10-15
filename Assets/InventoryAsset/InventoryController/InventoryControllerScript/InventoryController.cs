@@ -93,8 +93,6 @@ namespace InventorySystem
         {
             if(SaveLoadManager.Instance != null)
             {
-                //Debug.Log(SaveLoadManager.Instance.startMode);
-                
                 switch (SaveLoadManager.Instance.startMode)
                 {
                     case SaveLoadManager.GameStartMode.NewGame:
@@ -109,10 +107,12 @@ namespace InventorySystem
                     case SaveLoadManager.GameStartMode.Running:
                         if (GameObject.FindGameObjectWithTag("Village") != null)
                         {
-                            Debug.Log("체크포인트 2");
-
                             InventoryManager.Instance.LoadAllInventories("Current.json");
                             InventoryManager.Instance.RestoreInventoryTo("Inventory");
+                        }
+                        else if(GameObject.FindGameObjectWithTag("GameScene") != null)
+                        {
+                            InventoryManager.Instance.LoadAllInventories("Current.json");
                         }
                         break;
                 }
@@ -193,7 +193,6 @@ namespace InventorySystem
                     {
                         InventoryItem copyItem = itemManager[item.name];
                         InventoryItem newItem = new InventoryItem(copyItem, item.amount);
-                        Debug.Log(newItem.GetItemType() + " " + newItem.GetEquipmentType());
                         AddItemPos(invName, newItem, item.position);
                     }
                     else
@@ -710,6 +709,7 @@ namespace InventorySystem
 
         public Inventory GetInventory(string inventoryName)
         {
+            
             return inventoryManager[inventoryName];
         }
 
@@ -751,6 +751,22 @@ namespace InventorySystem
         // ===================[ 장비 장착/교체 로직 추가 ]===================
 
         /// <summary>
+        /// 아이템 이름으로 Resources 폴더에서 EquipmentData를 로드하여 반환합니다.
+        /// </summary>
+        private EquipmentData LoadEquipmentData(string itemName)
+        {
+            // 아이템 데이터가 "Resources/Items" 폴더에 있다고 가정합니다.
+            // 실제 경로에 맞게 수정해야 할 수 있습니다.
+            var equipmentData = Resources.Load<EquipmentData>($"Items/{itemName}");
+
+            if (equipmentData == null)
+            {
+                Debug.LogWarning($"[InventoryController] LoadEquipmentData: 'Resources/Items/{itemName}' 경로에서 EquipmentData를 찾을 수 없습니다.");
+            }
+            return equipmentData;
+        }
+
+        /// <summary>
         /// 인벤토리의 이름으로 해당하는 InventoryUIManager를 찾아서 반환합니다.
         /// </summary>
         public InventoryUIManager GetInventoryUIByName(string name)
@@ -777,53 +793,187 @@ namespace InventorySystem
             Inventory sourceInv = inventoryManager[sourceInvName];
             Inventory targetInv = inventoryManager[targetInvName];
 
-            InventoryItem sourceItem = new InventoryItem(sourceInv.InventoryGetItem(sourceIndex));
-            InventoryItem targetItem = new InventoryItem(targetInv.InventoryGetItem(targetIndex));
+            InventoryItem sourceItem = sourceInv.InventoryGetItem(sourceIndex);
+            InventoryItem targetItem = targetInv.InventoryGetItem(targetIndex);
 
-            // 각 인벤토리에서 기존 아이템을 조용히 제거 (이벤트 발생 X)
+            // 1. 장비 효과 해제 (Unequip)
+            // 소스 슬롯이 장비창 슬롯이고, 아이템이 있었다면 Unequip
+            if (sourceInvName == "HotBar" && !sourceItem.GetIsNull())
+            {
+                EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(sourceItem.GetItemType()));
+            }
+            // 타겟 슬롯이 장비창 슬롯이고, 아이템이 있었다면 Unequip
+            if (targetInvName == "HotBar" && !targetItem.GetIsNull())
+            {
+                EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(targetItem.GetItemType()));
+            }
+
+            // 2. 아이템 교환
+            InventoryItem sourceItemCopy = new InventoryItem(sourceItem);
+            InventoryItem targetItemCopy = new InventoryItem(targetItem);
+
             sourceInv.RemoveItemHelper(sourceItem, sourceIndex, false);
             targetInv.RemoveItemHelper(targetItem, targetIndex, false);
 
-            // 서로의 인벤토리에 아이템을 추가 (UI 갱신을 위해 이벤트 발생 O)
-            sourceInv.AddItemHelper(targetItem, sourceIndex, true);
-            targetInv.AddItemHelper(sourceItem, targetIndex, true);
+            sourceInv.AddItemHelper(targetItemCopy, sourceIndex, true);
+            targetInv.AddItemHelper(sourceItemCopy, targetIndex, true);
+
+            // 3. 장비 효과 적용 (Equip)
+            // 소스 슬롯이 장비창 슬롯이고, 새로 들어온 아이템이 있다면 Equip
+            if (sourceInvName == "HotBar" && !targetItem.GetIsNull())
+            {
+                EquipmentEffectManager.Instance.Equip(LoadEquipmentData(targetItem.GetItemType()));
+            }
+            // 타겟 슬롯이 장비창 슬롯이고, 새로 들어온 아이템이 있다면 Equip
+            if (targetInvName == "HotBar" && !sourceItem.GetIsNull())
+            {
+                EquipmentEffectManager.Instance.Equip(LoadEquipmentData(sourceItem.GetItemType()));
+            }
 
             Debug.Log($"'{sourceInvName}'의 {sourceIndex}번 슬롯과 '{targetInvName}'의 {targetIndex}번 슬롯 아이템 교환 완료");
         }
 
         /// <summary>
-        /// 아이템을 알맞은 장비 슬롯에 장착/교체합니다.
+        /// 아이템을 장비창에 장착합니다. 아이템을 복사하며, 기존 아이템이 있다면 덮어씁니다.
         /// </summary>
-        public void EquipItem(InventoryItem itemToEquip)
+        public void EquipItem(InventoryItem itemToEquip, Vector3 slotPosition)
         {
             // 1. 장착할 아이템이 EquipmentData 타입인지 확인
-            Debug.Log("체크포인트 " + itemToEquip.GetEquipmentType());
             if (itemToEquip.GetEquipmentType() == EquipmentType.None)
             {
                 Debug.Log($"'{itemToEquip.GetItemType()}' 아이템은 장비가 아닙니다.");
                 return;
             }
 
-            // 2. 'Equipment' 라는 이름의 장비창 인벤토리를 찾음
+            // 2. 아이템이 'Accessory' 타입인지 확인
+            if (itemToEquip.GetEquipmentType() == EquipmentType.Ring)
+            {
+                // 3. 사용 가능한 링 슬롯 목록을 가져옴
+                // List<string> availableSlots = GetAvailableRingSlots();
+
+                // 4. 사용 가능한 슬롯이 없으면 메시지 출력 후 종료
+                // if (availableSlots.Count == 0)
+                // {
+                //     Debug.Log("장착할 수 있는 링 슬롯이 없습니다.");
+                //     return;
+                // }
+
+                // 5. 링 선택 UI 표시
+                RingSelectionUI.Instance.ShowSelection(itemToEquip, slotPosition);
+            }
+            else // 링이 아닌 다른 장비는 기존 로직대로 처리
+            {
+                EquipItemToSlot(itemToEquip, itemToEquip.GetEquipmentType().ToString());
+            }
+        }
+
+        /// <summary>
+        /// 특정 슬롯 타입에 아이템을 장착하는 내부 로직
+        /// </summary>
+        private void EquipItemToSlot(InventoryItem itemToEquip, string slotType)
+        {
             InventoryUIManager equipmentUI = GetInventoryUIByName("HotBar");
             if (equipmentUI == null) return;
             
-            // 3. 장비창의 모든 슬롯을 확인하여 아이템 타입과 슬롯 타입이 맞는 곳을 찾음
+            Inventory targetInv = GetInventory("HotBar");
+            if (targetInv == null) return;
+            // 아이템 타입과 슬롯 타입이 맞는 곳을 찾음
             foreach (GameObject slotObj in equipmentUI.GetSlot())
             {
                 Slot targetSlot = slotObj.GetComponent<Slot>();
-                Debug.Log("체크포인트 2" + targetSlot.slotType);
-                // 4. 아이템의 장비 타입과 슬롯의 타입이 일치하는가?
-                if (targetSlot.slotType == itemToEquip.GetEquipmentType().ToString())
+                if (targetSlot.slotType == slotType)
                 {
-                    // 5. 일치하는 슬롯을 찾았으면, 원래 아이템이 있던 슬롯과 아이템을 교체
-                    SwapItems(itemToEquip.GetInventory(), itemToEquip.GetPosition(),
-                              equipmentUI.GetInventoryName(), targetSlot.GetPosition());
-                    return; // 교체 완료 후 종료
+                    InventoryItem oldItem = targetInv.InventoryGetItem(targetSlot.GetPosition());
+
+                    if (oldItem != null && !oldItem.GetIsNull() && oldItem.GetItemType() == itemToEquip.GetItemType())
+                    {
+                        Debug.Log("이미 같은 아이템을 장착하고 있습니다.");
+                        return;
+                    }
+                    //아이템이 있다면 효과를 제거
+                    if (oldItem != null && !oldItem.GetIsNull())
+                    {
+                        EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(oldItem.GetItemType()));
+                    }
+                    //새 아이템 효과 추가
+                    AddItemPos(targetInv.GetName(), new InventoryItem(itemToEquip), targetSlot.GetPosition());
+                    EquipmentEffectManager.Instance.Equip(LoadEquipmentData(itemToEquip.GetItemType()));
+                    
+                    Debug.Log($"'{itemToEquip.GetItemType()}' 아이템을 '{targetSlot.slotType}' 슬롯에 장착했습니다.");
+                    return; 
                 }
             }
+            Debug.LogWarning($"'{itemToEquip.GetEquipmentType()}' 타입을 장착할 수 있는 '{slotType}' 슬롯이 'HotBar' 인벤토리에 없습니다.");
+        }
 
-            Debug.LogWarning($"'{itemToEquip.GetEquipmentType()}' 타입을 장착할 수 있는 슬롯이 'Equipment' 인벤토리에 없습니다.");
+        /// <summary>
+        /// RingSelectionUI에서 호출되어 특정 링 슬롯에 아이템을 장착합니다.
+        /// </summary>
+        public void EquipRingInSlot(InventoryItem ringItem, string slotType)
+        {
+            Debug.Log($"EquipRingInSlot 호출됨: item={ringItem.GetItemType()}, slot={slotType}");
+            EquipItemToSlot(ringItem, slotType);
+        }
+
+        /// <summary>
+        /// 사용 가능한 링 슬롯("Ring1", "Ring2" 등)의 목록을 반환합니다.
+        /// </summary>
+        private List<string> GetAvailableRingSlots()
+        {
+            List<string> availableSlots = new List<string>();
+            InventoryUIManager equipmentUI = GetInventoryUIByName("HotBar");
+            if (equipmentUI == null) return availableSlots;
+
+            Inventory targetInv = GetInventory("HotBar");
+            if (targetInv == null) return availableSlots;
+
+            foreach (GameObject slotObj in equipmentUI.GetSlot())
+            {
+                Slot targetSlot = slotObj.GetComponent<Slot>();
+                // 슬롯 타입이 "Ring"으로 시작하는지 확인 (예: "Ring1", "Ring2")
+                if (targetSlot.slotType.StartsWith("Ring"))
+                {
+                    // 해당 슬롯이 비어있는지 확인
+                    InventoryItem itemInSlot = targetInv.InventoryGetItem(targetSlot.GetPosition());
+                    if (itemInSlot == null || itemInSlot.GetIsNull())
+                    {
+                        availableSlots.Add(targetSlot.slotType);
+                    }
+                }
+            }
+            return availableSlots;
+        }
+
+        /// <summary>
+        /// 장비창의 모든 아이템을 순회하며 EquipmentEffectManager에 효과를 다시 적용합니다.
+        /// </summary>
+        public void ReapplyAllEquipmentEffects()
+        {
+            // 1. 기존 효과 모두 초기화
+            EquipmentEffectManager.Instance.ClearAllEffects();
+
+            // 2. "HotBar" 인벤토리를 가져옴
+            Inventory hotbarInv = GetInventory("HotBar");
+            if (hotbarInv == null)
+            {
+                Debug.LogWarning("[InventoryController] ReapplyAllEquipmentEffects: 'HotBar' inventory not found.");
+                return;
+            }
+
+            // 3. 장비창의 모든 아이템을 순회
+            foreach (InventoryItem item in hotbarInv.GetList())
+            {
+                if (item != null && !item.GetIsNull())
+                {
+                    // 4. 아이템 데이터를 로드하고 장비인 경우 효과 적용
+                    EquipmentData equipmentData = LoadEquipmentData(item.GetItemType());
+                    if (equipmentData != null)
+                    {
+                        EquipmentEffectManager.Instance.Equip(equipmentData);
+                    }
+                }
+            }
+            Debug.Log("<color=cyan>[InventoryController]</color> All equipment effects from 'HotBar' have been reapplied.");
         }
     }
 }
