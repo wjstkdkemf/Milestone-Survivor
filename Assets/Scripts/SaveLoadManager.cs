@@ -6,7 +6,7 @@ public class SaveLoadManager : MonoBehaviour
 {
     // Defines how the game should start in the next scene.
     
-    public enum GameStartMode { None, NewGame, LoadGame , Running}
+    public enum GameStartMode { None, NewGame, LoadGame , Running , ToIngame}
     // Stores the choice from the main menu.
     public GameStartMode startMode { get; set; } = GameStartMode.None;
 
@@ -71,6 +71,7 @@ public class SaveLoadManager : MonoBehaviour
             InventorySystem.InventoryController.instance.LoadFromData(saveData.inventoryJson);
             // 불러온 장비 아이템 효과를 다시 적용합니다.
             InventorySystem.InventoryController.instance.ReapplyAllEquipmentEffects();
+            InventorySystem.InventoryController.instance.SyncEquippedStatus("HotBar", "Inventory");
 
             PowerUpManager.Instance.LoadData(saveData.powerUpData);
             PlayerStats.Instance.LoadData(saveData.playerStatsData);

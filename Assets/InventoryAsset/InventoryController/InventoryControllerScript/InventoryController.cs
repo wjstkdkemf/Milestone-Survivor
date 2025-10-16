@@ -8,6 +8,10 @@ namespace InventorySystem
     //Modified by Gemini to integrate with a central SaveLoadManager
     public class InventoryController : MonoBehaviour
     {
+        public const string HotBarInventoryName = "HotBar";
+        public const string InventoryName = "Inventory";
+        public const string ClearInventoryName = "ClearInventory";
+
         [Header("============[ Setup Confirmation ]============")]
         [Header("**********************************************")]
         [Header("Click the \"I Understand The Setup\" to show you understand")]
@@ -108,11 +112,12 @@ namespace InventorySystem
                         if (GameObject.FindGameObjectWithTag("Village") != null)
                         {
                             InventoryManager.Instance.LoadAllInventories("Current.json");
-                            InventoryManager.Instance.RestoreInventoryTo("Inventory");
+                            InventoryManager.Instance.RestoreInventoryTo(InventoryName);
                         }
                         else if(GameObject.FindGameObjectWithTag("GameScene") != null)
                         {
                             InventoryManager.Instance.LoadAllInventories("Current.json");
+                            CopyEquippedItemsToInventory(HotBarInventoryName, ClearInventoryName);
                         }
                         break;
                 }
@@ -338,8 +343,19 @@ namespace InventorySystem
             {
                 return;
             }
+
             Inventory inventory = inventoryManager[inventoryName];
-            InventoryItem item = new InventoryItem(itemManager[itemType], amount);
+            InventoryItem itemTemplate = itemManager[itemType];
+            int maxStack = itemTemplate.GetItemStackAmount();
+            int currentAmount = inventory.Count(itemType);
+
+            if (currentAmount + amount > maxStack)
+            {
+                Debug.Log($"Cannot add item. Total amount for '{itemType}' would exceed max stack of {maxStack}.");
+                return;
+            }
+
+            InventoryItem item = new InventoryItem(itemTemplate, amount);
             inventory.AddItemAuto(item, amount);
         }
 
@@ -798,12 +814,12 @@ namespace InventorySystem
 
             // 1. 장비 효과 해제 (Unequip)
             // 소스 슬롯이 장비창 슬롯이고, 아이템이 있었다면 Unequip
-            if (sourceInvName == "HotBar" && !sourceItem.GetIsNull())
+            if (sourceInvName == HotBarInventoryName && !sourceItem.GetIsNull())
             {
                 EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(sourceItem.GetItemType()));
             }
             // 타겟 슬롯이 장비창 슬롯이고, 아이템이 있었다면 Unequip
-            if (targetInvName == "HotBar" && !targetItem.GetIsNull())
+            if (targetInvName == HotBarInventoryName && !targetItem.GetIsNull())
             {
                 EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(targetItem.GetItemType()));
             }
@@ -820,12 +836,12 @@ namespace InventorySystem
 
             // 3. 장비 효과 적용 (Equip)
             // 소스 슬롯이 장비창 슬롯이고, 새로 들어온 아이템이 있다면 Equip
-            if (sourceInvName == "HotBar" && !targetItem.GetIsNull())
+            if (sourceInvName == HotBarInventoryName && !targetItem.GetIsNull())
             {
                 EquipmentEffectManager.Instance.Equip(LoadEquipmentData(targetItem.GetItemType()));
             }
             // 타겟 슬롯이 장비창 슬롯이고, 새로 들어온 아이템이 있다면 Equip
-            if (targetInvName == "HotBar" && !sourceItem.GetIsNull())
+            if (targetInvName == HotBarInventoryName && !sourceItem.GetIsNull())
             {
                 EquipmentEffectManager.Instance.Equip(LoadEquipmentData(sourceItem.GetItemType()));
             }
@@ -872,10 +888,10 @@ namespace InventorySystem
         /// </summary>
         private void EquipItemToSlot(InventoryItem itemToEquip, string slotType)
         {
-            InventoryUIManager equipmentUI = GetInventoryUIByName("HotBar");
-            if (equipmentUI == null) return;
+            InventoryUIManager equipmentUI = GetInventoryUIByName(HotBarInventoryName);
+            if (equipmentUI == null || itemToEquip.GetEquit() == true) return;
             
-            Inventory targetInv = GetInventory("HotBar");
+            Inventory targetInv = GetInventory(HotBarInventoryName);
             if (targetInv == null) return;
             // 아이템 타입과 슬롯 타입이 맞는 곳을 찾음
             foreach (GameObject slotObj in equipmentUI.GetSlot())
@@ -894,10 +910,56 @@ namespace InventorySystem
                     if (oldItem != null && !oldItem.GetIsNull())
                     {
                         EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(oldItem.GetItemType()));
+
+                        // itemToEquip이 있던 인벤토리에서 장착 해제된 아이템(oldItem)을 찾아 Equit = false로 설정
+                        string sourceInventoryName = itemToEquip.GetInventory();
+                        if (!string.IsNullOrEmpty(sourceInventoryName))
+                        {
+                            Inventory sourceInventory = GetInventory(sourceInventoryName);
+                            if (sourceInventory != null)
+                            {
+                                // 인벤토리 리스트에서 oldItem과 이름이 같은 아이템 찾기
+                                InventoryItem itemToUpdate = sourceInventory.GetList().Find(item => item != null && !item.GetIsNull() && item.GetItemType() == oldItem.GetItemType());
+
+                                if (itemToUpdate != null)
+                                {
+                                    itemToUpdate.SetEquit(false);
+
+                                    // Get the UIManager for the source inventory and update the slot
+                                    if (inventoryUIDict.ContainsKey(sourceInventoryName))
+                                    {
+                                        InventoryUIManager sourceUIManager = inventoryUIDict[sourceInventoryName].GetComponent<InventoryUIManager>();
+                                        if (sourceUIManager != null)
+                                        {
+                                            sourceUIManager.UpdateSlot(itemToUpdate.GetPosition());
+                                        }
+                                    }
+
+                                    Debug.Log($"'{sourceInventoryName}' 인벤토리의 '{itemToUpdate.GetItemType()}' 아이템을 장착 해제 상태로 변경했습니다.");
+                                }
+                            }
+                        }
+                        RemoveItemPos(targetInv.GetName(), targetSlot.GetPosition() , 1);
                     }
                     //새 아이템 효과 추가
                     AddItemPos(targetInv.GetName(), new InventoryItem(itemToEquip), targetSlot.GetPosition());
                     EquipmentEffectManager.Instance.Equip(LoadEquipmentData(itemToEquip.GetItemType()));
+
+                    // itemToEquip이 있던 인벤토리에서 장착한 아이템을 찾아 Equit = true로 설정
+                    string equippedItemSourceInv = itemToEquip.GetInventory();
+                    if (!string.IsNullOrEmpty(equippedItemSourceInv))
+                    {
+                        Inventory sourceInv = GetInventory(equippedItemSourceInv);
+                        if (sourceInv != null)
+                        {
+                            InventoryItem itemInSource = sourceInv.GetList().Find(item => item != null && !item.GetIsNull() && item.GetItemType() == itemToEquip.GetItemType());
+                            if (itemInSource != null)
+                            {
+                                itemInSource.SetEquit(true);
+                                Debug.Log($"'{equippedItemSourceInv}' 인벤토리의 '{itemInSource.GetItemType()}' 아이템을 장착 상태로 변경했습니다.");
+                            }
+                        }
+                    }
                     
                     Debug.Log($"'{itemToEquip.GetItemType()}' 아이템을 '{targetSlot.slotType}' 슬롯에 장착했습니다.");
                     return; 
@@ -921,10 +983,10 @@ namespace InventorySystem
         private List<string> GetAvailableRingSlots()
         {
             List<string> availableSlots = new List<string>();
-            InventoryUIManager equipmentUI = GetInventoryUIByName("HotBar");
+            InventoryUIManager equipmentUI = GetInventoryUIByName(HotBarInventoryName);
             if (equipmentUI == null) return availableSlots;
 
-            Inventory targetInv = GetInventory("HotBar");
+            Inventory targetInv = GetInventory(HotBarInventoryName);
             if (targetInv == null) return availableSlots;
 
             foreach (GameObject slotObj in equipmentUI.GetSlot())
@@ -953,7 +1015,7 @@ namespace InventorySystem
             EquipmentEffectManager.Instance.ClearAllEffects();
 
             // 2. "HotBar" 인벤토리를 가져옴
-            Inventory hotbarInv = GetInventory("HotBar");
+            Inventory hotbarInv = GetInventory(HotBarInventoryName);
             if (hotbarInv == null)
             {
                 Debug.LogWarning("[InventoryController] ReapplyAllEquipmentEffects: 'HotBar' inventory not found.");
@@ -974,6 +1036,76 @@ namespace InventorySystem
                 }
             }
             Debug.Log("<color=cyan>[InventoryController]</color> All equipment effects from 'HotBar' have been reapplied.");
+        }
+        public void CopyEquippedItemsToInventory(string equipmentInvName, string mainInvName)
+        {
+            if (!inventoryManager.ContainsKey(equipmentInvName) || !inventoryManager.ContainsKey(mainInvName))
+            {
+                Debug.LogError($"[CopyEquippedItemsToInventory] Invalid inventory name provided. Source: {equipmentInvName}, Target: {mainInvName}");
+                return;
+            }
+
+            Inventory equipmentInventory = GetInventory(equipmentInvName);
+            Inventory mainInventory = GetInventory(mainInvName);
+
+            if (equipmentInventory == null || mainInventory == null) return;
+
+            foreach (InventoryItem equippedItem in equipmentInventory.GetList())
+            {
+                if (equippedItem != null && !equippedItem.GetIsNull())
+                {
+                    int existingAmount = mainInventory.Count(equippedItem.GetItemType());
+                    if (existingAmount > 0)
+                    {
+                        Debug.Log($"Item '{equippedItem.GetItemType()}' already exists in '{mainInvName}'. Skipping copy.");
+                        continue;
+                    }
+
+                    InventoryItem newItemForMain = new InventoryItem(equippedItem);
+                    newItemForMain.SetEquit(true);
+
+                    mainInventory.AddItemAuto(newItemForMain, newItemForMain.GetAmount());
+                    
+                    Debug.Log($"Copied equipped item '{newItemForMain.GetItemType()}' to '{mainInvName}'.");
+                }
+            }
+        }
+
+        public void SyncEquippedStatus(string sourceInventoryName, string targetInventoryName)
+        {
+            if (!inventoryManager.ContainsKey(sourceInventoryName) || !inventoryManager.ContainsKey(targetInventoryName))
+            {
+                Debug.LogError($"[SyncEquippedStatus] Invalid inventory name provided. Source: {sourceInventoryName}, Target: {targetInventoryName}");
+                return;
+            }
+
+            Inventory sourceInventory = GetInventory(sourceInventoryName);
+            Inventory targetInventory = GetInventory(targetInventoryName);
+
+            if (sourceInventory == null || targetInventory == null) return;
+
+            foreach (InventoryItem sourceItem in sourceInventory.GetList())
+            {
+                if (sourceItem != null && !sourceItem.GetIsNull())
+                {
+                    InventoryItem targetItem = targetInventory.GetList().Find(item => item != null && !item.GetIsNull() && item.GetItemType() == sourceItem.GetItemType());
+
+                    if (targetItem != null)
+                    {
+                        targetItem.SetEquit(true);
+
+                        if (inventoryUIDict.ContainsKey(targetInventoryName))
+                        {
+                            InventoryUIManager targetUIManager = inventoryUIDict[targetInventoryName].GetComponent<InventoryUIManager>();
+                            if (targetUIManager != null)
+                            {
+                                targetUIManager.UpdateSlot(targetItem.GetPosition());
+                            }
+                        }
+                        Debug.Log($"Synced Equit status for '{targetItem.GetItemType()}' in '{targetInventoryName}'.");
+                    }
+                }
+            }
         }
     }
 }

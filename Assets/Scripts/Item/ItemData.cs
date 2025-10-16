@@ -36,6 +36,7 @@ public class ItemData : ScriptableObject
     public bool displayItemAmount = true; // 개수 표시 여부
     public bool draggable = true; // 드래그 가능 여부
     public bool pressable = true; // 클릭 가능 여부
+    public bool Equip = false;
     public GameObject RelatedGameObject; // 관련된 게임 오브젝트
     public InventorySystem.InventoryItemEvent itemAction; // 아이템 사용 시 발생하는 이벤트
     public int price; // 아이템 가격

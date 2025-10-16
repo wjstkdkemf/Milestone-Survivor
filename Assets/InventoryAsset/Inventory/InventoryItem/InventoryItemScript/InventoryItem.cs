@@ -19,6 +19,7 @@ namespace InventorySystem
         private int maxStackAmount;
         private bool draggable;
         private bool pressable;
+        private bool Equip;
         private InventoryItemEvent itemEvent;
         private GameObject relatedGameObject;
         private bool isNull = false;//Checks if item exists
@@ -37,6 +38,7 @@ namespace InventorySystem
             this.maxStackAmount = data.maxStackAmount;
             this.draggable = data.draggable;
             this.pressable = data.pressable;
+            this.Equip = data.Equip;
             this.itemEvent = data.itemAction;
             this.isNull = (data == null);
             this.relatedGameObject = data.RelatedGameObject;
@@ -67,6 +69,7 @@ namespace InventorySystem
             this.isNull = other.isNull;
             this.relatedGameObject = other.GetRelatedGameObject();
             this.displayAmount = other.GetDisplayAmount();
+            this.Equip = other.GetEquit();
             this.inventory = other.inventory;
             this.position = other.position;
             this.previousInventory = other.previousInventory;
@@ -114,6 +117,14 @@ namespace InventorySystem
         public int GetAmount()
         {
             return amount;
+        }
+        public bool GetEquit()
+        {
+            return Equip;
+        }
+        public void SetEquit(bool equit)
+        {
+            this.Equip = equit;
         }
         public void SetAmount(int amount)
         {
@@ -166,7 +177,8 @@ namespace InventorySystem
             previousInventory: {previousInventory}
             Item Position: {position}
             Item Amount: {amount}
-            Max Item Amount: {maxStackAmount}";
+            Max Item Amount: {maxStackAmount}
+            Equip: {Equip}";
             return result;
 
 

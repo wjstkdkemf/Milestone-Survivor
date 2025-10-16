@@ -28,7 +28,7 @@ public class ItemObject : MonoBehaviour
             {
                 if (InventoryController.instance != null)
                 {
-                    InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);
+                    InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);//아이템 드랍 처리 부분.
                 }
                 Destroy(gameObject);
             }

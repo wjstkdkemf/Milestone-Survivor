@@ -73,6 +73,8 @@ namespace InventorySystem
                     DragItem dragItem = SlotItemHolder.GetComponent<DragItem>();
                     dragItem.SetItem(item);
                     dragItem.SetText();
+                    dragItem.SetEquitText();
+                    
                     SlotItemHolder.GetComponent<Image>().sprite = item.GetItemImage();
                     SlotItemHolder.SetActive(true);
                 }
@@ -115,6 +117,8 @@ namespace InventorySystem
             // 더블클릭 감지
             if (eventData.clickCount == 2)
             {
+                if (InventoryController.instance == null) return;
+
                 // 현재 슬롯의 아이템 가져오기
                 InventoryItem currentItem = GetItem();
 
@@ -126,6 +130,7 @@ namespace InventorySystem
 
                 // 컨트롤러에게 장착 요청
                 InventoryController.instance.EquipItem(currentItem, transform.position);
+                UpdateSlot();
             }
             else // 싱글클릭
             {

@@ -36,6 +36,8 @@ public class RingSelectionUI : MonoBehaviour
 
     public void ShowSelection(InventoryItem ringItem, Vector3 position)
     {
+        if (ringItem.GetEquit() == true) return;
+        
         currentRing = ringItem;
 
         // 슬롯 위치(position)에서 오른쪽으로 150px 떨어진 곳에 패널을 표시합니다.

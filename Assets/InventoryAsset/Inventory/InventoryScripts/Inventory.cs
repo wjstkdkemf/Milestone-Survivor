@@ -223,7 +223,7 @@ namespace InventorySystem
                             return;
 
                         }
-                        InventoryUIManager.GetComponent<InventoryUIManager>().UpdateSlot(position);
+                        InventoryUIManagerInstance.UpdateSlot(position);
                     }
                 }
                 AddLinearly(newItem, newItem.GetAmount());
@@ -436,7 +436,6 @@ namespace InventorySystem
             InventoryItem filler = new InventoryItem(true);
 
             inventoryList[pos] = filler;
-            InventoryUIManagerInstance.UpdateSlot(pos);
             if (invokeEnterExit && exitDict != null && exitDict.ContainsKey(pos))
             {
                 exitDict[pos].Invoke(inventoryList[pos]);
@@ -480,7 +479,6 @@ namespace InventorySystem
             }
             if (!itemPositions.ContainsKey(itemType))
             {
-                Debug.LogError("ItemPositions does not contain itemType: " + itemType + ". Returning 0");
                 return 0;
             }
             List<int> items = itemPositions[itemType];

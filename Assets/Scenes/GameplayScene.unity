@@ -36219,7 +36219,7 @@ PrefabInstance:
       objectReference: {fileID: 7645007112724364637}
     - target: {fileID: 1796056782392824140, guid: ff0f304ab6d82ec4083cd3f6ee2f7c8f, type: 3}
       propertyPath: items.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1796056782392824140, guid: ff0f304ab6d82ec4083cd3f6ee2f7c8f, type: 3}
       propertyPath: iUnderstandTheSetup
@@ -36229,6 +36229,10 @@ PrefabInstance:
       propertyPath: items.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: 91524636cd51246459e5e6ec49dd5960, type: 2}
+    - target: {fileID: 1796056782392824140, guid: ff0f304ab6d82ec4083cd3f6ee2f7c8f, type: 3}
+      propertyPath: items.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 3cf4df5f93a8da4438b82d4e23c03e4e, type: 2}
     - target: {fileID: 1796056782392824140, guid: ff0f304ab6d82ec4083cd3f6ee2f7c8f, type: 3}
       propertyPath: allInventoryUI.Array.size
       value: 2

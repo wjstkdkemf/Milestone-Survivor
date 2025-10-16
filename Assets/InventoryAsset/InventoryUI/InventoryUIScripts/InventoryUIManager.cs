@@ -181,9 +181,10 @@ namespace InventorySystem
             if (!TestSetup()) return;
 
             UpdateInventoryUI();
-            UI = InventoryController.instance.GetUI();
-
-
+            if (InventoryController.instance != null)
+            {
+                UI = InventoryController.instance.GetUI();
+            }
         }
 
         /// <summary>
@@ -219,6 +220,7 @@ namespace InventorySystem
         /// </summary>
         public void SetVarsOnInit()
         {
+            if (InventoryController.instance == null) return;
             InventoryUIManager manager = InventoryController.instance.GetInventoryManagerPrefab().GetComponent<InventoryUIManager>();
 
             SlotImage.regular = manager.GetSlotImage();
@@ -577,6 +579,7 @@ namespace InventorySystem
         }
         private void MoveOnPressHelper(KeyCode key, GameObject slot)
         {
+            if (InventoryController.instance == null) return;
             if (movePress.ContainsKey(key))
             {
                 InventoryItem item = slot.GetComponent<Slot>().GetItem();

@@ -21,10 +21,13 @@ MonoBehaviour:
   displayItemAmount: 0
   draggable: 1
   pressable: 1
+  Equip: 0
   RelatedGameObject: {fileID: 0}
   itemAction:
     m_PersistentCalls:
       m_Calls: []
   price: 5
-  equipmentType: 5
-  statModifiers: []
+  equipmentType: 0
+  statModifiers:
+  - statName: DamageBonus
+    value: 5

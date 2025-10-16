@@ -21,6 +21,8 @@ namespace InventorySystem
         /// The text UI element for displaying item information
         [SerializeField, HideInInspector]
         private TextMeshProUGUI text;
+        private TextMeshProUGUI Equitext;
+
 
         //determines how item acts on miss;
         private bool returnOnMiss = false;
@@ -38,27 +40,45 @@ namespace InventorySystem
         {
             if (transform.GetChild(0) != null)
             {
-                if (transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>() != null)
+                text = transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+                if (text != null)
                 {
-                    text = transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>();
+                    text.maskable = true;
                 }
                 else
                 {
-                    Debug.LogError("TextMeshPro is not null on slot child object");
+                    Debug.LogError("Child object does not have a TextMeshProUGUI component.");
                 }
-
             }
             else
             {
-                Debug.LogError("Slot child null");
+                Debug.LogError("Slot child is null.");
             }
+
+            if (transform.GetChild(1) != null)
+            {
+                Equitext = transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+                if (Equitext != null)
+                {
+                    Equitext.maskable = true;
+                }
+                else
+                {
+                    Debug.LogError("Child object does not have a TextMeshProUGUI component.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Slot child is null.");
+            }
+
         }
         /// <summary>
         /// Handles the drag event
         /// </summary>
         public void OnDrag(PointerEventData eventData)
         {
-            if (Draggable()) return;
+            if (Draggable() || InventoryController.instance == null) return;
 
             // Get the canvas and its RectTransform
             Canvas canvas = InventoryController.instance.GetUI().GetComponent<Canvas>();
@@ -172,6 +192,7 @@ namespace InventorySystem
         /// </summary>
         private void HandleSlot(RaycastResult result)
         {
+            if (InventoryController.instance == null) return;
             Slot slot = result.gameObject.GetComponent<Slot>();
             bool slotNull = slot.GetItem().GetIsNull();
             bool itemStackable = !slot.GetItem().GetIsNull() && (slot.GetItem().GetItemType() == item.GetItemType()) && (slot.GetItem().GetAmount() + item.GetAmount()) <= slot.GetItem().GetItemStackAmount();
@@ -203,6 +224,7 @@ namespace InventorySystem
         /// </summary>
         private void HandleInvalidPlacement(bool isOverride = false)
         {
+            if (InventoryController.instance == null) return;
             Vector3 mousePosition = Input.mousePosition;
             Camera cam = Camera.main;
             Vector3 worldPosition = cam.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, cam.nearClipPlane));
@@ -267,6 +289,20 @@ namespace InventorySystem
                 }
             }
         }
+
+        public void SetEquitText()
+        {
+            if (!item.GetIsNull())
+            {
+                Equitext.gameObject.SetActive(item.GetEquit());
+                if (item.GetEquit())
+                {
+                    Equitext.SetText("E");
+                }
+            }
+        }
+
+        
         public void SetTextTestImage(int amount)
         {
             text.SetText(amount.ToString());

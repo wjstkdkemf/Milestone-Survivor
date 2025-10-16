@@ -33,7 +33,6 @@ RectTransform:
   m_Children:
   - {fileID: 9188682581544284693}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -60,6 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d574959a7a6d96e418856e159eb041c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  slotType: Inventory
   position: 0
   slotChildPrefab: {fileID: 2957332009402564875, guid: 1c44132505c5b1f42b38381654fa5f6e, type: 3}
   SlotItemHolder: {fileID: 7933237219257899859}
@@ -98,11 +98,16 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 3022796432905570085}
     m_Modifications:
     - target: {fileID: 2957332009402564875, guid: 1c44132505c5b1f42b38381654fa5f6e, type: 3}
       propertyPath: m_Name
       value: ItemImage
+      objectReference: {fileID: 0}
+    - target: {fileID: 2957332009402564875, guid: 1c44132505c5b1f42b38381654fa5f6e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4077669631640692813, guid: 1c44132505c5b1f42b38381654fa5f6e, type: 3}
       propertyPath: m_Pivot.x
@@ -218,13 +223,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8743253911129313168, guid: 1c44132505c5b1f42b38381654fa5f6e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 2.399994
+      value: 19.5
       objectReference: {fileID: 0}
     - target: {fileID: 8743253911129313168, guid: 1c44132505c5b1f42b38381654fa5f6e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -15.799973
+      value: 0.13
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c44132505c5b1f42b38381654fa5f6e, type: 3}
 --- !u!1 &7933237219257899859 stripped
 GameObject:

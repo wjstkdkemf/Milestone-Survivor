@@ -151,6 +151,7 @@ public class InventoryManager : MonoBehaviour
 
             // InventoryController를 사용해 JSON 데이터로부터 인벤토리를 복원합니다.
             InventoryController.instance.LoadFromData(jsonData);
+            InventoryController.instance.CopyEquippedItemsToInventory("HotBar", "ClearInventory");
 
             Debug.Log($"{path} 파일에서 모든 인벤토리를 불러왔습니다.");
         }

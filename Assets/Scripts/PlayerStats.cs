@@ -70,8 +70,7 @@ public class PlayerStats : MonoBehaviour
 
         // Update UI and apply stats for the new scene
         ResetDataNotGold();
-        if(GameObject.FindGameObjectWithTag("Village") != null)
-            GameManager.Instance.GetComponent<CharacterSelection>().OnceSetting();
+            
         UpdateExpBar();
         ApplyPowerUps();
     }

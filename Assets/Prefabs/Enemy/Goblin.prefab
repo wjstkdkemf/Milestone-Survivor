@@ -199,6 +199,7 @@ MonoBehaviour:
   canRun: 0
   stopMoving: 0
   DamageText: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
+  player: {fileID: 0}
   _knockBackDuration: 0.2
   CantBeKnocked: 0
   flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
@@ -289,5 +290,5 @@ MonoBehaviour:
     dropChance: 49.3
   - itemPrefab: {fileID: 8248385143105006687, guid: 835ab7aede91ca948b2dd901bd25eb33, type: 3}
     dropChance: 43.9
-  - itemPrefab: {fileID: 8306731627452137064, guid: b2c0886d0a03a32409ab5e7c28f57f41, type: 3}
+  - itemPrefab: {fileID: 8306731627452137064, guid: 0c8af09ccc38e7a448b0509f5176fef1, type: 3}
     dropChance: 100
