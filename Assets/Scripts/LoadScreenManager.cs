@@ -51,14 +51,15 @@ public class LoadScreenManager : MonoBehaviour
 
     public void ConfirmSelectionLoad()
     {
-        if (currentlySelectedSlot != null)
+        if (true)//currentlySelectedSlot != null
         {
-            Debug.Log("Confirm button pressed. Loading data for slot: " + currentlySelectedSlot.slotId);
+            //Debug.Log("Confirm button pressed. Loading data for slot: " + currentlySelectedSlot.slotId);
 
             if (SaveLoadManager.Instance != null)
             {
                 //SaveLoadManager.Instance.LoadGame(currentlySelectedSlot.slotId);
-                SaveLoadManager.Instance.selectedIndex = currentlySelectedSlot.slotId;
+                //SaveLoadManager.Instance.selectedIndex = currentlySelectedSlot.slotId;
+                SaveLoadManager.Instance.selectedIndex = 0;
                 SaveLoadManager.Instance.SettingMode(2);
             }
             else
@@ -73,18 +74,18 @@ public class LoadScreenManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No load slot selected.");
+            //Debug.LogWarning("No load slot selected.");
         }
     }
     public void ConfirmSelectionSave()
     {
-        if (currentlySelectedSlot != null)
+        if (true)//currentlySelectedSlot != null
         {
-            Debug.Log("Confirm button pressed. Saving data for slot: " + currentlySelectedSlot.slotId);
+            //Debug.Log("Confirm button pressed. Saving data for slot: " + currentlySelectedSlot.slotId);
 
             if (SaveLoadManager.Instance != null)
             {
-                SaveLoadManager.Instance.SaveGame(currentlySelectedSlot.slotId);
+                SaveLoadManager.Instance.SaveGame(0);//currentlySelectedSlot.slotId
             }
             else
             {
@@ -98,7 +99,23 @@ public class LoadScreenManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No load slot selected.");
+            //Debug.LogWarning("No load slot selected.");
+        }
+    }
+    public void CheckGameSaveData()
+    {
+        GameSaveData saveData = SaveLoadManager.Instance.GetSaveSlotData(0); // Using a fixed slot 0
+
+        if (saveData != null) // If save data exists (Load Game)
+        {
+            SaveLoadManager.Instance.SettingMode(2); // 2 = LoadGame
+            GameManager.Instance.SelectCharacter();//PlayerStats.Instance.CharacterID
+        }
+        else // If no save data exists (New Game)
+        {
+            SaveLoadManager.Instance.SettingMode(1); // 1 = NewGame
+            if(UpgradeManager.Instance != null) UpgradeManager.Instance.ResetUpgrade();
+            GameManager.Instance.SelectCharacter();
         }
     }
 }

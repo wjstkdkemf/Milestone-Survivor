@@ -192,9 +192,12 @@ public class MenuButtonController : MonoBehaviour
 	}
 	public void SaveGame()
 	{
-		Save = true;
-		PauseObject.SetActive(false);
-		LoadObject.SetActive(true);
+		// Save = true;
+		// PauseObject.SetActive(false);
+		// LoadObject.SetActive(true);
+		Debug.Log("세이브버튼 입력");
+		LoadScreenManager.Instance.ConfirmSelectionSave();
+		Debug.Log("세이브완료");
 	}
 
 	public void back()

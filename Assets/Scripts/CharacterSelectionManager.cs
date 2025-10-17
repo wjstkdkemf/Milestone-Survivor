@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class CharacterSelectionManager : MonoBehaviour
 {
     public List<CharacterSelectionButton> characterButtons = new List<CharacterSelectionButton>();
+    public static CharacterSelectionManager Instance { get; private set; }
   
     public GameObject panle;
     public TMP_Text nameText;
@@ -26,6 +27,15 @@ public class CharacterSelectionManager : MonoBehaviour
         // Set the save file path
         saveFilePath = Path.Combine(Application.persistentDataPath, "CharacterData.json");
         LoadCharacterData();
+
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
     }
     private void Start()
     {
@@ -152,7 +162,7 @@ public class CharacterSelectionManager : MonoBehaviour
     public void ConfirmCharacter()
     {
         PlayerStats.Instance.CharacterID = characterSelectionButton.characterInfo.Id;
-        SaveLoadManager.Instance.SettingMode(1);//세 게임
+        //SaveLoadManager.Instance.SettingMode(1);//세 게임
     }
 
     public void ResetCharacters()

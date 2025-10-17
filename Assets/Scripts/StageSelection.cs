@@ -47,7 +47,7 @@ public class StageSelection : MonoBehaviour
     {
         //SceneManager.LoadScene(4);//stageSelectionButton.stageInfo.SceneIndex
 
-        GameManager.Instance.SelectCharacter(PlayerStats.Instance.CharacterID);
+        GameManager.Instance.SelectCharacter();
     }
     public void UnlockStages()
     {

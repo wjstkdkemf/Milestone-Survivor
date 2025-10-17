@@ -74,7 +74,14 @@ namespace InventorySystem
                     dragItem.SetItem(item);
                     dragItem.SetText();
                     dragItem.SetEquitText();
-                    
+
+                    // Find and assign the ScrollRect from parents
+                    ScrollRect parentScrollRect = GetComponentInParent<ScrollRect>();
+                    if (parentScrollRect != null)
+                    {
+                        dragItem.scrollRect = parentScrollRect;
+                    }
+
                     SlotItemHolder.GetComponent<Image>().sprite = item.GetItemImage();
                     SlotItemHolder.SetActive(true);
                 }

@@ -18,6 +18,12 @@ namespace InventorySystem
         /// The inventory item being dragged
         private InventoryItem item;
 
+        [Header("Manual Scroll Settings")]
+        public ScrollRect scrollRect; // Assign the inventory's ScrollRect in the Inspector
+        public float scrollSensitivity = 1f;
+
+        private bool isDragging = false; // Flag to check if dragging is active
+
         /// The text UI element for displaying item information
         [SerializeField, HideInInspector]
         private TextMeshProUGUI text;
@@ -36,6 +42,23 @@ namespace InventorySystem
 
             CurrentSlot = transform.parent.GetComponent<Slot>();
         }
+
+        private void Update()
+        {
+            // Handle scrolling while dragging, now in Update to run every frame
+            if (isDragging)
+            {
+                float scroll = Input.GetAxis("Mouse ScrollWheel");
+                if (scroll != 0 && scrollRect != null)
+                {
+                    // Adjust the scroll rect's position based on wheel input
+                    scrollRect.verticalNormalizedPosition += scroll * scrollSensitivity; // Removed Time.deltaTime for more direct response
+                    // Clamp the value between 0 and 1 to prevent over-scrolling
+                    scrollRect.verticalNormalizedPosition = Mathf.Clamp01(scrollRect.verticalNormalizedPosition);
+                }
+            }
+        }
+
         public void Initiailize()
         {
             if (transform.GetChild(0) != null)
@@ -140,6 +163,9 @@ namespace InventorySystem
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (Draggable()) return;
+
+            isDragging = true; // Start checking for scroll input
+
             if (CurrentSlot != null && dropped)
             {
                 dropped = false;
@@ -158,6 +184,8 @@ namespace InventorySystem
         public void OnEndDrag(PointerEventData eventData)
         {
             if (Draggable()) return;
+
+            isDragging = false; // Stop checking for scroll input
 
             HandleEndDrag(eventData);
         }
