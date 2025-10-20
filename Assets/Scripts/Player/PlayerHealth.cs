@@ -59,8 +59,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
             spriteRenderer = transform.GetChild(0)?.GetComponent<SpriteRenderer>();
             if(spriteRenderer != null) originalMaterial = spriteRenderer.material;
         }
-
-        // After setting health, update the UI.
+        
         UpdateHealthUI();
     }
 
@@ -115,7 +114,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         UpdateHealthUI();
     }
 
-    private void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
         if (slider != null)
         {

@@ -21,6 +21,7 @@ public enum PowerUpType
     KnockBack,
     HealthRegeneration,
     DobleDamageChance,
+    ProjectileSpeed,
     CooldownReduction,
     XPBoost,
     luckBoost,

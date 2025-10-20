@@ -24,13 +24,22 @@ public class CharacterSelection : MonoBehaviour
     {
         int selectedCharacter = PlayerStats.Instance.CharacterID;
 
-        Player.GetComponent<PlayerHealth>().MaxHealth = characterData[selectedCharacter].BaseHP;
-        Player.GetComponent<Player_Controller>().movmentSpeed = characterData[selectedCharacter].MovementSpeed;
-        PlayerStats.Instance.HealthRegeneration = characterData[selectedCharacter].HealthRegeneration;
-        PlayerStats.Instance.experienceBonus += characterData[selectedCharacter].XPBoost;
-        PlayerStats.Instance.LuckBonus += characterData[selectedCharacter].LuckBoost;
-        PlayerStats.Instance.DamageBonus += characterData[selectedCharacter].Damage;
+        if (PlayerStatsCalculate.Instance != null)
+        {
+            PlayerStatsCalculate.Instance.SetBaseStats(
+                characterData[selectedCharacter].BaseHP,
+                characterData[selectedCharacter].MovementSpeed,
+                characterData[selectedCharacter].HealthRegeneration,
+                characterData[selectedCharacter].XPBoost,
+                characterData[selectedCharacter].LuckBoost,
+                characterData[selectedCharacter].Damage
+            );
+        }
+        else
+            Debug.Log("PlayerStatsCalculate가 존재하지않음");
+        //Debug.Log(PlayerStatsCalculate.Instance.baseMaxHealth);
 
+        Player.GetComponent<PlayerHealth>().UpdateHealthUI();
 
         switch (selectedCharacter)
         {

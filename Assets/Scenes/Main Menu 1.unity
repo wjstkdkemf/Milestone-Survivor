@@ -14775,6 +14775,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2043110083}
   - component: {fileID: 2043110082}
+  - component: {fileID: 2043110084}
   m_Layer: 0
   m_Name: Playerstat
   m_TagString: Untagged
@@ -14794,6 +14795,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a769ea2ec49e61e4784567d1d65cc9d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Player: {fileID: 0}
   GoldAmount: 0
   StageCleared: 0
   CharacterID: 0
@@ -14802,16 +14804,6 @@ MonoBehaviour:
   requiredXP: 50
   AttackSpeedBonnes: 0
   ExpBar: {fileID: 0}
-  DamageBonus: 0
-  SpeedBonus: 0
-  HealthRegeneration: 0
-  experienceBonus: 0
-  projectileSpeedBonus: 0
-  cooldownReduction: 0
-  LuckBonus: 0
-  KnockBackBonus: 0
-  ArmorBonus: 0
-  DoubleDamageChance: 0
   GoldAmountText: {fileID: 1111286386}
   powerUps:
   - {fileID: 11400000, guid: e8b5ca1ff550aa54e941c786cdaa6b07, type: 2}
@@ -14839,6 +14831,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2043110084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2043110081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2a65d6fa72afb14393cb8d286d248d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMaxHealth: 0
+  baseDamage: 0
+  baseSpeed: 0
+  baseHealthRegen: 0
+  baseExperienceBonus: 0
+  baseProjectileSpeed: 0
+  baseCooldownReduction: 0
+  baseLuck: 0
+  baseKnockBack: 0
+  baseArmor: 0
+  baseDoubleDamageChance: 0
 --- !u!224 &2098437777 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7790124259878933446, guid: 1a78746c9f6a116409efbfc7f65d01d9, type: 3}

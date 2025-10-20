@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 public class PlayerStats : MonoBehaviour
 {
     public static PlayerStats Instance;
+    public GameObject Player;
     public int GoldAmount;
     public int StageCleared;
     public int CharacterID;
@@ -16,16 +17,16 @@ public class PlayerStats : MonoBehaviour
     public float requiredXP = 50;
     public float AttackSpeedBonnes;
     [SerializeField] private Slider ExpBar;
-    public float DamageBonus = 0;
-    public float SpeedBonus = 0;
-    public float HealthRegeneration;
-    public float experienceBonus = 0;
-    public float projectileSpeedBonus = 0;
-    public float cooldownReduction = 0;
-    public float LuckBonus;
-    public float KnockBackBonus;
-    public float ArmorBonus;
-    public float DoubleDamageChance;
+    public float DamageBonus { get; set; }
+    public float SpeedBonus { get; set; }
+    public float HealthRegeneration { get; set; }
+    public float experienceBonus { get; set; }
+    public float projectileSpeedBonus { get; set; }
+    public float cooldownReduction { get; set; }
+    public float LuckBonus { get; set; }
+    public float KnockBackBonus { get; set; }
+    public float ArmorBonus { get; set; }
+    public float DoubleDamageChance { get; set; }
 
     public TMP_Text GoldAmountText;
     public List<PowerUpScriptableObject> powerUps; // List of power-ups
@@ -68,9 +69,13 @@ public class PlayerStats : MonoBehaviour
             ExpBar = expBarObject.GetComponent<Slider>();
         }
 
+        if(Player == null)
+        {
+            Player = GameObject.FindGameObjectWithTag("Player");
+        }
         // Update UI and apply stats for the new scene
+        
         ResetDataNotGold();
-            
         UpdateExpBar();
         ApplyPowerUps();
     }
@@ -107,16 +112,10 @@ public class PlayerStats : MonoBehaviour
         currentXP = 0;
         requiredXP = 50;
 
-        DamageBonus = 0;
-        SpeedBonus = 0;
-        HealthRegeneration = 0;
-        experienceBonus = 0;
-        projectileSpeedBonus = 0;
-        cooldownReduction = 0;
-        LuckBonus = 0;
-        KnockBackBonus = 0;
-        ArmorBonus = 0;
-        DoubleDamageChance = 0;
+        if (PlayerStatsCalculate.Instance != null && Player != null)
+        {
+            PlayerStatsCalculate.Instance.ResetBonuses();
+        }
     }
 
     public void LoadData(PlayerStatsData data)
@@ -195,28 +194,14 @@ public class PlayerStats : MonoBehaviour
 
     public void ApplyPowerUps()
     {
-        // This logic remains the same, it reads from the ScriptableObjects
+        if (PlayerStatsCalculate.Instance == null) return;
+
         foreach (var powerUp in powerUps)
         {
-            if (powerUp.CurrentLevel <= 0 || powerUp.CurrentLevel > powerUp.upgradeValues.Length)
+            if (powerUp.CurrentLevel > 0 && powerUp.CurrentLevel <= powerUp.upgradeValues.Length)
             {
-                continue; // Skip if level is invalid
-            }
-
-            float upgradeValue = powerUp.upgradeValues[powerUp.CurrentLevel - 1];
-
-            switch (powerUp.powerUpType)
-            {
-                case PowerUpType.MaxHealth: break; // Example
-                case PowerUpType.Damage: DamageBonus += upgradeValue; break;
-                case PowerUpType.Armor: ArmorBonus += upgradeValue; break;
-                case PowerUpType.KnockBack: KnockBackBonus += upgradeValue; break;
-                case PowerUpType.HealthRegeneration: HealthRegeneration += upgradeValue; break;
-                case PowerUpType.DobleDamageChance: DoubleDamageChance += upgradeValue; break;
-                case PowerUpType.CooldownReduction: cooldownReduction += upgradeValue; break;
-                case PowerUpType.XPBoost: experienceBonus += upgradeValue; break;
-                case PowerUpType.luckBoost: LuckBonus += upgradeValue; break;
-                case PowerUpType.MovementSpeed: SpeedBonus += upgradeValue; break;
+                float upgradeValue = powerUp.upgradeValues[powerUp.CurrentLevel - 1];
+                PlayerStatsCalculate.Instance.AddPowerUpBonus(powerUp.powerUpType, upgradeValue);
             }
         }
     }
