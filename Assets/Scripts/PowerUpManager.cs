@@ -39,6 +39,9 @@ public class PowerUpManager : MonoBehaviour
         {
             button.Initialize(this);
         }
+
+        playerStats = FindAnyObjectByType<PlayerStats>();
+
         Invoke("delayedStart", .2f);
     }
     void delayedStart()

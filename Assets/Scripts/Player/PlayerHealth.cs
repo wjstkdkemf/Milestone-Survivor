@@ -125,7 +125,11 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     }
 
     // Deprecated methods, replaced by UpdateHealthUI
-    // public void setmaxhealth(float mhealth) {}
+    public void setmaxhealth(float mhealth)
+    {
+        MaxHealth += mhealth;
+        Heal(mhealth);
+    }
     // public void sethealth(float health) {}
 
     public void Flash()

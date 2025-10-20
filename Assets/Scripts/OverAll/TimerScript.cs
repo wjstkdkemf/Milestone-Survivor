@@ -13,8 +13,8 @@ public class TimerScript : MonoBehaviour
 
         currentTime += Time.deltaTime;
         UpdateTimerUI();
-        if (currentTime >= TimeToWin)
-            GameOver.Instance.stageClear(true);//GameOver.Instance.GameEnded(true);
+        //if (currentTime >= TimeToWin)
+            //GameOver.Instance.stageClear(true);//GameOver.Instance.GameEnded(true);
             //여기 수정 필요.
     }
 
@@ -24,6 +24,6 @@ public class TimerScript : MonoBehaviour
         int minutes = Mathf.FloorToInt(currentTime / 60);
         int seconds = Mathf.FloorToInt(currentTime % 60);
 
-        timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        //timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 }

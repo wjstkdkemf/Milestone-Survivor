@@ -12,6 +12,7 @@ public class UpgradeUi : MonoBehaviour
     [SerializeField] private TMP_Text Description;
     [SerializeField] private Image Icon;
     [SerializeField] private string UpgradeName;
+    [SerializeField] private TMP_Text UpgradeLevel;
     public List<GameObject> UpgradePointsList;
     // Start is called before the first frame update
 
@@ -25,20 +26,21 @@ public class UpgradeUi : MonoBehaviour
 
     public void SetInfo(UpgradeScriptableObject info)
     {
-        foreach (GameObject go in UpgradePointsList)
-        {
-            go.transform.GetChild(0).gameObject.SetActive(false);
-        }
+        // foreach (GameObject go in UpgradePointsList)
+        // {
+        //     go.transform.GetChild(0).gameObject.SetActive(false);
+        // }
         Upgrade = info;
 
         Title.text = Upgrade.Title;
         Description.text = Upgrade.Description;
         Icon.sprite = Upgrade.Icon;
         UpgradeName = Upgrade.name;
-        for (int i = 0; i < Upgrade.Points; i++)
-        {
-            UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(true);
-        }
+        UpgradeLevel.text = Upgrade.Points.ToString();
+        // for (int i = 0; i < Upgrade.Points; i++)
+        // {
+        //     UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(true);
+        // }
 
     }
     public void UpgradeFunction()

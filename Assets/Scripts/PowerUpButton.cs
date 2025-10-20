@@ -13,6 +13,7 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public PowerUpScriptableObject powerUp;
     private PowerUpManager powerUpManager;
     public List<GameObject> UpgradePointsList;
+    public TMP_Text powerUpPointText;
 
 
 
@@ -65,11 +66,11 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
         Icon.sprite = powerUp.IconSprite;
         this.powerUpManager = manager;
-        for (int i = 0; i < (powerUp.upgradeValues.Length); i++)
-        {
+        // for (int i = 0; i < (powerUp.upgradeValues.Length); i++)
+        // {
 
-            UpgradePointsList[i].SetActive(true);
-        }
+        //     UpgradePointsList[i].SetActive(true);
+        // }
         UpdateUI();
     }
 
@@ -85,12 +86,13 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void UpdateUI()
     {
-        for (int i = 0; i < powerUp.CurrentLevel; i++)
-        {
-            UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(true);
-        }
+        // for (int i = 0; i < powerUp.CurrentLevel; i++)
+        // {
+        //     UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(true);
+        // }
         int level = powerUp.CurrentLevel;
         powerUpNameText.text = powerUp.powerUpName;
+        powerUpPointText.text = level.ToString();
        // powerUpLevelText.text = $"Level: {level}/{powerUp.maxLevel}";
 
      /*   if (level < powerUp.maxLevel)
@@ -109,11 +111,11 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     }
     public void ResetUI()
     {
-        for (int i = 0; i < (powerUp.upgradeValues.Length); i++)
-        {
+        // for (int i = 0; i < (powerUp.upgradeValues.Length); i++)
+        // {
 
-            UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(false);
-        }
+        //     UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(false);
+        // }
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -270,7 +272,7 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
        if (PowerUpManager.Instance.CanUnlockSkill(skill))
        {
            PowerUpManager.Instance.UnlockSkill(skill);
-           UpdateSkillUI();  // Update this button’s state
+           UpdateSkillUI();  // Update this buttonï¿½s state
        }
        if (skill.isUnlocked)
        {

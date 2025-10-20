@@ -28,7 +28,6 @@ public class CharacterSelection : MonoBehaviour
         Player.GetComponent<Player_Controller>().movmentSpeed = characterData[selectedCharacter].MovementSpeed;
         PlayerStats.Instance.HealthRegeneration = characterData[selectedCharacter].HealthRegeneration;
         PlayerStats.Instance.experienceBonus += characterData[selectedCharacter].XPBoost;
-        PlayerStats.Instance.CharacterID += selectedCharacter;
         PlayerStats.Instance.LuckBonus += characterData[selectedCharacter].LuckBoost;
         PlayerStats.Instance.DamageBonus += characterData[selectedCharacter].Damage;
 

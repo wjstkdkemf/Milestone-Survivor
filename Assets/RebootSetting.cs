@@ -25,4 +25,12 @@ public class RebootSetting : MonoBehaviour
         // You might need to ensure GameManager.Instance is ready before this is called.
         GameManager.Instance.GetComponent<CharacterSelection>().OnceSetting();
     }
+
+    void OnDestroy()
+    {
+        if(Instance == this)
+        {
+            Instance = null;
+        }
+    }
 }

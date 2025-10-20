@@ -11692,7 +11692,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -11737,19 +11737,25 @@ MonoBehaviour:
   AudioObject: {fileID: 7645007113211062443}
   GraphicsObject: {fileID: 7645007112255970382}
   UpgradeObject: {fileID: 7645007111693401742}
+  SelectObject: {fileID: 0}
   LoadObject: {fileID: 0}
   InventoryObject: {fileID: 0}
   Menu: 0
   Pause: 0
   Settings: 0
   SettingsTwo: 0
+  SettingsThree: 0
+  Settingsfour: 0
   CharacterSelection: 0
   PowerUp: 0
   Load: 0
+  Save: 0
+  Inventory: 0
   CurntButton: {fileID: 0}
   PowerUpButton: {fileID: 0}
   CharacterSelectionButton: {fileID: 0}
   FunctionName: 
+  ingame: 0
 --- !u!1 &7645007113211062443
 GameObject:
   m_ObjectHideFlags: 0
