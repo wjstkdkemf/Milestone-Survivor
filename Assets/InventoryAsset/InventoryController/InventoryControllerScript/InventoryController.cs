@@ -100,7 +100,6 @@ namespace InventorySystem
                 switch (SaveLoadManager.Instance.startMode)
                 {
                     case SaveLoadManager.GameStartMode.NewGame:
-                        Debug.Log("체크포인트 1");
                         SaveLoadManager.Instance.ClearAllDataForNewGame();
                         SaveLoadManager.Instance.SettingMode(3);
                         break;
@@ -113,11 +112,14 @@ namespace InventorySystem
                         {
                             InventoryManager.Instance.LoadAllInventories("Current.json");
                             InventoryManager.Instance.RestoreInventoryTo(InventoryName);
+                            ReapplyAllEquipmentEffects();
+                            SyncEquippedStatus("HotBar", "Inventory");
                         }
                         else if(GameObject.FindGameObjectWithTag("GameScene") != null)
                         {
                             InventoryManager.Instance.LoadAllInventories("Current.json");
                             CopyEquippedItemsToInventory(HotBarInventoryName, ClearInventoryName);
+                            ReapplyAllEquipmentEffects();
                         }
                         break;
                 }

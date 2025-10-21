@@ -28,6 +28,7 @@ public class ItemData : ScriptableObject
     [TextArea]
     public string description; // 아이템 설명
     public Sprite icon; // 아이콘 이미지
+
     public ItemType itemType; // 아이템 유형
     public ItemGrade grade; // 아이템 등급
 

@@ -37,19 +37,18 @@ public class GameManager : MonoBehaviour
         if (Player_Level_Count != null)
             Player_Level_Count.text = PlayerStats.Instance.level.ToString();
 
-        // if (Pause)
-        // {
-        //     if (Panel != null)
-        //         Panel.SetActive(true);
-        //     Time.timeScale = 0;
-        // }
-        // else
-        // {
-        //     if (Panel != null)
-        //         Panel.SetActive(false);
-        //     Time.timeScale = 1;
-
-        // }
+        if (Pause)
+        {
+            if (Panel != null)
+                Panel.SetActive(true);
+            Time.timeScale = 0;
+        }
+        else
+        {
+            if (Panel != null)
+                Panel.SetActive(false);
+            Time.timeScale = 1;
+        }
     }
     public void SelectCharacter()//int index
     {
