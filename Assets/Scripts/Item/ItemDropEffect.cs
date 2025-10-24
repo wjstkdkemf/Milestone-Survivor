@@ -15,6 +15,7 @@ public class ItemDropEffect : MonoBehaviour
     private bool hasLanded = false;
     private bool isFalling = false;
     private float initialYPosition;
+    private GameObject epicBeamEffectInstance;
 
     void Start()
     {
@@ -24,7 +25,7 @@ public class ItemDropEffect : MonoBehaviour
         // 1. "에픽 빔" 이펙트 생성
         if (epicBeamEffectPrefab != null)
         {
-            Instantiate(epicBeamEffectPrefab, transform.position, Quaternion.identity);
+            epicBeamEffectInstance = Instantiate(epicBeamEffectPrefab, transform.position, Quaternion.identity);
         }
 
         // 2. 위쪽으로 튀어 오르는 힘 적용
@@ -54,11 +55,19 @@ public class ItemDropEffect : MonoBehaviour
             // 정확히 처음 높이에 위치하도록 보정
             transform.position = new Vector3(transform.position.x, initialYPosition, transform.position.z);
 
+            if (epicBeamEffectInstance != null)
+            {
+                Destroy(epicBeamEffectInstance);
+            }
             // 5. "지속 발광" 이펙트 생성
             if (groundGlowEffectPrefab != null)
             {
                 Instantiate(groundGlowEffectPrefab, transform.position, Quaternion.identity, transform);
             }
         }
+    }
+    public bool GetHasLand()
+    {
+        return hasLanded;
     }
 }

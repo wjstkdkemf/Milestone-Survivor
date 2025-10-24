@@ -20,7 +20,7 @@ public class PlayerXpPickup : MonoBehaviour
         {
             CollectAllXpCrystals();
             CollectAllGoldCoin();
-            //CollectAllItems();
+            CollectAllItems();
             GameManager.Instance.AllKill = false;
         }
     }
@@ -61,7 +61,7 @@ public class PlayerXpPickup : MonoBehaviour
         foreach (Collider2D collider in hitColliders)
         {
             ItemObject itemObject = collider.GetComponent<ItemObject>();
-            if (itemObject != null)
+            if (itemObject != null && itemObject.GetComponent<ItemDropEffect>().GetHasLand())
             {
                 itemObject.Collect(transform);
             }
