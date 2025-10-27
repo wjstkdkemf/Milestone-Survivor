@@ -160,8 +160,13 @@ public class MenuButtonController : MonoBehaviour
 		AudioObject.SetActive(true);
 		SettingsObject.SetActive(false);
 		SettingsTwo = true;
-
 	}
+	public void MainAudio()
+    {
+		AudioObject.SetActive(true);
+		SelectObject.SetActive(false);
+		SettingsTwo = true;
+    }
 
 	public void Graphics()
 	{
@@ -170,13 +175,18 @@ public class MenuButtonController : MonoBehaviour
 		GraphicsObject.SetActive(true);
 		SettingsObject.SetActive(false);
 		SettingsTwo = true;
-
 	}
+	public void MainGraghics()
+    {
+		GraphicsObject.SetActive(true);
+		SelectObject.SetActive(false);
+		SettingsTwo = true;
+    }
 
 	public void PowerUps()
 	{
-		CurntButton = PowerUpButton;
-		EventSystem.current.SetSelectedGameObject(CurntButton);
+		//CurntButton = PowerUpButton;
+		//EventSystem.current.SetSelectedGameObject(CurntButton);
 		PowerUp = true;
 		PowerUpObject.SetActive(true);
 		SelectObject.SetActive(false);
@@ -202,17 +212,24 @@ public class MenuButtonController : MonoBehaviour
 
 	public void back()
 	{
-		//Debug.Log(Settings + " " +  SettingsTwo + " " + !Menu +" "+ !PowerUp +" "+ !CharacterSelection);
+		//==Debug.Log(Settings + " " +  SettingsTwo + " " + !Menu +" "+ !PowerUp +" "+ !CharacterSelection);
 		// 인게임에서 '오디오' 또는 '그래픽' 설정 화면에 있을 때, '설정' 메뉴로 돌아갑니다.
-		if (Settings && SettingsTwo && !Menu && !PowerUp && !CharacterSelection)
+		if (Settings && SettingsTwo && !Menu && !PowerUp && !CharacterSelection)//
 		{
 			CurntButton = SettingsButton;
 			EventSystem.current.SetSelectedGameObject(CurntButton);
 			AudioObject.SetActive(false);
 			GraphicsObject.SetActive(false);
 			SettingsObject.SetActive(true);
+			//SelectObject.SetActive(true);
 			SettingsTwo = false;
-
+		}
+		//메인화면에서 인벤토리 종료시
+		else if (!Settings && !SettingsTwo && Inventory && !PowerUp && !CharacterSelection)
+		{
+			Inventory = false;
+			InventoryObject.SetActive(false);
+			SelectObject.SetActive(true);
 		}
 		//업그레이드 설정창 닫기
 		else if (!Settings && !SettingsTwo && SettingsThree && !Menu && !PowerUp && !CharacterSelection && !Load && !Inventory)
@@ -222,7 +239,7 @@ public class MenuButtonController : MonoBehaviour
 			CurntButton = null;
 		}
 		//파워업 설정창 닫기
-		else if (SettingsThree && !Menu && PowerUp && !CharacterSelection)
+		else if (!Menu && PowerUp && !CharacterSelection)//SettingsThree && 
 		{
 			CurntButton = SelectButton;
 			EventSystem.current.SetSelectedGameObject(CurntButton);
@@ -231,7 +248,7 @@ public class MenuButtonController : MonoBehaviour
 			PowerUp = false;
 		}
 		//설정창에서 인벤토리 닫기
-		else if (SettingsThree && !Menu && Inventory && !CharacterSelection)
+		else if (SettingsThree && !Menu && Inventory && !CharacterSelection)//
 		{
 			CurntButton = SelectButton;
 			EventSystem.current.SetSelectedGameObject(CurntButton);
@@ -247,7 +264,6 @@ public class MenuButtonController : MonoBehaviour
 			PauseObject.SetActive(true);
 			SettingsObject.SetActive(false);
 			Settings = false;
-
 		}
 		// '일시정지' 메뉴에 있을 때, 게임으로 돌아갑니다.
 		else if (!Settings && !SettingsTwo && Pause && !Menu && !PowerUp && !CharacterSelection && !Save)
@@ -282,8 +298,14 @@ public class MenuButtonController : MonoBehaviour
 			GraphicsObject.SetActive(false);
 			SettingsObject.SetActive(true);
 			SettingsTwo = false;
-
 		}
+		else if(SettingsTwo && !Menu && !PowerUp && !CharacterSelection)
+		{
+			AudioObject.SetActive(false);
+            GraphicsObject.SetActive(false);
+			SelectObject.SetActive(true);
+			SettingsTwo = false;
+        }
 		// 메인 메뉴의 '설정' 화면에 있을 때, 메인 메뉴로 돌아갑니다.
 		else if (Settings && !SettingsTwo && Menu && !PowerUp && !CharacterSelection)
 		{
@@ -322,15 +344,6 @@ public class MenuButtonController : MonoBehaviour
 			LoadObject.SetActive(false);
 			Save = false;
 		}
-		// 메인 메뉴의 '불러오기' 화면에 있을 때, 메인 메뉴로 돌아갑니다.
-		else if (Menu && Load)
-		{
-			LoadObject.SetActive(false);
-			CurntButton = MaineMenuButton;
-			EventSystem.current.SetSelectedGameObject(CurntButton);
-			MaineMenuObject.SetActive(true);
-			Load = false;
-		}
 	}
 	public void InventoryButton()
 	{
@@ -341,8 +354,6 @@ public class MenuButtonController : MonoBehaviour
 			if(!ingame && SelectObject.activeSelf)
 				SelectObject.SetActive(false);
 		}
-		else
-			InventoryObject.SetActive(false);
 	}
 
 
