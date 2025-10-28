@@ -35,7 +35,7 @@ public class SceneTransitionManager : MonoBehaviour
             if (item != null && !item.GetIsNull())
             {
                 // Position is not important for transferring, so we can use 0.
-                items.Add(new ItemSaveData(item.GetAmount(), item.GetItemType(), 0));
+                items.Add(new ItemSaveData(item.GetAmount(), item.GetItemType(), 0, item.GetEnhancementLevel()));
             }
         }
 

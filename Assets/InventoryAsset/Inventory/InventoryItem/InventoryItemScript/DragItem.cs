@@ -28,6 +28,8 @@ namespace InventorySystem
         [SerializeField, HideInInspector]
         private TextMeshProUGUI text;
         private TextMeshProUGUI Equitext;
+        private TextMeshProUGUI Encahattext;
+
 
 
         //determines how item acts on miss;
@@ -95,6 +97,22 @@ namespace InventorySystem
                 Debug.LogError("Slot child is null.");
             }
 
+            if (transform.GetChild(2) != null)
+            {
+                Encahattext = transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+                if (Equitext != null)
+                {
+                    Encahattext.maskable = true;
+                }
+                else
+                {
+                    Debug.LogError("Child object does not have a TextMeshProUGUI component.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Slot child is null.");
+            }
         }
         /// <summary>
         /// Handles the drag event
@@ -329,7 +347,14 @@ namespace InventorySystem
                 }
             }
         }
-
+        public void SetEnchantText()
+        {
+            if (!item.GetIsNull())
+            {
+                Encahattext.gameObject.SetActive(true);
+                Encahattext.SetText("+ " + item.GetEnhancementLevel().ToString());
+            }
+        }
         
         public void SetTextTestImage(int amount)
         {

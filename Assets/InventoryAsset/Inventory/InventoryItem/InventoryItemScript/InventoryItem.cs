@@ -28,6 +28,7 @@ namespace InventorySystem
         private int price;
         private string inventory;
         private string previousInventory;
+        private int enhancementLevel;
         public InventoryItem(ItemData data)
         {
             this.test = data.itemType;
@@ -43,6 +44,7 @@ namespace InventorySystem
             this.isNull = (data == null);
             this.relatedGameObject = data.RelatedGameObject;
             this.displayAmount = data.displayItemAmount;
+            this.enhancementLevel = 0;
 
             if(data.itemType == ItemType.Equipment)
             {
@@ -74,6 +76,7 @@ namespace InventorySystem
             this.position = other.position;
             this.previousInventory = other.previousInventory;
             this.itemType = other.itemType;
+            this.enhancementLevel = other.enhancementLevel;
         }
 
         public InventoryItem(bool isNull)
@@ -166,6 +169,15 @@ namespace InventorySystem
         public string GetInventory()
         {
             return inventory;
+        }
+        public int GetEnhancementLevel()
+        {
+            return enhancementLevel;
+        }
+
+        public void SetEnhancementLevel(int level)
+        {
+            enhancementLevel = level;
         }
         public override string ToString()
         {

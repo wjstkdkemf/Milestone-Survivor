@@ -200,6 +200,7 @@ namespace InventorySystem
                     {
                         InventoryItem copyItem = itemManager[item.name];
                         InventoryItem newItem = new InventoryItem(copyItem, item.amount);
+                        newItem.SetEnhancementLevel(item.enhancementLevel);
                         AddItemPos(invName, newItem, item.position);
                     }
                     else
@@ -818,12 +819,12 @@ namespace InventorySystem
             // 소스 슬롯이 장비창 슬롯이고, 아이템이 있었다면 Unequip
             if (sourceInvName == HotBarInventoryName && !sourceItem.GetIsNull())
             {
-                EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(sourceItem.GetItemType()));
+                EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(sourceItem.GetItemType()), sourceItem);
             }
             // 타겟 슬롯이 장비창 슬롯이고, 아이템이 있었다면 Unequip
             if (targetInvName == HotBarInventoryName && !targetItem.GetIsNull())
             {
-                EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(targetItem.GetItemType()));
+                EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(targetItem.GetItemType()), targetItem);
             }
 
             // 2. 아이템 교환
@@ -840,12 +841,12 @@ namespace InventorySystem
             // 소스 슬롯이 장비창 슬롯이고, 새로 들어온 아이템이 있다면 Equip
             if (sourceInvName == HotBarInventoryName && !targetItem.GetIsNull())
             {
-                EquipmentEffectManager.Instance.Equip(LoadEquipmentData(targetItem.GetItemType()));
+                EquipmentEffectManager.Instance.Equip(LoadEquipmentData(targetItem.GetItemType()), targetItemCopy);
             }
             // 타겟 슬롯이 장비창 슬롯이고, 새로 들어온 아이템이 있다면 Equip
             if (targetInvName == HotBarInventoryName && !sourceItem.GetIsNull())
             {
-                EquipmentEffectManager.Instance.Equip(LoadEquipmentData(sourceItem.GetItemType()));
+                EquipmentEffectManager.Instance.Equip(LoadEquipmentData(sourceItem.GetItemType()), sourceItemCopy);
             }
 
             Debug.Log($"'{sourceInvName}'의 {sourceIndex}번 슬롯과 '{targetInvName}'의 {targetIndex}번 슬롯 아이템 교환 완료");
@@ -911,7 +912,7 @@ namespace InventorySystem
                     //아이템이 있다면 효과를 제거
                     if (oldItem != null && !oldItem.GetIsNull())
                     {
-                        EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(oldItem.GetItemType()));
+                        EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(oldItem.GetItemType()), oldItem);
 
                         // itemToEquip이 있던 인벤토리에서 장착 해제된 아이템(oldItem)을 찾아 Equit = false로 설정
                         string sourceInventoryName = itemToEquip.GetInventory();
@@ -944,8 +945,9 @@ namespace InventorySystem
                         RemoveItemPos(targetInv.GetName(), targetSlot.GetPosition() , 1);
                     }
                     //새 아이템 효과 추가
-                    AddItemPos(targetInv.GetName(), new InventoryItem(itemToEquip), targetSlot.GetPosition());
-                    EquipmentEffectManager.Instance.Equip(LoadEquipmentData(itemToEquip.GetItemType()));
+                    InventoryItem newItem = new InventoryItem(itemToEquip);
+                    AddItemPos(targetInv.GetName(), newItem, targetSlot.GetPosition());
+                    EquipmentEffectManager.Instance.Equip(LoadEquipmentData(itemToEquip.GetItemType()), newItem);
 
                     // itemToEquip이 있던 인벤토리에서 장착한 아이템을 찾아 Equit = true로 설정
                     string equippedItemSourceInv = itemToEquip.GetInventory();
@@ -1033,7 +1035,7 @@ namespace InventorySystem
                     EquipmentData equipmentData = LoadEquipmentData(item.GetItemType());
                     if (equipmentData != null)
                     {
-                        EquipmentEffectManager.Instance.Equip(equipmentData);
+                        EquipmentEffectManager.Instance.Equip(equipmentData, item);
                     }
                 }
             }

@@ -5,6 +5,7 @@ using UnityEngine;
 // 장비 부위
 public enum EquipmentType
 {
+    Weapon, // 무기
     Helmet, // 투구
     Armor, // 갑옷
     Gloves, // 장갑

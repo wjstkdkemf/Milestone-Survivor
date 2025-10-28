@@ -74,6 +74,7 @@ namespace InventorySystem
                     dragItem.SetItem(item);
                     dragItem.SetText();
                     dragItem.SetEquitText();
+                    dragItem.SetEnchantText();
 
                     // Find and assign the ScrollRect from parents
                     ScrollRect parentScrollRect = GetComponentInParent<ScrollRect>();
@@ -84,6 +85,7 @@ namespace InventorySystem
 
                     SlotItemHolder.GetComponent<Image>().sprite = item.GetItemImage();
                     SlotItemHolder.SetActive(true);
+                    SlotItemHolder.GetComponent<RectTransform>().localPosition = Vector3.zero;
                 }
                 else
                 {
@@ -121,6 +123,14 @@ namespace InventorySystem
         /// </summary>
         public void OnPointerClick(PointerEventData eventData)
         {
+            // --- 이벤트 발생 코드 추가 ---
+            // 아이템이 null이 아닐 때만 이벤트를 발생시킵니다.
+            if (item != null && !item.GetIsNull())
+            {
+                InventoryEventSystem.RaiseSlotClicked(item, slotType);
+            }
+            // --------------------------
+
             // 더블클릭 감지
             if (eventData.clickCount == 2)
             {

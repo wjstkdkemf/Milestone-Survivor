@@ -13,11 +13,13 @@ namespace InventorySystem
         public int amount;
         public int position;
         public string name;
-        public ItemSaveData(int amount, string name, int position)
+        public int enhancementLevel;
+        public ItemSaveData(int amount, string name, int position, int enhancementLevel)
         {
             this.amount = amount;
             this.name = name;
             this.position = position;
+            this.enhancementLevel = enhancementLevel;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace InventorySystem
                     // null이나 "Empty" 타입 아이템은 저장하지 않음
                     if (item != null && !item.GetIsNull() && !string.IsNullOrEmpty(item.GetItemType()))
                     {
-                        itemData.Add(new ItemSaveData(item.GetAmount(), item.GetItemType(), position));
+                        itemData.Add(new ItemSaveData(item.GetAmount(), item.GetItemType(), position, item.GetEnhancementLevel()));
                     }
                     position++;
                 }
