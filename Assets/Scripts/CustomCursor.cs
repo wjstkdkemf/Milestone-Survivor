@@ -11,6 +11,7 @@ public class CustomCursor : MonoBehaviour
 
     void Start()
     {
+        hotspot = new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
         Cursor.SetCursor(cursorTexture, hotspot, cursorMode);
     }
 

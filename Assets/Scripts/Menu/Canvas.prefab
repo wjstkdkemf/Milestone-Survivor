@@ -1622,6 +1622,7 @@ MonoBehaviour:
   Description: {fileID: 4742259467855054317}
   Icon: {fileID: 619529899490777230}
   UpgradeName: 
+  UpgradeLevel: {fileID: 0}
   UpgradePointsList:
   - {fileID: 9165421010404738780}
   - {fileID: 8895591564117257329}
@@ -3331,6 +3332,7 @@ MonoBehaviour:
   Description: {fileID: 217591632077087209}
   Icon: {fileID: 6034807119727348513}
   UpgradeName: 
+  UpgradeLevel: {fileID: 0}
   UpgradePointsList:
   - {fileID: 1333951045411499223}
   - {fileID: 314283559898732205}
@@ -7542,6 +7544,7 @@ MonoBehaviour:
   Description: {fileID: 7645007111809351028}
   Icon: {fileID: 7645007113286249326}
   UpgradeName: 
+  UpgradeLevel: {fileID: 0}
   UpgradePointsList:
   - {fileID: 5727496892262060676}
   - {fileID: 3756397938670308535}
@@ -11633,7 +11636,7 @@ RectTransform:
   m_GameObject: {fileID: 7645007113186534641}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 155638792201495032}
@@ -11650,7 +11653,7 @@ RectTransform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
