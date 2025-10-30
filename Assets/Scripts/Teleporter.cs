@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class Teleporter : MonoBehaviour
 {
-    public string startPointName = "StartPoint"; // Default start point
+     // Default start point
 
     void Start()
     {
         if (TeleportManager.Instance != null)
         {
-            TeleportManager.Instance.SetInitialSpawnPoint(gameObject, startPointName);
+            TeleportManager.Instance.SetInitialSpawnPoint();//gameObject
         }
     }
 

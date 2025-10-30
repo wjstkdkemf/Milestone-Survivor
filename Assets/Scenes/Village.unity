@@ -50708,6 +50708,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next_Portal: {fileID: 1571357380}
+  targetMapPrefab: {fileID: 0}
+  targetSpawnPosition: {x: 0, y: 0, z: 0}
   Next_pos: {x: 40.49, y: 0, z: 0}
 --- !u!212 &1089168473
 SpriteRenderer:
@@ -50817,6 +50819,10 @@ PrefabInstance:
     - target: {fileID: 859148274278770344, guid: c9048a0ad6fe3a649acfbf5029827881, type: 3}
       propertyPath: m_Name
       value: Map 1 Tilemap (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 859148274278770344, guid: c9048a0ad6fe3a649acfbf5029827881, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4231351696692874995, guid: c9048a0ad6fe3a649acfbf5029827881, type: 3}
       propertyPath: m_LocalPosition.x
@@ -70763,6 +70769,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1513527149}
   - component: {fileID: 1513527146}
+  - component: {fileID: 1513527150}
   m_Layer: 0
   m_Name: SaveLoadManager
   m_TagString: Untagged
@@ -70799,6 +70806,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1513527150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1513527145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ac97a0d422d70b45b35cbcb77e38a37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPointName: TeleportPoint1
+  startMapName: TestMap1
 --- !u!1 &1514119901
 GameObject:
   m_ObjectHideFlags: 0
@@ -74134,6 +74155,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next_Portal: {fileID: 1089168470}
+  targetMapPrefab: {fileID: 0}
+  targetSpawnPosition: {x: 0, y: 0, z: 0}
   Next_pos: {x: 26.5, y: 0, z: 0}
 --- !u!212 &1571357383
 SpriteRenderer:
@@ -81691,7 +81714,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 859148274278770344, guid: c9048a0ad6fe3a649acfbf5029827881, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4231351696692874995, guid: c9048a0ad6fe3a649acfbf5029827881, type: 3}
       propertyPath: m_LocalPosition.x

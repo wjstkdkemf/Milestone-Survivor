@@ -5,6 +5,11 @@ public class TeleportNPC : Interactable
 {
     public GameObject teleportUICanvas;
 
+    public void OnEnable()
+    {
+        teleportUICanvas = MainMapManager.Instance.GetTeleportUI();
+    }
+
     public override void Interact()
     {
         // For now, we will just activate the teleport UI.
