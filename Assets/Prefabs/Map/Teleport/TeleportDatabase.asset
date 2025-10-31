@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e38914b5720a4184f9a0fcad1601efca, type: 3}
+  m_Name: TeleportDatabase
+  m_EditorClassIdentifier: 
+  allZoneGroups:
+  - zoneName: "\uC232"
+    pointsInZone:
+    - {fileID: 11400000, guid: cd0381d517ffea745942dcc92d8ecd31, type: 2}
+    - {fileID: 11400000, guid: 5f5b590b46efbf24c90d01e3d9ddabaf, type: 2}
+  - zoneName: "\uB3D9\uAD74"
+    pointsInZone:
+    - {fileID: 11400000, guid: e1588a6257b2100499d403facee94906, type: 2}

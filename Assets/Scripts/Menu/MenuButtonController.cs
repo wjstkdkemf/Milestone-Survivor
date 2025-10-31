@@ -21,6 +21,8 @@ public class MenuButtonController : MonoBehaviour
 
 	public GameObject LoadObject;
 	public GameObject InventoryObject;
+	public GameObject TeleportObject;
+
 	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Save , Inventory;
 	public GameObject CurntButton;
 
@@ -190,6 +192,21 @@ public class MenuButtonController : MonoBehaviour
 		PowerUp = true;
 		PowerUpObject.SetActive(true);
 		SelectObject.SetActive(false);
+	}
+	public void TeleportMap()
+	{
+		//CurntButton = PowerUpButton;
+		//EventSystem.current.SetSelectedGameObject(CurntButton);
+		if(TeleportObject.activeSelf)
+		{
+			TeleportObject.SetActive(false);
+			SelectObject.SetActive(true);
+		}
+		else
+		{
+			TeleportObject.SetActive(true);
+			SelectObject.SetActive(false);
+		}
 	}
 
 	public void LoadGame()

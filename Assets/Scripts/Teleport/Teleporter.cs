@@ -13,11 +13,11 @@ public class Teleporter : MonoBehaviour
         }
     }
 
-    public void TeleportTo(string teleportPointName)
+    public void TeleportTo(string teleportMapName, string teleportPointName)
     {
         if (TeleportManager.Instance != null)
         {
-            TeleportManager.Instance.TeleportPlayer(gameObject, teleportPointName);
+            TeleportManager.Instance.TeleportPlayer(gameObject, teleportMapName ,teleportPointName);
         }
     }
 }
