@@ -37,6 +37,7 @@ public class MenuButtonController : MonoBehaviour
 	public GameObject CharacterSelectionButton;
 	public string FunctionName;
 	public bool ingame = false;
+	public bool InGameUpgrade = false;
 
 	private void Awake()
 	{
@@ -231,7 +232,11 @@ public class MenuButtonController : MonoBehaviour
 	{
 		//==Debug.Log(Settings + " " +  SettingsTwo + " " + !Menu +" "+ !PowerUp +" "+ !CharacterSelection);
 		// 인게임에서 '오디오' 또는 '그래픽' 설정 화면에 있을 때, '설정' 메뉴로 돌아갑니다.
-		if (Settings && SettingsTwo && !Menu && !PowerUp && !CharacterSelection)//
+		if(InGameUpgrade)
+        {
+            
+        }
+		else if (Settings && SettingsTwo && !Menu && !PowerUp && !CharacterSelection)//
 		{
 			CurntButton = SettingsButton;
 			EventSystem.current.SetSelectedGameObject(CurntButton);

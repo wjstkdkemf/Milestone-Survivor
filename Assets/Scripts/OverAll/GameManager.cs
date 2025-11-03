@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public int NumberOfKills;
     public int activeEnemies = 0;
     public bool AllKill = false;
+    public bool Heal = false;
     public GameObject Panel;
     public bool CanSpawn;
 

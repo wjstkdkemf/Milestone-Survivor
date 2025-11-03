@@ -50,10 +50,9 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         // Core stat initialization - this should always run.
         CurrentHealth = MaxHealth;
         IsDead = false;
-        
         // UI and component initialization - this can fail if objects aren't ready.
         // We wrap it in a null check for safety.
-        if (GameObject.FindGameObjectWithTag("MainScene") == null)
+        if (GameObject.FindGameObjectWithTag("GameScene"))
         {
             slider = GameObject.FindGameObjectWithTag("HealthSlider")?.GetComponent<Slider>();
             spriteRenderer = transform.GetChild(0)?.GetComponent<SpriteRenderer>();
@@ -79,12 +78,22 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         {
             IsDead = false;
         }
-
-        if (CurrentHealth < MaxHealth && PlayerStats.Instance.HealthRegeneration != 0)
+        if (GameManager.Instance.Heal == true)
+        {
+            HealthRegenerationByEncount();
+            GameManager.Instance.Heal = false;
+        }
+        UpdateHealthUI();
+    }
+    public void HealthRegenerationByEncount()
+    {
+        if (CurrentHealth < MaxHealth && PlayerStats.Instance.HealthRegeneration != 0)//회복이 과함. 추후 스테이지 클리어당 회복으로 수정예정
         {
             CurrentHealth += PlayerStats.Instance.HealthRegeneration;
+            if(CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
             UpdateHealthUI();
         }
+
     }
 
     public void TakeDamage(float damage, float knockBackDuration = 0f)

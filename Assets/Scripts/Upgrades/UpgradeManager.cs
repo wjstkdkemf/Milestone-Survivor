@@ -313,6 +313,7 @@ public class UpgradeManager : MonoBehaviour
             }
         }
 
+        MenuButtonController.Instance.InGameUpgrade = true;
         UpgradeObject.SetActive(true);
         GameManager.Instance.Pause = true;
 
@@ -375,7 +376,7 @@ public class UpgradeManager : MonoBehaviour
         GameManager.Instance.Pause = false;
         UpgradeObject.SetActive(false);
         spawnedUpgades.Clear();
-
+        MenuButtonController.Instance.InGameUpgrade = false;
         if (!isJobClassSet)
         {
             CheckAndSetJobClassFromPoints();

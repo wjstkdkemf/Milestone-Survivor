@@ -13,12 +13,12 @@ GameObject:
   - component: {fileID: 7979239861218316740}
   - component: {fileID: 527717703102273256}
   - component: {fileID: -3998681517518056756}
-  - component: {fileID: 5619459716242629193}
   - component: {fileID: 8454368606132760189}
   - component: {fileID: -639571069223099428}
   - component: {fileID: 3761190193143665214}
+  - component: {fileID: 8423276569477268999}
   m_Layer: 8
-  m_Name: Goblin
+  m_Name: TestNamed_1
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,7 +136,7 @@ Animator:
   m_GameObject: {fileID: 2797327662496399954}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c0f7028f721416047b190dbb90cce8b4, type: 2}
+  m_Controller: {fileID: 9100000, guid: 496ddf2f242fd8f48bb483872f72d00c, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -174,39 +174,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &5619459716242629193
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2797327662496399954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e7c57aa49be51248b81205e712a8661, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rarity: 0
-  maxhealth: 10
-  health: 10
-  damage: 15
-  speed: 2.5
-  knockBackForce: 4
-  coolDown: 3
-  range: 100
-  attackRange: 0
-  escapeRange: 1
-  canRun: 0
-  stopMoving: 0
-  DamageText: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
-  player: {fileID: 0}
-  _knockBackDuration: 0.2
-  CantBeKnocked: 0
-  flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
-  originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
-  IsActived: 0
-  DontUseObjectPooling: 0
-  boss: 0
 --- !u!114 &8454368606132760189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,3 +259,46 @@ MonoBehaviour:
     dropChance: 46.5
   - itemPrefab: {fileID: 5304167622817196155, guid: baa2abad777726e4a90efd52cd35920f, type: 3}
     dropChance: 16.1
+--- !u!114 &8423276569477268999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2797327662496399954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 956887a3daf250844875a25e9af1d809, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rarity: 0
+  maxhealth: 50
+  health: 10
+  damage: 15
+  speed: 2.5
+  knockBackForce: 2
+  coolDown: 3
+  range: 100
+  attackRange: 1
+  escapeRange: 1
+  canRun: 0
+  stopMoving: 0
+  DamageText: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
+  player: {fileID: 0}
+  _knockBackDuration: 0.2
+  CantBeKnocked: 0
+  flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
+  originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
+  IsActived: 0
+  DontUseObjectPooling: 0
+  boss: 0
+  windUpTime: 2
+  attackOffset: 2
+  slamBoxSize: {x: 5, y: 3}
+  slamEffectPrefab: {fileID: 0}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  slamWarningPrefab: {fileID: 9026715396156587175, guid: 7a05ffbb587abc941bf1d655e79577de, type: 3}
+  warningStartColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.7}
+  warningEndColor: {r: 0, g: 0, b: 0, a: 0.9}

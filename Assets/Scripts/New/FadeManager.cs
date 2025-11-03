@@ -7,7 +7,7 @@ public class FadeManager : MonoBehaviour
 {
     public static FadeManager Instance { get; private set; }
     public Image fadeImage; // 화면 전체를 덮는 검은색 UI Image
-    public float fadeDuration = 0.5f;
+    public float fadeDuration = 1.0f;
 
     void Awake()
     {

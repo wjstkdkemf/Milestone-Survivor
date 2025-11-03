@@ -150,25 +150,25 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     // Determines whether the enemy should be chasing, attacking, or fleeing
     protected virtual void DetermineState(float distanceToPlayer)
     {
-        if (distanceToPlayer <= range)
-        {
-            inAttackRange = false;
-            chasing = true;
-            running = false;
-        }
+        chasing = true; // Always chase the player
 
+        // Determine if the enemy is in attack range
         if (distanceToPlayer <= attackRange)
         {
             inAttackRange = true;
-            if (canRun && distanceToPlayer <= escapeRange)
-            {
-                running = true;
-            }
-            chasing = false;
         }
         else
         {
             inAttackRange = false;
+        }
+
+        // Determine if the enemy should run away
+        if (canRun && distanceToPlayer <= escapeRange)
+        {
+            running = true;
+        }
+        else
+        {
             running = false;
         }
     }
