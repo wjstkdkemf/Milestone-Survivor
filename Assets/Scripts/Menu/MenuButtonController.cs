@@ -23,7 +23,7 @@ public class MenuButtonController : MonoBehaviour
 	public GameObject InventoryObject;
 	public GameObject TeleportObject;
 
-	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Save , Inventory;
+	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Save , Inventory , Teleport;
 	public GameObject CurntButton;
 
 	private GameObject MaineMenuButton;
@@ -198,16 +198,27 @@ public class MenuButtonController : MonoBehaviour
 	{
 		//CurntButton = PowerUpButton;
 		//EventSystem.current.SetSelectedGameObject(CurntButton);
-		if(TeleportObject.activeSelf)
-		{
-			TeleportObject.SetActive(false);
-			SelectObject.SetActive(true);
-		}
-		else
-		{
-			TeleportObject.SetActive(true);
-			SelectObject.SetActive(false);
-		}
+		Teleport = true;
+		TeleportObject.SetActive(true);
+		CharacterSelectionObject.SetActive(false);
+		// if (TeleportObject.activeSelf)
+		// {
+		// 	Teleport = true;
+		// 	TeleportObject.SetActive(false);
+		// 	SelectObject.SetActive(true);
+		// }
+		// else
+		// {
+		// 	Teleport = false;
+		// 	TeleportObject.SetActive(true);
+		// 	SelectObject.SetActive(false);
+		// }
+	}
+	public void CharacterSelect()
+	{
+		CharacterSelection = true;
+		CharacterSelectionObject.SetActive(true);
+		SelectObject.SetActive(false);
 	}
 
 	public void LoadGame()
@@ -232,10 +243,10 @@ public class MenuButtonController : MonoBehaviour
 	{
 		//==Debug.Log(Settings + " " +  SettingsTwo + " " + !Menu +" "+ !PowerUp +" "+ !CharacterSelection);
 		// 인게임에서 '오디오' 또는 '그래픽' 설정 화면에 있을 때, '설정' 메뉴로 돌아갑니다.
-		if(InGameUpgrade)
-        {
-            
-        }
+		if (InGameUpgrade)
+		{
+
+		}
 		else if (Settings && SettingsTwo && !Menu && !PowerUp && !CharacterSelection)//
 		{
 			CurntButton = SettingsButton;
@@ -252,6 +263,18 @@ public class MenuButtonController : MonoBehaviour
 			Inventory = false;
 			InventoryObject.SetActive(false);
 			SelectObject.SetActive(true);
+		}
+		else if (!Settings && !SettingsTwo && Inventory && !PowerUp && CharacterSelection && !Teleport)
+		{
+			CharacterSelection = false;
+			CharacterSelectionObject.SetActive(false);
+			SelectObject.SetActive(true);
+		}
+		else if (!Settings && !SettingsTwo && Inventory && !PowerUp && CharacterSelection && Teleport)
+		{
+			Teleport = false;
+			TeleportObject.SetActive(false);
+			CharacterSelectionObject.SetActive(true);
 		}
 		//업그레이드 설정창 닫기
 		else if (!Settings && !SettingsTwo && SettingsThree && !Menu && !PowerUp && !CharacterSelection && !Load && !Inventory)
@@ -321,13 +344,13 @@ public class MenuButtonController : MonoBehaviour
 			SettingsObject.SetActive(true);
 			SettingsTwo = false;
 		}
-		else if(SettingsTwo && !Menu && !PowerUp && !CharacterSelection)
+		else if (SettingsTwo && !Menu && !PowerUp && !CharacterSelection)
 		{
 			AudioObject.SetActive(false);
-            GraphicsObject.SetActive(false);
+			GraphicsObject.SetActive(false);
 			SelectObject.SetActive(true);
 			SettingsTwo = false;
-        }
+		}
 		// 메인 메뉴의 '설정' 화면에 있을 때, 메인 메뉴로 돌아갑니다.
 		else if (Settings && !SettingsTwo && Menu && !PowerUp && !CharacterSelection)
 		{
@@ -339,14 +362,14 @@ public class MenuButtonController : MonoBehaviour
 
 		}
 		// '캐릭터 선택' 화면에 있을 때, 메인 메뉴로 돌아갑니다.
-		else if (Menu && CharacterSelection)
-		{
-			CharacterSelectionObject.SetActive(false);
-			CurntButton = MaineMenuButton;
-			EventSystem.current.SetSelectedGameObject(CurntButton);
-			MaineMenuObject.SetActive(true);
-			CharacterSelection = false;
-		}
+		// else if (Menu && CharacterSelection)
+		// {
+		// 	CharacterSelectionObject.SetActive(false);
+		// 	CurntButton = MaineMenuButton;
+		// 	EventSystem.current.SetSelectedGameObject(CurntButton);
+		// 	MaineMenuObject.SetActive(true);
+		// 	CharacterSelection = false;
+		// }
 		// '파워업' 화면에 있을 때, 메인 메뉴로 돌아갑니다.
 		else if (Menu && PowerUp)
 		{

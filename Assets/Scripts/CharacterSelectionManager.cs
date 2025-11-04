@@ -14,6 +14,7 @@ public class CharacterSelectionManager : MonoBehaviour
     public TMP_Text costText;
     public TMP_Text descriptionText;
     public TMP_Text playerStatsText;
+    public TMP_Text playerLevelUpStatsText;
     public GameObject BuyButtons;
     public GameObject ConfirmButton;
     public Image icon;
@@ -55,8 +56,8 @@ public class CharacterSelectionManager : MonoBehaviour
         characterSelectionButton = button;
         panle.SetActive(true);
         nameText.text = info.CharacterName;
-        descriptionText.text = info.description;
-        costText.text = info.costPerLevel.ToString();
+        //descriptionText.text = info.description;
+        //costText.text = info.costPerLevel.ToString();
         icon.sprite = info.IconSprite;
 
         string playerStats = $"<b>Stats:</b>\n" +
@@ -71,7 +72,7 @@ public class CharacterSelectionManager : MonoBehaviour
                $"XP Boost: {info.XPBoost}%";
 
         playerStatsText.text = playerStats;
-        BuyButtons.SetActive(!info.purchased);
+        //BuyButtons.SetActive(!info.purchased);
         ConfirmButton.SetActive(info.purchased);
     }
     public void DeselectOtherButtons()

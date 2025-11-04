@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerStatsCalculate : MonoBehaviour
@@ -16,6 +18,8 @@ public class PlayerStatsCalculate : MonoBehaviour
     public float baseKnockBack = 0;
     public float baseArmor = 0;
     public float baseDoubleDamageChance = 0;
+    public List<StatModifier> baseStatModifiers;
+    public int Level = 0;
 
     // Power-up bonuses
     private float powerUpDamage = 0;
@@ -43,6 +47,7 @@ public class PlayerStatsCalculate : MonoBehaviour
     private float realTimeDoubleDamageChance = 0;
     private float realTimeMaxHealth = 0;
 
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -56,7 +61,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         }
     }
 
-    public void SetBaseStats(float maxHealth, float speed, float healthRegen, float experienceBonus, float luck, float damage)
+    public void SetBaseStats(float maxHealth, float speed, float healthRegen, float experienceBonus, float luck, float damage, List<StatModifier> statModifiers)
     {
         baseMaxHealth = maxHealth;
         baseSpeed = speed;
@@ -64,7 +69,12 @@ public class PlayerStatsCalculate : MonoBehaviour
         baseExperienceBonus = experienceBonus;
         baseLuck = luck;
         baseDamage = damage;
+        baseStatModifiers = new List<StatModifier>(statModifiers);// 복사
         UpdatePlayerStats();
+    }
+    public void LevelUpBonus(int Level)
+    {
+        
     }
 
     public void AddPowerUpBonus(PowerUpType type, float value)

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class Player_Controller : MonoBehaviour
 {
 
@@ -24,7 +24,10 @@ public class Player_Controller : MonoBehaviour
     private TrailRenderer Trail;
     [SerializeField]
     private bool haveAnimation;
+    private Slider slider;
+    private Material originalMaterial;
     private Animator animator;
+    public float DashCoolTimeRation = 1;
     private void Awake()
     {    
         state = State.Normal;
@@ -36,6 +39,21 @@ public class Player_Controller : MonoBehaviour
         Trail = GetComponent<TrailRenderer>();
         animator = transform.GetChild(0).GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        slider = GameObject.FindGameObjectWithTag("DashCoolTimeSlider")?.GetComponent<Slider>();
+        spriteRenderer = transform.GetChild(0)?.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) originalMaterial = spriteRenderer.material;
+
+        UpdateDashCoolTimeUI();
+
+    }
+    public void UpdateDashCoolTimeUI()
+    {
+        if (slider != null)
+        {
+            slider.maxValue = cooltime;
+            slider.value = cooltime - dashCoolDown;
+        }
     }
     private void Update()
     {
@@ -111,9 +129,17 @@ public class Player_Controller : MonoBehaviour
                 }
                 break;
         }
-      
+    UpdateDashCoolTimeUI();
     }
-
+    public void SetDashCoolTime(float dashCool)
+    {
+        cooltime = (cooltime - dashCool) * DashCoolTimeRation;
+        if(cooltime <= 1.0f)
+        {
+            cooltime = 1.0f;
+        }
+        UpdateDashCoolTimeUI();
+    }
     private void FixedUpdate()
     {
         switch (state)

@@ -106,7 +106,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterInfo: {fileID: 11400000, guid: d6f60f9124eb4cf449b12479a3437520, type: 2}
-  characterSelectionManager: {fileID: 0}
   hoverScaleFactor: 1.1
   animationDuration: 0.2
   hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -174,7 +173,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 997026941600023471}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -214,7 +213,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3693599928019496032
 RectTransform:
   m_ObjectHideFlags: 0
@@ -498,7 +497,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5723564641961285950
 RectTransform:
   m_ObjectHideFlags: 0
@@ -573,7 +572,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &998068511280755196
 RectTransform:
   m_ObjectHideFlags: 0
@@ -665,8 +664,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -0.0000084527, y: -3.5}
-  m_SizeDelta: {x: 51.3908, y: 50}
+  m_AnchoredPosition: {x: -0.0000084527, y: -48.94}
+  m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7381194369452153221
 CanvasRenderer:
@@ -740,8 +739,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 41.814186, y: 0.0899}
-  m_SizeDelta: {x: 113.8469, y: 23.3328}
+  m_AnchoredPosition: {x: 41.814186, y: 1.1}
+  m_SizeDelta: {x: 243.98, y: 23.3328}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8556997780820277404
 CanvasRenderer:
@@ -798,8 +797,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
