@@ -171,6 +171,7 @@ public class PlayerStats : MonoBehaviour
         level++;
         currentXP = 0;
         requiredXP *= 1.5f;
+        PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
         UpdateExpBar();
 
         if (level < 10)

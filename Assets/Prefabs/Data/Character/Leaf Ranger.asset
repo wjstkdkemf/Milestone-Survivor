@@ -25,6 +25,9 @@ MonoBehaviour:
   CooldownReduction: 0
   DobleDamageChance: 0
   XPBoost: 0
+  statModifiers:
+  - statName: Damage
+    value: 0.5
   costPerLevel: 0
   purchased: 1
   CharacterPrefab: {fileID: 0}

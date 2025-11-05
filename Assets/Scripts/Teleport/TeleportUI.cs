@@ -17,6 +17,11 @@ public class TeleportUI : MonoBehaviour
     public bool IsHome;
     private string SelectGroup;
     private List<TeleportPoint> teleportPoints;
+    [Header("버튼 색상")]
+    public Color normalColor = Color.white;    // 기본 상태 색상
+    public Color selectedColor = Color.grey; // "눌려있는" 상태의 색상
+    private Button SelectbigButton;
+    private Button SelectsmallButton;
 
     void Start()
     {
@@ -45,13 +50,25 @@ public class TeleportUI : MonoBehaviour
             TeleportZoneData currentGroup = group; 
             buttonObj.GetComponent<Button>().onClick.AddListener(() => 
             {
-                CreateTeleportButtons(currentGroup);
+                CreateTeleportButtons(currentGroup , buttonObj.GetComponent<Button>());
             });
         }
     }
 
-    void CreateTeleportButtons(TeleportZoneData selectedGroup)
+    void CreateTeleportButtons(TeleportZoneData selectedGroup , Button Button)
     {
+        if (SelectbigButton != null && SelectbigButton != Button)
+        {
+            SelectbigButton.GetComponent<Image>().color = normalColor;
+            SelectbigButton = Button;
+            SelectbigButton.GetComponent<Image>().color = selectedColor;
+        }
+        else if(SelectbigButton == null)
+        {
+            SelectbigButton = Button;
+            SelectbigButton.GetComponent<Image>().color = selectedColor;
+        }
+
         // 기존 버튼 삭제
         ClearPointList();
         //SelectGroup = selectedGroup.zoneName;
@@ -74,7 +91,7 @@ public class TeleportUI : MonoBehaviour
                 TeleportData currentPoint = pointData;
                 pointButton.onClick.AddListener(() =>
                 {
-                    OnTeleportButtonClick(currentPoint);
+                    OnTeleportButtonClick(currentPoint, pointButton);
                 });
             }
         }
@@ -84,8 +101,19 @@ public class TeleportUI : MonoBehaviour
         foreach (Transform child in smallButtonContainer) Destroy(child.gameObject);
     }
 
-    void OnTeleportButtonClick(TeleportData teleportPoint)//Name
+    void OnTeleportButtonClick(TeleportData teleportPoint , Button Button)//Name
     {
+        if (SelectsmallButton != null && SelectsmallButton != Button)
+        {
+            SelectsmallButton.GetComponent<Image>().color = normalColor;
+            SelectsmallButton = Button;
+            SelectsmallButton.GetComponent<Image>().color = selectedColor;
+        }
+        else if(SelectsmallButton == null)
+        {
+            SelectsmallButton = Button;
+            SelectsmallButton.GetComponent<Image>().color = selectedColor;
+        }
         if (IsHome)
         {
             TeleportManager.Instance.startMapName = teleportPoint.pointID;
