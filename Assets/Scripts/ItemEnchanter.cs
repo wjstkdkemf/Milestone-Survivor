@@ -16,14 +16,13 @@ public class ItemEnchanter : MonoBehaviour
     public TMPro.TextMeshProUGUI enchantText;
 
     // 강화 레벨별 비용 (Key: 현재 레벨, Value: 다음 레벨로 가기 위한 비용)
-    private readonly Dictionary<int, int> enhancementCosts = new Dictionary<int, int>
+    private readonly Dictionary<ItemGrade, Dictionary<int, int>> enhancementCostsByGrade = new Dictionary<ItemGrade, Dictionary<int, int>>
     {
-        {0, 10},   // 0 -> 1
-        {1, 250},   // 1 -> 2
-        {2, 500},   // 2 -> 3
-        {3, 1000},  // 3 -> 4
-        {4, 2000}   // 4 -> 5
-        // 필요에 따라 레벨과 비용을 추가하세요.
+        { ItemGrade.Common, new Dictionary<int, int> { {0, 10}, {1, 20}, {2, 30}, {3, 40}, {4, 50} } },
+        { ItemGrade.Uncommon, new Dictionary<int, int> { {0, 100}, {1, 200}, {2, 300}, {3, 400}, {4, 500} } },
+        { ItemGrade.Rare, new Dictionary<int, int> { {0, 1000}, {1, 2000}, {2, 3000}, {3, 4000}, {4, 5000} } },
+        { ItemGrade.Epic, new Dictionary<int, int> { {0, 5000}, {1, 10000}, {2, 15000}, {3, 20000}, {4, 25000} } },
+        { ItemGrade.Legendary, new Dictionary<int, int> { {0, 10000}, {1, 20000}, {2, 30000}, {3, 40000}, {4, 50000} } }
     };
 
     private void Awake()
@@ -69,14 +68,26 @@ public class ItemEnchanter : MonoBehaviour
             return;
         }
 
-        if (enhancementCosts.TryGetValue(currentItem.GetEnhancementLevel(), out int cost))
+        if (enhancementCostsByGrade.TryGetValue(currentItem.GetGrade(), out var enhancementCosts))
         {
-            if (enchantText != null)
+            if (enhancementCosts.TryGetValue(currentItem.GetEnhancementLevel(), out int cost))
             {
-                enchantText.text = cost.ToString();
+                if (enchantText != null)
+                {
+                    enchantText.text = cost.ToString();
+                }
+                // Player has enough gold AND the item is not max level
+                enchantButton.interactable = PlayerStats.Instance.GoldAmount >= cost;
             }
-            // Player has enough gold AND the item is not max level
-            enchantButton.interactable = PlayerStats.Instance.GoldAmount >= cost;
+            else
+            {
+                if (enchantText != null)
+                {
+                    enchantText.text = "";
+                }
+                // This is the max level, or level is not in the cost dictionary
+                enchantButton.interactable = false;
+            }
         }
         else
         {
@@ -84,10 +95,9 @@ public class ItemEnchanter : MonoBehaviour
             {
                 enchantText.text = "";
             }
-            // This is the max level, or level is not in the cost dictionary
+            // This grade is not in the cost dictionary
             enchantButton.interactable = false;
         }
-
     }
 
     /// <summary>
@@ -102,43 +112,51 @@ public class ItemEnchanter : MonoBehaviour
         }
 
         int currentLevel = currentItem.GetEnhancementLevel();
+        ItemGrade currentGrade = currentItem.GetGrade();
 
-        if (enhancementCosts.TryGetValue(currentLevel, out int cost))
+        if (enhancementCostsByGrade.TryGetValue(currentGrade, out var enhancementCosts))
         {
-            if (PlayerStats.Instance.GoldAmount >= cost)
+            if (enhancementCosts.TryGetValue(currentLevel, out int cost))
             {
-                // Deduct gold
-                PlayerStats.Instance.GoldAmount -= cost;
-
-                // Increase enhancement level
-                currentItem.SetEnhancementLevel(currentLevel + 1);
-
-                // Re-apply equipment effects if the item is equipped
-                if (currentItem.GetEquit())
+                if (PlayerStats.Instance.GoldAmount >= cost)
                 {
-                    EquipmentData data = Resources.Load<EquipmentData>($"Items/{currentItem.GetItemType()}");
-                    if (data != null)
+                    // Deduct gold
+                    PlayerStats.Instance.GoldAmount -= cost;
+
+                    // Increase enhancement level
+                    currentItem.SetEnhancementLevel(currentLevel + 1);
+
+                    // Re-apply equipment effects if the item is equipped
+                    if (currentItem.GetEquit())
                     {
-                        // Unequip with old stats and re-equip with new stats
-                        EquipmentEffectManager.Instance.Unequip(data, currentItem);
-                        EquipmentEffectManager.Instance.Equip(data, currentItem);
+                        EquipmentData data = Resources.Load<EquipmentData>($"Items/{currentItem.GetItemType()}");
+                        if (data != null)
+                        {
+                            // Unequip with old stats and re-equip with new stats
+                            EquipmentEffectManager.Instance.Unequip(data, currentItem);
+                            EquipmentEffectManager.Instance.Equip(data, currentItem);
+                        }
                     }
+
+                    Debug.Log($"'{currentItem.GetItemType()}' successfully enchanted to +{currentItem.GetEnhancementLevel()}!");
+
+                    // Update the UI (ItemInfoDisplay and Enchant Button)
+                    InventoryEventSystem.RaiseSlotClicked(currentItem, currentItem.GetInventory());
+                    UpdateEnchantButton();
                 }
-
-                Debug.Log($"'{currentItem.GetItemType()}' successfully enchanted to +{currentItem.GetEnhancementLevel()}!");
-
-                // Update the UI (ItemInfoDisplay and Enchant Button)
-                InventoryEventSystem.RaiseSlotClicked(currentItem, currentItem.GetInventory());
-                UpdateEnchantButton();
+                else
+                {
+                    Debug.LogWarning("[ItemEnchanter] Not enough gold to enchant.");
+                }
             }
             else
             {
-                Debug.LogWarning("[ItemEnchanter] Not enough gold to enchant.");
+                Debug.Log("[ItemEnchanter] Item is at max level or enhancement cost is not defined for this level.");
             }
         }
         else
         {
-            Debug.Log("[ItemEnchanter] Item is at max level or enhancement cost is not defined for this level.");
+            Debug.Log($"[ItemEnchanter] Enhancement cost for grade '{currentGrade}' is not defined.");
         }
     }
 }

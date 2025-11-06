@@ -4,6 +4,16 @@ using UnityEngine.UI;
 
 public class SecondNamedEnemy : Enemy
 {
+    public enum State
+    {
+        Idle,
+        Chasing,
+        SlamAttack
+    }
+
+    [Header("State Machine")]
+    public State currentState = State.Idle;
+
     [Header("Slam Attack Settings")]
     public float windUpTime = 0.8f; // Time before the slam occurs
     public float attackOffset = 2f; // Distance in front of the enemy for the attack
@@ -16,26 +26,82 @@ public class SecondNamedEnemy : Enemy
     public Color warningStartColor = new Color(0.5f, 0.5f, 0.5f, 0.7f); // 반투명 회색
     public Color warningEndColor = new Color(0, 0, 0, 0.9f);         // 진한 검은색
 
-    private bool isAttacking = false;
+    private Coroutine currentCoroutine;
 
-    public override void Attack()
+    void Start()
     {
-        if (isAttacking) return;
-        StartCoroutine(SlamAttackSequence());
+        ChangeState(State.Idle);
     }
 
-    private IEnumerator SlamAttackSequence()
+    protected override void Update()
     {
-        isAttacking = true;
+        base.Update(); // Call the base class Update method to handle basic enemy logic
+
+        if (player == null || IsActived == false) return;
+
+        // State transition logic
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
+        if (currentState == State.Idle || currentState == State.Chasing)
+        {
+            if (distanceToPlayer <= attackRange)
+            {
+                ChangeState(State.SlamAttack);
+            }
+            else if (distanceToPlayer > attackRange && currentState != State.Chasing)
+            {
+                ChangeState(State.Chasing);
+            }
+        }
+    }
+
+    void ChangeState(State newState)
+    {
+        if (currentCoroutine != null)
+        {
+            StopCoroutine(currentCoroutine);
+        }
+
+        currentState = newState;
+
+        switch (currentState)
+        {
+            case State.Idle:
+                currentCoroutine = StartCoroutine(Idle_State());
+                break;
+            case State.Chasing:
+                currentCoroutine = StartCoroutine(Chasing_State());
+                break;
+            case State.SlamAttack:
+                currentCoroutine = StartCoroutine(SlamAttack_State());
+                break;
+        }
+    }
+
+    IEnumerator Idle_State()
+    {
+        stopMoving = true;
+        yield return new WaitForSeconds(1f); // Idle for 1 second
+        stopMoving = false;
+        ChangeState(State.Chasing);
+    }
+
+    IEnumerator Chasing_State()
+    {
+        stopMoving = false;
+        // Base class handles movement
+        yield return null;
+    }
+
+    IEnumerator SlamAttack_State()
+    {
         stopMoving = true;
 
-        // 1. 플레이어 방향으로 공격 방향, 위치, 회전각 계산
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
         Vector2 attackCenter = (Vector2)transform.position + directionToPlayer * attackOffset;
         float angle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.Euler(0, 0, angle);
 
-        // 2. 경고 이펙트 생성 및 표시
         GameObject indicatorInstance = null;
         if (slamWarningPrefab != null)
         {
@@ -70,7 +136,6 @@ public class SecondNamedEnemy : Enemy
             if (warningImage != null) warningImage.color = warningEndColor;
         }
 
-        // 3. 공격 실행
         if (slamEffectPrefab != null)
         {
             Instantiate(slamEffectPrefab, attackCenter, rotation);
@@ -85,36 +150,38 @@ public class SecondNamedEnemy : Enemy
             }
         }
 
-        // 4. 마무리
         if (indicatorInstance != null)
         {
             Destroy(indicatorInstance);
         }
 
+        //yield return new WaitForSeconds(coolDown);
+
         stopMoving = false;
-        isAttacking = false;
+        ChangeState(State.Idle);
+    }
+
+    public override void Attack()
+    {
+        // This method is now effectively replaced by the SlamAttack_State coroutine.
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (player == null) return; // 플레이어가 없으면 기즈모를 그리지 않음
+        if (player == null) return;
 
         Gizmos.color = Color.red;
 
-        // 플레이어 방향으로 기즈모를 회전시키기 위해 Matrix 사용
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
         Vector2 attackCenter = (Vector2)transform.position + directionToPlayer * attackOffset;
         float angle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.Euler(0, 0, angle);
 
-        // TRS(Translate, Rotate, Scale) 행렬을 생성하여 기즈모에 적용
         Matrix4x4 oldMatrix = Gizmos.matrix;
         Gizmos.matrix = Matrix4x4.TRS(attackCenter, rotation, Vector3.one);
 
-        // 회전된 좌표계의 원점에서 박스를 그림
         Gizmos.DrawWireCube(Vector3.zero, slamBoxSize);
 
-        // 기즈모 매트릭스를 원래대로 복원
         Gizmos.matrix = oldMatrix;
     }
 }

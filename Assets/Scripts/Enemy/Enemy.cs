@@ -33,11 +33,13 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public Material flashMaterial;
     protected float duration = .1f;
     protected SpriteRenderer spriteRenderer;
+    protected Collider2D EnemyCollider2D;
     public Material originalMaterial;
     protected Coroutine flashRoutine;
     public bool IsActived = false;
     public bool DontUseObjectPooling;
     public bool boss;
+    protected bool I_frame = false;
     // Multipliers based on monster rarity
     private readonly Dictionary<EnemyRarity, int> rarityMultipliers = new Dictionary<EnemyRarity, int>
     {
@@ -54,11 +56,13 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         {
             spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>(); // Initialize the spriteRenderer
             originalMaterial = spriteRenderer.material;      // Initialize the original material
+            EnemyCollider2D = GetComponent<Collider2D>();
         }
         else
         {
             spriteRenderer = GetComponent<SpriteRenderer>(); // Initialize the spriteRenderer
             originalMaterial = spriteRenderer.material;      // Initialize the original material
+            EnemyCollider2D = GetComponent<Collider2D>();
         }
        
     }
@@ -207,6 +211,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     // Implementation of the TakeDamage method from IDamageable
     public virtual void TakeDamage(float amount, float knockBackDuration = .2f)
     {
+        if (I_frame)
+            return;
+
         // Play hurt sound (if you have an audio manager)
         // AudioManager.instance.PlaySound("Enemy_Hurt");
 

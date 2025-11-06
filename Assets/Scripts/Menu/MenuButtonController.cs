@@ -264,13 +264,13 @@ public class MenuButtonController : MonoBehaviour
 			InventoryObject.SetActive(false);
 			SelectObject.SetActive(true);
 		}
-		else if (!Settings && !SettingsTwo && Inventory && !PowerUp && CharacterSelection && !Teleport)
+		else if (!Settings && !SettingsTwo && !PowerUp && CharacterSelection && !Teleport)
 		{
 			CharacterSelection = false;
 			CharacterSelectionObject.SetActive(false);
 			SelectObject.SetActive(true);
 		}
-		else if (!Settings && !SettingsTwo && Inventory && !PowerUp && CharacterSelection && Teleport)
+		else if (!Settings && !SettingsTwo && !PowerUp && CharacterSelection && Teleport)
 		{
 			Teleport = false;
 			TeleportObject.SetActive(false);

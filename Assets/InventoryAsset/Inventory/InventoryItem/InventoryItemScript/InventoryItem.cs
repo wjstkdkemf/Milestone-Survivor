@@ -16,6 +16,7 @@ namespace InventorySystem
         ItemType test;
         EquipmentType itemType = EquipmentType.None;
         private Sprite itemImage;//Holds image of item
+        private ItemGrade grade;
         private int maxStackAmount;
         private bool draggable;
         private bool pressable;
@@ -37,6 +38,7 @@ namespace InventorySystem
             this.itemImage = data.icon;
             this.price = data.price;
             this.maxStackAmount = data.maxStackAmount;
+            this.grade = data.grade;
             this.draggable = data.draggable;
             this.pressable = data.pressable;
             this.Equip = data.Equip;
@@ -160,6 +162,10 @@ namespace InventorySystem
         public EquipmentType GetEquipmentType()
         {
             return itemType;
+        }
+        public ItemGrade GetGrade()
+        {
+            return grade;
         }
         public void SetInventory(string inventory)
         {
