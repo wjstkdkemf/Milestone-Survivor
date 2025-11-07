@@ -4944,6 +4944,11 @@ MonoBehaviour:
   TheCurantWave: 0
   onlySideSpawn: 0
   spawningPotions: []
+  wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  maxSpawnAttempts: 10
+  spawnCheckRadius: 0.5
 --- !u!114 &97037891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18501,6 +18506,8 @@ MonoBehaviour:
   bigButtonContainer: {fileID: 0}
   player: {fileID: 110699585}
   IsHome: 0
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!1 &400147977
 GameObject:
   m_ObjectHideFlags: 0
@@ -26926,7 +26933,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &600934415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76789,6 +76796,8 @@ MonoBehaviour:
   bigButtonContainer: {fileID: 2069808116}
   player: {fileID: 110699585}
   IsHome: 0
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!1 &1685791964
 GameObject:
   m_ObjectHideFlags: 0
@@ -87581,6 +87590,7 @@ MonoBehaviour:
   battleMapStartPosition: {x: 3000, y: 3000, z: 0}
   chunkSize: 55
   loadRadius: 1
+  resourcePoolInitialSize: 20
 --- !u!4 &1953275912
 Transform:
   m_ObjectHideFlags: 0
