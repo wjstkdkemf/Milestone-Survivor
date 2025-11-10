@@ -20,6 +20,7 @@ namespace InventorySystem
         private int maxStackAmount;
         private bool draggable;
         private bool pressable;
+        private bool changeable;
         private bool Equip;
         private InventoryItemEvent itemEvent;
         private GameObject relatedGameObject;
@@ -41,6 +42,7 @@ namespace InventorySystem
             this.grade = data.grade;
             this.draggable = data.draggable;
             this.pressable = data.pressable;
+            this.changeable = data.changeable;
             this.Equip = data.Equip;
             this.itemEvent = data.itemAction;
             this.isNull = (data == null);
@@ -79,6 +81,7 @@ namespace InventorySystem
             this.previousInventory = other.previousInventory;
             this.itemType = other.itemType;
             this.enhancementLevel = other.enhancementLevel;
+            this.changeable = other.changeable; // Added this line
         }
 
         public InventoryItem(bool isNull)
@@ -118,6 +121,10 @@ namespace InventorySystem
         public bool GetDraggable()
         {
             return draggable;
+        }
+        public bool GetChangeable()
+        {
+            return changeable;
         }
         public int GetAmount()
         {
@@ -196,7 +203,8 @@ namespace InventorySystem
             Item Position: {position}
             Item Amount: {amount}
             Max Item Amount: {maxStackAmount}
-            Equip: {Equip}";
+            Equip: {Equip}
+            changeable: {changeable}";
             return result;
 
 

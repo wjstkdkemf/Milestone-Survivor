@@ -1863,6 +1863,7 @@ MonoBehaviour:
   costText: {fileID: 868403380}
   descriptionText: {fileID: 1233223925}
   playerStatsText: {fileID: 1616649100}
+  playerLevelUpStatsText: {fileID: 0}
   BuyButtons: {fileID: 1940340334}
   ConfirmButton: {fileID: 1235217239}
   icon: {fileID: 1855284409}
@@ -19589,6 +19590,8 @@ MonoBehaviour:
   baseKnockBack: 0
   baseArmor: 0
   baseDoubleDamageChance: 0
+  baseStatModifiers: []
+  Level: 0
 --- !u!1 &2071764783
 GameObject:
   m_ObjectHideFlags: 0

@@ -134,13 +134,14 @@ namespace InventorySystem
             // 더블클릭 감지
             if (eventData.clickCount == 2)
             {
+                Debug.Log("더블클릭");
                 if (InventoryController.instance == null) return;
 
                 // 현재 슬롯의 아이템 가져오기
                 InventoryItem currentItem = GetItem();
 
                 // 아이템이 없거나, 장착 불가능한 슬롯(예: 장비창)에서 더블클릭한 경우 무시
-                if (currentItem.GetIsNull() || slotType != "Inventory")
+                if (currentItem.GetIsNull() || slotType == "Hotbar")
                 {
                     return;
                 }

@@ -39,7 +39,6 @@ public class TeleportManager : MonoBehaviour
     }
     public void RegisterPoint(TeleportPoint point)
     {
-        Debug.Log(point.teleportPointName);
         if(!IsPointUnlocked(point.teleportPointName))
         {
             Debug.Log(point.teleportPointName);
@@ -72,7 +71,7 @@ public class TeleportManager : MonoBehaviour
 
     public void SetInitialSpawnPoint()//GameObject player
     {
-        MainMapManager.Instance.ChangeMap(startMapName, startPointName);
+        MainMapManager.Instance.InitializeMap(startMapName, startPointName);
         //TeleportPlayer(player, startPointName);
     }
 

@@ -60,6 +60,7 @@ namespace InventorySystem
         private Dictionary<string, GameObject> inventoryUIDict = new Dictionary<string, GameObject>();
         private Dictionary<string, InventoryItem> itemManager = new Dictionary<string, InventoryItem>();
         private Dictionary<string, List<GameObject>> EnableDisableDict = new Dictionary<string, List<GameObject>>();
+        public bool InGame;
 
         [SerializeField, HideInInspector]
         public static InventoryController instance;
@@ -909,6 +910,11 @@ namespace InventorySystem
                         Debug.Log("이미 같은 아이템을 장착하고 있습니다.");
                         return;
                     }
+                    else if(InGame && oldItem.GetChangeable() == false)
+                    {
+                        MenuButtonController.Instance.ScreenMessage("해제 불가능한 아이템이 장착되있습니다.");
+                        return;
+                    }
                     //아이템이 있다면 효과를 제거
                     if (oldItem != null && !oldItem.GetIsNull())
                     {
@@ -1038,6 +1044,10 @@ namespace InventorySystem
                         EquipmentEffectManager.Instance.Equip(equipmentData, item);
                     }
                 }
+            }
+            if (PlayerStatsCalculate.Instance != null)
+            {
+                PlayerStatsCalculate.Instance.UpdatePlayerStats();
             }
             Debug.Log("<color=cyan>[InventoryController]</color> All equipment effects from 'HotBar' have been reapplied.");
         }

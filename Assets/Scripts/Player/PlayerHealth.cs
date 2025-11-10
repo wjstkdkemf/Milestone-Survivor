@@ -21,7 +21,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     private SpriteRenderer spriteRenderer;
     private Material originalMaterial;
     protected Coroutine flashRoutine;
-    private bool FirstSetting = false;
+    //private bool FirstSetting = false;
 
     private void OnEnable()
     {

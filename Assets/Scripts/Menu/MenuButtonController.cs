@@ -22,6 +22,7 @@ public class MenuButtonController : MonoBehaviour
 	public GameObject LoadObject;
 	public GameObject InventoryObject;
 	public GameObject TeleportObject;
+    public PanelMessage warningPanel;
 
 	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Save , Inventory , Teleport;
 	public GameObject CurntButton;
@@ -81,6 +82,11 @@ public class MenuButtonController : MonoBehaviour
 
 
 		}
+		// else if(Inventory && ingame)
+        // {
+        //     GameManager.Instance.Pause = true;
+		// 	GameManager.Instance.StopMoveing = true;
+        // }
 		else if (!Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu)
 		{
 			GameManager.Instance.Pause = false;
@@ -116,6 +122,14 @@ public class MenuButtonController : MonoBehaviour
 			Application.Quit();
 		}
 	}
+
+	public void ScreenMessage(string message)
+    {
+        if (warningPanel != null)
+        {
+            warningPanel.ShowMessage(message, 5.0f);
+        }
+    }
 
 	public void ClearMap()
 	{
@@ -256,6 +270,13 @@ public class MenuButtonController : MonoBehaviour
 			SettingsObject.SetActive(true);
 			//SelectObject.SetActive(true);
 			SettingsTwo = false;
+		}
+		//인게임에서 인벤토리창을 닫을때
+		else if (ingame && Inventory)
+		{
+			Inventory = false;
+			InventoryObject.SetActive(false);
+			PlayerStatsCalculate.Instance.UpdatePlayerStats();
 		}
 		//메인화면에서 인벤토리 종료시
 		else if (!Settings && !SettingsTwo && Inventory && !PowerUp && !CharacterSelection)
@@ -399,6 +420,11 @@ public class MenuButtonController : MonoBehaviour
 			if(!ingame && SelectObject.activeSelf)
 				SelectObject.SetActive(false);
 		}
+	}
+	public void InventoryButtonInGame()
+	{
+		Inventory = true;
+		InventoryObject.SetActive(true);
 	}
 
 

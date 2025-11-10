@@ -17,7 +17,7 @@ public class LoadSceneSelectionButton : MonoBehaviour, IPointerClickHandler
     private Color originalColor;
     private Image buttonImage;
 
-    private bool isSelected = false;
+    //private bool isSelected = false;
 
     void OnEnable()
     {
@@ -63,7 +63,7 @@ public class LoadSceneSelectionButton : MonoBehaviour, IPointerClickHandler
 
     public void Select()
     {
-        isSelected = true;
+        //isSelected = true;
         if (buttonImage != null)
         {
             buttonImage.color = selectedColor;
@@ -72,7 +72,7 @@ public class LoadSceneSelectionButton : MonoBehaviour, IPointerClickHandler
 
     public void Deselect()
     {
-        isSelected = false;
+        //isSelected = false;
         if (buttonImage != null)
         {
             buttonImage.color = originalColor;

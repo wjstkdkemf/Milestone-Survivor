@@ -52,4 +52,10 @@ public class FadeManager : MonoBehaviour
         }
         fadeImage.color = Color.clear; // 확실하게 투명하게
     }
+
+    // 화면을 즉시 검은색으로 설정
+    public void SetBlack()
+    {
+        fadeImage.color = Color.black;
+    }
 }

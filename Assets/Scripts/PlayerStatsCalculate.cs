@@ -183,7 +183,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         }
         UpdatePlayerStats();
     }
-    
+
     public void ResetBonuses()
     {
         powerUpDamage = 0;
@@ -207,12 +207,17 @@ public class PlayerStatsCalculate : MonoBehaviour
         realTimeKnockBack = 0;
         realTimeArmor = 0;
         realTimeDoubleDamageChance = 0;
-        
+
         UpdatePlayerStats();
     }
-
-    private void UpdatePlayerStats()
+    public void AnotherEquipmentEffect()//최초 한번만 로드하면되는 효과 -> 해체불가능장비
     {
+        float equipDamage = EquipmentEffectManager.Instance.GetStatBonus("Encount");
+    }
+
+    public void UpdatePlayerStats()
+    {
+        Debug.Log("스탯 업데이트");
         if (PlayerStats.Instance != null)
         {
             // EquipmentEffectManager에서 스탯 보너스 가져오기

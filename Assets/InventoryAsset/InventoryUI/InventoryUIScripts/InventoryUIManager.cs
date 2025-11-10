@@ -266,12 +266,13 @@ namespace InventorySystem
             if (inventoryName == "HotBar")
             {
                 // 슬롯 개수가 충분한지 확인하여 오류 방지
-                if (slots.Count > 0) slots[0].GetComponent<Slot>().slotType = "Helmet";
-                if (slots.Count > 1) slots[1].GetComponent<Slot>().slotType = "Armor";
-                if (slots.Count > 2) slots[2].GetComponent<Slot>().slotType = "Shoes";
-                if (slots.Count > 3) slots[3].GetComponent<Slot>().slotType = "Ring1";
-                if (slots.Count > 4) slots[4].GetComponent<Slot>().slotType = "Ring2";
-
+                if (slots.Count > 0) slots[0].GetComponent<Slot>().slotType = "Weapon";
+                if (slots.Count > 1) slots[1].GetComponent<Slot>().slotType = "Helmet";
+                if (slots.Count > 2) slots[2].GetComponent<Slot>().slotType = "Armor";
+                if (slots.Count > 3) slots[3].GetComponent<Slot>().slotType = "Shoes";
+                if (slots.Count > 4) slots[4].GetComponent<Slot>().slotType = "Ring1";
+                if (slots.Count > 5) slots[5].GetComponent<Slot>().slotType = "Ring2";
+                if (slots.Count > 6) slots[6].GetComponent<Slot>().slotType = "Ring3";
             }
         }
 

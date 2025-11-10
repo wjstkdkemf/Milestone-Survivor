@@ -56,7 +56,37 @@ public class MainMapManager : MonoBehaviour
             FadeManager.Instance.FadeIn();
         });
     }
+    public void InitializeMap(string newMapPrefab, string playerSpawnPosition)
+    {
+        StartCoroutine(InitializeMapRoutine(newMapPrefab, playerSpawnPosition));
+    }
 
+    private IEnumerator InitializeMapRoutine(string newMapPrefab, string playerSpawnPosition)
+    {
+        // 1. 화면을 즉시 어둡게
+        FadeManager.Instance.SetBlack();
+        // 렌더링을 위해 한 프레임 대기
+        yield return null;
+
+        // 2. 맵 로딩 및 플레이어 배치
+        GameObject foundObject = mapInstances.FirstOrDefault(obj => obj.name == newMapPrefab);
+
+        if (currentMapInstance != null && currentMapInstance.name != foundObject.name)
+        {
+            Destroy(currentMapInstance);
+        }
+        currentMapInstance = Instantiate(foundObject, mapContainer);
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            TeleportManager.Instance.TeleportPlayer(player, newMapPrefab, playerSpawnPosition);
+        }
+
+        // 3. 모든 로딩 완료 후 화면 밝게
+        FadeManager.Instance.FadeIn();
+    }
+    
     public GameObject GetTeleportUI()
     {
         return TeleportUI;
