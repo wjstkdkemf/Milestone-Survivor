@@ -33,15 +33,16 @@ public class EquipmentEffectManager : MonoBehaviour
     };
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
         {
             Destroy(gameObject);
-            return;
         }
-        instance = this;
-        DontDestroyOnLoad(gameObject);
     }
-
     /// <summary>
     /// 장비를 장착하여 강화 레벨에 따른 스탯 보너스를 추가합니다.
     /// </summary>

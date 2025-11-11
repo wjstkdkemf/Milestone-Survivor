@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement; // 1. SceneManagement 네임스페이스 추가
+using System.Collections;
+using System.Collections.Generic;
 
 public class EnCounterSystem : MonoBehaviour
 {
@@ -53,7 +55,7 @@ public class EnCounterSystem : MonoBehaviour
         maxEncounter += normalMaxEncounter;
         Debug.Log(scene.name + " 씬이 로드되었습니다. EnCounterSystem을 초기화합니다.");
         if(SceneManager.GetActiveScene().name == "GameplayScene")
-        InitializeSceneComponents();
+            InitializeSceneComponents();
     }
 
     // 5. 기존 Start()의 내용을 별도 메소드로 분리
@@ -129,13 +131,21 @@ public class EnCounterSystem : MonoBehaviour
         currentMap = null;
     }
 
-    void StartEncount()
+    public void StartEncount()
+    {
+        StartCoroutine(StartEncountCoroutine());
+    }
+
+    IEnumerator StartEncountCoroutine()
     {
         if (currentMap == null || tilemapManager == null || waveSpawner == null)
         {
             Debug.LogError("Cannot start encounter: a required component is missing.");
-            return;
+            yield break;
         }
+        string SceneName = currentMap.SceneName;
+        List<Wave> SceneWave = new List<Wave>(currentMap.waves);
+
         isEncounterActive = true;
         if(MenuButtonController.Instance.Inventory && MenuButtonController.Instance.ingame)
         {
@@ -143,13 +153,16 @@ public class EnCounterSystem : MonoBehaviour
         }
         enCounterPos = PlayerTransform.position; // Save player's current position
 
-        // 1. Generate the battle map at a distant location
-        tilemapManager.GenerateMap(currentMap.SceneName); // SceneName is used as the map theme
+        // 1. Generate the battle map and move the player
+        tilemapManager.GenerateMap(SceneName);
 
-        // 2. Start the monster waves defined in the MapMaker
-        waveSpawner.StartWaves(currentMap.waves);
+        // 2. Wait for the next frame to ensure the camera has updated its position
+        yield return null;
 
-        // 3. Activate combat abilities
+        // 3. Start the monster waves
+        waveSpawner.StartWaves(SceneWave);
+
+        // 4. Activate combat abilities
         if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(true);
 
         CurEncounter++;

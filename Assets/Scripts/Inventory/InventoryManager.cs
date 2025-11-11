@@ -15,14 +15,17 @@ public class InventoryManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance == null)
         {
-            Destroy(gameObject);
+            Instance = this;
+            transform.SetParent(null);
+            DontDestroyOnLoad(gameObject);
+            Debug.Log($"[InventoryManager] Awake: Instance created. GameObject: {gameObject.name}");
         }
         else
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            Debug.LogWarning($"[InventoryManager] Awake: Duplicate instance detected. Destroying new one. GameObject: {gameObject.name}");
+            Destroy(gameObject);
         }
     }
 
@@ -53,7 +56,8 @@ public class InventoryManager : MonoBehaviour
     public void ClearInventory()
     {
         itemCounts.Clear();
-        Debug.Log("Inventory cleared.");
+        Debug.LogWarning("[InventoryManager] itemCounts cleared.");
+        Debug.Log(new System.Diagnostics.StackTrace().ToString());
     }
     public void InsertGame(int gameName = 100)
     {
@@ -72,6 +76,7 @@ public class InventoryManager : MonoBehaviour
 
     public void StoreInventoryFrom(string inventoryName)
     {
+        Debug.Log($"[InventoryManager] StoreInventoryFrom started. Current itemCounts: {itemCounts.Count}");
         if (InventoryController.instance == null)
         {
             Debug.LogError("InventoryController not found.");
@@ -85,7 +90,7 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
-        ClearInventory(); // Clear previous data before storing new data.
+        //ClearInventory(); // Clear previous data before storing new data.
 
         List<InventoryItem> items = inventory.GetList();
         foreach (InventoryItem item in items)
@@ -95,11 +100,12 @@ public class InventoryManager : MonoBehaviour
                 AddItem(item.GetItemType(), item.GetAmount());
             }
         }
-        Debug.Log($"Stored {itemCounts.Count} item types from {inventoryName}.");
+        Debug.Log($"[InventoryManager] Stored {itemCounts.Count} item types from {inventoryName}.");
     }
 
     public void RestoreInventoryTo(string inventoryName)
     {
+        Debug.Log($"[InventoryManager] RestoreInventoryTo started. Current itemCounts: {itemCounts.Count}");
         if (InventoryController.instance == null)
         {
             Debug.LogError("InventoryController not found.");
@@ -110,7 +116,7 @@ public class InventoryManager : MonoBehaviour
         {
             InventoryController.instance.AddItem(inventoryName, item.Key, item.Value);
         }
-        Debug.Log($"Restored {itemCounts.Count} item types to {inventoryName}.");
+        Debug.Log($"[InventoryManager] Restored {itemCounts.Count} item types to {inventoryName}.");
 
         ClearInventory(); // Clear after restoring.
     }

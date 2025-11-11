@@ -251,6 +251,26 @@ namespace InventorySystem
                 prevslot.GetComponent<Slot>().GetInventoryUI().ResetHighlight();
                 Destroy(gameObject);
             }
+            else if (!slotNull && itemAcceptedInInventory) // 아이템 스왑 로직
+            {
+                InventoryItem itemInTargetSlot = slot.GetItem();
+
+                // 1. 대상 슬롯에서 아이템을 먼저 제거합니다.
+                InventoryController.instance.RemoveItemPos(slot.GetInventoryUI().GetInventoryName(), slot.GetPosition(), itemInTargetSlot.GetAmount());
+
+                // 2. 이제 비어있는 대상 슬롯에 드래그한 아이템을 추가합니다.
+                InventoryController.instance.AddItemPos(slot.GetInventoryUI().GetInventoryName(), item, slot.GetPosition());
+
+                // 3. 원래 슬롯(이미 비어 있음)에 대상 슬롯에 있던 아이템을 추가합니다.
+                InventoryController.instance.AddItemPos(CurrentSlot.GetInventoryUI().GetInventoryName(), itemInTargetSlot, CurrentSlot.GetPosition());
+
+                slot.GetInventoryUI().UnHighlight(result.gameObject);
+                if (prevslot != null)
+                {
+                    prevslot.GetComponent<Slot>().GetInventoryUI().ResetHighlight();
+                }
+                Destroy(gameObject);
+            }
             else
             {
                 if (itemAcceptedInInventory)

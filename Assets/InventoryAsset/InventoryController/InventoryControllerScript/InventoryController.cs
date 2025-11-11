@@ -215,6 +215,20 @@ namespace InventorySystem
 
         #endregion
 
+        #region Debug
+        /// <summary>
+        /// 디버깅용: 지정된 인벤토리의 모든 아이템을 제거합니다.
+        /// </summary>
+        public void Debug_ClearInventory(string inventoryName)
+        {
+            if (TestInventoryDict(inventoryName))
+            {
+                InventoryClear(inventoryName);
+                Debug.Log($"[DEBUG] Inventory '{inventoryName}' has been cleared.");
+            }
+        }
+        #endregion
+
         public void InitializeInventories()
         {
             if (!TestSetup()) return;
