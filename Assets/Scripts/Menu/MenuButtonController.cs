@@ -22,9 +22,11 @@ public class MenuButtonController : MonoBehaviour
 	public GameObject LoadObject;
 	public GameObject InventoryObject;
 	public GameObject TeleportObject;
+	public GameObject LanguageObject;
+
     public PanelMessage warningPanel;
 
-	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Save , Inventory , Teleport;
+	public bool Menu, Pause, Settings, SettingsTwo,SettingsThree,Settingsfour , CharacterSelection, PowerUp, Load , Save , Inventory , Teleport, Language;
 	public GameObject CurntButton;
 
 	private GameObject MaineMenuButton;
@@ -199,7 +201,12 @@ public class MenuButtonController : MonoBehaviour
 		SelectObject.SetActive(false);
 		SettingsTwo = true;
     }
-
+	public void MainLanguage()
+    {
+		LanguageObject.SetActive(true);
+		SelectObject.SetActive(false);
+		Language = true;
+    }
 	public void PowerUps()
 	{
 		//CurntButton = PowerUpButton;
@@ -283,6 +290,13 @@ public class MenuButtonController : MonoBehaviour
 		{
 			Inventory = false;
 			InventoryObject.SetActive(false);
+			SelectObject.SetActive(true);
+		}
+		//메인화면 언어창 종료시
+		else if (!Settings && !SettingsTwo && Language && !PowerUp && !CharacterSelection)
+		{
+			Language = false;
+			LanguageObject.SetActive(false);
 			SelectObject.SetActive(true);
 		}
 		else if (!Settings && !SettingsTwo && !PowerUp && CharacterSelection && !Teleport)
