@@ -75,7 +75,7 @@ public class DoDamage : MonoBehaviour
         IDamageable enemy = collision.GetComponent<IDamageable>();
         if (enemy != null)
         {
-            enemy.TakeDamage(damage*(1+PlayerStats.Instance.DamageBonus/100));
+            enemy.TakeDamage(damage);//1. 데미지 보너스를 여기서 보정해주는 방법 2. 스킬 자체의 데미지를 보정하는 방법 *(1+PlayerStats.Instance.DamageBonus/100)
             HandleSelfDestruction();
             ResetCooldown();
         }

@@ -5640,12 +5640,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8399929673994166267, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: cooldown
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8399929673994166267, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8399929673994166267, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: baseDamage
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8399929673994166267, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: bulletNumber
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8399929673994166267, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: enemyLayerMask.m_Bits
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 9101277960673922864, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: KnifeCount

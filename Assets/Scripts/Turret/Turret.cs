@@ -1,90 +1,100 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Turret : MonoBehaviour
+public class Turret : AttackBase
 {
-    float nextFire;
-    public int bulletNumber =2;
-    public int BulletDamage = 2;
-    [SerializeField] private float fireRate;
+    [Header("Turret Specifics")]
+    [SerializeField] private float targetUpdateRate = 0.5f;
+    [SerializeField] public int bulletNumber = 2;
+    [SerializeField] private float playerDamageScaling = 0.1f;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float Distance;
-    private Transform closestEnemyPostion;
-    void Update()
+    [SerializeField] private LayerMask enemyLayerMask;
+
+    private float targetUpdateTimer;
+    private Transform closestEnemyPosition;
+
+    // The base class's Awake() will automatically handle getting the PlayerStats instance.
+    // The `cooldown` field from AttackBase will be used for fire rate.
+    // The `baseDamage` field from AttackBase will be used for base bullet damage.
+
+    protected override void Update()
     {
-        FindClosestEnemy();
-        Fire();
-    }
+        base.Update(); // Process cooldown timer from AttackBase
 
-
-
-
-    void Fire()
-    {
-
-        if (Time.time > nextFire && closestEnemyPostion != null&& bulletNumber>0)
+        // Targeting logic remains the same
+        targetUpdateTimer -= Time.deltaTime;
+        if (targetUpdateTimer <= 0f)
         {
-            for (int i = 0; i < bulletNumber; i++)
-            {
-                StartCoroutine(ShootBullet(i*.1f));
-            }
-            
-            nextFire = Time.time + fireRate;
-
+            UpdateTarget();
+            targetUpdateTimer = targetUpdateRate;
         }
 
+        // Firing logic now uses the AttackBase cooldown system
+        if (closestEnemyPosition != null && IsReady())
+        {
+            PerformAttack();
+        }
     }
-    void FindClosestEnemy()
+
+    public override void PerformAttack()
     {
-        // Find all MonoBehaviours in the scene
-        MonoBehaviour[] allBehaviours = GameObject.FindObjectsOfType<MonoBehaviour>();
-        List<IDamageable> allEnemies = new List<IDamageable>();
+        ResetCooldown(); // Use the base class method to reset cooldown
 
-        // Filter out objects that implement IDamageable and are on the Enemy layer
-        int enemyLayer = LayerMask.NameToLayer("Enemy");
-        foreach (var behaviour in allBehaviours)
+        for (int i = 0; i < bulletNumber; i++)
         {
-            if (behaviour is IDamageable damageable && behaviour.gameObject.layer == enemyLayer)
-            {
-                allEnemies.Add(damageable);
-            }
+            StartCoroutine(ShootBullet(i * 0.1f));
         }
-
-        Transform closestEnemyTransform = null;
-        float closestDistanceSqr = Mathf.Infinity;
-
-        // Loop through all enemies to find the closest one
-        foreach (IDamageable currentEnemy in allEnemies)
-        {
-            if (currentEnemy != null && currentEnemy is MonoBehaviour monoEnemy) // Ensure the enemy is valid
-            {
-                float distanceToEnemySqr = (monoEnemy.transform.position - this.transform.position).sqrMagnitude;
-
-                if (distanceToEnemySqr < closestDistanceSqr && distanceToEnemySqr < Distance * Distance) // Check distance
-                {
-                    closestDistanceSqr = distanceToEnemySqr;
-                    closestEnemyTransform = monoEnemy.transform;
-                }
-            }
-        }
-
-        closestEnemyPostion = closestEnemyTransform;
     }
 
+    public override float GetDamage()
+    {
+        // Custom damage calculation for the turret, including player's damage bonus
+        if (playerStats == null) return baseDamage;
+        return baseDamage + (playerStats.DamageBonus * playerDamageScaling);
+    }
 
     IEnumerator ShootBullet(float delay)
     {
         yield return new WaitForSeconds(delay);
 
-      //  AudioManager.instance.PlaySound("Spell");
-        //  GameObject Bullett = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        GameObject bullet = ObjectPoolingManager.instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
 
-        GameObject Bullett = ObjectPoolingManager.instance.spawnGameObject(bulletPrefab,transform.position,Quaternion.identity);
-        Bullett.GetComponent<TurretBullet>().EnemyPosition = closestEnemyPostion;
-        Bullett.GetComponent<DoDamage>().damage = BulletDamage;
+        if (bullet.GetComponent<TurretBullet>() != null)
+        {
+            bullet.GetComponent<TurretBullet>().EnemyPosition = closestEnemyPosition;
+        }
+        
+        if (bullet.GetComponent<DoDamage>() != null)
+        {
+            // Use the overridden GetDamage() to calculate final damage
+            Debug.Log(GetDamage());
+            bullet.GetComponent<DoDamage>().damage = GetDamage(); 
+        }
+    }
 
+    void UpdateTarget()
+    {
+        // This targeting method remains unchanged
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, Distance, enemyLayerMask);
+        
+        Transform closestEnemyTransform = null;
+        float closestDistanceSqr = Mathf.Infinity;
+
+        foreach (Collider2D hit in hitColliders)
+        {
+            if (hit.TryGetComponent<IDamageable>(out _))
+            {
+                Transform currentEnemy = hit.transform;
+                float distanceToEnemySqr = (currentEnemy.position - this.transform.position).sqrMagnitude;
+
+                if (distanceToEnemySqr < closestDistanceSqr)
+                {
+                    closestDistanceSqr = distanceToEnemySqr;
+                    closestEnemyTransform = currentEnemy;
+                }
+            }
+        }
+        closestEnemyPosition = closestEnemyTransform;
     }
 }
-
-    

@@ -57,6 +57,8 @@ public class SaveLoadManager : MonoBehaviour
         PlayerPrefs.SetString(saveKey, jsonData);
         PlayerPrefs.Save();
 
+        GameProgressManager.Instance.SaveProgress();
+
         Debug.Log($"<color=green>[SaveLoadManager]</color> Game Saved to Slot {slotNumber}.");
     }
 
