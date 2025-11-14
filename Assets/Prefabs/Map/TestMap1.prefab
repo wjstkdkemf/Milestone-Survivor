@@ -195,7 +195,7 @@ GameObject:
   - component: {fileID: 471211199972661606}
   - component: {fileID: 9157839956933827181}
   m_Layer: 9
-  m_Name: 9-Sliced
+  m_Name: NextPortal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -280,10 +280,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c74406df908a24448fdf0663e22d162, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Next_Portal: {fileID: 0}
-  targetMapPrefab: TestMap3
-  targetSpawnPosition: TeleportPoint3
-  Next_pos: {x: 26.5, y: 0, z: 0}
+  defaultMapName: TestMap2
+  defaultSpawnPoint: TeleportPoint3
+  conditionalLinks: []
 --- !u!61 &9157839956933827181
 BoxCollider2D:
   m_ObjectHideFlags: 0
