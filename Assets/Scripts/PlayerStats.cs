@@ -9,7 +9,28 @@ public class PlayerStats : MonoBehaviour
 {
     public static PlayerStats Instance;
     public GameObject Player;
-    public int GoldAmount;
+    private int maxGold = 1000000;
+    private int _goldAmount;
+    public static event System.Action<int> OnGoldChanged;
+    public int GoldAmount
+    {
+        get => _goldAmount;
+        set
+        {
+            // 들어온 값(value)이 maxGold보다 크면 maxGold로 고정, 
+            // 0보다 작으면 0으로 고정 (음수 방지)
+            _goldAmount = (int)Mathf.Clamp(value, 0, maxGold);
+            
+            // 값이 변했으니 UI 업데이트 알림
+            OnGoldChanged?.Invoke(GoldAmount); 
+            
+            // (선택사항) 만약 최대치에 도달했다면 로그 출력
+            if (_goldAmount >= maxGold)
+            {
+                Debug.Log("골드가 최대치에 도달했습니다!");
+            }
+        }
+    }
     public int StageCleared;
     public int CharacterID;
     public int level = 1;
@@ -29,6 +50,7 @@ public class PlayerStats : MonoBehaviour
     public float DoubleDamageChance { get; set; }
 
     public TMP_Text GoldAmountText;
+     private static readonly string[] Suffixes = { "", "K", "M", "B", "T", "Q", "aa", "ab", "ac" };
     public List<PowerUpScriptableObject> powerUps; // List of power-ups
 
     private void Awake()
@@ -95,8 +117,51 @@ public class PlayerStats : MonoBehaviour
     private void FixedUpdate()
     {
         if (GoldAmountText != null)
-            GoldAmountText.text = $"{GoldAmount}";
+           RotateGoldText();
     }
+    private void RotateGoldText()
+    {
+        string GoldText_Format = Format(GoldAmount);
+        GoldAmountText.text = $"{GoldText_Format}";
+    }
+    public string Format(double value)
+    {
+        // 음수 처리 (필요한 경우)
+        if (value < 0) return "-" + Format(-value);
+
+        // 1000 미만은 그대로 정수로 표시 (예: 999 -> 999)
+        if (value < 1000)
+        {
+            return value.ToString("0"); 
+        }
+
+        // 자릿수 계산 (로그 활용)
+        // 1000(10^3) -> index 1 (K)
+        // 1,000,000(10^6) -> index 2 (M)
+        int zeroCount = (int)Mathf.Log10((float)value);
+        int index = zeroCount / 3;
+
+        // 정의된 단위 범위를 넘어가면 마지막 단위 사용
+        if (index >= Suffixes.Length)
+        {
+            index = Suffixes.Length - 1;
+        }
+
+        // 해당 단위로 나누기
+        double divisor = Mathf.Pow(1000, index);
+        double shortValue = value / divisor;
+
+        // 포맷팅:
+        // "0.#" : 소수점 첫째 자리까지 표시하되, .0이면 생략합니다. (1.5K, 10K)
+        // "0.##" : 소수점 둘째 자리까지 표시 (1.25M)
+        return shortValue.ToString("0.#") + Suffixes[index];
+    }
+    
+    // int나 float 등을 위한 오버로딩 (편의성)
+    public string Format(float value) => Format((double)value);
+    public string Format(int value) => Format((double)value);
+    public string Format(long value) => Format((double)value);
+
 
     // --- New Save/Load Integration ---
 

@@ -11,6 +11,7 @@ public class PowerUpManager : MonoBehaviour
     public PlayerStats playerStats;
 
     public GameObject panle;
+    public TMP_Text MyGoldText;
     public TMP_Text nameText;
     public TMP_Text costText;
     public TMP_Text descriptionText;
@@ -121,6 +122,12 @@ public class PowerUpManager : MonoBehaviour
             BuyButtons.SetActive(true);
         else
             BuyButtons.SetActive(false);
+
+        if(MyGoldText != null)
+        {
+            string GoldText_Format = PlayerStats.Instance.Format(PlayerStats.Instance.GoldAmount);
+            MyGoldText.text = $"{GoldText_Format}";
+        } 
     }
     public void Purchase()
     {
@@ -128,6 +135,12 @@ public class PowerUpManager : MonoBehaviour
         powerUpButton.UpdateUI();
         if (powerUpButton.powerUp.CurrentLevel >= powerUpButton.powerUp.upgradeValues.Length)
             BuyButtons.SetActive(false);
+
+        if(MyGoldText != null)
+        {
+            string GoldText_Format = PlayerStats.Instance.Format(PlayerStats.Instance.GoldAmount);
+            MyGoldText.text = $"{GoldText_Format}";
+        } 
     }
     public void DeselectOtherButtons()
     {
