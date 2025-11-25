@@ -683,8 +683,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -12.5, y: 0}
-  m_SizeDelta: {x: 12.5, y: 537.66}
+  m_AnchoredPosition: {x: -0.00004386902, y: 0}
+  m_SizeDelta: {x: 0.000061035, y: 733.2524}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &18540279
 GameObject:
@@ -11426,7 +11426,7 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1582788306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.115609825}
+  m_AnchorMin: {x: 0, y: 0.35151768}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -26921,7 +26921,7 @@ MonoBehaviour:
   - {fileID: 1855246065}
   - {fileID: 1209316999}
   playerStats: {fileID: 0}
-  panle: {fileID: 1776859061}
+  panel: {fileID: 1456401254}
   MyGoldText: {fileID: 2122236146}
   nameText: {fileID: 745509799}
   costText: {fileID: 532953644}
@@ -52795,9 +52795,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 549850751}
         m_TargetAssemblyTypeName: PowerUpManager, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: Purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -54931,7 +54931,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 5.0049, y: -30.8935}
+  m_AnchoredPosition: {x: -2.69, y: -30.8935}
   m_SizeDelta: {x: 634.5399, y: 492.5012}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1116613012
@@ -54947,9 +54947,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 16800221}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -84635,7 +84635,7 @@ MonoBehaviour:
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 182703688}
   m_HorizontalScrollbarVisibility: 0
-  m_VerticalScrollbarVisibility: 1
+  m_VerticalScrollbarVisibility: 0
   m_HorizontalScrollbarSpacing: 0
   m_VerticalScrollbarSpacing: 0
   m_OnValueChanged:
@@ -85626,6 +85626,7 @@ GameObject:
   - component: {fileID: 1673162623}
   - component: {fileID: 1673162625}
   - component: {fileID: 1673162624}
+  - component: {fileID: 1673162626}
   m_Layer: 5
   m_Name: GameObject (1)
   m_TagString: Untagged
@@ -85691,6 +85692,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1673162622}
   m_CullTransparentMesh: 1
+--- !u!114 &1673162626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1673162622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d04f08ad869d01a4f8b20dccad3a3641, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1678521926
 GameObject:
   m_ObjectHideFlags: 0
@@ -97765,8 +97778,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 214880178}
   m_HandleRect: {fileID: 214880177}
   m_Direction: 2
-  m_Value: 1.000001
-  m_Size: 0.8843902
+  m_Value: 1.0000002
+  m_Size: 0.6484823
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

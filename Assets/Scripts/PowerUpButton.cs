@@ -6,299 +6,132 @@ using UnityEngine.UI;
 
 public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    [Header("UI Components")]
     public TMP_Text powerUpNameText;
-    public Image Icon;
-
-
-    public PowerUpScriptableObject powerUp;
-    private PowerUpManager powerUpManager;
-    public List<GameObject> UpgradePointsList;
     public TMP_Text powerUpPointText;
+    public Image Icon;
+    
+    // 이펙트용 컴포넌트 (없으면 null)
+    private Graphic cardGraphic; 
+    public AudioSource hoverSound;
+    public Texture2D customCursor;
 
-
-
-    public string Description;
-
-    // Scale & Animation settings
+    [Header("Settings")]
+    public PowerUpScriptableObject powerUp;
+    public Color hoverColor = Color.yellow;
+    private Color originalColor;
+    
+    // Scale Settings
     private Vector3 normalScale;
     public float hoverScaleFactor = 1.1f;
     public float animationDuration = 0.2f;
 
-    // Color & Glow effects
-    private Graphic cardGraphic;  // For color (could be Image or TextMeshProUGUI)
-    public Color hoverColor = Color.yellow; // Color to change to when hovered
-    private Color originalColor; // Original color to reset to
-
-    // Text Outline & Glow for TextMeshPro
-    public TextMeshProUGUI cardText;
-    public float glowOutlineWidth = 0.2f;
-    private float originalOutlineWidth;
-    public Color glowOutlineColor = Color.yellow;
-
-    // Shadow Effect
-    private Shadow shadowEffect; // For shadow manipulation
-    public Vector2 hoverShadowOffset = new Vector2(5f, -5f);
-    private Vector2 originalShadowOffset;
-
-    // Sound effect on hover
-    public AudioSource hoverSound;
-
-    // Cursor
-    public Texture2D customCursor;
+    private PowerUpManager powerUpManager;
     public bool IsSelected;
 
-    public void Initialize( PowerUpManager manager)
+    public void Initialize(PowerUpManager manager)
     {
+        this.powerUpManager = manager;
         normalScale = transform.localScale;
 
-        // Initialize card graphic and colors
+        // 그래픽 컴포넌트 가져오기 (Image 혹은 TMP 등)
         cardGraphic = GetComponent<Graphic>();
         if (cardGraphic != null)
         {
             originalColor = cardGraphic.color;
         }
 
-        // Initialize text outline if using TextMeshPro
-        if (cardText != null)
+        if (powerUp != null)
         {
-            originalOutlineWidth = cardText.outlineWidth;
-        }
-
-        Icon.sprite = powerUp.IconSprite;
-        this.powerUpManager = manager;
-        // for (int i = 0; i < (powerUp.upgradeValues.Length); i++)
-        // {
-
-        //     UpgradePointsList[i].SetActive(true);
-        // }
-        UpdateUI();
-    }
-
-    public void Purchase()
-    {
-        if (powerUpManager.PurchasePowerUp(powerUp))
-        {
+            Icon.sprite = powerUp.IconSprite;
             UpdateUI();
         }
     }
 
-
-
     public void UpdateUI()
     {
-        // for (int i = 0; i < powerUp.CurrentLevel; i++)
-        // {
-        //     UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(true);
-        // }
-        int level = powerUp.CurrentLevel;
+        if (powerUp == null) return;
+
         powerUpNameText.text = powerUp.powerUpName;
-        powerUpPointText.text = level.ToString();
-       // powerUpLevelText.text = $"Level: {level}/{powerUp.maxLevel}";
-
-     /*   if (level < powerUp.maxLevel)
-        {
-            float cost = powerUp.costPerLevel[powerUp.CurrentLevel] ;
-            powerUpCostText.text = $"Cost: {Mathf.RoundToInt(cost)} Gold";
-            purchaseButton.interactable = true;
-        }
-        else
-        {
-            powerUpCostText.text = "Max Level";
-            purchaseButton.interactable = false;
-        }*/
-
-     //   refundButton.interactable = level > 0;
+        powerUpPointText.text = powerUp.CurrentLevel.ToString();
     }
+
     public void ResetUI()
     {
-        // for (int i = 0; i < (powerUp.upgradeValues.Length); i++)
-        // {
-
-        //     UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(false);
-        // }
-    }
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        // Play hover sound
-        if (hoverSound != null)
-        {
-            hoverSound.Play();
-        }
-
-        // Smooth scale up using LeanTween
-        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
-
-      /*  // Change color
-        if (cardGraphic != null)
-        {
-            cardGraphic.color = hoverColor;
-        }
-
-        // Add glow outline for TextMeshPro
-        if (cardText != null)
-        {
-            cardText.outlineWidth = glowOutlineWidth;
-            cardText.outlineColor = glowOutlineColor;
-        }
-
-        // Increase shadow effect
-        if (shadowEffect != null)
-        {
-            shadowEffect.effectDistance = hoverShadowOffset;
-        }
-
-        // Set custom cursor
-        if (customCursor != null)
-        {
-            Cursor.SetCursor(customCursor, Vector2.zero, CursorMode.Auto);
-        }*/
-        //  TooltipManager.instance.SetInfo(Description);
-      //  powerUpToolTip.SetInfo(powerUp);
+        // 필요한 경우 초기화 로직 (예: 이펙트 끄기 등)
+        UpdateUI();
     }
 
-    // On hover exit, scale back to normal, reset color, remove glow, and reset shadow
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (IsSelected == false)
-            LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
-        /* // Reset color
-         if (cardGraphic != null)
-         {
-             cardGraphic.color = originalColor;
-         }
+    // --- Interaction Logic ---
 
-         // Remove glow outline for TextMeshPro
-         if (cardText != null)
-         {
-             cardText.outlineWidth = originalOutlineWidth;
-         }
-
-         // Reset shadow effect
-         if (shadowEffect != null)
-         {
-             shadowEffect.effectDistance = originalShadowOffset;
-         }
-
-         // Reset cursor to default
-         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-         powerUpToolTip.Hide();*/
-    }
     public void OnPointerClick(PointerEventData eventData)
     {
         Selected();
     }
+
     public void Selected()
     {
+        if (powerUpManager == null) return;
+
+        // 다른 버튼 선택 해제 요청
         powerUpManager.DeselectOtherButtons();
-        powerUpManager.SetInfo(powerUp, this);
+        
+        // 매니저에게 나(현재 버튼)의 정보를 전달
+        powerUpManager.SetInfo(this);
+        
         IsSelected = true;
-        // Play hover sound
-        if (hoverSound != null)
-        {
-            hoverSound.Play();
-        }
 
-        // Smooth scale up using LeanTween
-        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
-
-        // Change color
-        if (cardGraphic != null)
-        {
-            cardGraphic.color = hoverColor;
-        }
-
-        // Increase shadow effect
-        if (shadowEffect != null)
-        {
-            shadowEffect.effectDistance = hoverShadowOffset;
-        }
-
-        // Set custom cursor
-        if (customCursor != null)
-        {
-            Cursor.SetCursor(customCursor, Vector2.zero, CursorMode.Auto);
-        }
+        // 선택 효과 (확대, 소리, 색상)
+        PlaySelectEffect();
     }
+
     public void DeSelected()
     {
         IsSelected = false;
-        // Smooth scale down using LeanTween
+
+        // 원래 상태로 복귀
         LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
-
-        // Reset color
+        
         if (cardGraphic != null)
-        {
             cardGraphic.color = originalColor;
-        }
-        // Reset shadow effect
-        if (shadowEffect != null)
-        {
-            shadowEffect.effectDistance = originalShadowOffset;
-        }
 
-        // Reset cursor to default
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        if (customCursor != null)
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 
+    // --- Visual Effects ---
+
+    private void PlaySelectEffect()
+    {
+        if (hoverSound != null) hoverSound.Play();
+
+        // 선택 시 약간 확대
+        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
+
+        if (cardGraphic != null)
+            cardGraphic.color = hoverColor;
+
+        if (customCursor != null)
+            Cursor.SetCursor(customCursor, Vector2.zero, CursorMode.Auto);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        // 이미 선택된 상태라면 마우스 오버 효과 무시 (또는 다르게 처리)
+        if (IsSelected) return;
+
+        if (hoverSound != null) hoverSound.Play();
+        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        // 선택된 상태라면 크기를 줄이지 않음
+        if (IsSelected) return;
+
+        LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
+        
+        if (customCursor != null)
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+    }
 }
-/*   public PowerUpScriptableObject skill;
-   public Button skillButton;
-   public Image skillIcon;
-   public TMP_Text buttonText; // Reference to the text on the button to show skill name and upgrade level
-   private void Start()
-   {
-       // Register this button in the SkillManager
-       if (PowerUpManager.Instance != null)
-       {
-           PowerUpManager.Instance.skillButtons = FindObjectsOfType<PowerUpButton>();
-       }
-       buttonText = transform.GetChild(0).GetComponent<TMP_Text>();
-       skillButton.onClick.AddListener(OnSkillButtonClicked);
-       UpdateSkillUI();
-       UpdateButtonText();
-
-   }
-
-   public void UpdateSkillUI()
-   {
-       skillIcon.sprite = skill.skillIcon;
-       if (!skill.isUnlocked)
-           skillButton.interactable = PowerUpManager.Instance.CanUnlockSkill(skill);
-       UpdateButtonText();
-   }
-
-   private void OnSkillButtonClicked()
-   {
-       if (PowerUpManager.Instance.CanUnlockSkill(skill))
-       {
-           PowerUpManager.Instance.UnlockSkill(skill);
-           UpdateSkillUI();  // Update this button�s state
-       }
-       if (skill.isUnlocked)
-       {
-           PowerUpManager.Instance.UpgradeSkill(skill);
-           UpdateButtonText();
-       }
-   }
-   private void UpdateButtonText()
-   {
-       int currentUpgradeLevel = skill.CurrentUpgradeLevel;
-
-
-       buttonText.text = currentUpgradeLevel.ToString();
-       /* if(currentUpgradeLevel>= skill.Upgrades.Length)
-            skillButton.interactable = SkillManager.Instance.CanUnlockSkill(skill);
-
-   }
-
-
-   public void PointerEnter()
-   {
-       //TooltipManager.instance.SetInfo(skill.skillName, skill.skillDescription, $"Current Level ({skill.CurrentUpgradeLevel}) \n {skill.Upgrades[skill.CurrentUpgradeLevel].value}\n", $"Next Level ({skill.CurrentUpgradeLevel + 1}) \n {skill.Upgrades[skill.CurrentUpgradeLevel + 1].value}", transform.position);
-   }
-   public void PointerExit()
-   {
-       TooltipManager.instance.HideTooltip();
-   }
-*/
-//}

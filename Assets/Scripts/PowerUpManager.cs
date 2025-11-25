@@ -10,7 +10,7 @@ public class PowerUpManager : MonoBehaviour
     public List<PowerUpButton> powerUpButtons;
     public PlayerStats playerStats;
 
-    public GameObject panle;
+    public GameObject panel;
     public TMP_Text MyGoldText;
     public TMP_Text nameText;
     public TMP_Text costText;
@@ -18,6 +18,7 @@ public class PowerUpManager : MonoBehaviour
     public GameObject BuyButtons;
     public Image PowerUpIcon;
     public PowerUpButton powerUpButton;
+    private PowerUpButton currentSelectedButton;
 
     public bool InGame;
     private void Awake()
@@ -43,11 +44,12 @@ public class PowerUpManager : MonoBehaviour
 
         playerStats = FindAnyObjectByType<PlayerStats>();
 
-        Invoke("delayedStart", .2f);
-    }
-    void delayedStart()
-    {
-        powerUpButtons[0].Selected();
+        UpdateGoldUI();
+
+        if (powerUpButtons.Count > 0)
+        {
+            powerUpButtons[0].Selected();
+        }
     }
 
     // --- Integration with SaveLoadManager ---
@@ -80,7 +82,7 @@ public class PowerUpManager : MonoBehaviour
             {
                 button.UpdateUI();
             }
-
+            UpdateGoldUI();
             // 초기화 후 함수 종료
             return;
         }
@@ -101,46 +103,74 @@ public class PowerUpManager : MonoBehaviour
         {
             button.UpdateUI();
         }
-        
+
+        UpdateGoldUI();
         Debug.Log("PowerUp data loaded and UI updated.");
     }
 
     // --- Existing UI and Purchase Logic ---
 
-    public void SetInfo(PowerUpScriptableObject info, PowerUpButton button)
+    public void SetInfo(PowerUpButton button)
     {
-        powerUpButton = button;
-        panle.SetActive(true);
+        currentSelectedButton = button;
+
+        if(panel != null)
+            UpdateDetailPanel(button.powerUp);
+    }
+    private void UpdateDetailPanel(PowerUpScriptableObject info)
+    {
+        panel.SetActive(true);
         nameText.text = info.powerUpName;
         descriptionText.text = info.description;
-        if (info.CurrentLevel < info.upgradeValues.Length)
-            costText.text = info.costPerLevel[info.CurrentLevel].ToString();
-        else
-            costText.text = "";
         PowerUpIcon.sprite = info.IconSprite;
-        if (powerUpButton.powerUp.CurrentLevel < powerUpButton.powerUp.upgradeValues.Length)
-            BuyButtons.SetActive(true);
-        else
-            BuyButtons.SetActive(false);
 
-        if(MyGoldText != null)
+        // Max Level 체크
+        bool isMaxLevel = info.CurrentLevel >= info.upgradeValues.Length;
+
+        if (!isMaxLevel)
         {
-            string GoldText_Format = PlayerStats.Instance.Format(PlayerStats.Instance.GoldAmount);
-            MyGoldText.text = $"{GoldText_Format}";
-        } 
+            costText.text = info.costPerLevel[info.CurrentLevel].ToString();
+            BuyButtons.SetActive(true);
+        }
+        else
+        {
+            costText.text = "MAX";
+            BuyButtons.SetActive(false);
+        }
+
+        UpdateGoldUI();
     }
     public void Purchase()
     {
-        powerUpButton.Purchase();
-        powerUpButton.UpdateUI();
-        if (powerUpButton.powerUp.CurrentLevel >= powerUpButton.powerUp.upgradeValues.Length)
-            BuyButtons.SetActive(false);
+        if (currentSelectedButton == null) return;
 
-        if(MyGoldText != null)
+        PowerUpScriptableObject powerUp = currentSelectedButton.powerUp;
+
+        // 1. 만렙 체크
+        if (powerUp.CurrentLevel >= powerUp.upgradeValues.Length)
         {
-            string GoldText_Format = PlayerStats.Instance.Format(PlayerStats.Instance.GoldAmount);
-            MyGoldText.text = $"{GoldText_Format}";
-        } 
+            Debug.Log("Already Max Level!");
+            return;
+        }
+
+        // 2. 골드 체크
+        float cost = powerUp.costPerLevel[powerUp.CurrentLevel];
+        if (playerStats.GoldAmount < cost)
+        {
+            Debug.Log("Not enough gold!");
+            return;
+        }
+
+        // 3. 실제 구매 처리
+        playerStats.GoldAmount -= Mathf.RoundToInt(cost);
+        powerUp.CurrentLevel++;
+
+        Debug.Log($"Purchased {powerUp.powerUpName} Level {powerUp.CurrentLevel}!");
+
+        // 4. UI 갱신
+        currentSelectedButton.UpdateUI(); // 리스트의 아이콘 UI 갱신
+        UpdateDetailPanel(powerUp);       // 상세 패널 UI 갱신 (가격 변동 반영)
+        UpdateGoldUI();
     }
     public void DeselectOtherButtons()
     {
@@ -149,27 +179,6 @@ public class PowerUpManager : MonoBehaviour
             button.DeSelected();
         }
     }
-    public bool PurchasePowerUp(PowerUpScriptableObject powerUp)
-    {
-        if (powerUp.CurrentLevel >= powerUp.upgradeValues.Length)
-        {
-            Debug.Log("Power-up is already maxed out!");
-            return false;
-        }
-
-        float cost = powerUp.costPerLevel[powerUp.CurrentLevel];
-        if (playerStats.GoldAmount < cost)
-        {
-            Debug.Log("Not enough gold!");
-            return false;
-        }
-
-        playerStats.GoldAmount -= Mathf.RoundToInt(cost);
-        powerUp.CurrentLevel++;
-        Debug.Log($"Purchased {powerUp.powerUpName} Level {powerUp.CurrentLevel}!");
-        return true;
-    }
-
     public void RefundPowerUp()
     {
         foreach (PowerUpButton powerup in powerUpButtons)
@@ -184,6 +193,24 @@ public class PowerUpManager : MonoBehaviour
             PlayerStats.Instance.GoldAmount += Mathf.RoundToInt(amount);
             powerup.powerUp.CurrentLevel=0;
             powerup.ResetUI();
+            powerup.UpdateUI();
+        }
+
+        UpdateGoldUI();
+        
+        // 환불 후 현재 선택된 패널 정보도 갱신
+        if(currentSelectedButton != null)
+        {
+            UpdateDetailPanel(currentSelectedButton.powerUp);
+        }
+    }
+
+    public void UpdateGoldUI()
+    {
+        if (MyGoldText != null && playerStats != null)
+        {
+            string GoldText_Format = playerStats.Format(playerStats.GoldAmount);
+            MyGoldText.text = $"{GoldText_Format}";
         }
     }
 }
