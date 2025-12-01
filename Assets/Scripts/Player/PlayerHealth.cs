@@ -6,7 +6,16 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour ,IDamageable
 {
-    public float MaxHealth = 100;
+    private float _maxHealth;
+    public float MaxHealth
+    {
+        get { return _maxHealth; }
+        set
+        {
+            _maxHealth = value;
+            CurrentHealth = _maxHealth; // MaxHealth가 설정될 때 항상 현재 체력을 최대치로 설정
+        }
+    }
     private Animator animator;
     public float CurrentHealth;
     public bool Dashing = true;
@@ -48,7 +57,6 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     private void InitializeForNewScene()
     {
         // Core stat initialization - this should always run.
-        CurrentHealth = MaxHealth;
         IsDead = false;
         // UI and component initialization - this can fail if objects aren't ready.
         // We wrap it in a null check for safety.

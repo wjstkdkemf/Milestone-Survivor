@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Cinemachine;
 
 public class CharacterSelection : MonoBehaviour
 {
@@ -38,33 +39,38 @@ public class CharacterSelection : MonoBehaviour
         }
         else
             Debug.Log("PlayerStatsCalculate가 존재하지않음");
-        //Debug.Log(PlayerStatsCalculate.Instance.baseMaxHealth);
 
         Player.GetComponent<PlayerHealth>().UpdateHealthUI();
 
         CharacterScriptableObject characterDatas = characterData[PlayerStats.Instance.CharacterID];
         characterIconImage.sprite = characterDatas.IconSprite;
 
-        // 2. 애니메이터 적용 (배열 인덱스 고민할 필요 없이 데이터에서 바로 꺼냄)
+        // 애니메이터 적용
         if (characterDatas.animatorController != null) {
             Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterDatas.animatorController;
         }
 
-        switch (selectedCharacter)
-        {
-            case 0:
-                UpgradeManager.Instance.ShootProjectile();
-                break;
-            case 1:
-                UpgradeManager.Instance.KnifeProjectile();
-                break;
-            case 2:
-                UpgradeManager.Instance.LightningBolt();
-                break;
-            case 3:
-                UpgradeManager.Instance.SwordSlash();
-                break;
+        if (characterDatas.startingWeapon != null) {
+        // 플레이어의 무기 관리자(PlayerWeaponController)를 찾아 무기 등록
+            Player.GetComponent<PlayerWeaponController>().AddWeapon(characterDatas.startingWeapon);
+            Player.GetComponent<PlayerWeaponController>().ToggleCombatMode(false);
         }
+
+        // switch (selectedCharacter)
+        // {
+        //     case 0:
+        //         UpgradeManager.Instance.ShootProjectile();
+        //         break;
+        //     case 1:
+        //         UpgradeManager.Instance.KnifeProjectile();
+        //         break;
+        //     case 2:
+        //         UpgradeManager.Instance.LightningBolt();
+        //         break;
+        //     case 3:
+        //         UpgradeManager.Instance.SwordSlash();
+        //         break;
+        // }
         Debug.Log("초기화 설정");
         //UpgradeManager.Instance.SaveUpgrade();
     }

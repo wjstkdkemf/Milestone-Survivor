@@ -114,7 +114,7 @@ public class LoadScreenManager : MonoBehaviour
         else // If no save data exists (New Game)
         {
             SaveLoadManager.Instance.SettingMode(1); // 1 = NewGame
-            if (UpgradeManager.Instance != null) UpgradeManager.Instance.ResetUpgrade();
+            if (UpgradeManager.Instance != null) UpgradeManager.Instance.ResetRunData();
             GameManager.Instance.SelectCharacter();
         }
     }

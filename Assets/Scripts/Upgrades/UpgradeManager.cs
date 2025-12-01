@@ -1,522 +1,307 @@
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using Unity.VisualScripting;
-using System.Linq;
+using System.Linq; // 리스트 검색용 (FirstOrDefault 등)
+using System.IO;   // 저장 기능용
 
 public class UpgradeManager : MonoBehaviour
 {
     public static UpgradeManager Instance;
 
-    public List<UpgradeScriptableObject> UpgadeToSpawn;
-    public GameObject[] UpgadeUiObject;
-    [SerializeField] private GameObject UpgradeObject;
-    private List<UpgradeScriptableObject> spawnedUpgades = new List<UpgradeScriptableObject>();
+    [Header("Core References")]
+    public PlayerWeaponController playerWeaponController; // [핵심] 무기 관리자 연결
+    public GameObject PlayerObject; // 패시브 스탯 적용을 위한 플레이어 참조
 
-    [Header("Ability GameObjects")]
-    [SerializeField] private GameObject TurretObject;
-    [SerializeField] private GameObject OrbsObject;
-    [SerializeField] private GameObject PlayerObject;
-    [SerializeField] private GameObject PetObject;
-    [SerializeField] private GameObject RandomExplosionsObject;
-    [SerializeField] private GameObject SwordSlashObject;
-    [SerializeField] private GameObject LightningObject;
-    [SerializeField] private GameObject KnifeThrowingAbility;
-    [SerializeField] private GameObject MeteorAbility; // Meteor GameObject field
-    [SerializeField] private GameObject LightningSparkObject;
+    [Header("UI References")]
+    [SerializeField] private GameObject UpgradePanelObject; // 전체 UI 패널
+    public GameObject[] UpgradeUiSlots; // UI 슬롯들 (3~4개)
 
-    [Header("Ability Levels")]
-    public float TurretBonus = 0;
-    public float OrbsBonus = 0;
-    public float PlayerBonus = 0;
-    public float PetBonus = 0;
-    public float RandomExplosionsBonus = 0;
-    public float SwordSlashBonus = 0;
-    public float LightningBonus = 0;
-    public float KnifeThrowingBonus = 0;
-    public float MeteorAbilityBonus = 0; // Meteor level field
-    public float LightningSparkBonus = 0;
+    [Header("Data Deck")]
+    public List<UpgradeScriptableObject> MasterDeck;
+    public List<UpgradeScriptableObject> UpgradeDeck; // 뽑을 카드 목록 (기존 UpgadeToSpawn)
+    private List<UpgradeScriptableObject> spawnedUpgrades = new List<UpgradeScriptableObject>();
 
-    private string saveUpgradeFilePath;
-
-    // Job Class System
+    [Header("Job System")]
+    public List<JobDataSO> allJobs; // 모든 직업 데이터 리스트 (인스펙터 할당)
+    private JobDataSO currentJob = null;
     private bool isJobClassSet = false;
-    public enum JobClass { None, Mage, Shooter }
-    private JobClass currentJobClass = JobClass.None;
-    private Dictionary<JobClass, List<UpgradeScriptableObject.UpgardeEnum>> jobClassSkills = new Dictionary<JobClass, List<UpgradeScriptableObject.UpgardeEnum>>();
 
-    private bool LoadData = false;
+    // 저장 경로
+    private string saveUpgradeFilePath;
 
     private void Awake()
     {
-        saveUpgradeFilePath = Path.Combine(Application.persistentDataPath, "PlayerUpgradeData.json");
         Instance = this;
-        InitializeJobClasses();
+        saveUpgradeFilePath = Path.Combine(Application.persistentDataPath, "PlayerUpgradeData.json");
     }
 
     private void Start()
     {
-        if (LoadData)//삭제해도 될예정. 만약 인게임 저장 기능을 구현해야 한다면 활용
-        {
-            if (!PersistentDataManager.Instance.upgradeChancesInitialized)
-            {
-                foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
-                {
-                    PersistentDataManager.Instance.initialUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
-                }
-                PersistentDataManager.Instance.upgradeChancesInitialized = true;
-            }
-
-            LoadUpgrades();
-            ApplyBonusesToObjects();
-            SyncChancesFromPersistentData();
-            SyncPointsFromPersistentData();
-        }
-        else if (GameObject.FindGameObjectWithTag("Village") != null)
-        {
-            ResetRunData();
-        }
-
-        // Initially, set combat state to false
-        SetCombatState(false);
+        // 런타임 데이터 초기화 (저장된 포인트/확률 불러오기 등)
+        // 만약 PersistentDataManager를 쓴다면 여기서 Sync 로직 호출
+        // SyncChancesFromPersistentData(); 
+        
+        // UI 초기화
+        SetUpgradePanelState(false);
     }
-
-    public void SetCombatState(bool isActive)
-    {
-        if (TurretObject != null) TurretObject.SetActive(isActive);
-        if (OrbsObject != null) OrbsObject.SetActive(isActive);
-        if (PetObject != null) PetObject.SetActive(isActive);
-        if (RandomExplosionsObject != null) RandomExplosionsObject.SetActive(isActive);
-        if (SwordSlashObject != null) SwordSlashObject.SetActive(isActive);
-        if (LightningObject != null) LightningObject.SetActive(isActive);
-        if (KnifeThrowingAbility != null) KnifeThrowingAbility.SetActive(isActive);
-        if (MeteorAbility != null) MeteorAbility.SetActive(isActive);
-        if (LightningSparkObject != null) LightningSparkObject.SetActive(isActive);
-    }
-
-    public void SyncChancesFromPersistentData()
-    {
-        if (!PersistentDataManager.Instance.currentChancesInitialized)
-        {
-            PersistentDataManager.Instance.currentUpgradeChances.Clear();
-            foreach (var upgrade in UpgadeToSpawn)
-            {
-                PersistentDataManager.Instance.currentUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
-            }
-            PersistentDataManager.Instance.currentChancesInitialized = true;
-        }
-        else
-        {
-            foreach (var upgrade in UpgadeToSpawn)
-            {
-                if (PersistentDataManager.Instance.currentUpgradeChances.ContainsKey(upgrade.Upgarde))
-                {
-                    upgrade.Chance = PersistentDataManager.Instance.currentUpgradeChances[upgrade.Upgarde];
-                }
-            }
-        }
-    }
-
-    public void SyncPointsFromPersistentData()
-    {
-        if (!PersistentDataManager.Instance.currentPointsInitialized)
-        {
-            PersistentDataManager.Instance.currentUpgradePoints.Clear();
-            foreach (var upgrade in UpgadeToSpawn)
-            {
-                PersistentDataManager.Instance.currentUpgradePoints[upgrade.Upgarde] = 0;
-            }
-            PersistentDataManager.Instance.currentPointsInitialized = true;
-        }
-        else
-        {
-            foreach (var upgrade in UpgadeToSpawn)
-            {
-                if (PersistentDataManager.Instance.currentUpgradePoints.ContainsKey(upgrade.Upgarde))
-                {
-                    upgrade.Points = PersistentDataManager.Instance.currentUpgradePoints[upgrade.Upgarde];
-                }
-            }
-        }
-    }
-
-    public void SaveCurrentChancesToPersistentData()
-    {
-        foreach (var upgrade in UpgadeToSpawn)
-        {
-            PersistentDataManager.Instance.currentUpgradeChances[upgrade.Upgarde] = upgrade.Chance;
-        }
-        PersistentDataManager.Instance.SaveCurrentChances();
-    }
-
-    public void SaveCurrentPointsToPersistentData()
-    {
-        foreach (var upgrade in UpgadeToSpawn)
-        {
-            PersistentDataManager.Instance.currentUpgradePoints[upgrade.Upgarde] = upgrade.Points;
-        }
-        PersistentDataManager.Instance.SaveCurrentPoints();
-    }
-
+    // ========================================================================
+    // [NEW] 리셋 기능 구현
+    // ========================================================================
     public void ResetRunData()
     {
-        // Reset Chances
-        foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
-        {
-            if (PersistentDataManager.Instance.initialUpgradeChances.ContainsKey(upgrade.Upgarde))
-            {
-                upgrade.Chance = PersistentDataManager.Instance.initialUpgradeChances[upgrade.Upgarde];
-            }
-        }
-        SaveCurrentChancesToPersistentData();
+        Debug.Log("새 게임을 위해 데이터를 초기화합니다...");
 
-        // Reset Points
-        foreach (UpgradeScriptableObject upgrade in UpgadeToSpawn)
-        {
-            upgrade.Points = 0;
-        }
-        SaveCurrentPointsToPersistentData();
+        // 1. 덱(Deck) 초기화 (만렙 찍어서 사라진 카드들 복구)
+        // MasterDeck에 있는 모든 카드를 복사해서 UpgradeDeck으로 가져옴
+        UpgradeDeck = new List<UpgradeScriptableObject>(MasterDeck);
 
-        // Reset Job Class
+        // 2. 카드 상태 초기화 (레벨 0으로, 확률 원상복구)
+        foreach (var card in UpgradeDeck)
+        {
+            card.Points = 0; // 레벨 0
+            
+            // [주의] 만약 직업 시스템이나 이벤트로 Chance를 건드렸다면,
+            // 여기서 Chance도 초기값으로 돌려놔야 합니다.
+            // card.Chance = card.InitialChance; // (InitialChance 변수를 따로 뒀다면)
+        }
+
+        // 3. 직업(Job) 상태 초기화
+        currentJob = null;
         isJobClassSet = false;
-        currentJobClass = JobClass.None;
+        // 5. 저장된 진행 데이터(파일)가 있다면 삭제 로직 (선택사항)
+        // if (File.Exists(saveUpgradeFilePath)) File.Delete(saveUpgradeFilePath);
     }
 
-    private void ApplyBonusesToObjects()
-    {
-        if (TurretObject != null && TurretBonus > 0)
-        {
-            TurretObject.GetComponent<Turret>().bulletNumber = (int)TurretBonus;
-        }
-        if (OrbsObject != null && OrbsBonus > 0)
-        {
-            OrbsObject.GetComponent<Orbs>().orbCount = (int)OrbsBonus;
-            OrbsObject.GetComponent<Orbs>().SpawnOrbs();
-        }
-        if (RandomExplosionsObject != null && RandomExplosionsBonus > 0)
-        {
-            RandomExplosionsObject.GetComponent<RandomSpawner>().SpawnNumber = (int)RandomExplosionsBonus;
-        }
-        if (SwordSlashObject != null && SwordSlashBonus > 0)
-        {
-            SwordSlashObject.GetComponent<SowrdSlash>().SlashCount = (int)SwordSlashBonus;
-        }
-        if (LightningObject != null && LightningBonus > 0)
-        {
-            LightningObject.GetComponent<AbilityLightning>().LightningNumber = (int)LightningBonus;
-        }
-        if (KnifeThrowingAbility != null && KnifeThrowingBonus > 0)
-        {
-            KnifeThrowingAbility.GetComponent<KnifeThrowingAbility>().KnifeCount = (int)KnifeThrowingBonus;
-        }
-        if (MeteorAbility != null && MeteorAbilityBonus > 0)
-        {
-            MeteorAbility.GetComponent<MeteorStrikeAbility>().MeteorCount = (int)MeteorAbilityBonus;
-        }
-        if (LightningSparkObject != null && LightningSparkBonus > 0)
-        {
-            LightningSparkObject.GetComponent<LightningSparkAbility>().bounces = (int)LightningSparkBonus;
-        }
-    }
-
-    // This function will be called by the upgrade card's button
-
-
-    public void ResetUpgrade()
-    {
-        TurretBonus = 0;
-        OrbsBonus = 0;
-        PlayerBonus = 0;
-        PetBonus = 0;
-        RandomExplosionsBonus = 0;
-        SwordSlashBonus = 0;
-        LightningBonus = 0;
-        KnifeThrowingBonus = 0;
-        MeteorAbilityBonus = 0; // Reset meteor level
-        LightningSparkBonus = 0;
-        SaveUpgrade();
-    }
-
-    public void SaveUpgrade()
-    {
-        UpgradeData data = new UpgradeData
-        {
-            _TurretBonus = TurretBonus,
-            _OrbsBonus = OrbsBonus,
-            _PlayerBonus = PlayerBonus,
-            _PetBonus = PetBonus,
-            _RandomExplosionsBonus = RandomExplosionsBonus,
-            _SwordSlashBonus = SwordSlashBonus,
-            _LightningBonus = LightningBonus,
-            _KnifeThrowingBonus = KnifeThrowingBonus,
-            _MeteorAbilityBonus = MeteorAbilityBonus, // Save meteor level
-            _LightningSparkBonus = LightningSparkBonus,
-            _currentJobClass = currentJobClass
-        };
-
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(saveUpgradeFilePath, json);
-    }
-
-    public void LoadUpgrades()
-    {
-        if (File.Exists(saveUpgradeFilePath))
-        {
-            string json = File.ReadAllText(saveUpgradeFilePath);
-            UpgradeData data = JsonUtility.FromJson<UpgradeData>(json);
-            TurretBonus = data._TurretBonus;
-            OrbsBonus = data._OrbsBonus;
-            PlayerBonus = data._PlayerBonus;
-            PetBonus = data._PetBonus;
-            RandomExplosionsBonus = data._RandomExplosionsBonus;
-            SwordSlashBonus = data._SwordSlashBonus;
-            LightningBonus = data._LightningBonus;
-            KnifeThrowingBonus = data._KnifeThrowingBonus;
-            MeteorAbilityBonus = data._MeteorAbilityBonus; // Load meteor level
-            LightningSparkBonus = data._LightningSparkBonus;
-            currentJobClass = data._currentJobClass;
-
-            if (currentJobClass != JobClass.None)
-            {
-                isJobClassSet = true;
-            }
-        }
-    }
-
-    [System.Serializable]
-    public class UpgradeData
-    {
-        public float _TurretBonus;
-        public float _OrbsBonus;
-        public float _PlayerBonus;
-        public float _PetBonus;
-        public float _RandomExplosionsBonus;
-        public float _SwordSlashBonus;
-        public float _LightningBonus;
-        public float _KnifeThrowingBonus;
-        public float _MeteorAbilityBonus; // Add meteor level to data class
-        public float _LightningSparkBonus;
-        public JobClass _currentJobClass;
-
-    }
-
+    // ========================================================================
+    // 1. 업그레이드 UI 표시 로직 (가중치 랜덤 뽑기)
+    // ========================================================================
     public void DisplayUpgrades()
     {
-        for (int i = UpgadeToSpawn.Count - 1; i >= 0; i--)
+        // 1. 만렙 찍은 스킬은 덱에서 제거
+        for (int i = UpgradeDeck.Count - 1; i >= 0; i--)
         {
-            if (UpgadeToSpawn[i].Points >= UpgadeToSpawn[i].MaxPoints)
+            if (UpgradeDeck[i].Points >= UpgradeDeck[i].MaxPoints)
             {
-                UpgadeToSpawn.RemoveAt(i);
+                UpgradeDeck.RemoveAt(i);
             }
         }
 
-        MenuButtonController.Instance.InGameUpgrade = true;
-        UpgradeObject.SetActive(true);
-        GameManager.Instance.Pause = true;
+        // 2. 게임 일시정지 및 UI 켜기
+        if (MenuButtonController.Instance != null) MenuButtonController.Instance.InGameUpgrade = true;
+        if (GameManager.Instance != null) GameManager.Instance.Pause = true;
+        SetUpgradePanelState(true);
 
-        List<UpgradeScriptableObject> availableUpgrades = new List<UpgradeScriptableObject>(UpgadeToSpawn);
+        // 3. 랜덤 뽑기 로직
+        List<UpgradeScriptableObject> availableUpgrades = new List<UpgradeScriptableObject>(UpgradeDeck);
+        int slotsCount = Mathf.Min(UpgradeUiSlots.Length, availableUpgrades.Count);
 
-        int upgradesToPick = Mathf.Min(UpgadeUiObject.Length, availableUpgrades.Count);
-
-        for (int i = 0; i < UpgadeUiObject.Length; i++)
+        for (int i = 0; i < UpgradeUiSlots.Length; i++)
         {
-            if (i < upgradesToPick)
+            if (i < slotsCount)
             {
-                int totalSpawnChance = 0;
-                foreach (UpgradeScriptableObject spawnInfo in availableUpgrades)
-                {
-                    totalSpawnChance += spawnInfo.Chance;
-                }
+                // 가중치(Chance) 합계 계산
+                int totalChance = availableUpgrades.Sum(x => x.Chance);
 
-                if (totalSpawnChance == 0)
+                if (totalChance == 0)
                 {
-                    UpgadeUiObject[i].SetActive(false);
+                    UpgradeUiSlots[i].SetActive(false);
                     continue;
                 }
 
-                int randomValue = Random.Range(0, totalSpawnChance);
+                int randomValue = Random.Range(0, totalChance);
                 UpgradeScriptableObject chosenUpgrade = null;
 
-                foreach (UpgradeScriptableObject spawnInfo in availableUpgrades)
+                // 룰렛 돌리기
+                foreach (var upgrade in availableUpgrades)
                 {
-                    if (randomValue < spawnInfo.Chance)
+                    if (randomValue < upgrade.Chance)
                     {
-                        chosenUpgrade = spawnInfo;
+                        chosenUpgrade = upgrade;
                         break;
                     }
-                    else
-                    {
-                        randomValue -= spawnInfo.Chance;
-                    }
+                    randomValue -= upgrade.Chance;
                 }
+
+                // 슬롯에 데이터 세팅
                 if (chosenUpgrade != null)
                 {
-                    UpgadeUiObject[i].SetActive(true);
-                    UpgadeUiObject[i].GetComponent<UpgradeUi>().SetInfo(chosenUpgrade);
-                    spawnedUpgades.Add(chosenUpgrade);
-                    availableUpgrades.Remove(chosenUpgrade);
-                }
-                else
-                {
-                    UpgadeUiObject[i].SetActive(false);
+                    UpgradeUiSlots[i].SetActive(true);
+                    // UI 슬롯 스크립트에 정보 전달 (UpgradeUi 스크립트가 있다고 가정)
+                    UpgradeUiSlots[i].GetComponent<UpgradeUi>().SetInfo(chosenUpgrade);
+                    
+                    spawnedUpgrades.Add(chosenUpgrade);
+                    availableUpgrades.Remove(chosenUpgrade); // 중복 등장 방지
                 }
             }
             else
             {
-                UpgadeUiObject[i].SetActive(false);
+                UpgradeUiSlots[i].SetActive(false); // 남는 슬롯 끄기
             }
         }
     }
 
-    public void Close()
+    // ========================================================================
+    // 2. 업그레이드 선택 시 실행 (UI 버튼에서 이 함수를 호출해야 함!)
+    // ========================================================================
+    public void OnUpgradeSelected(UpgradeScriptableObject chosenUpgrade)
     {
-        GameManager.Instance.Pause = false;
-        UpgradeObject.SetActive(false);
-        spawnedUpgades.Clear();
-        MenuButtonController.Instance.InGameUpgrade = false;
-        if (!isJobClassSet)
-        {
-            CheckAndSetJobClassFromPoints();
-        }
-    }
+        // 1. 포인트(레벨) 증가
+        chosenUpgrade.Points++;
 
-    private void ApplyConditionalChance(UpgradeScriptableObject.UpgardeEnum upgradeType)
-    {
-        // This is where you can define the logic for conditional chances.
-        // You can expand this with more complex rules as needed.
-        if (upgradeType == UpgradeScriptableObject.UpgardeEnum.Meteor)
+        // 2. [핵심] 무기인가? 패시브 스탯인가?
+        if (chosenUpgrade.linkedWeaponData != null)
         {
-            // Increase the chance of LightningSpark
-            var lightningSpark = UpgadeToSpawn.FirstOrDefault(u => u.Upgarde == UpgradeScriptableObject.UpgardeEnum.LightningSpark);
-            if (lightningSpark != null)
+            // A. 무기라면 -> 플레이어 웨폰 컨트롤러에게 "이거 장착해/레벨업해"라고 던짐
+            if (playerWeaponController != null)
             {
-                lightningSpark.Chance += 10;
-            }
-
-            // Set the chance of KnifeProjectile to 0
-            var knifeProjectile = UpgadeToSpawn.FirstOrDefault(u => u.Upgarde == UpgradeScriptableObject.UpgardeEnum.KnifeProjectile);
-            if (knifeProjectile != null)
-            {
-                knifeProjectile.Chance = 0;
+                playerWeaponController.AddWeapon(chosenUpgrade.linkedWeaponData);
+                Debug.Log($"[Upgrade] 무기 적용: {chosenUpgrade.linkedWeaponData.weaponName}");
             }
         }
-    }
-
-    // --- Job Class System Methods ---
-
-    private void InitializeJobClasses()
-    {
-        // Define Mage skills
-        jobClassSkills[JobClass.Mage] = new List<UpgradeScriptableObject.UpgardeEnum>
-        {
-            UpgradeScriptableObject.UpgardeEnum.Meteor,
-            UpgradeScriptableObject.UpgardeEnum.LightningBolt,
-            UpgradeScriptableObject.UpgardeEnum.LightningSpark,
-            UpgradeScriptableObject.UpgardeEnum.NewOrb,
-            UpgradeScriptableObject.UpgardeEnum.RandomExplosions,
-            UpgradeScriptableObject.UpgardeEnum.AddDamge,
-            UpgradeScriptableObject.UpgardeEnum.AttackSpeed,
-            UpgradeScriptableObject.UpgardeEnum.ExperienceBonus
-        };
-
-        // Define Shooter skills
-        jobClassSkills[JobClass.Shooter] = new List<UpgradeScriptableObject.UpgardeEnum>
-        {
-            UpgradeScriptableObject.UpgardeEnum.ShootProjectile,
-            UpgradeScriptableObject.UpgardeEnum.KnifeProjectile,
-            UpgradeScriptableObject.UpgardeEnum.SwordSlash,
-            UpgradeScriptableObject.UpgardeEnum.AddDamge,
-            UpgradeScriptableObject.UpgardeEnum.AttackSpeed,
-            UpgradeScriptableObject.UpgardeEnum.AddSpeed,
-            UpgradeScriptableObject.UpgardeEnum.ExperienceBonus
-        };
-    }
-
-    private void CheckAndSetJobClassFromPoints()
-    {
-        // Helper function to get points for a specific upgrade
-        int GetPoints(UpgradeScriptableObject.UpgardeEnum type)
-        {
-            var upgrade = UpgadeToSpawn.FirstOrDefault(u => u.Upgarde == type);
-            return upgrade != null ? upgrade.Points : 0;
-        }
-
-        // Mage class check
-        int magePoints = GetPoints(UpgradeScriptableObject.UpgardeEnum.Meteor) + GetPoints(UpgradeScriptableObject.UpgardeEnum.LightningSpark);
-        Debug.Log($"magePoints: {magePoints}");
-        if (magePoints >= 2)
-        {
-            currentJobClass = JobClass.Mage;
-        }
-        // Shooter class check
         else
         {
-            int shooterPoints = GetPoints(UpgradeScriptableObject.UpgardeEnum.ShootProjectile) + GetPoints(UpgradeScriptableObject.UpgardeEnum.KnifeProjectile);
-            if (shooterPoints >= 2)
-            {
-                currentJobClass = JobClass.Shooter;
-            }
+            // B. 스탯이라면 -> 패시브 적용 로직 실행
+            ApplyStatBonus(chosenUpgrade);
+            Debug.Log($"[Upgrade] 스탯 적용: {chosenUpgrade.upgradeType}");
         }
 
-        if (currentJobClass != JobClass.None)
+        // 3. 잡 클래스 조건 달성 확인 (포인트가 변했으므로)
+        if (!isJobClassSet)
         {
-            Debug.Log($"Job class set to: {currentJobClass}");
-            isJobClassSet = true;
-            ApplyJobClassChanceBonuses();
-            SaveUpgrade(); // Save the job class change
+            CheckAndSetJobClass();
+        }
+
+        // 4. 창 닫기
+        Close();
+    }
+
+    // ========================================================================
+    // 3. 패시브 스탯 적용 로직 (Switch문)
+    // ========================================================================
+    private void ApplyStatBonus(UpgradeScriptableObject upgrade)
+    {
+        // PlayerStats 싱글톤이 없다면 PlayerObject에서 가져옴
+        var stats = PlayerStats.Instance; 
+        // PlayerHealth 컴포넌트
+        var health = PlayerObject.GetComponent<PlayerHealth>();
+
+        float value = upgrade.statValue; // SO에 설정된 값 (예: 10, 0.5 ...)
+
+        switch (upgrade.upgradeType)
+        {
+            case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth:
+                if (health != null) health.MaxHealth += value;
+                break;
+
+            case UpgradeScriptableObject.UpgradeType.Stat_Heal:
+                if (health != null) health.Heal(value);
+                break;
+
+            case UpgradeScriptableObject.UpgradeType.Stat_Might: // 데미지
+                if (stats != null) stats.DamageBonus += value;
+                break;
+
+            case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed:
+                if (stats != null) stats.SpeedBonus += value;
+                break;
+
+            case UpgradeScriptableObject.UpgradeType.Stat_Cooldown:
+                if (stats != null) stats.cooldownReduction += value; // 쿨타임 감소 로직에 따라 +인지 -인지 확인 필요
+                break;
+            
+            case UpgradeScriptableObject.UpgradeType.Stat_Growth: // 경험치
+                if (stats != null) stats.experienceBonus += value;
+                break;
+
+            // ... 필요한 스탯 케이스들 추가 ...
         }
     }
 
-    private void ApplyJobClassChanceBonuses()
+    // ========================================================================
+    // 4. 잡 클래스 시스템 (데이터 기반)
+    // ========================================================================
+    private void CheckAndSetJobClass()
     {
-        if (currentJobClass == JobClass.None) return;
+        if (isJobClassSet || currentJob != null) return;
 
-        List<UpgradeScriptableObject.UpgardeEnum> allowedSkills = jobClassSkills[currentJobClass];
-
-        foreach (var upgrade in UpgadeToSpawn)
+        foreach (JobDataSO job in allJobs)
         {
-            if (allowedSkills.Contains(upgrade.Upgarde))
+            if (CheckJobRequirements(job))
             {
-                upgrade.Chance += 50; // Greatly increase chance for class skills
+                SetJob(job);
+                break;
+            }
+        }
+    }
+
+    private bool CheckJobRequirements(JobDataSO job)
+    {
+        // 플레이어가 가진 활성화된 무기들
+        var activeWeapons = playerWeaponController.activeWeapons;
+
+        foreach (WeaponDataSO reqWeapon in job.requiredWeapons)
+        {
+            // 내 무기 중에 요구하는 무기 데이터랑 일치하는 게 있는지 확인
+            bool hasIt = activeWeapons.Any(w => w.myData == reqWeapon);
+            if (!hasIt) return false; // 하나라도 없으면 탈락
+        }
+        return true; // 모두 통과
+    }
+
+    private void SetJob(JobDataSO newJob)
+    {
+        currentJob = newJob;
+        isJobClassSet = true;
+        Debug.Log($"[Job Change] {newJob.jobName} 전직 완료!");
+
+        // 전직 혜택 적용 (특정 스킬 확률 증가)
+        foreach (var card in UpgradeDeck)
+        {
+            if (newJob.bonusUpgrades.Contains(card))
+            {
+                card.Chance += newJob.bonusChanceAmount;
             }
             else
             {
-                upgrade.Chance = 0; // Set chance to 0 for non-class skills
+                // 필요 없는 스킬 확률 0 만들기 (선택사항)
+                card.Chance = 0; 
             }
         }
-        Debug.Log("Applied job class chance bonuses.");
+        
+        // 잡 클래스 상태 저장 필요 시 호출
+        // SaveUpgradeData(); 
     }
 
-
-    // --- Modified Upgrade Methods ---
-
-    public void ShootProjectile() { TurretBonus++; TurretObject.GetComponent<Turret>().bulletNumber++; }
-    public void RandomExplosions() { RandomExplosionsBonus++; RandomExplosionsObject.GetComponent<RandomSpawner>().SpawnNumber++; }
-    public void KnifeProjectile() { KnifeThrowingBonus++; KnifeThrowingAbility.GetComponent<KnifeThrowingAbility>().KnifeCount++; }
-    public void NewOrb() { OrbsBonus++; OrbsObject.GetComponent<Orbs>().orbCount++; OrbsObject.GetComponent<Orbs>().SpawnOrbs(); }
-    public void SpawnPet() { if (PlayerObject != null && PetObject != null) { Instantiate(PetObject, PlayerObject.transform.position, Quaternion.identity); } }
-    public void AddHealth() { PlayerObject.GetComponent<PlayerHealth>().MaxHealth *= 1.2f; }
-    public void AddSpeed() { PlayerStats.Instance.SpeedBonus += 5f; }
-    public void AddDamge() { PlayerStats.Instance.DamageBonus += 5f; }
-    public void Heal() { PlayerObject.GetComponent<PlayerHealth>().Heal(50); }
-    public void AttackSpeed() { PlayerStats.Instance.AttackSpeedBonnes += 5; }
-    public void SwordSlash() { SwordSlashBonus++; SwordSlashObject.GetComponent<SowrdSlash>().SlashCount++; }
-    public void ExperienceBonus() { PlayerStats.Instance.experienceBonus += 5; }
-    public void LightningBolt() { LightningBonus++; LightningObject.GetComponent<AbilityLightning>().LightningNumber++; }
-    public void LightningSpark() { LightningSparkBonus++; LightningSparkObject.GetComponent<LightningSparkAbility>().bounces++; }
-    public void ExperienceBoost() { PlayerStats.Instance.experienceBonus += 5; }
-    public void CheckForMaxUpgade(UpgradeScriptableObject info) { if (info.Points == info.MaxPoints) UpgadeToSpawn.Remove(info); }
-
-    public void Meteor()
+    // ========================================================================
+    // 5. 유틸리티 및 종료
+    // ========================================================================
+    public void Close()
     {
-        MeteorAbilityBonus++;
-        if (MeteorAbility != null)
-        {
-            MeteorAbility.GetComponent<MeteorStrikeAbility>().MeteorCount = (int)MeteorAbilityBonus;
-        }
-        ApplyConditionalChance(UpgradeScriptableObject.UpgardeEnum.Meteor);
+        if (GameManager.Instance != null) GameManager.Instance.Pause = false;
+        if (MenuButtonController.Instance != null) MenuButtonController.Instance.InGameUpgrade = false;
+        
+        SetUpgradePanelState(false);
+        spawnedUpgrades.Clear();
     }
+
+    private void SetUpgradePanelState(bool isActive)
+    {
+        if (UpgradePanelObject != null) UpgradePanelObject.SetActive(isActive);
+    }
+    
+    public void SetCombatState(bool isActive)
+{
+    // 예전 방식: 일일이 하나씩 끔 (이제 필요 없음)
+    // if (TurretObject != null) TurretObject.SetActive(isActive);
+    // ...
+
+    // [새로운 방식] 무기 관리자에게 "전투 모드 전환해!" 라고 명령
+    if (playerWeaponController != null)
+    {
+        playerWeaponController.ToggleCombatMode(isActive);
+    }
+    else
+    {
+        Debug.LogWarning("PlayerWeaponController가 연결되지 않았습니다!");
+    }
+}
 }

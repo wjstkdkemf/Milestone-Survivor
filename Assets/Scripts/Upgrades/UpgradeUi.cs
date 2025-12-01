@@ -30,27 +30,29 @@ public class UpgradeUi : MonoBehaviour
         // {
         //     go.transform.GetChild(0).gameObject.SetActive(false);
         // }
-        Upgrade = info;
+Upgrade = info;
 
-        Title.text = Upgrade.Title;
-        Description.text = Upgrade.Description;
-        Icon.sprite = Upgrade.Icon;
-        UpgradeName = Upgrade.name;
-        UpgradeLevel.text = Upgrade.Points.ToString();
-        // for (int i = 0; i < Upgrade.Points; i++)
-        // {
-        //     UpgradePointsList[i].transform.GetChild(0).gameObject.SetActive(true);
-        // }
+        // 1. 기본 정보 표시
+        if (Title != null) Title.text = Upgrade.Title;
+        if (Icon != null) Icon.sprite = Upgrade.Icon;
+        
+        // 2. 설명 표시
+        // (팁: 만약 레벨별로 설명을 다르게 하고 싶다면 리스트에서 가져오게 수정 가능)
+        if (Description != null) Description.text = Upgrade.Description;
+
+        // 3. 레벨 표시 (현재 레벨 + 1 = "다음 레벨"을 보여줌)
+        if (UpgradeLevel != null) 
+        {
+            UpgradeLevel.text = "Lv." + (Upgrade.Points + 1).ToString();
+        }
 
     }
     public void UpgradeFunction()
     {
-        Upgrade.Points++;
-        UpgradeManager.Instance.Invoke(Upgrade.Upgarde.ToString(), 0);
-        //ClearEncount();// 이 코드를 통해 업그레이드를 누르면 맵이동이되는 거였구나.
-        //업그레이드매니저의 강화에해당하는 함수 수정해야함 -> 여기를 수정하는게 아님
-
-        //      UpgradeManager.Instace.CheckForMaxUpgade();
+        if (UpgradeManager.Instance != null)
+        {
+            UpgradeManager.Instance.OnUpgradeSelected(Upgrade);
+        }
 
     }
 
