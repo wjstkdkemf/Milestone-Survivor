@@ -4,20 +4,20 @@ using UnityEngine.UI;
 public class CharacterSelection : MonoBehaviour
 {
     public GameObject Player;
-    public RuntimeAnimatorController[] characterAnimators; // Use RuntimeAnimatorController
+   // public RuntimeAnimatorController[] characterAnimators; // Use RuntimeAnimatorController
     public CharacterScriptableObject[] characterData;
-    public Sprite[] characterIcons;
+    //public Sprite[] characterIcons;
     public Image characterIconImage;
     private PlayerStats playerStats;
 
     void Start()
     {
         // Get the selected character from GameManager
-        int selectedCharacter = PlayerStats.Instance.CharacterID;
+        //int selectedCharacter = PlayerStats.Instance.CharacterID;
 
 
-        Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterAnimators[selectedCharacter];
-        characterIconImage.sprite = characterIcons[selectedCharacter];
+        //Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterAnimators[selectedCharacter];
+        //characterIconImage.sprite = characterIcons[selectedCharacter];
     }
 
     public void OnceSetting()
@@ -41,6 +41,14 @@ public class CharacterSelection : MonoBehaviour
         //Debug.Log(PlayerStatsCalculate.Instance.baseMaxHealth);
 
         Player.GetComponent<PlayerHealth>().UpdateHealthUI();
+
+        CharacterScriptableObject characterDatas = characterData[PlayerStats.Instance.CharacterID];
+        characterIconImage.sprite = characterDatas.IconSprite;
+
+        // 2. 애니메이터 적용 (배열 인덱스 고민할 필요 없이 데이터에서 바로 꺼냄)
+        if (characterDatas.animatorController != null) {
+            Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterDatas.animatorController;
+        }
 
         switch (selectedCharacter)
         {

@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Water Priestess
   m_EditorClassIdentifier: 
   IconSprite: {fileID: 21300000, guid: 01bd61a982b38d540bb82be59da85ca5, type: 3}
+  animatorController: {fileID: 9100000, guid: 070808904f98df549b2165dedd47189d, type: 2}
+  CharacterPrefab: {fileID: 0}
   CharacterName: Water Priestess
   description: 
   Id: 2
+  startingWeapon: {fileID: 0}
   BaseHP: 100
   Damage: 0
   MovementSpeed: 4
@@ -25,6 +28,6 @@ MonoBehaviour:
   CooldownReduction: 10
   DobleDamageChance: 0
   XPBoost: 0
+  statModifiers: []
   costPerLevel: 200
   purchased: 1
-  CharacterPrefab: {fileID: 0}

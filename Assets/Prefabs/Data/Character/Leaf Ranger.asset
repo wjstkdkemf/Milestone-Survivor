@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Leaf Ranger
   m_EditorClassIdentifier: 
   IconSprite: {fileID: 21300000, guid: 2d49550bdd87b34438120f54ad552b18, type: 3}
+  animatorController: {fileID: 9100000, guid: c7a10685558528940bdd712645901c55, type: 2}
+  CharacterPrefab: {fileID: 0}
   CharacterName: Leaf Ranger
   description: 
   Id: 0
+  startingWeapon: {fileID: 0}
   BaseHP: 80
   Damage: 0
   MovementSpeed: 3
@@ -30,4 +33,3 @@ MonoBehaviour:
     value: 0.5
   costPerLevel: 0
   purchased: 1
-  CharacterPrefab: {fileID: 0}

@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Fire Knight
   m_EditorClassIdentifier: 
   IconSprite: {fileID: 21300000, guid: 8f534c1abdcffa744addea0ef693378e, type: 3}
+  animatorController: {fileID: 9100000, guid: 2d385d89af7adc64e8555d0d86ee538d, type: 2}
+  CharacterPrefab: {fileID: 0}
   CharacterName: Fire Knight
   description: 
   Id: 3
+  startingWeapon: {fileID: 0}
   BaseHP: 120
   Damage: 0
   MovementSpeed: 3
@@ -25,6 +28,6 @@ MonoBehaviour:
   CooldownReduction: 0
   DobleDamageChance: 0
   XPBoost: 0
+  statModifiers: []
   costPerLevel: 600
   purchased: 1
-  CharacterPrefab: {fileID: 0}
