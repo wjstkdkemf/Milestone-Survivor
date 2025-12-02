@@ -101,24 +101,35 @@ public class UpgradeManager : MonoBehaviour
                 // 가중치(Chance) 합계 계산
                 int totalChance = availableUpgrades.Sum(x => x.Chance);
 
-                if (totalChance == 0)
-                {
-                    UpgradeUiSlots[i].SetActive(false);
-                    continue;
-                }
-
-                int randomValue = Random.Range(0, totalChance);
+                // if (totalChance == 0)
+                // {
+                //     UpgradeUiSlots[i].SetActive(false);
+                //     continue;
+                // }
                 UpgradeScriptableObject chosenUpgrade = null;
-
-                // 룰렛 돌리기
-                foreach (var upgrade in availableUpgrades)
+                if (totalChance <= 0)
                 {
-                    if (randomValue < upgrade.Chance)
+                    // 비상 대책: 확률 무시하고 그냥 아무거나(0번) 뽑음
+                    // (어차피 남은 게 다 확률 0인 카드들뿐이라는 뜻이니까요)
+                    if (availableUpgrades.Count > 0)
                     {
-                        chosenUpgrade = upgrade;
-                        break;
+                        int fallbackIndex = Random.Range(0, availableUpgrades.Count);
+                        chosenUpgrade = availableUpgrades[fallbackIndex];
                     }
-                    randomValue -= upgrade.Chance;
+                }
+                else
+                {
+                    int randomValue = Random.Range(0, totalChance);
+                    // 룰렛 돌리기
+                    foreach (var upgrade in availableUpgrades)
+                    {
+                        if (randomValue < upgrade.Chance)
+                        {
+                            chosenUpgrade = upgrade;
+                            break;
+                        }
+                        randomValue -= upgrade.Chance;
+                    }
                 }
 
                 // 슬롯에 데이터 세팅

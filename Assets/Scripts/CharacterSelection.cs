@@ -56,6 +56,8 @@ public class CharacterSelection : MonoBehaviour
             Player.GetComponent<PlayerWeaponController>().ToggleCombatMode(false);
         }
 
+        if (UpgradeManager.Instance != null) UpgradeManager.Instance.ResetRunData(); // 업글레이드 매니저 초기화.
+
         // switch (selectedCharacter)
         // {
         //     case 0:
