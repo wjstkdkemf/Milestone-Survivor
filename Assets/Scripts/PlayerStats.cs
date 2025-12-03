@@ -224,20 +224,23 @@ public class PlayerStats : MonoBehaviour
     public void AddXP(int amount)
     {
         currentXP += amount + Mathf.RoundToInt(experienceBonus);
-        if (currentXP >= requiredXP)
+
+        while (currentXP >= requiredXP)
         {
             LevelUp();
         }
+
         UpdateExpBar();
     }
 
     void LevelUp()
     {
+        currentXP -= (int)requiredXP;
         level++;
-        currentXP = 0;
         requiredXP *= 1.5f;
-        PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
-        UpdateExpBar();
+
+        if (PlayerStatsCalculate.Instance != null)
+            PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
 
         if (level < 10)
         {
@@ -260,7 +263,10 @@ public class PlayerStats : MonoBehaviour
             MenuButtonController.Instance.Inventory = false;
 			MenuButtonController.Instance.InventoryObject.SetActive(false);
         }
-        UpgradeManager.Instance.DisplayUpgrades();
+        if (UpgradeManager.Instance != null)
+        {
+            UpgradeManager.Instance.AddPendingUpgrade();
+        }
     }
 
     public void ApplyPowerUps()

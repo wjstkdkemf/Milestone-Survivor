@@ -60,7 +60,6 @@ public class TurretWeapon : WeaponBase
     // 2. 매 프레임 실행 (PlayerWeaponController가 호출)
     public override void OnUpdate()
     {
-        Debug.Log("쿨타임 " + enemyLayerMask.value);
         // 쿨타임 감소
         if (cooldownTimer > 0)
         {
@@ -73,13 +72,11 @@ public class TurretWeapon : WeaponBase
         {
             UpdateTarget();
             targetUpdateTimer = targetUpdateRate;
-            Debug.Log("쿨타임 " + closestEnemyPosition);
         }
 
         // 공격 조건: 타겟이 있고 + 쿨타임이 돌았을 때
         if (closestEnemyPosition != null && cooldownTimer <= 0f)
         {
-            Debug.Log($"적 발견함! 쿨타임 남음: {cooldownTimer}");
             PerformAttack();
         }
     }

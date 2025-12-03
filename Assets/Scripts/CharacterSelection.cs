@@ -36,6 +36,7 @@ public class CharacterSelection : MonoBehaviour
                 characterData[selectedCharacter].Damage,
                 characterData[selectedCharacter].statModifiers
             );
+            PlayerStatsCalculate.Instance.LevelUpBonus(0);
         }
         else
             Debug.Log("PlayerStatsCalculate가 존재하지않음");
@@ -50,13 +51,13 @@ public class CharacterSelection : MonoBehaviour
             Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterDatas.animatorController;
         }
 
+        if (UpgradeManager.Instance != null) UpgradeManager.Instance.ResetRunData(); // 업글레이드 매니저 초기화.
+
         if (characterDatas.startingWeapon != null) {
         // 플레이어의 무기 관리자(PlayerWeaponController)를 찾아 무기 등록
             Player.GetComponent<PlayerWeaponController>().AddWeapon(characterDatas.startingWeapon);
             Player.GetComponent<PlayerWeaponController>().ToggleCombatMode(false);
         }
-
-        if (UpgradeManager.Instance != null) UpgradeManager.Instance.ResetRunData(); // 업글레이드 매니저 초기화.
 
         // switch (selectedCharacter)
         // {

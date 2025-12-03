@@ -25,6 +25,10 @@ public class UpgradeManager : MonoBehaviour
     private JobDataSO currentJob = null;
     private bool isJobClassSet = false;
 
+    [Header("Level Up Queue")]
+    // 처리되지 않고 대기 중인 업그레이드 횟수
+    public int pendingUpgrades = 0;
+
     // 저장 경로
     private string saveUpgradeFilePath;
 
@@ -89,6 +93,14 @@ public class UpgradeManager : MonoBehaviour
         if (MenuButtonController.Instance != null) MenuButtonController.Instance.InGameUpgrade = true;
         if (GameManager.Instance != null) GameManager.Instance.Pause = true;
         SetUpgradePanelState(true);
+
+        foreach (var slot in UpgradeUiSlots)
+        {
+            if (slot.activeSelf) // 켜져 있는 것만 끔 (성능 최적화)
+            {
+                slot.SetActive(false);
+            }
+        }
 
         // 3. 랜덤 뽑기 로직
         List<UpgradeScriptableObject> availableUpgrades = new List<UpgradeScriptableObject>(UpgradeDeck);
@@ -182,7 +194,8 @@ public class UpgradeManager : MonoBehaviour
         }
 
         // 4. 창 닫기
-        Close();
+        //Close();
+        ProcessNextUpgrade();
     }
 
     // ========================================================================
@@ -293,6 +306,33 @@ public class UpgradeManager : MonoBehaviour
         SetUpgradePanelState(false);
         spawnedUpgrades.Clear();
     }
+    public void AddPendingUpgrade()
+    {
+        pendingUpgrades++;
+
+        // 만약 지금 UI가 꺼져있다면, 바로 보여주기 시작!
+        // (이미 켜져 있다면 pendingUpgrades만 늘어나고 아무 일도 안 함 -> 줄 서기)
+        if (!MenuButtonController.Instance.InGameUpgrade) 
+        {
+            ProcessNextUpgrade();
+        }
+    }
+    private void ProcessNextUpgrade()
+    {
+        if (pendingUpgrades > 0)
+        {
+            // 대기열 하나 소모
+            pendingUpgrades--; 
+            
+            // UI 띄우기 (기존 함수 재활용)
+            DisplayUpgrades(); 
+        }
+        else
+        {
+            // 더 이상 남은 게 없으면 진짜 종료
+            Close();
+        }
+    }
 
     private void SetUpgradePanelState(bool isActive)
     {
@@ -300,19 +340,14 @@ public class UpgradeManager : MonoBehaviour
     }
     
     public void SetCombatState(bool isActive)
-{
-    // 예전 방식: 일일이 하나씩 끔 (이제 필요 없음)
-    // if (TurretObject != null) TurretObject.SetActive(isActive);
-    // ...
-
-    // [새로운 방식] 무기 관리자에게 "전투 모드 전환해!" 라고 명령
-    if (playerWeaponController != null)
     {
-        playerWeaponController.ToggleCombatMode(isActive);
+        if (playerWeaponController != null)
+        {
+            playerWeaponController.ToggleCombatMode(isActive);
+        }
+        else
+        {
+            Debug.LogWarning("PlayerWeaponController가 연결되지 않았습니다!");
+        }
     }
-    else
-    {
-        Debug.LogWarning("PlayerWeaponController가 연결되지 않았습니다!");
-    }
-}
 }
