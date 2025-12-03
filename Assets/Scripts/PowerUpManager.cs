@@ -199,7 +199,7 @@ public class PowerUpManager : MonoBehaviour
         UpdateGoldUI();
         
         // 환불 후 현재 선택된 패널 정보도 갱신
-        if(currentSelectedButton != null)
+        if(currentSelectedButton != null && panel != null)
         {
             UpdateDetailPanel(currentSelectedButton.powerUp);
         }
