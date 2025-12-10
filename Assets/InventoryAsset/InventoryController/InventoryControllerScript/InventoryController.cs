@@ -61,6 +61,7 @@ namespace InventorySystem
         private Dictionary<string, InventoryItem> itemManager = new Dictionary<string, InventoryItem>();
         private Dictionary<string, List<GameObject>> EnableDisableDict = new Dictionary<string, List<GameObject>>();
         public bool InGame;
+        private Dictionary<string, EquipmentData> equipmentDataCache = new Dictionary<string, EquipmentData>();
 
         [SerializeField, HideInInspector]
         public static InventoryController instance;
@@ -91,39 +92,59 @@ namespace InventorySystem
             AllignDictionaries();
             InitializeItems();
 
-            checkStartMode();
+            CheckStartMode();
         }
 
-        private void checkStartMode()
+        private void CheckStartMode()
         {
-            if(SaveLoadManager.Instance != null)
+            // SaveLoadManager가 없으면 (테스트 씬 등) 로직 건너뜀
+            if (SaveLoadManager.Instance == null) return;
+
+            switch (SaveLoadManager.Instance.startMode)
             {
-                switch (SaveLoadManager.Instance.startMode)
-                {
-                    case SaveLoadManager.GameStartMode.NewGame:
-                        SaveLoadManager.Instance.ClearAllDataForNewGame();
-                        SaveLoadManager.Instance.SettingMode(3);
-                        break;
-                    case SaveLoadManager.GameStartMode.LoadGame:
-                        SaveLoadManager.Instance.LoadGame(SaveLoadManager.Instance.selectedIndex);
-                        SaveLoadManager.Instance.SettingMode(3);
-                        break;
-                    case SaveLoadManager.GameStartMode.Running:
-                        if (GameObject.FindGameObjectWithTag("Village") != null)
-                        {
-                            InventoryManager.Instance.LoadAllInventories("Current.json");
-                            InventoryManager.Instance.RestoreInventoryTo(InventoryName);
-                            ReapplyAllEquipmentEffects();
-                            SyncEquippedStatus("HotBar", "Inventory");
-                        }
-                        else if(GameObject.FindGameObjectWithTag("GameScene") != null)
-                        {
-                            InventoryManager.Instance.LoadAllInventories("Current.json");
-                            CopyEquippedItemsToInventory(HotBarInventoryName, ClearInventoryName);
-                            ReapplyAllEquipmentEffects();
-                        }
-                        break;
-                }
+                case SaveLoadManager.GameStartMode.NewGame:
+                    SaveLoadManager.Instance.ClearAllDataForNewGame();
+                    SaveLoadManager.Instance.SettingMode(3);
+                    break;
+
+                case SaveLoadManager.GameStartMode.LoadGame:
+                    // 저장된 파일에서 로드
+                    SaveLoadManager.Instance.LoadGame(SaveLoadManager.Instance.selectedIndex);
+                    SaveLoadManager.Instance.SettingMode(3);
+                    break;
+
+                case SaveLoadManager.GameStartMode.Running:
+                    // [중요] 씬 이동 중인 상태 (InventoryManager가 데이터를 들고 있음)
+                    HandleSceneTransition();
+                    break;
+            }
+        }
+
+        private void HandleSceneTransition()
+        {
+            if (InventoryManager.Instance == null) return;
+
+            // 1. 마을(Village)에 도착했을 때
+            if (GameObject.FindGameObjectWithTag("Village") != null)
+            {
+                // 던전 진입 전 인벤토리 상태 복원
+                InventoryManager.Instance.LoadAllInventories("Current.json");
+
+                // InventoryManager에 백업된 아이템(던전 획득 아이템)이 있다면 복원
+                InventoryManager.Instance.RestoreInventoryTo(InventoryName);
+                
+                // 장비 효과 재적용
+                ReapplyAllEquipmentEffects();
+                SyncEquippedStatus(HotBarInventoryName, InventoryName);
+            }
+            // 2. 게임 씬(던전)에 도착했을 때
+            else if (GameObject.FindGameObjectWithTag("GameScene") != null)
+            {
+                // 장착 중인 아이템을 인벤토리나 클리어 목록으로 복사
+                InventoryManager.Instance.LoadAllInventories("Current.json");
+
+                CopyEquippedItemsToInventory(HotBarInventoryName, ClearInventoryName);
+                ReapplyAllEquipmentEffects();
             }
         }
 
@@ -202,6 +223,7 @@ namespace InventorySystem
                         InventoryItem copyItem = itemManager[item.name];
                         InventoryItem newItem = new InventoryItem(copyItem, item.amount);
                         newItem.SetEnhancementLevel(item.enhancementLevel);
+
                         AddItemPos(invName, newItem, item.position);
                     }
                     else
@@ -791,11 +813,22 @@ namespace InventorySystem
         {
             // 아이템 데이터가 "Resources/Items" 폴더에 있다고 가정합니다.
             // 실제 경로에 맞게 수정해야 할 수 있습니다.
+            if (string.IsNullOrEmpty(itemName)) return null;
+
+            if (equipmentDataCache.ContainsKey(itemName))
+            {
+                return equipmentDataCache[itemName];
+            }
+
             var equipmentData = Resources.Load<EquipmentData>($"Items/{itemName}");
 
             if (equipmentData == null)
             {
                 Debug.LogWarning($"[InventoryController] LoadEquipmentData: 'Resources/Items/{itemName}' 경로에서 EquipmentData를 찾을 수 없습니다.");
+            }
+            else
+            {
+                equipmentDataCache.Add(itemName, equipmentData);
             }
             return equipmentData;
         }
@@ -1046,7 +1079,7 @@ namespace InventorySystem
                 return;
             }
 
-            // 3. 장비창의 모든 아이템을 순회
+            // 3. 장착 장비창의 모든 아이템을 순회
             foreach (InventoryItem item in hotbarInv.GetList())
             {
                 if (item != null && !item.GetIsNull())

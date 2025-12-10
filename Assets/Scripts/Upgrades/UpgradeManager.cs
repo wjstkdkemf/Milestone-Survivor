@@ -96,7 +96,7 @@ public class UpgradeManager : MonoBehaviour
 
         foreach (var slot in UpgradeUiSlots)
         {
-            if (slot.activeSelf) // 켜져 있는 것만 끔 (성능 최적화)
+            if (slot.activeSelf) // 켜져 있는 것만 끔
             {
                 slot.SetActive(false);
             }
@@ -113,16 +113,10 @@ public class UpgradeManager : MonoBehaviour
                 // 가중치(Chance) 합계 계산
                 int totalChance = availableUpgrades.Sum(x => x.Chance);
 
-                // if (totalChance == 0)
-                // {
-                //     UpgradeUiSlots[i].SetActive(false);
-                //     continue;
-                // }
                 UpgradeScriptableObject chosenUpgrade = null;
                 if (totalChance <= 0)
                 {
                     // 비상 대책: 확률 무시하고 그냥 아무거나(0번) 뽑음
-                    // (어차피 남은 게 다 확률 0인 카드들뿐이라는 뜻이니까요)
                     if (availableUpgrades.Count > 0)
                     {
                         int fallbackIndex = Random.Range(0, availableUpgrades.Count);
@@ -187,14 +181,13 @@ public class UpgradeManager : MonoBehaviour
             Debug.Log($"[Upgrade] 스탯 적용: {chosenUpgrade.upgradeType}");
         }
 
-        // 3. 잡 클래스 조건 달성 확인 (포인트가 변했으므로)
+        // 3. 잡 클래스 조건 달성 확인
         if (!isJobClassSet)
         {
             CheckAndSetJobClass();
         }
 
         // 4. 창 닫기
-        //Close();
         ProcessNextUpgrade();
     }
 
@@ -236,7 +229,7 @@ public class UpgradeManager : MonoBehaviour
                 if (stats != null) stats.experienceBonus += value;
                 break;
 
-            // ... 필요한 스탯 케이스들 추가 ...
+            // 필요한 스탯 케이스들 추가
         }
     }
 
@@ -268,7 +261,7 @@ public class UpgradeManager : MonoBehaviour
             bool hasIt = activeWeapons.Any(w => w.myData == reqWeapon);
             if (!hasIt) return false; // 하나라도 없으면 탈락
         }
-        return true; // 모두 통과
+        return true;
     }
 
     private void SetJob(JobDataSO newJob)
@@ -277,7 +270,7 @@ public class UpgradeManager : MonoBehaviour
         isJobClassSet = true;
         Debug.Log($"[Job Change] {newJob.jobName} 전직 완료!");
 
-        // 전직 혜택 적용 (특정 스킬 확률 증가)
+        // 전직 혜택 적용
         foreach (var card in UpgradeDeck)
         {
             if (newJob.bonusUpgrades.Contains(card))
@@ -286,7 +279,7 @@ public class UpgradeManager : MonoBehaviour
             }
             else
             {
-                // 필요 없는 스킬 확률 0 만들기 (선택사항)
+                // 필요 없는 스킬 확률 0 만들기
                 card.Chance = 0; 
             }
         }
@@ -310,8 +303,7 @@ public class UpgradeManager : MonoBehaviour
     {
         pendingUpgrades++;
 
-        // 만약 지금 UI가 꺼져있다면, 바로 보여주기 시작!
-        // (이미 켜져 있다면 pendingUpgrades만 늘어나고 아무 일도 안 함 -> 줄 서기)
+        // 만약 지금 UI가 꺼져있다면, 바로 보여주기 시작
         if (!MenuButtonController.Instance.InGameUpgrade) 
         {
             ProcessNextUpgrade();
@@ -324,7 +316,7 @@ public class UpgradeManager : MonoBehaviour
             // 대기열 하나 소모
             pendingUpgrades--; 
             
-            // UI 띄우기 (기존 함수 재활용)
+            // UI 띄우기
             DisplayUpgrades(); 
         }
         else

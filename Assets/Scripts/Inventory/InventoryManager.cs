@@ -9,7 +9,8 @@ public class InventoryManager : MonoBehaviour
     public int SceneName;
 
     private Dictionary<string, int> itemCounts = new Dictionary<string, int>();
-    private InventoryData itemData;
+    
+    //private InventoryData itemData;
     // If you need to store item prefabs, you can use another dictionary.
     // private Dictionary<string, GameObject> itemPrefabs = new Dictionary<string, GameObject>();
 
