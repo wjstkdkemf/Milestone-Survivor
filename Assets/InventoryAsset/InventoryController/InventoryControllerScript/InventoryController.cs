@@ -903,7 +903,7 @@ namespace InventorySystem
         /// <summary>
         /// 아이템을 장비창에 장착합니다. 아이템을 복사하며, 기존 아이템이 있다면 덮어씁니다.
         /// </summary>
-        public void EquipItem(InventoryItem itemToEquip, Vector3 slotPosition)
+        public void EquipItem(InventoryItem itemToEquip, Vector3 screenPosition)
         {
             // 1. 장착할 아이템이 EquipmentData 타입인지 확인
             if (itemToEquip.GetEquipmentType() == EquipmentType.None)
@@ -915,18 +915,8 @@ namespace InventorySystem
             // 2. 아이템이 'Accessory' 타입인지 확인
             if (itemToEquip.GetEquipmentType() == EquipmentType.Ring)
             {
-                // 3. 사용 가능한 링 슬롯 목록을 가져옴
-                // List<string> availableSlots = GetAvailableRingSlots();
-
-                // 4. 사용 가능한 슬롯이 없으면 메시지 출력 후 종료
-                // if (availableSlots.Count == 0)
-                // {
-                //     Debug.Log("장착할 수 있는 링 슬롯이 없습니다.");
-                //     return;
-                // }
-
                 // 5. 링 선택 UI 표시
-                RingSelectionUI.Instance.ShowSelection(itemToEquip, slotPosition);
+                RingSelectionUI.Instance.ShowSelection(itemToEquip, screenPosition);
             }
             else // 링이 아닌 다른 장비는 기존 로직대로 처리
             {
@@ -957,8 +947,9 @@ namespace InventorySystem
                         Debug.Log("이미 같은 아이템을 장착하고 있습니다.");
                         return;
                     }
-                    else if(InGame && oldItem.GetChangeable() == false)
+                    else if(InGame && oldItem != null && !oldItem.GetIsNull() && oldItem.GetChangeable() == false)
                     {
+                        Debug.Log(oldItem.GetItemType());
                         MenuButtonController.Instance.ScreenMessage("해제 불가능한 아이템이 장착되있습니다.");
                         return;
                     }
@@ -1013,6 +1004,15 @@ namespace InventorySystem
                             if (itemInSource != null)
                             {
                                 itemInSource.SetEquit(true);
+                                // Get the UIManager for the source inventory and update the slot
+                                if (inventoryUIDict.ContainsKey(equippedItemSourceInv))
+                                {
+                                    InventoryUIManager sourceUIManager = inventoryUIDict[equippedItemSourceInv].GetComponent<InventoryUIManager>();
+                                    if (sourceUIManager != null)
+                                    {
+                                        sourceUIManager.UpdateSlot(itemInSource.GetPosition());
+                                    }
+                                }
                                 Debug.Log($"'{equippedItemSourceInv}' 인벤토리의 '{itemInSource.GetItemType()}' 아이템을 장착 상태로 변경했습니다.");
                             }
                         }
@@ -1023,6 +1023,54 @@ namespace InventorySystem
                 }
             }
             Debug.LogWarning($"'{itemToEquip.GetEquipmentType()}' 타입을 장착할 수 있는 '{slotType}' 슬롯이 'HotBar' 인벤토리에 없습니다.");
+        }
+
+        public void UnequipItemFromHotbar(InventoryItem itemToUnequip)
+        {
+            if (itemToUnequip == null || itemToUnequip.GetIsNull()) return;
+            if(InGame && itemToUnequip.GetChangeable() == false)
+            {
+                MenuButtonController.Instance.ScreenMessage("해제 불가능한 아이템입니다. : " + itemToUnequip.GetItemType());
+                return;
+            }
+
+            // 1. HotBar에서 아이템 찾기 및 제거
+            Inventory hotbarInv = GetInventory(HotBarInventoryName);
+            if (hotbarInv == null) return;
+
+            int itemPositionInHotbar = itemToUnequip.GetPosition();
+
+            // 2. 장비 효과 해제
+            EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(itemToUnequip.GetItemType()), itemToUnequip);
+
+            // 3. HotBar에서 아이템 제거
+            RemoveItemPos(HotBarInventoryName, itemPositionInHotbar, 1);
+            Debug.Log($"'{itemToUnequip.GetItemType()}' 아이템을 HotBar에서 장착 해제했습니다.");
+
+            // 4. Inventory 및 ClearInventory에서 해당 아이템을 찾아 'E' 표시 제거
+            string[] inventoriesToSearch = { InventoryName, ClearInventoryName };
+            foreach (string invName in inventoriesToSearch)
+            {
+                if (inventoryManager.ContainsKey(invName))
+                {
+                    Inventory inv = GetInventory(invName);
+                    InventoryItem itemInMainInv = inv.GetList().Find(item => item != null && !item.GetIsNull() && item.GetItemType() == itemToUnequip.GetItemType());
+
+                    if (itemInMainInv != null)
+                    {
+                        itemInMainInv.SetEquit(false);
+
+                        // 5. 해당 인벤토리 UI 업데이트
+                        InventoryUIManager uiManager = GetInventoryUIByName(invName);
+                        if (uiManager != null)
+                        {
+                            uiManager.UpdateSlot(itemInMainInv.GetPosition());
+                        }
+                        Debug.Log($"'{invName}' 인벤토리의 '{itemInMainInv.GetItemType()}' 아이템 장착 상태를 업데이트했습니다.");
+                        break; 
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -155,7 +155,7 @@ public class ItemEnchanter : MonoBehaviour
                     currentItem.SetEnhancementLevel(currentLevel + 1);
 
                     // Re-apply equipment effects if the item is equipped
-                    if (currentItem.GetEquit())
+                    /*if (currentItem.GetEquit())
                     {
                         EquipmentData data = Resources.Load<EquipmentData>($"Items/{currentItem.GetItemType()}");
                         if (data != null)
@@ -164,7 +164,8 @@ public class ItemEnchanter : MonoBehaviour
                             EquipmentEffectManager.Instance.Unequip(data, currentItem);
                             EquipmentEffectManager.Instance.Equip(data, currentItem);
                         }
-                    }
+                    }*/
+                    HandleEnchantSync(currentItem);
 
                     Debug.Log($"'{currentItem.GetItemType()}' successfully enchanted to +{currentItem.GetEnhancementLevel()}!");
 
@@ -186,5 +187,101 @@ public class ItemEnchanter : MonoBehaviour
         {
             Debug.Log($"[ItemEnchanter] Enhancement cost for grade '{currentGrade}' is not defined.");
         }
+    }
+    /// <summary>
+    /// 강화 후 장착 상태에 따라 스탯을 갱신하고 데이터를 동기화합니다.
+    /// </summary>
+    private void HandleEnchantSync(InventoryItem enchantedItem)
+    {
+        bool isEquipped = enchantedItem.GetEquit();
+        string invName = enchantedItem.GetInventory();
+
+        var controller = InventoryController.instance;
+        var uiManager = controller.GetInventoryUIByName(invName);
+        if (uiManager != null)
+        {
+            uiManager.UpdateSlot(enchantedItem.GetPosition());
+        }
+
+        // Case A: 인벤토리에서 강화했는데 장착 중인 경우
+        if (isEquipped)
+        {
+            // 만약 '인벤토리'에서 강화했다면 -> '장착창(HotBar)'의 아이템도 레벨업 필요
+            SyncToEquipmentSlot(enchantedItem);
+        }
+        else if(invName == "HotBar") // 장착 중인 아이템을 직접 강화한 경우
+        {
+            // 만약 '장착창(HotBar)'에서 강화했다면 -> '인벤토리(Inventory)'의 원본도 레벨업 필요
+            SyncToMainInventory(enchantedItem);
+        }
+        // 플레이어 스탯 즉시 재계산 (굳이 뺐다 낄 필요 없음)
+        RecalculatePlayerStats();
+    }
+    /// <summary>
+    /// 장착 장비의 변화를 감지하여 플레이어 스탯을 재계산합니다.
+    /// </summary>
+    private void RecalculatePlayerStats()
+    {
+        // 기존의 Unequip -> Equip 대신, 현재 장착된 모든 아이템을 기준으로 스탯을 다시 계산합니다.
+        // InventoryController에 이미 있는 기능을 활용하거나 새로 만듭니다.
+        if (InventoryController.instance != null)
+        {
+            InventoryController.instance.ReapplyAllEquipmentEffects();
+        }
+    }
+
+    /// <summary>
+    /// 장착창(HotBar)에서 강화된 내용을 메인 인벤토리(Inventory)에 반영합니다.
+    /// </summary>
+    private void SyncToMainInventory(InventoryItem equippedItem)
+    {
+        var controller = InventoryController.instance;
+        var mainInv = controller.GetInventory("Inventory");
+        
+        // 메인 인벤토리에서 같은 타입의 아이템을 찾음
+        var originalItem = mainInv.GetList().Find(x => 
+            x != null && !x.GetIsNull() && x.GetItemType() == equippedItem.GetItemType());
+
+        if (originalItem != null)
+        {
+            originalItem.SetEnhancementLevel(equippedItem.GetEnhancementLevel());
+            // UI 갱신
+            var uiManager = controller.GetInventoryUIByName("Inventory");
+            if (uiManager != null)
+            {
+                uiManager.UpdateSlot(originalItem.GetPosition());
+            }
+            Debug.Log("[Sync] 메인 인벤토리 아이템 동기화 완료");
+        }
+        else
+            Debug.Log("서칭실패");
+    }
+
+    /// <summary>
+    /// 메인 인벤토리에서 강화된 내용을 장착창(HotBar)에 반영합니다.
+    /// </summary>
+    private void SyncToEquipmentSlot(InventoryItem inventoryItem)
+    {
+        var controller = InventoryController.instance;
+        var equipInv = controller.GetInventory("HotBar");
+
+        // 장착창에서 같은 타입의 아이템을 찾음
+        var equippedItem = equipInv.GetList().Find(x => 
+            x != null && !x.GetIsNull() && x.GetItemType() == inventoryItem.GetItemType());
+
+        if (equippedItem != null)
+        {
+            equippedItem.SetEnhancementLevel(inventoryItem.GetEnhancementLevel());
+            
+            // 장착창 UI 갱신 (레벨 숫자가 바뀌었을 테니)
+            var uiManager = controller.GetInventoryUIByName("HotBar");
+            if (uiManager != null)
+            {
+                uiManager.UpdateSlot(equippedItem.GetPosition());
+            }
+            Debug.Log("[Sync] 장착창 아이템 동기화 완료");
+        }
+        else
+            Debug.Log("서칭실패");
     }
 }

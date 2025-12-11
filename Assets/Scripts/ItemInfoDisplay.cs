@@ -50,8 +50,8 @@ public class ItemInfoDisplay : MonoBehaviour
     private async void HandleSlotClick(InventoryItem item, string slotType)
     {
         // 클릭된 슬롯의 타입이 내가 원하는 타입과 일치하는지 확인
-        if (slotType != targetSlotType)
-            return;
+        //if (slotType != targetSlotType)
+            //return;
         
         if (item == null || item.GetAmount() <= 0)
         {

@@ -134,20 +134,26 @@ namespace InventorySystem
             // 더블클릭 감지
             if (eventData.clickCount == 2)
             {
-                Debug.Log("더블클릭");
                 if (InventoryController.instance == null) return;
 
                 // 현재 슬롯의 아이템 가져오기
                 InventoryItem currentItem = GetItem();
 
                 // 아이템이 없거나, 장착 불가능한 슬롯(예: 장비창)에서 더블클릭한 경우 무시
-                if (currentItem.GetIsNull() || slotType == "Hotbar")
+                if (currentItem.GetIsNull())
                 {
                     return;
                 }
 
-                // 컨트롤러에게 장착 요청
-                InventoryController.instance.EquipItem(currentItem, transform.position);
+                // HotBar에 있는 아이템을 더블클릭하면 장착 해제
+                if (inventoryUIManager.GetInventoryName() == InventoryController.HotBarInventoryName)
+                {
+                    InventoryController.instance.UnequipItemFromHotbar(currentItem);
+                }
+                else // 그 외 인벤토리 아이템은 장착
+                {
+                    InventoryController.instance.EquipItem(currentItem, eventData.position);
+                }
                 UpdateSlot();
             }
             else // 싱글클릭
