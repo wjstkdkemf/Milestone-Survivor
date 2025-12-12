@@ -53,7 +53,7 @@ public class ItemInfoDisplay : MonoBehaviour
         //if (slotType != targetSlotType)
             //return;
         
-        if (item == null || item.GetAmount() <= 0)
+        if (item == null || item.GetIsNull() || item.GetAmount() <= 0)
         {
             itemImage.sprite = null; // (또는 기본 이미지)
             UpdateWithDefaultValues(); // 기본값("---", 0, 0)으로 UI 초기화

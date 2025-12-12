@@ -91,6 +91,7 @@ public class ItemEnchanter : MonoBehaviour
         if (currentItem == null || currentItem.GetIsNull())
         {
             enchantButton.interactable = false;
+            enchantText.text = "";
             return;
         }
 

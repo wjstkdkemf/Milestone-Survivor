@@ -86,7 +86,7 @@ namespace InventorySystem
 
         public InventoryItem(bool isNull)
         {
-            amount = 1;
+            amount = 0;
             this.isNull = isNull;
         }
         public void SetIsNull(bool isNull)

@@ -17,13 +17,13 @@ public class UpgradeManager : MonoBehaviour
 
     [Header("Data Deck")]
     public List<UpgradeScriptableObject> MasterDeck;
+    public List<UpgradeScriptableObject> StartingDeck;
     public List<UpgradeScriptableObject> UpgradeDeck; // 뽑을 카드 목록 (기존 UpgadeToSpawn)
     private List<UpgradeScriptableObject> spawnedUpgrades = new List<UpgradeScriptableObject>();
 
     [Header("Job System")]
     public List<JobDataSO> allJobs; // 모든 직업 데이터 리스트 (인스펙터 할당)
     private JobDataSO currentJob = null;
-    private bool isJobClassSet = false;
 
     [Header("Level Up Queue")]
     // 처리되지 않고 대기 중인 업그레이드 횟수
@@ -56,21 +56,21 @@ public class UpgradeManager : MonoBehaviour
 
         // 1. 덱(Deck) 초기화 (만렙 찍어서 사라진 카드들 복구)
         // MasterDeck에 있는 모든 카드를 복사해서 UpgradeDeck으로 가져옴
-        UpgradeDeck = new List<UpgradeScriptableObject>(MasterDeck);
 
         // 2. 카드 상태 초기화 (레벨 0으로, 확률 원상복구)
-        foreach (var card in UpgradeDeck)
+        foreach (var card in MasterDeck)
         {
             card.Points = 0; // 레벨 0
             
             // [주의] 만약 직업 시스템이나 이벤트로 Chance를 건드렸다면,
             // 여기서 Chance도 초기값으로 돌려놔야 합니다.
-            // card.Chance = card.InitialChance; // (InitialChance 변수를 따로 뒀다면)
+            card.Chance = card.InitialChance; // (InitialChance 변수를 따로 뒀다면)
         }
+
+        UpgradeDeck = new List<UpgradeScriptableObject>(StartingDeck);
 
         // 3. 직업(Job) 상태 초기화
         currentJob = null;
-        isJobClassSet = false;
         // 5. 저장된 진행 데이터(파일)가 있다면 삭제 로직 (선택사항)
         // if (File.Exists(saveUpgradeFilePath)) File.Delete(saveUpgradeFilePath);
     }
@@ -182,10 +182,7 @@ public class UpgradeManager : MonoBehaviour
         }
 
         // 3. 잡 클래스 조건 달성 확인
-        if (!isJobClassSet)
-        {
-            CheckAndSetJobClass();
-        }
+        CheckAndSetJobClass();
 
         // 4. 창 닫기
         ProcessNextUpgrade();
@@ -238,16 +235,32 @@ public class UpgradeManager : MonoBehaviour
     // ========================================================================
     private void CheckAndSetJobClass()
     {
-        if (isJobClassSet || currentJob != null) return;
-
-        foreach (JobDataSO job in allJobs)
+        if (currentJob == null)
         {
-            if (CheckJobRequirements(job))
+            foreach (JobDataSO job in allJobs)
             {
-                SetJob(job);
-                break;
+                if (CheckJobRequirements(job))
+                {
+                    SetJob(job);
+                    break;
+                }
             }
         }
+        else
+        {
+            if(currentJob.nextAbleJobs == null || currentJob.nextAbleJobs.Count == 0) return;
+
+            foreach (JobDataSO nextjob in currentJob.nextAbleJobs)
+            {
+                if (CheckJobRequirements(nextjob))
+                {
+                    SetJob(nextjob);
+                    break;
+                }
+            }
+        }
+
+
     }
 
     private bool CheckJobRequirements(JobDataSO job)
@@ -267,23 +280,43 @@ public class UpgradeManager : MonoBehaviour
     private void SetJob(JobDataSO newJob)
     {
         currentJob = newJob;
-        isJobClassSet = true;
         Debug.Log($"[Job Change] {newJob.jobName} 전직 완료!");
 
-        // 전직 혜택 적용
-        foreach (var card in UpgradeDeck)
+        // 1. [추가] 직업 보너스 스킬 추가 (Additive)
+        if (newJob.bonusUpgrades != null)
         {
-            if (newJob.bonusUpgrades.Contains(card))
+            foreach (var bonusCard in newJob.bonusUpgrades)
             {
-                card.Chance += newJob.bonusChanceAmount;
-            }
-            else
-            {
-                // 필요 없는 스킬 확률 0 만들기
-                card.Chance = 0; 
+                if (!UpgradeDeck.Contains(bonusCard))
+                {
+                    //bonusCard.Chance += newJob.bonusChanceAmount; 
+                    UpgradeDeck.Add(bonusCard);
+                }
+                else
+                {
+                    bonusCard.Chance += newJob.bonusChanceAmount;
+                }
             }
         }
-        
+
+        // 2. [제거] 금지된 스킬 제거 (Subtractive)
+        if (newJob.bannedUpgrades != null)
+        {
+            foreach (var bannedCard in newJob.bannedUpgrades)
+            {
+                // 덱에 있다면 제거해라
+                if (UpgradeDeck.Contains(bannedCard))
+                {
+                    UpgradeDeck.Remove(bannedCard);
+                    
+                    // 혹시 모르니 확률도 초기화해둘 수 있음
+                    // bannedCard.Chance = 0; 
+                    
+                    Debug.Log($"[Deck] 직업 제한으로 스킬 제거됨: {bannedCard.Title}");
+                }
+            }
+        }
+            
         // 잡 클래스 상태 저장 필요 시 호출
         // SaveUpgradeData(); 
     }

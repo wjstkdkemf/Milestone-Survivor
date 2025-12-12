@@ -125,12 +125,12 @@ namespace InventorySystem
         {
             // --- 이벤트 발생 코드 추가 ---
             // 아이템이 null이 아닐 때만 이벤트를 발생시킵니다.
-            if (item != null && !item.GetIsNull())
-            {
-                InventoryEventSystem.RaiseSlotClicked(item, slotType);
-            }
+            //if (item != null && !item.GetIsNull())
+            //{
+                //InventoryEventSystem.RaiseSlotClicked(item, slotType);
+            //}
             // --------------------------
-
+            InventoryEventSystem.RaiseSlotClicked(item, slotType);
             // 더블클릭 감지
             if (eventData.clickCount == 2)
             {

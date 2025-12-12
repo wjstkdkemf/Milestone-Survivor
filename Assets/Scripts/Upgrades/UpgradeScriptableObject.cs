@@ -23,6 +23,8 @@ public class UpgradeScriptableObject : ScriptableObject
     [Header("Probability")]
     [Range(0, 100)]
     public int Chance;
+    [Range(0, 100)]
+    public int InitialChance;
 
     [Header("Type Settings")]
     // [핵심 1] 무기라면 여기에 데이터를 넣습니다. (없으면 스탯 업그레이드로 취급)
