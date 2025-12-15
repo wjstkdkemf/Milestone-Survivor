@@ -15,7 +15,8 @@
 * 구조: 공통 로직은 `WeaponBase` 추상 클래스로 정의.
 * 데이터: `ScriptableObject`를 통해 스킬 수치와 프리팹을 코드로 부터 분리.
 * 성과: 기존 코드를 수정하지 않고도, 데이터 에셋 생성만으로 신규 스킬 구현 가능.
-* Code: [SkillData.cs (Line 15)](깃허브_코드_링크)
+* Code: [WeaponBase.cs](https://github.com/wjstkdkemf/Milestone-Survivor/blob/main/Assets/Scripts/Player/skill/WeaponBase.cs)
+  및 다양한 SO 파일.
 
 ### 2. 고성능 렌더링 최적화
 수백 마리의 몬스터와 투사체가 난무하는 상황에서 안정적인 프레임레이트를 확보하기 위해 두 가지 핵심 기술을 적용했습니다.
