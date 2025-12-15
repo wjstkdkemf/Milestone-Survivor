@@ -22,7 +22,8 @@
 수백 마리의 몬스터와 투사체가 난무하는 상황에서 안정적인 프레임레이트를 확보하기 위해 두 가지 핵심 기술을 적용했습니다.
 * Object Pooling: 생성/파괴 비용과 GC(Garbage Collection) 스파이크를 방지하기 위해 `PoolManager`를 통해 객체를 재사용.
 * Spatial Partitioning (Chunking): 맵을 3x3 청크로 분할하고, 플레이어 시야 밖의 객체는 렌더링 및 연산을 중지(Culling)하여 CPU 부하 최소화.
-* Code: [PoolManager.cs (Line 40)](깃허브_코드_링크)
+* Code: [ObjectPoolingManager.cs](https://github.com/wjstkdkemf/Milestone-Survivor/blob/main/Assets/Scripts/ObjectPoolingManager.cs)
+        [InfiniteTilemapManager.cs](https://github.com/wjstkdkemf/Milestone-Survivor/blob/main/Assets/Scripts/InfiniteTilemapManager.cs#L144)
 
 ### 3. AI 기반 개발 파이프라인
 1인 개발의 리소스 및 코딩 병목을 해결하기 위해 생성형 AI(Gemini)를 도구로 활용했습니다.
@@ -32,7 +33,7 @@
 ### 4. 데이터 무결성 보장 (Data Integrity)
 * 문제: 씬(Scene) 전환 시 인벤토리 데이터가 초기화되거나 유실되는 현상 발생.
 * 해결: `GlobalDataManager`를 두어 씬 로드/언로드 시점에 명시적으로 데이터를 직렬화(Serialization)하여 저장 및 검증.
-* Code: [SaveSystem.cs (Line 55)](깃허브_코드_링크)
+* Code: [SaveLoadManager.cs](https://github.com/wjstkdkemf/Milestone-Survivor/blob/main/Assets/Scripts/SaveLoadManager.cs)
 
 ## 프로젝트 시연 영상
 
