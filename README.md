@@ -33,5 +33,17 @@
 * 해결: `GlobalDataManager`를 두어 씬 로드/언로드 시점에 명시적으로 데이터를 직렬화(Serialization)하여 저장 및 검증.
 * Code: [SaveSystem.cs (Line 55)](깃허브_코드_링크)
 
+## 프로젝트 시연 영상
+
+각 시스템의 작동 방식 및 게임 플레이 영상을 통해 구현 내용을 확인하실 수 있습니다.
+
+* [게임 시작 씬과 게임 씬의 전환 영상](https://www.youtube.com/watch?v=h9m_7P1c9AE)
+* [씬내 이동 반경 제한 및 물리 법칙(가속도) 구현 영상](https://www.youtube.com/watch?v=qmt11QpNQd0)
+* [스킬 인벤토리 및 스킬 데미지 구현 영상](https://www.youtube.com/watch?v=1P8lNQFo7Vo)
+* [스킬 인벤토리와 캐릭터 스킬 시스템의 연동 영상](https://www.youtube.com/watch?v=--5En7LuhW8)
+* [2.5D 환경의 점프 구현 영상](https://www.youtube.com/watch?v=Gir6DMIhsvc)
+* [포탈 구현](https://www.youtube.com/watch?v=oRgj7u0u7VI)
+* [포탈 후 스킬 기능 작동 확인 영상](https://www.youtube.com/watch?v=QO8wDUo0Pp8)
+
 ##  트러블 슈팅 (Dev Log)
 개발 과정에서 마주친 기술적 문제와 해결 과정을 기록했습니다.
