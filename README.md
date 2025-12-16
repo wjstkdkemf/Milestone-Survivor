@@ -1,4 +1,4 @@
-# Milestone Survivor: AI-Assisted Rogue-lite
+# Milestone Survivor
 
 ## 프로젝트 소개
 > Milestone Survivor는 뱀서라이크(Vampire Survivors-like) 장르의 핵심 재미인 대규모 물량전과 무한한 성장을 구현한 로그라이트 액션 게임입니다.
@@ -40,17 +40,17 @@
 각 시스템의 작동 방식 및 게임 플레이 영상을 통해 구현 내용을 확인하실 수 있습니다.
 
 * 게임 첫 씬에서 두번째 씬으로 전환 과정(각종 데이터 로드 로그)
-  ![01.gif]
+  ![01.gif](https://github.com/user-attachments/assets/61f1f411-7832-419d-a6cb-1db9fedbdbad)
 * 인벤토리 기본 시스템
-  ![02.gif]
+  ![02.gif](https://github.com/user-attachments/assets/b36ee542-2474-4e71-a5a2-bf434647a4b9)
 * 인벤토리 강화 시스템
-  ![03.gif]
+  ![03.gif](https://github.com/user-attachments/assets/8d5d56a1-faf6-4e67-b6e2-71229660a3cf)
 * 마을 -> 인게임 씬 전환
-  ![04.gif]
+  ![04.gif](https://github.com/user-attachments/assets/019ee57f-5867-4f5d-9e97-9316074e4a15)
 * 인게임 -> 마을 씬 전환
-  ![05.gif]
+  ![05.gif](https://github.com/user-attachments/assets/fe619aa4-43c4-4a76-909c-f6df742325f3)
 * 스탯강화 시스템
-  ![06.gif]
+  ![06.gif](https://github.com/user-attachments/assets/5a8e91ae-8a1d-4bac-92ba-adff8e041492)
 * 전체 플레이 유튜브 링크
 
 ##  트러블 슈팅 (Dev Log)
