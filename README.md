@@ -39,13 +39,19 @@
 
 각 시스템의 작동 방식 및 게임 플레이 영상을 통해 구현 내용을 확인하실 수 있습니다.
 
-* [게임 시작 씬과 게임 씬의 전환 영상](https://www.youtube.com/watch?v=h9m_7P1c9AE)
-* [씬내 이동 반경 제한 및 물리 법칙(가속도) 구현 영상](https://www.youtube.com/watch?v=qmt11QpNQd0)
-* [스킬 인벤토리 및 스킬 데미지 구현 영상](https://www.youtube.com/watch?v=1P8lNQFo7Vo)
-* [스킬 인벤토리와 캐릭터 스킬 시스템의 연동 영상](https://www.youtube.com/watch?v=--5En7LuhW8)
-* [2.5D 환경의 점프 구현 영상](https://www.youtube.com/watch?v=Gir6DMIhsvc)
-* [포탈 구현](https://www.youtube.com/watch?v=oRgj7u0u7VI)
-* [포탈 후 스킬 기능 작동 확인 영상](https://www.youtube.com/watch?v=QO8wDUo0Pp8)
+* 게임 첫 씬에서 두번째 씬으로 전환 과정(각종 데이터 로드 로그)
+  ![01.gif]
+* 인벤토리 기본 시스템
+  ![02.gif]
+* 인벤토리 강화 시스템
+  ![03.gif]
+* 마을 -> 인게임 씬 전환
+  ![04.gif]
+* 인게임 -> 마을 씬 전환
+  ![05.gif]
+* 스탯강화 시스템
+  ![06.gif]
+* 전체 플레이 유튜브 링크
 
 ##  트러블 슈팅 (Dev Log)
 개발 과정에서 마주친 기술적 문제와 해결 과정을 기록했습니다.
