@@ -51,7 +51,7 @@
   ![05.gif](https://github.com/user-attachments/assets/fe619aa4-43c4-4a76-909c-f6df742325f3)
 * 스탯강화 시스템
   ![06.gif](https://github.com/user-attachments/assets/5a8e91ae-8a1d-4bac-92ba-adff8e041492)
-* 전체 플레이 유튜브 링크
+* [전체 플레이 유튜브 링크](https://youtu.be/ibOpAkRv7Js)
 
 ##  트러블 슈팅 (Dev Log)
 개발 과정에서 마주친 기술적 문제와 해결 과정을 기록했습니다.
