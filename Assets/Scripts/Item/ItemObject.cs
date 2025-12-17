@@ -1,37 +1,62 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using InventorySystem;
 public class ItemObject : MonoBehaviour
 {
     public ItemData itemData;
     public float moveSpeed = 8f;
-    private Transform player;
     private bool isCollecting = false;
+
+private void OnEnable()
+    {
+        isCollecting = false; // 상태 초기화
+
+        // "지금 스테이지 클리어 상태인가?" 확인
+        if (GameManager.Instance != null && GameManager.Instance.AllKill)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                Collect(playerObj.transform);
+            }
+        }
+    }
 
     public void Collect(Transform playerTransform)
     {
         if (!isCollecting)
         {
-            player = playerTransform;
             isCollecting = true;
+            // 코루틴으로 이동 로직 위임 (Update보다 효율적)
+            StopAllCoroutines();
+            StartCoroutine(MoveAndCollect(playerTransform));
         }
     }
 
-    private void Update()
+    // [핵심 2] XPCrystal과 동일한 Lerp 움직임 적용
+    private IEnumerator MoveAndCollect(Transform playerTransform)
     {
-        if (isCollecting && player != null)
-        {
-            Vector3 direction = (player.position - transform.position).normalized;
-            transform.position += direction * moveSpeed * Time.deltaTime;
+        var col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
 
-            if (Vector3.Distance(transform.position, player.position) < 0.5f)
-            {
-                if (InventoryController.instance != null)
-                {
-                    InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);//아이템 드랍 처리 부분.
-                }
-                Destroy(gameObject);
-            }
+        while (playerTransform != null && 
+               Vector3.Distance(transform.position, playerTransform.position) > 0.5f)
+        {
+            float t = moveSpeed * Time.deltaTime;
+            transform.position = Vector3.Lerp(transform.position, playerTransform.position, t);
+            
+            yield return null;
         }
+
+        if (InventoryController.instance != null && itemData != null)
+        {
+            // "ClearInventory"라는 이름의 인벤토리로 아이템 1개 추가
+            InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);
+        }
+
+        // 제거 혹은 비활성화
+        Destroy(gameObject); 
+        // 만약 풀링을 쓴다면: gameObject.SetActive(false);
     }
 }

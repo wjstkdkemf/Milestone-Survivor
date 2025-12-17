@@ -15,16 +15,13 @@ public class PlayerXpPickup : MonoBehaviour
         PickupNearbyXpCrystals();
         PickupNearbyGoldCoin();
         PickupNearbyItems();
-
-        if (GameManager.Instance.AllKill == true)
-        {
-            CollectAllXpCrystals();
-            CollectAllGoldCoin();
-            CollectAllItems();
-            GameManager.Instance.AllKill = false;
-        }
     }
-
+    public void CollectEverything()
+    {
+        CollectAllXpCrystals();
+        CollectAllGoldCoin();
+        CollectAllItems();
+    }
 
     void PickupNearbyXpCrystals()
     {
@@ -35,7 +32,7 @@ public class PlayerXpPickup : MonoBehaviour
             XPCrystal crystal = collider.GetComponent<XPCrystal>();
             if (crystal != null)
             {
-                crystal.Collect(this);
+                crystal.Collect(transform);
             }
         }
     }
@@ -80,7 +77,7 @@ public class PlayerXpPickup : MonoBehaviour
         {
             if (crystal != null)
             {
-                crystal.Collect(this);
+                crystal.Collect(transform);
                 yield return new WaitForSeconds(0.05f);
             }
         }
