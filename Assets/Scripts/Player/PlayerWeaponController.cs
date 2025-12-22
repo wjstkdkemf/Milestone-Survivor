@@ -6,12 +6,13 @@ public class PlayerWeaponController : MonoBehaviour
 {
     // 현재 활성화된 무기들 목록 (최대 6개 제한 가능)
     public List<WeaponBase> activeWeapons = new List<WeaponBase>();
+    [SerializeField] private Transform weaponHolder;
 
     // 레벨업해서 무기를 골랐을 때 호출!
     public void AddWeapon(WeaponDataSO data)
     {
         // 1. 해당 무기의 프리팹을 플레이어 자식으로 생성
-        GameObject newWeaponObj = Instantiate(data.weaponPrefab, transform);
+        GameObject newWeaponObj = Instantiate(data.weaponPrefab, weaponHolder);
         newWeaponObj.transform.localPosition = Vector3.zero;
         newWeaponObj.transform.localRotation = Quaternion.identity;
         

@@ -114,6 +114,7 @@ MonoBehaviour:
   cooltime: 1
   Dashing: 0
   haveAnimation: 1
+  DashCoolTimeRation: 1
 --- !u!114 &3701228387844905173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,7 +127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f11aa4acb322104db43584d2c47d981, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 150
   CurrentHealth: 0
   Dashing: 1
   SliderOffset: {x: 0, y: -0.45, z: 0}
@@ -279,8 +279,8 @@ TrailRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1068199295
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Time: 0.5
   m_PreviewTimeScale: 1
@@ -840,11 +840,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4230e86be98fa740b371d881ccfdabd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseDamage: 0
+  cooldown: 0
+  targetUpdateRate: 0.5
   bulletNumber: 0
-  BulletDamage: 5
-  fireRate: 1
+  playerDamageScaling: 0.1
   bulletPrefab: {fileID: 5356050523648152410, guid: 3933d887ac7dd514f8fdf3c18ca2e79b, type: 3}
   Distance: 7
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &4538413946018052901
 GameObject:
   m_ObjectHideFlags: 0
@@ -997,13 +1002,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b12d936d722b00478348b54708f0037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseDamage: 0
+  cooldown: 0
   SlashCount: 0
   slashPostion:
   - {fileID: 164397317661182271}
   - {fileID: 8821533234313703167}
-  coolDown: 2
   slashPrefab: {fileID: 7059234160644993251, guid: 6b9ca1c963f353f458b080b17dc758d7, type: 3}
-  damage: 5
 --- !u!1 &6511584981777745055
 GameObject:
   m_ObjectHideFlags: 0
