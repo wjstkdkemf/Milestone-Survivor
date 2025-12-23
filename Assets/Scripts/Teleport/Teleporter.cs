@@ -20,4 +20,17 @@ public class Teleporter : MonoBehaviour
             TeleportManager.Instance.TeleportPlayer(gameObject, teleportMapName ,teleportPointName);
         }
     }
+
+    public void SetFloorInfo(int floorIndex, string layerName, int sortingOrder)
+    {
+        // 레이어 변경
+        this.gameObject.layer = LayerMask.NameToLayer(layerName);
+        
+        // 오더 변경
+        var sr = GetComponentInChildren<SpriteRenderer>();
+        if(sr != null) sr.sortingOrder = sortingOrder;
+
+        // 미니맵 변경
+        MinimapController.Instance.ChangeFloor(floorIndex);
+    }
 }

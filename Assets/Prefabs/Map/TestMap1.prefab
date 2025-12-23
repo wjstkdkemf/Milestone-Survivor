@@ -474,7 +474,7 @@ GameObject:
   - component: {fileID: 7668584847831920528}
   - component: {fileID: 9001353852453990446}
   - component: {fileID: 3581215328753351575}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32055,6 +32055,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportPointName: TeleportPoint1
   teleportMapName: TestMap1
+  floorIndex: 1
+  targetLayerName: Player_F1
+  targetSortingOrder: 0
 --- !u!1 &8667063748120480684
 GameObject:
   m_ObjectHideFlags: 0
@@ -32231,6 +32234,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportPointName: TeleportPoint2
   teleportMapName: TestMap1
+  floorIndex: 1
+  targetLayerName: Player_F1
+  targetSortingOrder: 0
 --- !u!1001 &1202575369041370872
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32242,6 +32248,10 @@ PrefabInstance:
     - target: {fileID: 8508842326961274621, guid: 995713af9de30d94a8d6f267215ca8b2, type: 3}
       propertyPath: m_Name
       value: Tree
+      objectReference: {fileID: 0}
+    - target: {fileID: 8508842326961274621, guid: 995713af9de30d94a8d6f267215ca8b2, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8536779045697195669, guid: 995713af9de30d94a8d6f267215ca8b2, type: 3}
       propertyPath: m_LocalPosition.x

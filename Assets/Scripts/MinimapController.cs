@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class MinimapController : MonoBehaviour
 {
+    public static MinimapController Instance { get; private set;}
     public Transform player;
     public Camera minimapCamera;
     public RectTransform minimapImage; // Changed from RawImage
@@ -16,6 +17,14 @@ public class MinimapController : MonoBehaviour
 
     void Start()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
         // Find all initial enemies and create markers
         InvokeRepeating("FindAndCreateEnemyMarkers", 0f, 1f); // Periodically check for new enemies
     }
@@ -102,5 +111,17 @@ public class MinimapController : MonoBehaviour
         {
             enemyMarkers.Remove(enemy);
         }
+    }
+    public void ChangeFloor(int floorIndex)
+    {
+        // 1. [중요] Common 레이어는 기본으로 깔고 갑니다.
+        // 몬스터 아이콘이 여기 포함되므로 항상 보이게 됩니다.
+        int layerMask = 1 << LayerMask.NameToLayer("MiniMap_Common");
+
+        // 2. 그 위에 현재 층의 배경(F1, F2...)만 추가합니다.
+        string targetLayerName = "MiniMap_F" + floorIndex;
+        layerMask |= 1 << LayerMask.NameToLayer(targetLayerName);
+
+        minimapCamera.cullingMask = layerMask;
     }
 }
