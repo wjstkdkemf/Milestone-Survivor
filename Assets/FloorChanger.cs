@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class FloorChanger : MonoBehaviour
 {
-[Header("설정: 연결될 층 번호")]
+    [Header("위치 기준점")]
+    [SerializeField] private Transform bottomPoint; // 1층 쪽 입구 위치
+    [SerializeField] private Transform topPoint;    // 2층 쪽 입구 위치
+    [Header("설정: 연결될 층 번호")]
     [SerializeField] private int lowFloorIndex = 1;  // 아래층 (예: 1층)
     [SerializeField] private int highFloorIndex = 2; // 위층 (예: 2층)
 
@@ -29,7 +32,10 @@ public class FloorChanger : MonoBehaviour
 
             if (playerScript == null) return;
             
-            if (collision.transform.position.y < transform.position.y)
+            float distToBottom = Vector2.Distance(collision.transform.position, bottomPoint.position);
+            float distToTop = Vector2.Distance(collision.transform.position, topPoint.position);
+
+            if (distToBottom < distToTop)
             {
                 GoUp(playerScript);
             }
