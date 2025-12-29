@@ -36,14 +36,14 @@ TagManager:
   - Interactable
   - MiniMap_Common
   - MiniMap_F1
-  - MiniMap_F2
-  - MiniMap_F3
-  - MiniMap_F4
-  - 
   - Player_F1
+  - MiniMap_F2
   - Player_F2
+  - MiniMap_F3
   - Player_F3
+  - MiniMap_F4
   - Player_F4
+  - 
   - Wall_F1
   - Wall_F2
   - Wall_F3
@@ -56,12 +56,21 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: BackGround
+  - name: BackGround_F1
     uniqueID: 3798117189
     locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Object
+  - name: Object_F1
     uniqueID: 1068199295
+    locked: 0
+  - name: BackGround_F2
+    uniqueID: 762825353
+    locked: 0
+  - name: Object_F2
+    uniqueID: 1197938085
+    locked: 0
+  - name: New Layer 5
+    uniqueID: 1715723639
     locked: 0

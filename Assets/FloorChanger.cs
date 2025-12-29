@@ -14,17 +14,22 @@ public class FloorChanger : MonoBehaviour
     [Header("설정: 플레이어 물리 레이어 이름")]
     [SerializeField] private string playerLayerF1 = "Player_F1"; // 1층일 때 플레이어 레이어
     [SerializeField] private string playerLayerF2 = "Player_F2"; // 2층일 때 플레이어 레이어
+    [Header("설정: Sorting Name")]
+    // 2층으로 가면 플레이어가 1층 바닥보다 확실히 앞에 그려져야 함
+    [SerializeField] private string orderInLayerLowName = "Object_F1"; 
+    [SerializeField] private string orderInLayerHighName = "Object_F2";
 
     [Header("설정: 시각적 높이 (Sorting Order)")]
     // 2층으로 가면 플레이어가 1층 바닥보다 확실히 앞에 그려져야 함
     [SerializeField] private int orderInLayerLow = 10; 
     [SerializeField] private int orderInLayerHigh = 20;
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerExit2D(Collider2D collision)
     {
         // 플레이어만 반응
         if (collision.CompareTag("Player"))
         {
+            if (collision.isTrigger) return;
             // 계단의 중심(transform.position.y)보다 
             // 플레이어가 아래에서 들어왔으면 -> 올라가는 중
             // 플레이어가 위에서 들어왔으면 -> 내려가는 중
@@ -34,8 +39,10 @@ public class FloorChanger : MonoBehaviour
             
             float distToBottom = Vector2.Distance(collision.transform.position, bottomPoint.position);
             float distToTop = Vector2.Distance(collision.transform.position, topPoint.position);
+            Debug.Log("TOP : " + distToTop);
+            Debug.Log("BOTTOM : " + distToBottom);
 
-            if (distToBottom < distToTop)
+            if (distToBottom > distToTop)
             {
                 GoUp(playerScript);
             }
@@ -51,7 +58,7 @@ public class FloorChanger : MonoBehaviour
     {
         Debug.Log("2층으로 올라감!");
         // 1. 물리 레이어 변경 (2층 벽이랑만 부딪히게)
-        player.SetFloorInfo(highFloorIndex, playerLayerF2, orderInLayerHigh);
+        player.SetFloorInfo(highFloorIndex, playerLayerF2, orderInLayerHighName ,orderInLayerHigh);
     }
 
     // ▼ 1층으로 내려갈 때 실행
@@ -59,6 +66,6 @@ public class FloorChanger : MonoBehaviour
     {
         Debug.Log("1층으로 내려감!");
 
-        player.SetFloorInfo(lowFloorIndex, playerLayerF1, orderInLayerLow);
+        player.SetFloorInfo(lowFloorIndex, playerLayerF1, orderInLayerLowName, orderInLayerLow);
     }
 }

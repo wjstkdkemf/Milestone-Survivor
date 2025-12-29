@@ -10,6 +10,7 @@ public class TeleportPoint : MonoBehaviour
     
     [Header("적용할 플레이어 설정")]
     public string targetLayerName = "Player_F1"; // 도착 시 변경될 물리 레이어
+    public string targetSortingName = "Object_F1";
     public int targetSortingOrder = 10;          // 도착 시 변경될 그리기 순서
 
 

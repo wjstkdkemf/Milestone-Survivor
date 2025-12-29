@@ -64,7 +64,8 @@ public class TeleportManager : MonoBehaviour
             player.transform.position = destination.transform.position;
             player.GetComponent<Teleporter>().SetFloorInfo(
                 destination.floorIndex, 
-                destination.targetLayerName, 
+                destination.targetLayerName,
+                destination.targetSortingName,
                 destination.targetSortingOrder
             );
         }
