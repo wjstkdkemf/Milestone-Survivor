@@ -5129,7 +5129,7 @@ MonoBehaviour:
   playerCamera: {fileID: 947478269}
   waveTimer: 0
   StartSpawnTimer: 0
-  TheCurantWave: 0
+  CurrentWave: 0
   onlySideSpawn: 0
   spawningPotions: []
   wallLayerMask:
@@ -5137,6 +5137,7 @@ MonoBehaviour:
     m_Bits: 0
   maxSpawnAttempts: 10
   spawnCheckRadius: 0.5
+  is2DGame: 1
 --- !u!114 &97037891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26807,6 +26808,7 @@ MonoBehaviour:
   UpgradePanelObject: {fileID: 0}
   UpgradeUiSlots: []
   MasterDeck: []
+  StartingDeck: []
   UpgradeDeck: []
   allJobs: []
   pendingUpgrades: 0
@@ -38707,7 +38709,7 @@ MonoBehaviour:
   m_CellSize: {x: 300, y: 100}
   m_Spacing: {x: 0, y: 15}
   m_Constraint: 2
-  m_ConstraintCount: 3
+  m_ConstraintCount: 6
 --- !u!1 &807570029
 GameObject:
   m_ObjectHideFlags: 0
@@ -104385,7 +104387,7 @@ MonoBehaviour:
   m_CellSize: {x: 250, y: 90}
   m_Spacing: {x: 0, y: 15}
   m_Constraint: 2
-  m_ConstraintCount: 3
+  m_ConstraintCount: 8
 --- !u!1 &2076085914
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,7 +36,7 @@ public class Player_Controller : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        Trail = GetComponent<TrailRenderer>();
+        Trail = GetComponentInChildren<TrailRenderer>();
         animator = transform.GetChild(0).GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -76,13 +76,13 @@ public class Player_Controller : MonoBehaviour
                 if (Input.GetKey(KeyCode.A))
                 {
                 //    spriteRenderer.flipX = true;
-                       transform.localScale = new Vector3(-1, 1, 1); // or activate look right some other way
+                    transform.localScale = new Vector3(-1, 1, 1); // or activate look right some other way
                     moveX = -1f;
                 }
                 if (Input.GetKey(KeyCode.D))
                 {
                   //  spriteRenderer.flipX = true;
-                       transform.localScale = new Vector3(1, 1, 1); // activate looking left
+                    transform.localScale = new Vector3(1, 1, 1); // activate looking left
                     moveX = +1f;
                 }
 
