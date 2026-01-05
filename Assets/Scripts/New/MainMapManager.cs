@@ -31,7 +31,7 @@ public class MainMapManager : MonoBehaviour
         FadeManager.Instance.FadeOut(() =>
         {
             GameObject foundObject = mapInstances.FirstOrDefault(obj => obj.name == newMapPrefab);
-
+            
             // 1. 이전 맵이 있다면 파괴
             if (currentMapInstance != null && currentMapInstance.name != foundObject.name)
             {

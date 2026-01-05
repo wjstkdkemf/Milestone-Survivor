@@ -4,7 +4,7 @@ using UnityEngine;
 public class Teleporter : MonoBehaviour
 {
      // Default start point
-
+    public bool isTeleporting = false;
     void Start()
     {
         if (TeleportManager.Instance != null)

@@ -37,6 +37,9 @@ public class FadeManager : MonoBehaviour
             yield return null;
         }
         fadeImage.color = Color.black; // 확실하게 검은색으로
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        player.GetComponent<Teleporter>().isTeleporting = false;
         
         onComplete?.Invoke(); // 페이드아웃이 끝났으니, MapManager의 다음 작업을 실행
     }

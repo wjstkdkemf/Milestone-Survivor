@@ -15,12 +15,17 @@ public class Portal : MonoBehaviour
     [Tooltip("특정 업적을 달성했을 때 우선적으로 이동할 맵 목록")]
     public List<ConditionalMapLink> conditionalLinks;
 
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Player"))
+        if (!other.CompareTag("Player") || !other.isTrigger)
         {
             return; // 플레이어가 아니면 아무것도 하지 않음
         }
+
+        if (other.GetComponent<Teleporter>().isTeleporting) return;
+
+        other.GetComponent<Teleporter>().isTeleporting = true;
 
         for (int i = conditionalLinks.Count - 1; i >= 0; i--)//역순체크 -> 추후 추가되는 업적이 더 상위 업적일것으로 예상.
         {
