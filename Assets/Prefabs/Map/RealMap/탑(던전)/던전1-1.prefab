@@ -34082,6 +34082,18 @@ PrefabInstance:
       value: Dun_1
       objectReference: {fileID: 0}
     - target: {fileID: 7904140538712364299, guid: 9c4030bd00aafc145b4d202d6baaaac8, type: 3}
+      propertyPath: waves.Array.data[0].EnemyNumber
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7904140538712364299, guid: 9c4030bd00aafc145b4d202d6baaaac8, type: 3}
+      propertyPath: waves.Array.data[1].EnemyNumber
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7904140538712364299, guid: 9c4030bd00aafc145b4d202d6baaaac8, type: 3}
+      propertyPath: waves.Array.data[2].EnemyNumber
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7904140538712364299, guid: 9c4030bd00aafc145b4d202d6baaaac8, type: 3}
       propertyPath: waves.Array.data[0].Enemys.Array.data[0].Enemy
       value: 
       objectReference: {fileID: 2797327662496399954, guid: f469f5168c651c34a9c531feda95f330, type: 3}

@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 8454368606132760189}
   - component: {fileID: -639571069223099428}
   - component: {fileID: 3761190193143665214}
+  - component: {fileID: 843382777391683508}
   m_Layer: 8
   m_Name: Goblin
   m_TagString: Enemy
@@ -77,8 +78,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1068199295
+  m_SortingLayer: 1
   m_SortingOrder: 1
   m_Sprite: {fileID: 696946025, guid: 9ef650650707b00499c2c2f9a785a78a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -292,3 +293,25 @@ MonoBehaviour:
     dropChance: 46.5
   - itemPrefab: {fileID: 5304167622817196155, guid: baa2abad777726e4a90efd52cd35920f, type: 3}
     dropChance: 100
+--- !u!195 &843382777391683508
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2797327662496399954}
+  m_Enabled: 0
+  m_AgentTypeID: 0
+  m_Radius: 0.1
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 3.125
+  m_BaseOffset: 1.5625
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 0

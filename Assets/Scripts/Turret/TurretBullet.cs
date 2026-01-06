@@ -5,7 +5,7 @@ using UnityEngine;
 public class TurretBullet : MonoBehaviour
 {
     [SerializeField] private float speed = 5.0f;
-   [HideInInspector] public Transform EnemyPosition;
+    [HideInInspector] public Transform EnemyPosition;
     Vector3 direction;
     [SerializeField] private bool IsActived = true;
 
@@ -17,23 +17,24 @@ public class TurretBullet : MonoBehaviour
         Invoke ("CalculateDirection", .01f);    
     }
     private void CalculateDirection()
-    {          if(EnemyPosition != null) 
+    {          
+        if(EnemyPosition != null) 
         direction = (EnemyPosition.position - transform.position).normalized;        
     }
     void Update()
     {      
        
-       if(IsActived)
-        transform.position += (direction) * (speed*(1+PlayerStats.Instance.projectileSpeedBonus/100)) * Time.deltaTime;
+        if(IsActived)
+            transform.position += (direction) * (speed*(1+PlayerStats.Instance.projectileSpeedBonus/100)) * Time.deltaTime;
 
      
     }
     private IEnumerator Reset()
     {
-            yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(3);
+
         if (IsActived)
         {
-
             ObjectPoolingManager.instance.ReturnObjectToPool(this.gameObject);
         }
     }

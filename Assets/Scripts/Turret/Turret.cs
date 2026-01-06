@@ -68,8 +68,7 @@ public class Turret : AttackBase
         if (bullet.GetComponent<DoDamage>() != null)
         {
             // Use the overridden GetDamage() to calculate final damage
-            Debug.Log(GetDamage());
-            bullet.GetComponent<DoDamage>().damage = GetDamage(); 
+            bullet.GetComponent<DoDamage>().damage = 0.5f;//GetDamage(); 
         }
     }
 

@@ -118,7 +118,7 @@ public class TurretWeapon : WeaponBase
             // 데미지 설정
             if (bullet.TryGetComponent<DoDamage>(out var damageComponent))
             {
-                damageComponent.damage = GetDamage();
+                damageComponent.damage = 0.5f;//GetDamage();
             }
         }
     }

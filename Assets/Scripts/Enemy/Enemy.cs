@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.AI;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -20,6 +21,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public bool stopMoving = false;  // Flag to stop movement
     public GameObject DamageText;
     public Transform player;
+    private NavMeshAgent agent;
     private float coolDownTimer;
     protected bool facingRight = true;
     protected bool chasing = false;
@@ -40,6 +42,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public bool DontUseObjectPooling;
     public bool boss;
     protected bool I_frame = false;
+    private Vector3 lastVelocity;
+    private bool isRecovering = false;
     // Multipliers based on monster rarity
     private readonly Dictionary<EnemyRarity, int> rarityMultipliers = new Dictionary<EnemyRarity, int>
     {
@@ -52,6 +56,15 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     void Awake()
     {
         player = GameObject.FindWithTag("Player").transform;
+        agent = GetComponent<NavMeshAgent>();
+
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+        agent.updatePosition = false;
+        agent.acceleration = 100f; 
+        agent.autoBraking = false; 
+
         if (boss)
         {
             spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>(); // Initialize the spriteRenderer
@@ -64,8 +77,142 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             originalMaterial = spriteRenderer.material;      // Initialize the original material
             EnemyCollider2D = GetComponent<Collider2D>();
         }
-       
     }
+    IEnumerator EnableAgentAndFollow()
+    {
+        yield return new WaitForSeconds(Random.Range(0.0f, 0.2f));
+
+        int maxRetries = 10; 
+        float searchRadius = 5.0f;
+
+        for (int i = 0; i < maxRetries; i++)
+        {
+            // 맵 생성 직후 프레임 대기
+            yield return new WaitForSeconds(0.1f);
+            if (!gameObject.activeInHierarchy) yield break;
+
+            NavMeshHit hit;
+            // 내 위치 주변에 NavMesh가 있는지 확인
+            // SamplePosition(중심점, 결과저장변수, 반경, 영역마스크)
+            if (NavMesh.SamplePosition(transform.position, out hit, searchRadius, NavMesh.AllAreas)) 
+            {
+                // 찾았다면 해당 위치로 순간이동(Warp) 후 활성화
+                agent.Warp(hit.position); 
+                agent.enabled = true;
+                
+                // 추적 루틴 시작
+                StartCoroutine(UpdatePathRoutine());
+                yield break;
+            }
+        }
+        Debug.LogWarning($"[EnemyNavigation] NavMesh를 찾을 수 없어 몬스터를 파괴합니다. 위치: {transform.position}");
+        ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
+    }
+    IEnumerator UpdatePathRoutine()
+    {
+        while (player != null && agent.enabled)
+        {
+            // Agent가 켜져있고, 활성화 상태일 때만 목적지 설정
+            if (agent.isOnNavMesh) 
+            {
+                agent.SetDestination(player.position);
+            }
+            yield return new WaitForSeconds(Random.Range(0.2f, 0.3f));
+        }
+    }
+    public void OnNavMeshUpdated()
+    {
+        // 코루틴으로 안전하게 다음 프레임에 처리
+        StartCoroutine(RecoverAgent());
+    }
+
+    IEnumerator RecoverAgent()
+    {
+        isRecovering = true;
+
+        if (agent.enabled) agent.enabled = false;
+
+        yield return new WaitForSeconds(Random.Range(0.0f, 0.2f));
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(transform.position, out hit, 0.2f, NavMesh.AllAreas))
+        {
+            agent.enabled = true;
+            agent.Warp(hit.position);
+
+            yield return null;
+
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                if (player != null)
+                {
+                    agent.SetDestination(player.position);
+                }
+                StartCoroutine(UpdatePathRoutine());
+            }
+        }
+        else
+        {
+            Vector3 rescuePosition = transform.position;
+            bool foundRescuePoint = false;
+
+            if (player != null)
+            {
+                // 플레이어 방향 벡터
+                Vector3 directionToPlayer = (player.position - transform.position).normalized;
+                
+                // 내 위치에서 플레이어 쪽으로 1m, 2m, 3m 떨어진 지점을 순차적으로 검사
+                float[] checkDistances = { 0.5f, 1.0f, 1.5f }; 
+
+                foreach (float dist in checkDistances)
+                {
+                    // 플레이어 쪽으로 dist만큼 이동한 가상의 지점
+                    Vector3 checkPos = transform.position + (directionToPlayer * dist);
+                    
+                    // 그 지점 주변에서 NavMesh를 찾음 (반경 1.0f)
+                    if (NavMesh.SamplePosition(checkPos, out hit, 1.0f, NavMesh.AllAreas))
+                    {
+                        rescuePosition = hit.position;
+                        foundRescuePoint = true;
+                        break; // 유효한 곳을 찾으면 즉시 탈출
+                    }
+                }
+            }
+
+            // 플레이어 방향으로 못 찾았다면, 최후의 수단으로 그냥 주변(5.0f) 검색
+            if (!foundRescuePoint)
+            {
+                 if (NavMesh.SamplePosition(transform.position, out hit, 5.0f, NavMesh.AllAreas))
+                 {
+                     rescuePosition = hit.position;
+                     foundRescuePoint = true;
+                 }
+            }
+
+            if (foundRescuePoint)
+            {
+                transform.position = rescuePosition; 
+                agent.Warp(rescuePosition);
+                agent.enabled = true;
+                
+                yield return null;
+                
+                if (agent.isActiveAndEnabled && agent.isOnNavMesh && player != null)
+                {
+                    agent.SetDestination(player.position);
+                }
+                StartCoroutine(UpdatePathRoutine());
+            }
+            else
+            {
+                Debug.LogWarning("몬스터가 새 NavMesh 위로 복귀하지 못했습니다. 파괴합니다.");
+                ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
+                IsActived = false;
+            }
+        }
+        isRecovering = false;
+    }
+
     private void OnEnable()
     {
         health = maxhealth;
@@ -73,9 +220,15 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         spriteRenderer.material = originalMaterial;
         spriteRenderer.color = Color.white;
         GameManager.Instance.activeEnemies++;
+        agent.enabled = false;
+        if (player != null)
+        {
+            StartCoroutine(EnableAgentAndFollow());
+        }
     }
     private void OnDisable()
     {
+        StopAllCoroutines();
         IsActived = false;
     }
     void Start()
@@ -188,23 +341,38 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         else
         {
             // If chasing, move towards the player
-            if (chasing)
+            if(isRecovering)
             {
-                transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
+                Debug.Log("체크 3 : " + lastVelocity.ToString());
+                transform.position += lastVelocity * Time.deltaTime;
+            }
+            else if (chasing)
+            {
+                transform.position += agent.velocity * Time.deltaTime;
+                //transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
             }
             // If running away, move in the opposite direction
             else if (running)
             {
-                transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * speed * Time.deltaTime);
+                transform.position += agent.velocity * Time.deltaTime;
+                //transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * speed * Time.deltaTime);
             }
-
+            
             // If within attack range, perform the attack
             if (inAttackRange && coolDownTimer <= 0)
             {
                 Attack();
                 coolDownTimer = coolDown;
-
             }
+
+            if (agent.velocity.sqrMagnitude > 0.1f)
+            {
+                lastVelocity = agent.velocity;
+            }
+        }
+        if (Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
+        {
+            agent.nextPosition = transform.position;
         }
     }
 

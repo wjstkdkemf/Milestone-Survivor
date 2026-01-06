@@ -40,6 +40,7 @@ public class InfiniteTilemapManager : MonoBehaviour
     private HashSet<Vector2Int> requiredChunks = new HashSet<Vector2Int>();
     private List<Vector2Int> chunksToUnload = new List<Vector2Int>();
     private Vector2Int lastPlayerChunkCoord = Vector2Int.one * int.MaxValue;
+    public MapChunkManager mapChunkManager;
     private void Start()
     {
         Instance = this;
@@ -64,6 +65,7 @@ public class InfiniteTilemapManager : MonoBehaviour
             if (playerChunkCoord != lastPlayerChunkCoord)
             {
                 UpdateChunks(playerChunkCoord); // 좌표를 인자로 넘김
+                mapChunkManager.OnMapChunkUpdated();
                 lastPlayerChunkCoord = playerChunkCoord;
             }
         }
@@ -95,6 +97,7 @@ public class InfiniteTilemapManager : MonoBehaviour
             Mathf.FloorToInt(player.position.y / chunkSize)
         );
         UpdateChunks(lastPlayerChunkCoord);
+        mapChunkManager.OnMapChunkUpdated();
     }
 
     public void ClearMap()
