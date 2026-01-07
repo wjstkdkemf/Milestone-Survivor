@@ -192,8 +192,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             if (foundRescuePoint)
             {
                 transform.position = rescuePosition; 
-                agent.Warp(rescuePosition);
                 agent.enabled = true;
+                agent.Warp(rescuePosition);
+                
                 
                 yield return null;
                 

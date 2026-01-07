@@ -21,7 +21,7 @@ public class GameProgressManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            savePath = Path.Combine(Application.persistentDataPath, "progress.json");
+            savePath = Path.Combine(Application.persistentDataPath, "testprogress.json");//progress.json
         }
         else
         {
@@ -55,6 +55,15 @@ public class GameProgressManager : MonoBehaviour
         
         // 업적 달성 시 바로 저장하는 것도 좋은 방법입니다.
         SaveProgress();
+    }
+    public void Dislock(string progressID)
+    {
+        if (unlockedProgress.Contains(progressID))
+        {
+            unlockedProgress.Remove(progressID);
+            Debug.Log($"Progress 제거: {progressID}");
+            SaveProgress();
+        }
     }
 
     // 해당 '깃발'이 등록되어 있는지 확인합니다.

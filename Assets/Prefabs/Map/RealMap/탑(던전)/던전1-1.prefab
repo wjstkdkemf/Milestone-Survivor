@@ -1338,6 +1338,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8961808446866895492}
+  - {fileID: 6032589785145716687}
   - {fileID: 3010321200557295156}
   - {fileID: 4595054447418565254}
   - {fileID: 5945068195057644418}
@@ -4075,8 +4076,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c74406df908a24448fdf0663e22d162, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultMapName: TestMap3
-  defaultSpawnPoint: TeleportPoint3
+  defaultMapName: "\uB358\uC8042-1"
+  defaultSpawnPoint: TeleportPoint2-1
   conditionalLinks: []
 --- !u!61 &9157839956933827181
 BoxCollider2D:
@@ -10744,6 +10745,56 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
+--- !u!1 &4394482133736154677
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6032589785145716687}
+  - component: {fileID: 5607296541113601215}
+  m_Layer: 0
+  m_Name: TeleportPoint1-2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6032589785145716687
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4394482133736154677}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 40.53, y: -6.84, z: -0.16536158}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4775473931132372889}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5607296541113601215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4394482133736154677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b1ccf5ccbca51442a3ccdac5b9ef059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teleportPointName: TeleportPoint1-2
+  teleportMapName: "\uB3D9\uAD741-1"
+  floorIndex: 1
+  targetLayerName: Player_F1
+  targetSortingName: Object_F1
+  targetSortingOrder: 0
 --- !u!1 &4442058941529855823
 GameObject:
   m_ObjectHideFlags: 0
@@ -33888,7 +33939,7 @@ GameObject:
   - component: {fileID: 8961808446866895492}
   - component: {fileID: 7713135270631480113}
   m_Layer: 0
-  m_Name: TeleportPoint2-1
+  m_Name: TeleportPoint1-1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33921,7 +33972,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b1ccf5ccbca51442a3ccdac5b9ef059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportPointName: TeleportPoint2-1
+  teleportPointName: TeleportPoint1-1
   teleportMapName: "\uB3D9\uAD741-1"
   floorIndex: 1
   targetLayerName: Player_F1
