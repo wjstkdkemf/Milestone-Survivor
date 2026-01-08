@@ -6,6 +6,7 @@ public class ConditionalChanger : Interactable
 {
     public string ProgressID;
     public ConditionalObject changingObject;
+    public LeverImageControl leverImageControl;
     public override void Interact()
     {
         if (GameProgressManager.Instance.IsUnlocked(ProgressID))
@@ -16,7 +17,8 @@ public class ConditionalChanger : Interactable
         {
             GameProgressManager.Instance.Unlock(ProgressID);
         }
-
+        
+        leverImageControl.UpdateRenderer();
         changingObject.CheckProgess();
     }
 }
