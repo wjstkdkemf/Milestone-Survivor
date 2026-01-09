@@ -5,7 +5,7 @@ using UnityEngine;
 public class ConditionalChanger : Interactable
 {
     public string ProgressID;
-    public ConditionalObject changingObject;
+    public List<ConditionalBase> changingObject;
     public LeverImageControl leverImageControl;
     public override void Interact()
     {
@@ -19,6 +19,10 @@ public class ConditionalChanger : Interactable
         }
         
         leverImageControl.UpdateRenderer();
-        changingObject.CheckProgess();
+
+        foreach(ConditionalBase ch in changingObject)
+        {
+            ch.CheckProgess();
+        }
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConditionalObject : MonoBehaviour
+public class ConditionalObject : ConditionalBase
 {
     public List<string> CheckProgressID;
     public Sprite ChangeSprite;
@@ -14,7 +14,7 @@ public class ConditionalObject : MonoBehaviour
     {
         CheckProgess();
     }
-    public void CheckProgess()
+    public override void CheckProgess()
     {
         for (int i = CheckProgressID.Count - 1; i >= 0; i--)//역순체크 -> 추후 추가되는 업적이 더 상위 업적일것으로 예상.
         {
