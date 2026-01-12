@@ -8,6 +8,7 @@ public class MapMaker : MonoBehaviour
     public string SceneName; // This will now be used as the Theme Name for InfiniteTilemapManager
     public List<Wave> waves = new List<Wave>(); // To store monster wave information
     public EnCounterSystem enCounterSystem;
+    public bool BossEncounter = false;
 
     void Start()
     {
@@ -24,7 +25,7 @@ public class MapMaker : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && enCounterSystem != null)
+        if (collision.CompareTag("Player") && enCounterSystem != null && !BossEncounter)
         {
             enCounterSystem.EnterMap(this);
         }
@@ -32,7 +33,7 @@ public class MapMaker : MonoBehaviour
 
     void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && enCounterSystem != null)
+        if (collision.CompareTag("Player") && enCounterSystem != null && !BossEncounter)
         {
             enCounterSystem.ExitMap();
         }

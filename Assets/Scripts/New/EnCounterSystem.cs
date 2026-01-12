@@ -130,6 +130,11 @@ public class EnCounterSystem : MonoBehaviour
     {
         currentMap = null;
     }
+    public void BossEncount()
+    {
+        lastPos = PlayerTransform.position;
+        StartEncount();
+    }
 
     public void StartEncount()
     {
@@ -192,6 +197,8 @@ public class EnCounterSystem : MonoBehaviour
             if (PlayerTransform != null) PlayerTransform.position = enCounterPos;
             isEncounterActive = false;
         }
+        if(currentMap.BossEncounter)
+            currentMap = null;
     }
     public void PlusMaxEncount(int PlusEn)
     {
