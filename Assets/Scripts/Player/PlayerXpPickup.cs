@@ -6,6 +6,7 @@ public class PlayerXpPickup : MonoBehaviour
 {
 
     public float xpPickupRange = 5f; // Default pickup range
+    public Transform trans;
 
     public LayerMask CollectiblesLayer; // LayerMask to filter XP Crystals and Coins
 
@@ -25,42 +26,42 @@ public class PlayerXpPickup : MonoBehaviour
 
     void PickupNearbyXpCrystals()
     {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, xpPickupRange, CollectiblesLayer);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(trans.position, xpPickupRange, CollectiblesLayer);
 
         foreach (Collider2D collider in hitColliders)
         {
             XPCrystal crystal = collider.GetComponent<XPCrystal>();
             if (crystal != null)
             {
-                crystal.Collect(transform);
+                crystal.Collect(trans);
             }
         }
     }
 
     void PickupNearbyGoldCoin()
     {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, xpPickupRange, CollectiblesLayer);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(trans.position, xpPickupRange, CollectiblesLayer);
 
         foreach (Collider2D collider in hitColliders)
         {
             GoldCoin goldCoin = collider.GetComponent<GoldCoin>();
             if (goldCoin != null)
             {
-                goldCoin.Collect(transform); // Pass player transform to the coin
+                goldCoin.Collect(trans); // Pass player transform to the coin
             }
         }
     }
 
     void PickupNearbyItems()
     {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, xpPickupRange, CollectiblesLayer);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(trans.position, xpPickupRange, CollectiblesLayer);
 
         foreach (Collider2D collider in hitColliders)
         {
             ItemObject itemObject = collider.GetComponent<ItemObject>();
             if (itemObject != null && itemObject.GetComponent<ItemDropEffect>().GetHasLand())
             {
-                itemObject.Collect(transform);
+                itemObject.Collect(trans);
             }
         }
     }
@@ -77,7 +78,7 @@ public class PlayerXpPickup : MonoBehaviour
         {
             if (crystal != null)
             {
-                crystal.Collect(transform);
+                crystal.Collect(trans);
                 yield return new WaitForSeconds(0.05f);
             }
         }
@@ -95,7 +96,7 @@ public class PlayerXpPickup : MonoBehaviour
         {
             if (goldCoin != null)
             {
-                goldCoin.Collect(transform);
+                goldCoin.Collect(trans);
                 yield return new WaitForSeconds(0.05f);
             }
         }
@@ -113,7 +114,7 @@ public class PlayerXpPickup : MonoBehaviour
         {
             if (item != null)
             {
-                item.Collect(transform);
+                item.Collect(trans);
                 yield return new WaitForSeconds(0.05f);
             }
         }

@@ -197,7 +197,7 @@ public class EnCounterSystem : MonoBehaviour
             if (PlayerTransform != null) PlayerTransform.position = enCounterPos;
             isEncounterActive = false;
         }
-        if(currentMap.BossEncounter)
+        if(currentMap != null && currentMap.BossEncounter)
             currentMap = null;
     }
     public void PlusMaxEncount(int PlusEn)

@@ -17,5 +17,7 @@ public class WeaponDataSO : ScriptableObject
     [Header("밸런스 데이터 (선택사항)")]
     public float baseDamage;
     public float baseCooldown;
+    [Header("융합 스킬 정보")]
+    public List<WeaponDataSO> fusionWeaponData;
     // 필요한 데이터들을 여기에 추가하면 기획자가 밸런스 잡기 좋습니다.
 }

@@ -28,7 +28,7 @@ public class TurretWeapon : WeaponBase
         {
             // 데이터로부터 초기값 설정
             currentBulletNumber = turretData.bulletNumber;
-            currentCooldownTime = turretData.fireRate;
+            currentCooldownTime = turretData.baseCooldown;
             cooldownTimer = currentCooldownTime;
             currentRange = turretData.range;
             currentScaling = turretData.playerDamageScaling;

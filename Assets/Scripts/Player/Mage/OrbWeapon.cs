@@ -9,11 +9,14 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     private float currentRadius;
     private float currentRotationSpeed;
     private float currentDamage;
+    private float currentScaling = 1.0f;
 
     // [내부 변수]
     private GameObject orbPrefab; // 작은 구체 프리팹
     private List<GameObject> spawnedOrbs = new List<GameObject>();
     private float angleStep;
+
+    private PlayerStats playerStats;   // 데미지 계산용
     
     // 초기화: 플레이어가 무기를 획득했을 때 딱 1번 실행됨
     public override void Initialize(WeaponDataSO data)
@@ -32,6 +35,16 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         {
             Debug.LogError("잘못된 데이터가 들어왔습니다! OrbWeaponDataSO가 필요합니다.");
             return;
+        }
+
+        if (PlayerStats.Instance != null)
+        {
+            playerStats = PlayerStats.Instance;
+        }
+        else
+        {
+            // 만약 싱글톤이 아니라면 부모에서 찾기
+            playerStats = GetComponentInParent<PlayerStats>();
         }
 
         // 2. 구체 생성 시작
@@ -67,7 +80,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
             // (IceOrb 스크립트가 있다면 그대로 사용)
             var iceOrbScript = orb.GetComponent<IceOrb>();
             if(iceOrbScript != null)
-                iceOrbScript.SetInfo(currentDamage, 0); // 0은 크리티컬 확률 등
+                iceOrbScript.SetInfo(GetDamage(), 0); // 0은 크리티컬 확률 등
             
             spawnedOrbs.Add(orb);
         }
@@ -128,11 +141,17 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         currentDamage += amount;
         SpawnOrbs(); // 데미지 갱신을 위해 재소환 (혹은 기존 orb들에 접근해서 수치만 변경)
     }
-        public override void LevelUp()
+    public override void LevelUp()
     {
         // 예시: 레벨업 시 총알 개수 증가 혹은 데미지 증가
         currentOrbCount++; 
         currentDamage++;
         SpawnOrbs();
+    }
+
+    public float GetDamage()
+    {
+        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
+        return currentDamage + (bonus * currentScaling);
     }
 }

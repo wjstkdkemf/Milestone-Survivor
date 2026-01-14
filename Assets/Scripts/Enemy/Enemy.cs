@@ -44,6 +44,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected bool I_frame = false;
     private Vector3 lastVelocity;
     private bool isRecovering = false;
+
+    [Header("Reposition Settings")]
+    [SerializeField] private float checkInterval = 2.0f; // 검사 주기 (2초)
+    [SerializeField] private float maxDistance = 30.0f;  // 이 거리를 넘으면 소환 (화면 밖)
+    [SerializeField] private float respawnRadius = 15.0f; // 플레이어 주변 재소환 반경
+    private float maxDistanceSqr;
     // Multipliers based on monster rarity
     private readonly Dictionary<EnemyRarity, int> rarityMultipliers = new Dictionary<EnemyRarity, int>
     {
@@ -55,7 +61,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     
     void Awake()
     {
-        player = GameObject.FindWithTag("Player").transform;
+        player = GameObject.FindWithTag("Player").transform.Find("CenterPosition").transform;
         agent = GetComponent<NavMeshAgent>();
 
         agent.updateRotation = false;
@@ -77,6 +83,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             originalMaterial = spriteRenderer.material;      // Initialize the original material
             EnemyCollider2D = GetComponent<Collider2D>();
         }
+        maxDistanceSqr = maxDistance * maxDistance;
     }
     IEnumerator EnableAgentAndFollow()
     {
@@ -107,6 +114,28 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
         Debug.LogWarning($"[EnemyNavigation] NavMesh를 찾을 수 없어 몬스터를 파괴합니다. 위치: {transform.position}");
         ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
+    }
+    IEnumerator CheckDistanceRoutine()
+    {
+        // 1. 모든 몬스터가 동시에 연산하지 않도록 랜덤 딜레이를 줍니다. (부하 분산)
+        yield return new WaitForSeconds(Random.Range(0f, checkInterval));
+
+        while (player != null)
+        {
+            // 2. 설정한 주기만큼 대기 (Update보다 훨씬 가벼움)
+            yield return new WaitForSeconds(checkInterval);
+
+            if (!gameObject.activeInHierarchy || !agent.enabled) continue;
+
+            // 3. 거리 계산 (sqrMagnitude 사용으로 최적화)
+            float distSqr = (player.position - transform.position).sqrMagnitude;
+
+            // 4. 제한 거리를 넘었다면?
+            if (distSqr > maxDistanceSqr)
+            {
+                RepositionEnemy();
+            }
+        }
     }
     IEnumerator UpdatePathRoutine()
     {
@@ -213,6 +242,27 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
         isRecovering = false;
     }
+    void RepositionEnemy()
+    {
+        // 플레이어 주변의 랜덤한 위치(원형) 계산
+        // insideUnitCircle을 사용하여 플레이어 주변 랜덤 위치를 잡습니다.
+        Vector2 randomPoint = Random.insideUnitCircle.normalized * respawnRadius;
+        Vector3 potentialPos = player.position + new Vector3(randomPoint.x, randomPoint.y, 0);
+
+        NavMeshHit hit;
+        // 5. 해당 위치 근처(3.0f)에 유효한 NavMesh(길)가 있는지 확인
+        if (NavMesh.SamplePosition(potentialPos, out hit, 3.0f, NavMesh.AllAreas))
+        {
+            // [중요] updatePosition=false를 쓰고 계시므로, 둘 다 옮겨야 합니다.
+            agent.Warp(hit.position);       // Agent(영혼) 이동
+            transform.position = hit.position; // 몸(Sprite) 이동
+            
+            // 이동 후 즉시 목적지 갱신
+            agent.SetDestination(player.position);
+            
+            Debug.Log("몬스터가 너무 멀어져서 재소환되었습니다.");
+        }
+    }
 
     private void OnEnable()
     {
@@ -225,6 +275,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         if (player != null)
         {
             StartCoroutine(EnableAgentAndFollow());
+            StartCoroutine(CheckDistanceRoutine());
         }
     }
     private void OnDisable()

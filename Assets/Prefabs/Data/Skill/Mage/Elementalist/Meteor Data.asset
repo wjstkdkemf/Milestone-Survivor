@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7e9f83c93e78b4baf918e216076b9f, type: 3}
+  m_Name: Meteor Data
+  m_EditorClassIdentifier: 
+  weaponName: Meteor
+  icon: {fileID: 6985626698306143173, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
+  description: 
+  weaponPrefab: {fileID: 4975883650434929251, guid: 3e62fd68600714644a5003da26b1d9b2, type: 3}
+  baseDamage: 3
+  baseCooldown: 3
+  fusionWeaponData: []
+  MeteorNumber: 1
+  range: 15
+  densityCheckRadius: 4
+  targetUpdateRate: 0.5
+  warningDuration: 1
+  volleyDelay: 0.3
+  playerDamageScaling: 0.5
+  MeteorPrefab: {fileID: 6122877895079379237, guid: f7c2669d57d680049a9167789c95b257, type: 3}
+  magicCirclePrefab: {fileID: 1834663730095758510, guid: abee44e7975a322428df936b5fcd8d01, type: 3}
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 256

@@ -11,18 +11,54 @@ public class PlayerWeaponController : MonoBehaviour
     // 레벨업해서 무기를 골랐을 때 호출!
     public void AddWeapon(WeaponDataSO data)
     {
-        // 1. 해당 무기의 프리팹을 플레이어 자식으로 생성
-        GameObject newWeaponObj = Instantiate(data.weaponPrefab, weaponHolder);
-        newWeaponObj.transform.localPosition = Vector3.zero;
-        newWeaponObj.transform.localRotation = Quaternion.identity;
-        
-        // 2. 스크립트 가져오기
-        WeaponBase newWeapon = newWeaponObj.GetComponent<WeaponBase>();
-        
-        // 3. 초기화 및 리스트 추가
-        newWeapon.Initialize(data);
-        newWeapon.myData = data;
-        activeWeapons.Add(newWeapon);
+        if (data.fusionWeaponData != null)
+            CheckFusion(data);
+
+        if(!CheckLevelUp(data))
+        {
+            // 해당 무기의 프리팹을 플레이어 자식으로 생성
+            GameObject newWeaponObj = Instantiate(data.weaponPrefab, weaponHolder);
+            newWeaponObj.transform.localPosition = Vector3.zero;
+            newWeaponObj.transform.localRotation = Quaternion.identity;
+            
+            // 스크립트 가져오기
+            WeaponBase newWeapon = newWeaponObj.GetComponent<WeaponBase>();
+            
+            // 초기화 및 리스트 추가
+            newWeapon.Initialize(data);
+            newWeapon.myData = data;
+            activeWeapons.Add(newWeapon);
+        }
+    }
+    public void RemoveWeapon(WeaponDataSO data)
+    {
+        for (int Size = 0; Size < activeWeapons.Count; Size++)
+        {
+            if (activeWeapons[Size].myData == data)
+            {
+                activeWeapons.Remove(activeWeapons[Size]);
+                return;
+            }
+        }
+    }
+    public void CheckFusion(WeaponDataSO data)
+    {
+        foreach (WeaponDataSO weapon in data.fusionWeaponData)
+        {
+            RemoveWeapon(weapon);
+        }
+    }
+    public bool CheckLevelUp(WeaponDataSO data)
+    {
+        foreach (var weapon in activeWeapons)
+        {
+            if(weapon.myData == data)
+            {
+                weapon.LevelUp();
+                return true;
+            }
+        }
+        return false;
     }
 
     void Update()

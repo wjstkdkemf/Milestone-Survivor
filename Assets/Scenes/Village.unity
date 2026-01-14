@@ -29230,6 +29230,7 @@ MonoBehaviour:
   SceneName: Endless mode 2
   waves: []
   enCounterSystem: {fileID: 0}
+  BossEncounter: 0
 --- !u!61 &600934416
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -95616,9 +95617,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   xpPickupRange: 1.5
+  trans: {fileID: 1841473158}
   CollectiblesLayer:
     serializedVersion: 2
     m_Bits: 128
+--- !u!4 &1841473158 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6365943629407288110, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+  m_PrefabInstance: {fileID: 1841473155}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1844563168
 GameObject:
   m_ObjectHideFlags: 0
@@ -99313,6 +99320,7 @@ MonoBehaviour:
   chunkSize: 55
   loadRadius: 1
   resourcePoolInitialSize: 20
+  mapChunkManager: {fileID: 0}
 --- !u!4 &1953275912
 Transform:
   m_ObjectHideFlags: 0
