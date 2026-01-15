@@ -14,6 +14,7 @@ public class DoDamage : MonoBehaviour
 
     [Header("Self-Destruction Settings")]
     public bool selfDestroy = false;
+    public bool destroyAfterHit = true;
     public bool IsUsingObjetPooling;
     public float lifeTime = 3f;
     [Header("Cooldown Settings")]
@@ -65,7 +66,10 @@ public class DoDamage : MonoBehaviour
         if (playerHealth != null)
         {
             playerHealth.TakeDamage(damage*(1-(PlayerStats.Instance.ArmorBonus/100)));
-            HandleSelfDestruction();
+            if (destroyAfterHit)
+            {
+                HandleSelfDestruction();
+            }
             ResetCooldown();
         }
     }
@@ -76,7 +80,10 @@ public class DoDamage : MonoBehaviour
         if (enemy != null)
         {
             enemy.TakeDamage(damage);//1. 데미지 보너스를 여기서 보정해주는 방법 2. 스킬 자체의 데미지를 보정하는 방법 *(1+PlayerStats.Instance.DamageBonus/100)
-            HandleSelfDestruction();
+            if (destroyAfterHit)
+            {
+                HandleSelfDestruction();
+            }
             ResetCooldown();
         }
     }
@@ -84,15 +91,27 @@ public class DoDamage : MonoBehaviour
     private void HandleWallCollision()
     {
         HandleSelfDestruction();
+        /*
+        if (destroyAfterHit)
+        {
+            HandleSelfDestruction();
+        }
+        */
     }
 
     private void HandleSelfDestruction()
     {
-        if (selfDestroy)
+if (selfDestroy)
         {
-            if(IsUsingObjetPooling)
-            ObjectPoolingManager.instance.ReturnObjectToPool(this.gameObject);
-            Destroy(gameObject);
+            if (IsUsingObjetPooling)
+                ObjectPoolingManager.instance.ReturnObjectToPool(this.gameObject);
+            else 
+                Destroy(gameObject);
+        }
+        else
+        {
+             // 보통은 그냥 Destroy합니다. (안전을 위해)
+             if (!IsUsingObjetPooling) Destroy(gameObject);
         }
     }
 

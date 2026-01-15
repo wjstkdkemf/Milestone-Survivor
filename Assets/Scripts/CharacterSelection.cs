@@ -51,11 +51,15 @@ public class CharacterSelection : MonoBehaviour
             Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterDatas.animatorController;
         }
 
-        if (UpgradeManager.Instance != null) UpgradeManager.Instance.ResetRunData(); // 업글레이드 매니저 초기화.
+        if (UpgradeManager.Instance != null) 
+        {
+            UpgradeManager.Instance.ResetRunData(); // 업글레이드 매니저 초기화.
+            UpgradeManager.Instance.OnUpgradeSelected(characterDatas.startingWeapon);
+        }
 
         if (characterDatas.startingWeapon != null) {
         // 플레이어의 무기 관리자(PlayerWeaponController)를 찾아 무기 등록
-            Player.GetComponent<PlayerWeaponController>().AddWeapon(characterDatas.startingWeapon);
+            //Player.GetComponent<PlayerWeaponController>().AddWeapon(characterDatas.startingWeapon);
             Player.GetComponent<PlayerWeaponController>().ToggleCombatMode(false);
         }
 

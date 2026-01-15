@@ -44,6 +44,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected bool I_frame = false;
     private Vector3 lastVelocity;
     private bool isRecovering = false;
+    private Color defaultColor = Color.white;
 
     [Header("Reposition Settings")]
     [SerializeField] private float checkInterval = 2.0f; // 검사 주기 (2초)
@@ -63,6 +64,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         player = GameObject.FindWithTag("Player").transform.Find("CenterPosition").transform;
         agent = GetComponent<NavMeshAgent>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
@@ -70,6 +72,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         agent.updatePosition = false;
         agent.acceleration = 100f; 
         agent.autoBraking = false; 
+
+        defaultColor = spriteRenderer.color; 
 
         if (boss)
         {
@@ -269,7 +273,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         health = maxhealth;
         IsActived = true;
         spriteRenderer.material = originalMaterial;
-        spriteRenderer.color = Color.white;
+        spriteRenderer.color = defaultColor;
         GameManager.Instance.activeEnemies++;
         agent.enabled = false;
         if (player != null)
@@ -280,6 +284,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
     private void OnDisable()
     {
+        spriteRenderer.color = defaultColor;
         StopAllCoroutines();
         IsActived = false;
     }
@@ -485,20 +490,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     public IEnumerator FlashRoutine()
     {
-        if (IsActived == false)
-            yield return null;
-        // Save the original color of the sprite
-        Color originalColor = spriteRenderer.color;
-
-        // Change the sprite color to red (damage flash)
         spriteRenderer.color = Color.red;
-
         // Wait for the specified flash duration
         yield return new WaitForSeconds(duration);
-        if (IsActived == false)
-            yield return null;
         // Restore the original color after the flash
-        spriteRenderer.color = originalColor;
+        spriteRenderer.color = defaultColor;
 
         // Reset the flash routine to null
         flashRoutine = null;

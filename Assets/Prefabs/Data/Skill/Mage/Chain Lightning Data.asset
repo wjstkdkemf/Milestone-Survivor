@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 011a3dd9c90c3bf4ca75c4402ded635e, type: 3}
+  m_Name: Chain Lightning Data
+  m_EditorClassIdentifier: 
+  weaponName: ChainLightning
+  icon: {fileID: 2672201487185579391, guid: 5c3f7731eedb5d7418bc39f49250399f, type: 3}
+  description: 
+  weaponPrefab: {fileID: 2995233843411917948, guid: f7ce913e9889ce742bdd73482fd21ed6, type: 3}
+  baseDamage: 5
+  baseCooldown: 3
+  fusionWeaponData: []
+  initialRange: 8
+  projectileSpeed: 15
+  chainCount: 2
+  chainRange: 5
+  damageReductionPerBounce: 0.9
+  playerDamageScaling: 0.3
+  projectilePrefab: {fileID: 4297926786030371863, guid: 2a17131053d0a0043bf42c0c6dd3941c, type: 3}
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 256

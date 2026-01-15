@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ced95ca00ea0fa4ab8b26e0666bf493, type: 3}
+  m_Name: Evolved Fireball
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 583370505719427545, guid: 5d7b3a5feb767fd419142921133c7c7f, type: 3}
+  Title: Evolved Fireball
+  Description: 
+  Points: 0
+  MaxPoints: 5
+  UpgradesList: []
+  Chance: 0
+  InitialChance: 20
+  linkedWeaponData: {fileID: 11400000, guid: c7e358c930ce1db4eb82d9c9c85c5c53, type: 2}
+  upgradeType: 0
+  statValue: 0
