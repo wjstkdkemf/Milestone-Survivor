@@ -40,15 +40,18 @@ private void OnEnable()
         var col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
-        while (playerTransform != null && 
-               Vector3.Distance(transform.position, playerTransform.position) > 0.5f)
+        float minSpeed = 10f; 
+        float distanceWeight = 5f; 
+
+        while (playerTransform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
         {
-            float t = moveSpeed * Time.deltaTime;
-            transform.position = Vector3.Lerp(transform.position, playerTransform.position, t);
+            float distance = Vector3.Distance(transform.position, playerTransform.position);
+            float currentSpeed = Mathf.Max(minSpeed, distance * distanceWeight);
+
+            transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, currentSpeed * Time.deltaTime);
             
             yield return null;
         }
-
         if (InventoryController.instance != null && itemData != null)
         {
             // "ClearInventory"라는 이름의 인벤토리로 아이템 1개 추가

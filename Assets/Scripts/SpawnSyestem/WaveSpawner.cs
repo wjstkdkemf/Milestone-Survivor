@@ -99,6 +99,9 @@ public class WaveSpawner : MonoBehaviour
             if (CurrentWave >= WavesList.Count - 1)
             {
                 LastSpawn = true;
+                // 마지막 웨이브 시간이 끝나면 즉시 스폰을 금지시킵니다.
+                //GameManager.Instance.CanSpawn = false; 
+                Debug.Log("모든 웨이브 스폰 종료. 몬스터 전멸 대기 중...");
             }
             else
             {
@@ -110,6 +113,13 @@ public class WaveSpawner : MonoBehaviour
         if (LastSpawn && GameManager.Instance.activeEnemies == 0 && !isClearingStage)
         {
             StartCoroutine(ClearStageAfterItemCollection());
+            /*            // 몬스터가 다 잡혔는지 확인
+            if (GameManager.Instance.activeEnemies <= 0)
+            {
+                // 혹시 음수가 될 수도 있으니 <= 0 으로 체크
+                GameManager.Instance.activeEnemies = 0; 
+                StartCoroutine(ClearStageAfterItemCollection());
+            }*/
         }
     }
 

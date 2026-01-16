@@ -53,12 +53,16 @@ public class GoldCoin : MonoBehaviour
             myCollider.enabled = false;
         }
 
-        // Move towards the player
-        while (playerTransform != null && transform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.5f)
+        float minSpeed = 10f; 
+        float distanceWeight = 5f; 
+
+        while (playerTransform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
         {
-            //transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, attractionSpeed * Time.deltaTime);
-            float t = attractionSpeed * Time.deltaTime;
-            transform.position = Vector3.Lerp(transform.position, playerTransform.position, t);
+            float distance = Vector3.Distance(transform.position, playerTransform.position);
+            float currentSpeed = Mathf.Max(minSpeed, distance * distanceWeight);
+
+            transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, currentSpeed * Time.deltaTime);
+            
             yield return null;
         }
 

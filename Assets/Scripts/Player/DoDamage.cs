@@ -42,6 +42,9 @@ public class DoDamage : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
+        if (this.enabled == false || this.gameObject.activeInHierarchy == false) 
+            return;
+
         if (waitTime > 0) return; // Skip if cooldown hasn't expired
 
         int collidedLayer = collision.gameObject.layer;
@@ -101,7 +104,8 @@ public class DoDamage : MonoBehaviour
 
     private void HandleSelfDestruction()
     {
-if (selfDestroy)
+        Debug.Log("이름 : " + gameObject.name + "발생");
+        if (selfDestroy)
         {
             if (IsUsingObjetPooling)
                 ObjectPoolingManager.instance.ReturnObjectToPool(this.gameObject);

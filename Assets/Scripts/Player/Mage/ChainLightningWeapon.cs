@@ -84,7 +84,7 @@ public class ChainLightningWeapon : WeaponBase
         float finalDamage = GetDamage();
         if (lightning.TryGetComponent<DoDamage>(out var damageComponent))
         {
-            damageComponent.damage = finalDamage;
+            damageComponent.damage = finalDamage;//finalDamage
         }
 
         // 체인 로직 설정 (새로운 스크립트)
@@ -94,7 +94,7 @@ public class ChainLightningWeapon : WeaponBase
             HashSet<GameObject> visitedTargets = new HashSet<GameObject>();
             
             // 첫 타겟 정보 주입
-            chainComponent.Setup(target, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction, enemyLayerMask, visitedTargets);
+            chainComponent.Setup(target, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction, enemyLayerMask, visitedTargets, lightning);
         }
     }
 

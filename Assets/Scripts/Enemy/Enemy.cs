@@ -116,8 +116,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
                 yield break;
             }
         }
-        Debug.LogWarning($"[EnemyNavigation] NavMesh를 찾을 수 없어 몬스터를 파괴합니다. 위치: {transform.position}");
-        ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
+        Die();
     }
     IEnumerator CheckDistanceRoutine()
     {
@@ -239,9 +238,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             }
             else
             {
-                Debug.LogWarning("몬스터가 새 NavMesh 위로 복귀하지 못했습니다. 파괴합니다.");
-                ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
-                IsActived = false;
+                Die();
             }
         }
         isRecovering = false;
@@ -284,7 +281,14 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
     private void OnDisable()
     {
+        if (health > 0) // 피가 남았는데 꺼진 경우만 추적
+        {
+            // System.Environment.StackTrace는 이 함수가 호출된 경로를 다 보여줍니다.
+            Debug.LogWarning($"[Enemy CSI] {gameObject.name} 비정상 종료! (Health: {health})\n호출 경로:\n{System.Environment.StackTrace}");
+        }
+
         spriteRenderer.color = defaultColor;
+        GameManager.Instance.activeEnemies--;
         StopAllCoroutines();
         IsActived = false;
     }
@@ -302,7 +306,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         IsActived = false;
         // Handle enemy death
         GameManager.Instance.NumberOfKills++;
-        GameManager.Instance.activeEnemies--;
+        //GameManager.Instance.activeEnemies--;
 
         // Attempt to drop loot
         LootDrop lootDrop = GetComponent<LootDrop>();
@@ -400,7 +404,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             // If chasing, move towards the player
             if(isRecovering)
             {
-                Debug.Log("체크 3 : " + lastVelocity.ToString());
                 transform.position += lastVelocity * Time.deltaTime;
             }
             else if (chasing)

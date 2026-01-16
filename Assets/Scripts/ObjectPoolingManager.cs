@@ -5,7 +5,8 @@ using System.Linq;
 public class ObjectPoolingManager : MonoBehaviour
 {
     public static ObjectPoolingManager instance;
-    public static List<PooledObjectInfo> objectPools = new List<PooledObjectInfo>();
+    private Dictionary<string, PooledObjectInfo> poolDictionary = new Dictionary<string, PooledObjectInfo>();
+    public List<PooledObjectInfo> objectPools = new List<PooledObjectInfo>(); // 인스펙터 확인용
     private static GameObject ObjectPooledParent;
 
     private void Awake()
@@ -25,6 +26,11 @@ public class ObjectPoolingManager : MonoBehaviour
         if (ObjectPooledParent == null)
         {
             ObjectPooledParent = new GameObject("ObjectPoolParent");
+        }
+        // 딕셔너리 초기화
+        foreach (var pool in objectPools)
+        {
+            poolDictionary[pool.name] = pool;
         }
     }
 
@@ -92,21 +98,29 @@ public class ObjectPoolingManager : MonoBehaviour
         }
 
         // Extract the original prefab name (excluding "(Clone)")
-        string goName = Obj.name.Replace("(Clone)", "").Trim();
-
-        PooledObjectInfo pool = objectPools.Find(p => p.name == goName);
-
-        if (pool == null)
+        string goName = Obj.name;
+        while (goName.EndsWith("(Clone)"))
         {
-            Debug.LogWarning($"No pool found for object '{goName}'. Destroying the object.");
-            Destroy(Obj);
+            goName = goName.Substring(0, goName.Length - 7);
+        }
+        goName = goName.Trim();
+
+        if (poolDictionary.TryGetValue(goName, out PooledObjectInfo pool))
+        {
+            // 성공: 풀로 반환
+            Obj.SetActive(false);
+            
+            // [안전장치 1 적용] 부모가 없어도 에러 안 나게 처리
+            if (ObjectPooledParent != null)
+                Obj.transform.SetParent(ObjectPooledParent.transform);
+                
+            pool.gameObjects.Add(Obj);
         }
         else
         {
-            // Deactivate and return to pool
-            Obj.SetActive(false);
-            Obj.transform.SetParent(ObjectPooledParent.transform);
-            pool.gameObjects.Add(Obj);
+            // 실패: 풀이 없으면 파괴
+            Debug.LogWarning($"Pool not found for '{goName}'. Destroying.");
+            Destroy(Obj);
         }
     }
 }

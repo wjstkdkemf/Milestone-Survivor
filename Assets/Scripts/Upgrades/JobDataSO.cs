@@ -9,9 +9,17 @@ public class JobDataSO : ScriptableObject
     public string description;
     public int jobTier; // 1차 , 2차 구분용
 
+    [System.Serializable]
+    public struct JobRequirement
+    {
+        public UpgradeScriptableObject requiredUpgrade; // 필요한 업그레이드 카드
+        [Range(1, 10)]
+        public int requiredLevel; // 요구 레벨 (이 레벨 '이상'이어야 함)
+    }
+
     [Header("Requirements (전직 조건)")]
-    // 이 무기들을 다 가지고 있어야 전직 가능!
-    public List<WeaponDataSO> requiredWeapons; 
+    // [핵심 변경 2] 기존 WeaponDataSO 리스트 대신 구조체 리스트 사용
+    public List<JobRequirement> requirements; 
     
     // 혹은 특정 레벨 이상이어야 한다면
     // public int requiredLevel = 2; 

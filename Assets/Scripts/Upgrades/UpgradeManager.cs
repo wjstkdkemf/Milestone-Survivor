@@ -265,15 +265,28 @@ public class UpgradeManager : MonoBehaviour
 
     private bool CheckJobRequirements(JobDataSO job)
     {
-        // 플레이어가 가진 활성화된 무기들
-        var activeWeapons = playerWeaponController.activeWeapons;
-
-        foreach (WeaponDataSO reqWeapon in job.requiredWeapons)
+        foreach (JobDataSO.JobRequirement req in job.requirements)
         {
-            // 내 무기 중에 요구하는 무기 데이터랑 일치하는 게 있는지 확인
-            bool hasIt = activeWeapons.Any(w => w.myData == reqWeapon);
-            if (!hasIt) return false; // 하나라도 없으면 탈락
+            // 1. 플레이어가 해당 업그레이드 카드를 가지고 있는지 확인
+            // (ScriptableObject는 인스턴스가 다를 수 있으므로 이름이나 원본 참조로 비교하는 것이 안전합니다)
+            UpgradeScriptableObject myUpgrade = MasterDeck.Find(u => u.name == req.requiredUpgrade.name);
+
+            // 2. 카드가 아예 없다면 탈락
+            if (myUpgrade == null)
+            {
+                //Debug.Log($"전직 실패: {req.requiredUpgrade.Title} 없음");
+                return false; 
+            }
+
+            // 3. 카드는 있지만 레벨이 부족하면 탈락
+            // UpgradeScriptableObject의 Points가 현재 레벨이라고 가정합니다.
+            if (myUpgrade.Points < req.requiredLevel)
+            {
+                //Debug.Log($"전직 실패: {myUpgrade.Title} 레벨 부족 (현재:{myUpgrade.Points} / 필요:{req.requiredLevel})");
+                return false;
+            }
         }
+        // 모든 조건을 통과했으면 전직 가능!
         return true;
     }
 

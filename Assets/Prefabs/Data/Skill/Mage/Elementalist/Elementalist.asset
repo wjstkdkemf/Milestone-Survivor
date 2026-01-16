@@ -15,11 +15,14 @@ MonoBehaviour:
   jobName: Elementalist
   description: 
   jobTier: 1
-  requiredWeapons:
-  - {fileID: 11400000, guid: 33e5ad923a914314eb30fb0c7d6edbe3, type: 2}
-  - {fileID: 11400000, guid: a0682e8460a0ff940a4192078b91e70e, type: 2}
+  requirements:
+  - requiredUpgrade: {fileID: 11400000, guid: 6546b45659e4e354c8c26712486b4c69, type: 2}
+    requiredLevel: 2
+  - requiredUpgrade: {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
+    requiredLevel: 2
   nextAbleJobs: []
-  bannedUpgrades: []
+  bannedUpgrades:
+  - {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
   bonusUpgrades:
   - {fileID: 11400000, guid: 6f27ff3e87d1f244ea48ca1940aaa0e8, type: 2}
   - {fileID: 11400000, guid: a7596bb19f18c0a40aff25228bf7f51d, type: 2}
