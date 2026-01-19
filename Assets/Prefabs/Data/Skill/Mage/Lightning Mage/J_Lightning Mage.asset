@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc3039e302c6bd74baad8b2bb39b7d06, type: 3}
-  m_Name: Arcanist
+  m_Name: J_Lightning Mage
   m_EditorClassIdentifier: 
-  jobName: Arcanist
+  jobName: Lightning Mage
   description: 
-  requiredWeapons:
-  - {fileID: 11400000, guid: 33e5ad923a914314eb30fb0c7d6edbe3, type: 2}
-  - {fileID: 11400000, guid: a0682e8460a0ff940a4192078b91e70e, type: 2}
+  jobTier: 2
+  requirements: []
+  nextAbleJobs: []
+  bannedUpgrades: []
   bonusUpgrades:
   - {fileID: 11400000, guid: 6f27ff3e87d1f244ea48ca1940aaa0e8, type: 2}
   - {fileID: 11400000, guid: a7596bb19f18c0a40aff25228bf7f51d, type: 2}

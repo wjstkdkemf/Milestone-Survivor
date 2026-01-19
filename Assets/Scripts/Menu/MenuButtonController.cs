@@ -89,8 +89,9 @@ public class MenuButtonController : MonoBehaviour
         //     GameManager.Instance.Pause = true;
 		// 	GameManager.Instance.StopMoveing = true;
         // }
-		else if (!Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu)
+		else if (!Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu && !GameOver.Instance.isOver)
 		{
+			Debug.Log("실행확인 3");
 			GameManager.Instance.Pause = false;
 			GameManager.Instance.StopMoveing = false;
 
@@ -467,6 +468,9 @@ public class MenuButtonController : MonoBehaviour
 	}
 	public void EndDungeun()
 	{
+			GameManager.Instance.Pause = false;
+			GameManager.Instance.StopMoveing = false;
+
 		InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
 		SceneManager.LoadScene("Village");
 	}

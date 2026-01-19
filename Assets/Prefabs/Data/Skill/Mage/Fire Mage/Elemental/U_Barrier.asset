@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ced95ca00ea0fa4ab8b26e0666bf493, type: 3}
-  m_Name: ShootProjectile
+  m_Name: U_Barrier
   m_EditorClassIdentifier: 
-  Icon: {fileID: -1259408508766424310, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
-  Title: +Shoot one more Projectile
+  Icon: {fileID: 6157748173069639754, guid: 315906bd04ec2314cbfcfb9d4fa8e3c1, type: 3}
+  Title: Barrier
   Description: 
   Points: 0
   MaxPoints: 5
   UpgradesList: []
-  Chance: 20
-  linkedWeaponData: {fileID: 11400000, guid: 33e5ad923a914314eb30fb0c7d6edbe3, type: 2}
+  Chance: 0
+  InitialChance: 25
+  linkedWeaponData: {fileID: 11400000, guid: 14c7929e87d4cfb4789a3ba548705a7d, type: 2}
   upgradeType: 0
   statValue: 0

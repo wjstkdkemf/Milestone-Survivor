@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ced95ca00ea0fa4ab8b26e0666bf493, type: 3}
-  m_Name: Meteor
+  m_Name: U_Orb
   m_EditorClassIdentifier: 
-  Icon: {fileID: 6985626698306143173, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
-  Title: Meteor
+  Icon: {fileID: 2788568348960109317, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
+  Title: Orbs
   Description: 
-  Points: 2
+  Points: 0
   MaxPoints: 5
   UpgradesList: []
   Chance: 20
-  InitialChance: 20
-  linkedWeaponData: {fileID: 11400000, guid: f50ded470abe35949bb4213bc86297c7, type: 2}
+  InitialChance: 0
+  linkedWeaponData: {fileID: 11400000, guid: a0682e8460a0ff940a4192078b91e70e, type: 2}
   upgradeType: 0
   statValue: 0

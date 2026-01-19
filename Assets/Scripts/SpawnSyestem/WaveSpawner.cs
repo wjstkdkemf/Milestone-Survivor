@@ -50,6 +50,9 @@ public class WaveSpawner : MonoBehaviour
     {
         //if (GameObject.FindWithTag("Player") == null || !GameManager.Instance.CanSpawn || WavesList.Count == 0)
             //return;
+        if(GameManager.Instance.Pause)
+            return;
+
         if (playerTransform == null)
         {
             playerSearchTimer -= Time.fixedDeltaTime;

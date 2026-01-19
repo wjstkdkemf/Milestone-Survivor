@@ -13,6 +13,8 @@ public class MeleeEnemy : Enemy
     {
         // Example melee attack logic
         animator.SetTrigger("Attack");
+        playerHealth.TakeDamage(damage);
+        
         Debug.Log(gameObject.name + " performs a melee attack, dealing " + damage + " damage.");
     }
 }

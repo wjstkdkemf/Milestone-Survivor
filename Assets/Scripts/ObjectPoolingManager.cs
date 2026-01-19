@@ -51,7 +51,7 @@ public class ObjectPoolingManager : MonoBehaviour
 
     public GameObject spawnGameObject(GameObject ObjectToSpawn, Vector3 Position, Quaternion Rotation)
     {
-        if (ObjectToSpawn == null)
+        if (ObjectToSpawn == null || GameManager.Instance.Pause)
         {         
             return null;
         }
@@ -74,6 +74,10 @@ public class ObjectPoolingManager : MonoBehaviour
 
         if (spawnableObject == null)
         {
+            if (ObjectPooledParent == null || GameManager.Instance.Pause)
+            {
+                return null;
+            }
             // Instantiate a new object if no reusable objects are available
             spawnableObject = Instantiate(ObjectToSpawn, Position, Rotation);
             spawnableObject.transform.SetParent(ObjectPooledParent.transform);

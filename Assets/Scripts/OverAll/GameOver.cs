@@ -14,7 +14,7 @@ public class GameOver : MonoBehaviour
     public TMP_Text TimerText;
     public TMP_Text KillsText;
     public TMP_Text TitleText;
-    private bool isOver;
+    public bool isOver;
     public int StageToUnlock;
     public GameObject WinnerButton;
     public GameObject LoserButton;

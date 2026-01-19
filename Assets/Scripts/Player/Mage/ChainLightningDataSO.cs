@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Chain Lightning Data", menuName = "Weapon Data/Chain Lightning Weapon")]
+[CreateAssetMenu(fileName = "New Chain Lightning Data", menuName = "Weapon Data/Mage/Chain Lightning Weapon")]
 public class ChainLightningDataSO : WeaponDataSO
 {
     [Header("Chain Lightning Specific Stats")]

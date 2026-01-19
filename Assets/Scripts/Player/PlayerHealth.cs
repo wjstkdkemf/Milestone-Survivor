@@ -22,10 +22,12 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     private Slider slider;
     public Vector3 SliderOffset;
     public bool IsDead;
+    private bool isInvincible = false; // 무적 상태 플래그
 
 
     // ******************** Flash Stuff*********************
     public Material flashMaterial;
+    private BarrierWeapon myBarrierSkill;
     public float duration = .1f;
     private SpriteRenderer spriteRenderer;
     private Material originalMaterial;
@@ -66,7 +68,8 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
             spriteRenderer = transform.GetChild(0)?.GetComponent<SpriteRenderer>();
             if(spriteRenderer != null) originalMaterial = spriteRenderer.material;
         }
-        
+        myBarrierSkill = GetComponentInChildren<BarrierWeapon>();
+
         UpdateHealthUI();
     }
 
@@ -103,9 +106,22 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         }
 
     }
+    public void SetBarrier(GameObject gameObject)
+    {
+        myBarrierSkill = gameObject.GetComponent<BarrierWeapon>();
+    }
 
     public void TakeDamage(float damage, float knockBackDuration = 0f)
     {
+        if (isInvincible) return;
+
+        if (myBarrierSkill != null && myBarrierSkill.isBarrierActive)
+        {
+            // 배리어를 터뜨림 -> 이때 내부적으로 SetInvincible(0.2f)가 호출됨
+            myBarrierSkill.BreakBarrier();
+            return; // 데미지 무효화
+        }
+
         if (!Dashing)
         {
             CurrentHealth -= damage;
@@ -144,7 +160,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     public void setmaxhealth(float mhealth)
     {
         MaxHealth += mhealth;
-        Heal(mhealth);
+        Heal(mhealth/10);
     }
     // public void sethealth(float health) {}
 
@@ -154,7 +170,18 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         {
             StopCoroutine(flashRoutine);
         }
+        SetInvincible(duration);
         flashRoutine = StartCoroutine(FlashRoutine());
+    }
+    public void SetInvincible(float duration)
+    {
+        StartCoroutine(InvincibilityRoutine(duration));
+    }
+    private IEnumerator InvincibilityRoutine(float duration)
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(duration);
+        isInvincible = false;
     }
 
     private IEnumerator FlashRoutine()

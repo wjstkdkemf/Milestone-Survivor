@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Meteor Data", menuName = "Weapon Data/Meteor Weapon")]
+[CreateAssetMenu(fileName = "New Meteor Data", menuName = "Weapon Data/Mage/Fire Mage/Meteor Weapon")]
 public class MeteorWeaponSO : WeaponDataSO
 {
     [Header("Meteor Specific Stats")]

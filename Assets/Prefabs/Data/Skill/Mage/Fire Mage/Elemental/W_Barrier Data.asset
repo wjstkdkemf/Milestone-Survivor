@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 164a633abf62bf44ebc19fd9353ed083, type: 3}
+  m_Name: W_Barrier Data
+  m_EditorClassIdentifier: 
+  weaponName: Barrier
+  icon: {fileID: 6157748173069639754, guid: 315906bd04ec2314cbfcfb9d4fa8e3c1, type: 3}
+  description: 
+  weaponPrefab: {fileID: 5967004975636487340, guid: 88813ef3b0e696b4f9fffc84a9f010e4, type: 3}
+  baseDamage: 0
+  baseCooldown: 0
+  fusionWeaponData: []
+  chargeTime: 5
+  knockbackRadius: 3
+  knockbackForce: 0.001
+  barrierPrefab: {fileID: 3392388717453022646, guid: d439ba3500a7d13439f83f0f17247635, type: 3}
+  explosionEffectPrefab: {fileID: 0}
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  projectileLayerMask:
+    serializedVersion: 2
+    m_Bits: 256

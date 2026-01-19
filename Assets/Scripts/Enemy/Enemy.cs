@@ -21,6 +21,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public bool stopMoving = false;  // Flag to stop movement
     public GameObject DamageText;
     public Transform player;
+    public PlayerHealth playerHealth;
     private NavMeshAgent agent;
     private float coolDownTimer;
     protected bool facingRight = true;
@@ -62,7 +63,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     
     void Awake()
     {
-        player = GameObject.FindWithTag("Player").transform.Find("CenterPosition").transform;
+        GameObject gameObject = GameObject.FindWithTag("Player");
+        player = gameObject.transform.Find("CenterPosition").transform;
+        playerHealth = gameObject.GetComponent<PlayerHealth>();
+
         agent = GetComponent<NavMeshAgent>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 

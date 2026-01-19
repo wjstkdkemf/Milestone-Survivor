@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ced95ca00ea0fa4ab8b26e0666bf493, type: 3}
-  m_Name: ChainLightning
+  m_Name: U_Meteor
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2672201487185579391, guid: 5c3f7731eedb5d7418bc39f49250399f, type: 3}
-  Title: ChainLightning
+  Icon: {fileID: 6985626698306143173, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
+  Title: Meteor
   Description: 
-  Points: 0
+  Points: 2
   MaxPoints: 5
   UpgradesList: []
-  Chance: 0
-  InitialChance: 31
-  linkedWeaponData: {fileID: 11400000, guid: 9e5aa7e95e130dd4e8944b811542f621, type: 2}
+  Chance: 20
+  InitialChance: 20
+  linkedWeaponData: {fileID: 11400000, guid: f50ded470abe35949bb4213bc86297c7, type: 2}
   upgradeType: 0
   statValue: 0

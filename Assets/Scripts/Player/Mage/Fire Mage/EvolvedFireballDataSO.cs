@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Evolved Fireball Data", menuName = "Weapon Data/Evolved Fireball")]
+[CreateAssetMenu(fileName = "New Evolved Fireball Data", menuName = "Weapon Data/Mage/Fire Mage/Evolved Fireball")]
 public class EvolvedFireballDataSO : WeaponDataSO
 {
     [Header("Fireball Stats")]

@@ -8829,7 +8829,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 216973388}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8840,7 +8840,7 @@ RectTransform:
   - {fileID: 134118797}
   - {fileID: 519368782}
   - {fileID: 1146930087}
-  m_Father: {fileID: 785611077}
+  m_Father: {fileID: 7645007112724364637}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -23988,6 +23988,7 @@ MonoBehaviour:
   TimerText: {fileID: 0}
   KillsText: {fileID: 622710568}
   TitleText: {fileID: 1103574579}
+  isOver: 0
   StageToUnlock: 0
   WinnerButton: {fileID: 1146930086}
   LoserButton: {fileID: 1146930086}
@@ -24133,6 +24134,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9e190c724f5271947a7134d85564e176, type: 2}
   - {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
   - {fileID: 11400000, guid: 059fbf23ff1d8224eb2e7c36e996725b, type: 2}
+  - {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
   StartingDeck:
   - {fileID: 11400000, guid: 6f27ff3e87d1f244ea48ca1940aaa0e8, type: 2}
   - {fileID: 11400000, guid: df4f0946cfefdf844a282244a55eb3a6, type: 2}
@@ -36298,7 +36300,6 @@ RectTransform:
   - {fileID: 1969881886}
   - {fileID: 2070511546}
   - {fileID: 1070570112}
-  - {fileID: 216973389}
   - {fileID: 2004108801}
   - {fileID: 201357021}
   - {fileID: 1417206833}
@@ -102889,6 +102890,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7645007113186534645, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1618269144}
+    - targetCorrespondingSourceObject: {fileID: 7645007113186534645, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 216973389}
     - targetCorrespondingSourceObject: {fileID: 7645007113186534645, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1322056989}

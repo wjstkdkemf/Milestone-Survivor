@@ -81,21 +81,18 @@ public class MeteorWeapon : WeaponBase
     }
     void ActivateMeteorStrike()
     {
-        // Find all enemies in the search radius first
         Collider2D[] enemiesInSearchRadius = Physics2D.OverlapCircleAll(transform.position, searchRadius, enemyLayerMask);
 
         
         if (enemiesInSearchRadius.Length == 0)
         {
-            return; // No enemies, don't activate the skill
+            return;
         }
 
         cooldownTimer = currentCooldownTime;
         
-        // Determine all target points for the volley
         List<Vector3> targetPoints = FindTargetPoints(enemiesInSearchRadius);
 
-        // Launch the volley
         StartCoroutine(LaunchMeteorVolley(targetPoints));
     }
 
@@ -104,7 +101,6 @@ public class MeteorWeapon : WeaponBase
         List<Vector3> targets = new List<Vector3>();
         List<Collider2D> potentialRandomTargets = new List<Collider2D>(enemies);
 
-        // 1. Find the densest point for the first meteor
         Vector3? densestPoint = FindDensestPoint(potentialRandomTargets.ToArray());
         if (densestPoint.HasValue)
         {
@@ -112,22 +108,19 @@ public class MeteorWeapon : WeaponBase
         }
         else
         {
-            // Fallback if no point is found, which is unlikely if enemies exist
             targets.Add(potentialRandomTargets[0].transform.position);
         }
 
-        // 2. Find additional random targets for the rest of the meteors
         for (int i = 1; i < currentMeteorNumber; i++)
         {
             if (potentialRandomTargets.Count > 0)
             {
                 int randomIndex = Random.Range(0, potentialRandomTargets.Count);
                 targets.Add(potentialRandomTargets[randomIndex].transform.position);
-                potentialRandomTargets.RemoveAt(randomIndex); // Avoid targeting the same enemy twice
+                potentialRandomTargets.RemoveAt(randomIndex);
             }
             else
             {
-                // If we run out of unique enemies, just target the main densest point again
                 targets.Add(densestPoint.Value);
             }
         }

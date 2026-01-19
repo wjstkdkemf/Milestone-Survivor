@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Turret Data", menuName = "Weapon Data/Turret Weapon")]
+[CreateAssetMenu(fileName = "New Turret Data", menuName = "Weapon Data/Mage/Turret Weapon")]
 public class TurretWeaponDataSO : WeaponDataSO
 {
     [Header("Turret Specific Stats")]

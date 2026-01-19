@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Orb Data", menuName = "Weapon Data/Orb Weapon")]
+[CreateAssetMenu(fileName = "New Orb Data", menuName = "Weapon Data/Mage/Fire Mage/Orb Weapon")]
 public class OrbWeaponDataSO : WeaponDataSO // 기본 무기 데이터를 상속받음!
 {
     [Header("Orb Specific Stats")]
