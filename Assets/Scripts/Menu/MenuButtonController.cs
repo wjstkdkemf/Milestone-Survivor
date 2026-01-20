@@ -214,6 +214,7 @@ public class MenuButtonController : MonoBehaviour
 		//EventSystem.current.SetSelectedGameObject(CurntButton);
 		PowerUp = true;
 		PowerUpObject.SetActive(true);
+		PowerUpManager.Instance.UpdateTierView();
 		SelectObject.SetActive(false);
 	}
 	public void TeleportMap()
