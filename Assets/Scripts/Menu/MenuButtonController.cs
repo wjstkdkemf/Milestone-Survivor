@@ -91,11 +91,8 @@ public class MenuButtonController : MonoBehaviour
         // }
 		else if (!Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu && !GameOver.Instance.isOver)
 		{
-			Debug.Log("실행확인 3");
 			GameManager.Instance.Pause = false;
 			GameManager.Instance.StopMoveing = false;
-
-
 		}
 
 
@@ -285,7 +282,13 @@ public class MenuButtonController : MonoBehaviour
 		{
 			Inventory = false;
 			InventoryObject.SetActive(false);
-			PlayerStatsCalculate.Instance.UpdatePlayerStats();
+			if(EquipmentEffectManager.Instance.Change)
+			{
+				PlayerStatsCalculate.Instance.UpdatePlayerStats();
+				InventorySystem.InventoryController.instance.ReapplyAllEquipmentSkills();
+				UpgradeManager.Instance.playerWeaponController.ToggleCombatMode(false);
+				EquipmentEffectManager.Instance.Change = false;
+			}
 		}
 		//메인화면에서 인벤토리 종료시
 		else if (!Settings && !SettingsTwo && Inventory && !PowerUp && !CharacterSelection)

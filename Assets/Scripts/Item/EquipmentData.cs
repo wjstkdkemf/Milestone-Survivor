@@ -21,6 +21,7 @@ public class EquipmentData : ItemData
     [Header("장비 정보")]
     public EquipmentType equipmentType; // 장비 부위
     public List<StatModifier> statModifiers; // 스탯 옵션 리스트
+    public List<WeaponDataSO> weapons; // 스킬 추가 효과
 }
 
 // 스탯 옵션을 표현하기 위한 간단한 구조체

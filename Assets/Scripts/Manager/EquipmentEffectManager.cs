@@ -31,6 +31,7 @@ public class EquipmentEffectManager : MonoBehaviour
         {0, 1.0f}, {1, 1.1f}, {2, 1.2f}, {3, 1.4f}, {4, 1.6f}, {5, 2.0f}
         // 필요에 따라 강화 레벨과 배율을 추가하세요.
     };
+    public bool Change = false;
     private void Awake()
     {
         if (instance == null)
@@ -58,6 +59,7 @@ public class EquipmentEffectManager : MonoBehaviour
             Debug.LogWarning($"[EquipmentEffectManager] Item '{itemKey}' is already equipped. Unequipping before re-equipping.");
             Unequip(equipment, itemInstance);
         }
+        Change = true;
 
         int enhancementLevel = itemInstance.GetEnhancementLevel();
         enhancementMultipliers.TryGetValue(enhancementLevel, out float multiplier);
@@ -86,6 +88,8 @@ public class EquipmentEffectManager : MonoBehaviour
     public void Unequip(EquipmentData equipment, InventorySystem.InventoryItem itemInstance)
     {
         if (equipment == null || itemInstance == null) return;
+
+        Change = true;
 
         string itemKey = itemInstance.GetItemType();
         if (equippedItemStats.Remove(itemKey))

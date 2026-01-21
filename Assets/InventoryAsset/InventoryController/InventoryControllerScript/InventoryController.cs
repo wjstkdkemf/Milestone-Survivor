@@ -135,6 +135,7 @@ namespace InventorySystem
                 
                 // 장비 효과 재적용
                 ReapplyAllEquipmentEffects();
+                
                 SyncEquippedStatus(HotBarInventoryName, InventoryName);
             }
             // 2. 게임 씬(던전)에 도착했을 때
@@ -145,6 +146,8 @@ namespace InventorySystem
 
                 CopyEquippedItemsToInventory(HotBarInventoryName, ClearInventoryName);
                 ReapplyAllEquipmentEffects();
+                ReapplyAllEquipmentSkills();
+                UpgradeManager.Instance.playerWeaponController.ToggleCombatMode(false);
             }
         }
 
@@ -1116,10 +1119,10 @@ namespace InventorySystem
         /// </summary>
         public void ReapplyAllEquipmentEffects()
         {
-            // 1. 기존 효과 모두 초기화
+            // 기존 효과 모두 초기화
             EquipmentEffectManager.Instance.ClearAllEffects();
 
-            // 2. "HotBar" 인벤토리를 가져옴
+            // "HotBar" 인벤토리를 가져옴
             Inventory hotbarInv = GetInventory(HotBarInventoryName);
             if (hotbarInv == null)
             {
@@ -1127,12 +1130,12 @@ namespace InventorySystem
                 return;
             }
 
-            // 3. 장착 장비창의 모든 아이템을 순회
+            // 장착 장비창의 모든 아이템을 순회
             foreach (InventoryItem item in hotbarInv.GetList())
             {
                 if (item != null && !item.GetIsNull())
                 {
-                    // 4. 아이템 데이터를 로드하고 장비인 경우 효과 적용
+                    // 아이템 데이터를 로드하고 장비인 경우 효과 적용
                     EquipmentData equipmentData = LoadEquipmentData(item.GetItemType());
                     if (equipmentData != null)
                     {
@@ -1145,6 +1148,41 @@ namespace InventorySystem
                 PlayerStatsCalculate.Instance.UpdatePlayerStats();
             }
             Debug.Log("<color=cyan>[InventoryController]</color> All equipment effects from 'HotBar' have been reapplied.");
+        }
+        /// <summary>
+        /// 장비창의 모든 아이템을 순회하며 스킬 기능 탑재 장비 발동.
+        /// </summary>
+        public void ReapplyAllEquipmentSkills()
+        {
+            // 기존 효과 모두 초기화
+            if(!UpgradeManager.Instance.playerWeaponController)
+                return;
+
+            UpgradeManager.Instance.playerWeaponController.ClearEquipmentSkills();
+
+            //  "HotBar" 인벤토리를 가져옴
+            Inventory hotbarInv = GetInventory(HotBarInventoryName);
+            if (hotbarInv == null)
+            {
+                Debug.LogWarning("[InventoryController] ReapplyAllEquipmentEffects: 'HotBar' inventory not found.");
+                return;
+            }
+
+            // 장착 장비창의 모든 아이템을 순회
+            foreach (InventoryItem item in hotbarInv.GetList())
+            {
+                if (item != null && !item.GetIsNull())
+                {
+                    // 아이템 데이터를 로드하고 장비인 경우 효과 적용
+                    EquipmentData equipmentData = LoadEquipmentData(item.GetItemType());
+                    if (equipmentData != null)
+                    {
+                        foreach(var EquiData in equipmentData.weapons)
+                            UpgradeManager.Instance.playerWeaponController.AddWeaponFromEquipment(EquiData);
+                    }
+                }
+            }
+            Debug.Log("장비 스킬 적용");
         }
         public void CopyEquippedItemsToInventory(string equipmentInvName, string mainInvName)
         {

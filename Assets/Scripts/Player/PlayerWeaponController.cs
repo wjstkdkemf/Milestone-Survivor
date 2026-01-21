@@ -6,6 +6,8 @@ public class PlayerWeaponController : MonoBehaviour
 {
     // 현재 활성화된 무기들 목록 (최대 6개 제한 가능)
     public List<WeaponBase> activeWeapons = new List<WeaponBase>();
+    public List<WeaponBase> WeaponsFromEquipment = new List<WeaponBase>();
+
     [SerializeField] private Transform weaponHolder;
 
     // 레벨업해서 무기를 골랐을 때 호출!
@@ -30,13 +32,66 @@ public class PlayerWeaponController : MonoBehaviour
             activeWeapons.Add(newWeapon);
         }
     }
+    public void AddWeaponFromEquipment(WeaponDataSO data)
+    {
+        if (data.fusionWeaponData != null)
+            CheckFusion(data);
+
+        if(!CheckLevelUp(data))
+        {
+            // 해당 무기의 프리팹을 플레이어 자식으로 생성
+            GameObject newWeaponObj = Instantiate(data.weaponPrefab, weaponHolder);
+            newWeaponObj.transform.localPosition = Vector3.zero;
+            newWeaponObj.transform.localRotation = Quaternion.identity;
+            
+            // 스크립트 가져오기
+            WeaponBase newWeapon = newWeaponObj.GetComponent<WeaponBase>();
+            
+            // 초기화 및 리스트 추가
+            newWeapon.Initialize(data);
+            newWeapon.myData = data;
+            WeaponsFromEquipment.Add(newWeapon);
+        }
+    }
+    public void RemoveWeaponFromEquipment(WeaponDataSO data)
+    {
+        for (int i = WeaponsFromEquipment.Count - 1; i >= 0; i--)
+        {
+            // 데이터(SO)가 일치하는지 확인
+            if (WeaponsFromEquipment[i].myData == data)
+            {
+                WeaponBase weaponToRemove = WeaponsFromEquipment[i];
+
+                // 리스트에서 제거 (장부 정리)
+                WeaponsFromEquipment.RemoveAt(i);
+
+                // 실제 게임 오브젝트 파괴 (화면에서 제거)
+                if (weaponToRemove != null)
+                {
+                    Destroy(weaponToRemove.gameObject);
+                }
+
+                return;
+            }
+        }
+    }
     public void RemoveWeapon(WeaponDataSO data)
     {
-        for (int Size = 0; Size < activeWeapons.Count; Size++)
+        for (int i = activeWeapons.Count - 1; i >= 0; i--)
         {
-            if (activeWeapons[Size].myData == data)
+            if (activeWeapons[i].myData == data)
             {
-                activeWeapons.Remove(activeWeapons[Size]);
+                WeaponBase weaponToRemove = activeWeapons[i];
+
+                // 리스트에서 제거
+                activeWeapons.RemoveAt(i);
+
+                // 실제 오브젝트 파괴
+                if (weaponToRemove != null)
+                {
+                    Destroy(weaponToRemove.gameObject);
+                }
+
                 return;
             }
         }
@@ -69,6 +124,11 @@ public class PlayerWeaponController : MonoBehaviour
             if (weapon != null && weapon.gameObject.activeInHierarchy)
                 weapon.OnUpdate();
         }
+        foreach (var weapon in WeaponsFromEquipment)
+        {
+            if (weapon != null && weapon.gameObject.activeInHierarchy)
+                weapon.OnUpdate();
+        }
     }
     public void ToggleCombatMode(bool isCombat)
     {
@@ -82,5 +142,27 @@ public class PlayerWeaponController : MonoBehaviour
                 weapon.gameObject.SetActive(isCombat);
             }
         }
+
+        foreach (var weapon in WeaponsFromEquipment)
+        {
+            if (weapon != null)
+            {
+                weapon.gameObject.SetActive(isCombat);
+            }
+        }
+    }
+
+    public void ClearEquipmentSkills()
+    {
+        for (int i = WeaponsFromEquipment.Count - 1; i >= 0; i--)
+        {
+            WeaponBase weaponToRemove = WeaponsFromEquipment[i];
+            // 실제 게임 오브젝트 파괴 (화면에서 제거)
+            if (weaponToRemove != null)
+            {
+                Destroy(weaponToRemove.gameObject);
+            }
+        }
+        WeaponsFromEquipment.Clear();
     }
 }

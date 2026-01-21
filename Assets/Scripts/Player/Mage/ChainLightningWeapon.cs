@@ -79,6 +79,11 @@ public class ChainLightningWeapon : WeaponBase
     {
         // 첫 발사체 생성
         GameObject lightning = ObjectPoolingManager.instance.spawnGameObject(projectilePrefab, transform.position, Quaternion.identity);
+        if (lightning == null)
+        {
+            // 게임이 멈췄거나, 풀링 매니저 오류 등으로 생성이 안 된 경우입니다.
+            return; 
+        }
 
         // 데미지 계산 및 설정 (DoDamage 스크립트)
         float finalDamage = GetDamage();
