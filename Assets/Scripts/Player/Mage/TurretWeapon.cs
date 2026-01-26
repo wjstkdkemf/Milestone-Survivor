@@ -108,7 +108,12 @@ public class TurretWeapon : WeaponBase
         if (closestEnemyPosition != null) // 쏘는 순간 타겟이 사라졌을 수도 있으니 체크
         {
             GameObject bullet = ObjectPoolingManager.instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
-
+            
+            if (bullet == null)
+            {
+                // 총알이 없는데 설정을 시도하면 에러가 나므로, 여기서 중단합니다.
+                yield break; 
+            }
             // 총알 설정
             if (bullet.TryGetComponent<TurretBullet>(out var turretBullet))
             {

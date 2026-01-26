@@ -73,7 +73,6 @@ public class EnCounterSystem : MonoBehaviour
             Debug.LogError("Player not found!");
         }
 
-        // Get references to the managers
         tilemapManager = FindObjectOfType<InfiniteTilemapManager>();
         if (tilemapManager == null)
         {
@@ -86,7 +85,6 @@ public class EnCounterSystem : MonoBehaviour
             Debug.LogError("WaveSpawner instance not found!");
         }
 
-        // 씬이 바뀔 때마다 인카운트 횟수를 초기화하고 싶다면 아래 주석을 해제하세요.
         CurEncounter = 0;
         isEncounterActive = false;
     }

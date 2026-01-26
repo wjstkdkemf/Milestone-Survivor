@@ -56,18 +56,21 @@ public class ObjectPoolingManager : MonoBehaviour
             return null;
         }
 
-        // Ensure the pool exists
-        PooledObjectInfo pool = objectPools.Find(p => p.name == ObjectToSpawn.name);
+        string prefabName = ObjectToSpawn.name;
+        PooledObjectInfo pool;
 
-        if (pool == null)
+        if (!poolDictionary.TryGetValue(prefabName, out pool))
         {
-            // Create a new pool if none exists
-            pool = new PooledObjectInfo { name = ObjectToSpawn.name };
+            pool = new PooledObjectInfo { name = prefabName };
             objectPools.Add(pool);
+            poolDictionary.Add(prefabName, pool);
         }
 
-        // Clean up any null entries in the pool
-        pool.gameObjects.RemoveAll(go => go == null);
+        // Clean up any null entries in the pool (안전장치)
+        if (pool.gameObjects != null)
+        {
+            pool.gameObjects.RemoveAll(go => go == null);
+        }
 
         // Try to find an inactive object in the pool
         GameObject spawnableObject = pool.gameObjects.FirstOrDefault();
@@ -78,13 +81,12 @@ public class ObjectPoolingManager : MonoBehaviour
             {
                 return null;
             }
-            // Instantiate a new object if no reusable objects are available
             spawnableObject = Instantiate(ObjectToSpawn, Position, Rotation);
+            spawnableObject.name = prefabName; 
             spawnableObject.transform.SetParent(ObjectPooledParent.transform);
         }
         else
         {
-            // Reuse an existing object
             spawnableObject.transform.position = Position;
             spawnableObject.transform.rotation = Rotation;
             pool.gameObjects.Remove(spawnableObject);
@@ -101,7 +103,6 @@ public class ObjectPoolingManager : MonoBehaviour
             return;
         }
 
-        // Extract the original prefab name (excluding "(Clone)")
         string goName = Obj.name;
         while (goName.EndsWith("(Clone)"))
         {
@@ -111,10 +112,7 @@ public class ObjectPoolingManager : MonoBehaviour
 
         if (poolDictionary.TryGetValue(goName, out PooledObjectInfo pool))
         {
-            // 성공: 풀로 반환
             Obj.SetActive(false);
-            
-            // [안전장치 1 적용] 부모가 없어도 에러 안 나게 처리
             if (ObjectPooledParent != null)
                 Obj.transform.SetParent(ObjectPooledParent.transform);
                 
@@ -122,7 +120,6 @@ public class ObjectPoolingManager : MonoBehaviour
         }
         else
         {
-            // 실패: 풀이 없으면 파괴
             Debug.LogWarning($"Pool not found for '{goName}'. Destroying.");
             Destroy(Obj);
         }

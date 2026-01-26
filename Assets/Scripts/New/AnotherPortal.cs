@@ -33,7 +33,8 @@ public class AnotherPortal : MonoBehaviour
         Debug.Log("저장 완료! " + MapName + " 씬으로 전환합니다.");
 
         // 6. 모든 과정이 끝난 후 씬을 전환
-        SceneManager.LoadScene(MapName);
+        LoadingManager.Instance.LoadScene(MapName);
+        //SceneManager.LoadScene(MapName);
     }
       
     public void StartButton()

@@ -34,29 +34,13 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     protected Coroutine flashRoutine;
     //private bool FirstSetting = false;
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        // When a new scene loads, we need to re-initialize.
-        InitializeForNewScene();
-    }
-
     void Start()
     {
         // Initialize when the object first starts.
-        InitializeForNewScene();
+        CurrentHealth = 1.0f;
     }
 
-    private void InitializeForNewScene()
+    public void InitializeForNewScene()
     {
         // Core stat initialization - this should always run.
         IsDead = false;

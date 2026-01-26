@@ -25,7 +25,7 @@ public class TeleportManager : MonoBehaviour
             Instance = this;
             teleportPoints = new List<TeleportPoint>();
             saveFilePath = Path.Combine(Application.persistentDataPath, "teleport.json");
-            LoadData();
+            //LoadData();
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -153,7 +153,7 @@ public class TeleportManager : MonoBehaviour
        SaveTeleportData(saveData);
     }
 
-    private void LoadData()
+    public void LoadData()
     {
         saveData = LoadTeleportData();
     }

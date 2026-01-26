@@ -86,6 +86,18 @@ namespace InventorySystem
 
         private void Start()
         {
+            /*
+            if (!TestInstance()) return;
+            if (!TestSetup()) return;
+            TestChildObject();
+            AllignDictionaries();
+            InitializeItems();
+
+            CheckStartMode();
+            */
+        }
+        public void init()
+        {
             if (!TestInstance()) return;
             if (!TestSetup()) return;
             TestChildObject();

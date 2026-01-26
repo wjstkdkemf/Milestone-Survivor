@@ -476,6 +476,7 @@ public class MenuButtonController : MonoBehaviour
 			GameManager.Instance.StopMoveing = false;
 
 		InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
-		SceneManager.LoadScene("Village");
+		//SceneManager.LoadScene("Village");
+		LoadingManager.Instance.LoadScene("Village");
 	}
 }

@@ -96,7 +96,9 @@ public class PlayerStats : MonoBehaviour
             Player = GameObject.FindGameObjectWithTag("Player");
         }
         // Update UI and apply stats for the new scene
-        
+    }
+    public void init()
+    {
         ResetDataNotGold();
         UpdateExpBar();
         ApplyPowerUps();

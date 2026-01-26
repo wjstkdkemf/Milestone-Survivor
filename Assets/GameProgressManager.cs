@@ -29,11 +29,6 @@ public class GameProgressManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        LoadProgress();
-    }
-
     // 게임 종료 시 자동 저장을 위한 로직
     private void OnApplicationQuit()
     {

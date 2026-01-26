@@ -7027,6 +7027,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeWeapons: []
+  WeaponsFromEquipment: []
   weaponHolder: {fileID: 2089789319}
 --- !u!1 &186199767
 GameObject:
@@ -12642,7 +12643,7 @@ MonoBehaviour:
   m_text: New Text
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2395179b9dd1f72419decc4de9348711, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: -4455005133845888924, guid: 2395179b9dd1f72419decc4de9348711, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -12705,7 +12706,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &277013741
@@ -24192,19 +24193,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b21183066e2a9d8468cc050dbf6f99fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  powerUps:
-  - {fileID: 11400000, guid: e8b5ca1ff550aa54e941c786cdaa6b07, type: 2}
-  - {fileID: 11400000, guid: 51c02cc12d031e04f9b91f4dc053c3d8, type: 2}
-  - {fileID: 11400000, guid: dea7106f2bdb3224f8f74bd4d669bba3, type: 2}
-  - {fileID: 11400000, guid: 4e6e41908488cc849bd12b9d1670779c, type: 2}
-  - {fileID: 11400000, guid: 7c67dcede8137a64b9634e5eeadaba0b, type: 2}
-  - {fileID: 11400000, guid: dc79136c804ae5944bab50d6200310b7, type: 2}
-  - {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  - {fileID: 11400000, guid: 859b1ddc125892c47a6567c135ff6c43, type: 2}
-  - {fileID: 11400000, guid: 9d2760c590529d9479ac10e850439946, type: 2}
-  - {fileID: 11400000, guid: a239066e3090660449cbc3bd6b14e9bc, type: 2}
-  powerUpButtons: []
-  playerStats: {fileID: 0}
+  powerUpTiers: []
+  buttonContainer: {fileID: 0}
+  globalLockPanel: {fileID: 0}
+  leftButton: {fileID: 0}
+  rightButton: {fileID: 0}
+  tierTitleText: {fileID: 0}
   panel: {fileID: 0}
   MyGoldText: {fileID: 0}
   nameText: {fileID: 0}
@@ -24212,7 +24206,7 @@ MonoBehaviour:
   descriptionText: {fileID: 0}
   BuyButtons: {fileID: 0}
   PowerUpIcon: {fileID: 0}
-  powerUpButton: {fileID: 0}
+  playerStats: {fileID: 0}
   InGame: 1
 --- !u!114 &549850752
 MonoBehaviour:
@@ -52991,7 +52985,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1136332495}
-  - component: {fileID: 1136332494}
+  - component: {fileID: 1136332496}
   m_Layer: 0
   m_Name: RebootSetting
   m_TagString: Untagged
@@ -52999,18 +52993,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1136332494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136332493}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05cb40fa7d72a2b4d928741ab49bb517, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1136332495
 Transform:
   m_ObjectHideFlags: 0
@@ -53026,6 +53008,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1136332496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136332493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d4aa04acc5eee045bb5ff1dd5e1659c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1136613331
 GameObject:
   m_ObjectHideFlags: 0
