@@ -25,5 +25,6 @@ public enum PowerUpType
     CooldownReduction,
     XPBoost,
     luckBoost,
-    MovementSpeed
+    MovementSpeed,
+    Encounter
 }

@@ -33,6 +33,7 @@ public class PlayerStatsCalculate : MonoBehaviour
     private float powerUpArmor = 0;
     private float powerUpDoubleDamageChance = 0;
     private float powerUpMaxHealth = 0;
+    private int powerUpEncounter = 0;
 
     // In-game real-time bonuses
     private float realTimeDamage = 0;
@@ -162,6 +163,7 @@ public class PlayerStatsCalculate : MonoBehaviour
             case PowerUpType.KnockBack: powerUpKnockBack += value; break;
             case PowerUpType.Armor: powerUpArmor += value; break;
             case PowerUpType.DobleDamageChance: powerUpDoubleDamageChance += value; break;
+            case PowerUpType.Encounter: powerUpEncounter += (int)value; break;
         }
         UpdatePlayerStats();
     }
@@ -210,10 +212,6 @@ public class PlayerStatsCalculate : MonoBehaviour
 
         UpdatePlayerStats();
     }
-    public void AnotherEquipmentEffect()//최초 한번만 로드하면되는 효과 -> 해체불가능장비
-    {
-        float equipDamage = EquipmentEffectManager.Instance.GetStatBonus("Encount");
-    }
 
     public void UpdatePlayerStats()
     {
@@ -233,7 +231,7 @@ public class PlayerStatsCalculate : MonoBehaviour
             float equipDoubleDamage = EquipmentEffectManager.Instance.GetStatBonus("DobleDamageChance");
             float equipMaxHealth = EquipmentEffectManager.Instance.GetStatBonus("MaxHealth");
             float equiDamageRation = EquipmentEffectManager.Instance.GetStatBonus("DamageRation");
-
+            int equipEncount = (int)EquipmentEffectManager.Instance.GetStatBonus("Encount");
             // 최종 스탯 계산
             PlayerStats.Instance.DamageBonus = (baseDamage + powerUpDamage + realTimeDamage + equipDamage + levelDamage) * (1 + equiDamageRation);
             PlayerStats.Instance.SpeedBonus = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed + levelSpeed;
@@ -245,6 +243,9 @@ public class PlayerStatsCalculate : MonoBehaviour
             PlayerStats.Instance.KnockBackBonus = baseKnockBack + powerUpKnockBack + realTimeKnockBack + equipKnockback + levelKnockBack;
             PlayerStats.Instance.ArmorBonus = baseArmor + powerUpArmor + realTimeArmor + equipArmor + levelArmor;
             PlayerStats.Instance.DoubleDamageChance = baseDoubleDamageChance + powerUpDoubleDamageChance + realTimeDoubleDamageChance + equipDoubleDamage + levelDoubleDamageChance;
+
+            if (GameObject.FindGameObjectWithTag("GameScene") != null)
+                EnCounterSystem.Instance.maxEncounter = EnCounterSystem.Instance.normalMaxEncounter + equipEncount + powerUpEncounter;
 
             if (PlayerStats.Instance.Player != null)
             {

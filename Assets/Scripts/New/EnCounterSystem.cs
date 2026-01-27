@@ -37,31 +37,14 @@ public class EnCounterSystem : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            // 2. 씬 로드 이벤트에 구독(Subscribe)
-            SceneManager.sceneLoaded += OnSceneLoaded;
         }
     }
-
-    // 3. OnDestroy에서 이벤트 구독을 해제(Unsubscribe)하여 메모리 누수 방지
-    private void OnDestroy()
+    public void InitializeSceneComponents()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    // 4. 씬이 로드될 때마다 호출될 메소드
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
+        Debug.Log("EnCounterSystem을 초기화합니다.");
         maxEncounter = 0;
         maxEncounter += normalMaxEncounter;
-        Debug.Log(scene.name + " 씬이 로드되었습니다. EnCounterSystem을 초기화합니다.");
-        if(SceneManager.GetActiveScene().name == "GameplayScene")
-            InitializeSceneComponents();
-    }
-
-    // 5. 기존 Start()의 내용을 별도 메소드로 분리
-    void InitializeSceneComponents()
-    {
-        // Find the player
+       
         GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject != null)
         {
@@ -88,9 +71,6 @@ public class EnCounterSystem : MonoBehaviour
         CurEncounter = 0;
         isEncounterActive = false;
     }
-
-    // 6. 기존 Start() 메소드는 이제 필요 없으므로 삭제하거나 비워둡니다.
-    // void Start() { }
 
     void Update()
     {

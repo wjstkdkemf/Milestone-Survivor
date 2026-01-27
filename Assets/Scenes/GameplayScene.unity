@@ -24222,10 +24222,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapContainer: {fileID: 1107543203}
   mapInstances:
-  - {fileID: 1805105911574086843, guid: f51c58af95e350348a55470292c89980, type: 3}
-  - {fileID: 2450201473219129378, guid: 22aa45a302e48b940b478c67cef94d2e, type: 3}
-  - {fileID: 2450201473219129378, guid: 8302240191ccf3947bada4312c97bbd0, type: 3}
-  - {fileID: 1805105911574086843, guid: 031ddcab87484ff499d8e3495b95e4e8, type: 3}
   - {fileID: 1805105911574086843, guid: f7974406deb7aa6499afcf535e524049, type: 3}
   - {fileID: 1805105911574086843, guid: 6eca8d2256e71284c9deb459b8f4fd25, type: 3}
   - {fileID: 1805105911574086843, guid: 217ad8778d635d7488f015ea89b20ea2, type: 3}
@@ -101320,7 +101316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7459223643937450943, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7486702023372364384, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_AnchorMax.y
@@ -101838,6 +101834,14 @@ PrefabInstance:
       propertyPath: m_SpriteState.m_HighlightedSprite
       value: 
       objectReference: {fileID: -1534121672, guid: 1d4ca0208a913cd49ba60f361b89dc8e, type: 3}
+    - target: {fileID: 7645007112142222402, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7645007112142222402, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: EndDungeun
+      objectReference: {fileID: 0}
     - target: {fileID: 7645007112142222403, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_SizeDelta.x
       value: 275
