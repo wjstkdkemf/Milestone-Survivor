@@ -2964,6 +2964,7 @@ MonoBehaviour:
     m_Bits: 8
   maxSpawnAttempts: 10
   spawnCheckRadius: 0.5
+  circleRadius: 10
   is2DGame: 1
 --- !u!114 &97037891
 MonoBehaviour:
@@ -26546,6 +26547,7 @@ MonoBehaviour:
     SpawnTimer: 1
     EnemyNumber: 5
     SpawnAll: 1
+    SpawnCircle: 0
     RandomPostions: 1
     DontUseObjectPooling: 0
   - Enemys:
@@ -26555,6 +26557,7 @@ MonoBehaviour:
     SpawnTimer: 1
     EnemyNumber: 0
     SpawnAll: 0
+    SpawnCircle: 0
     RandomPostions: 1
     DontUseObjectPooling: 0
   - Enemys:
@@ -26564,6 +26567,7 @@ MonoBehaviour:
     SpawnTimer: 1
     EnemyNumber: 5
     SpawnAll: 0
+    SpawnCircle: 0
     RandomPostions: 1
     DontUseObjectPooling: 0
   enCounterSystem: {fileID: 0}
