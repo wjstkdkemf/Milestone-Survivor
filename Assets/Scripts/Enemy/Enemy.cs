@@ -269,7 +269,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void OnEnable()
+    public virtual void OnEnable()
     {
         health = maxhealth;
         IsActived = true;
@@ -283,11 +283,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             StartCoroutine(CheckDistanceRoutine());
         }
     }
-    private void OnDisable()
+    public virtual void OnDisable()
     {
         if (health > 0) // 피가 남았는데 꺼진 경우만 추적
         {
-            // System.Environment.StackTrace는 이 함수가 호출된 경로를 다 보여줍니다.
             Debug.LogWarning($"[Enemy CSI] {gameObject.name} 비정상 종료! (Health: {health})\n호출 경로:\n{System.Environment.StackTrace}");
         }
 
@@ -301,25 +300,19 @@ public abstract class Enemy : MonoBehaviour, IDamageable
       
     }
 
-    // Abstract method for attacking behavior
     public abstract void Attack();
 
-    // Abstract method for death behavior
     public virtual void Die()
     {
         IsActived = false;
-        // Handle enemy death
         GameManager.Instance.NumberOfKills++;
-        //GameManager.Instance.activeEnemies--;
 
-        // Attempt to drop loot
         LootDrop lootDrop = GetComponent<LootDrop>();
         if (lootDrop != null)
         {
             lootDrop.DropLoot();
         }
 
-        //Debug.Log(gameObject.name + " has died.");
         if (DontUseObjectPooling == false)
         {
             ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
@@ -333,7 +326,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
       
     }
 
-    // Method to handle movement and logic for chasing, attacking, and fleeing
     protected virtual void Update()
     {
         if (player == null || stopMoving || IsActived == false) return;
@@ -341,16 +333,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         knockBackTime -= Time.deltaTime;
         Vector3 delta = player.position - transform.position;
         coolDownTimer -= Time.deltaTime;
-        // Handle facing direction
         UpdateFacingDirection(delta);
 
-        // Check distance to player
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // Determine states (chasing, attacking, fleeing)
         DetermineState(distanceToPlayer);
 
-        // Movement based on state
         HandleMovement(distanceToPlayer, delta);
     }
 
@@ -369,12 +357,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    // Determines whether the enemy should be chasing, attacking, or fleeing
     protected virtual void DetermineState(float distanceToPlayer)
     {
-        chasing = true; // Always chase the player
-
-        // Determine if the enemy is in attack range
+        chasing = true;
+       
         if (distanceToPlayer <= attackRange)
         {
             inAttackRange = true;
@@ -384,7 +370,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             inAttackRange = false;
         }
 
-        // Determine if the enemy should run away
         if (canRun && distanceToPlayer <= escapeRange)
         {
             running = true;
@@ -395,17 +380,14 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    // Handles movement logic based on state (chasing, running, knockback)
     protected virtual void HandleMovement(float distanceToPlayer, Vector3 delta)
     {
         if (knockBackTime > 0 && !CantBeKnocked)
         {
-            // Apply knockback
             transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * knockBackForce * Time.deltaTime);
         }
         else
         {
-            // If chasing, move towards the player
             if(isRecovering)
             {
                 transform.position += lastVelocity * Time.deltaTime;
@@ -413,16 +395,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             else if (chasing)
             {
                 transform.position += agent.velocity * Time.deltaTime;
-                //transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
             }
-            // If running away, move in the opposite direction
             else if (running)
             {
                 transform.position += agent.velocity * Time.deltaTime;
-                //transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * speed * Time.deltaTime);
             }
             
-            // If within attack range, perform the attack
             if (inAttackRange && coolDownTimer <= 0)
             {
                 Attack();
@@ -440,7 +418,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    // Implementation of the TakeDamage method from IDamageable
     public virtual void TakeDamage(float amount, float knockBackDuration = .2f)
     {
         if (I_frame)
@@ -449,39 +426,32 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         // Play hurt sound (if you have an audio manager)
         // AudioManager.instance.PlaySound("Enemy_Hurt");
 
-        // Instantiate damage text
         if (DamageText != null)
         {
             GameObject text = Instantiate(DamageText, transform.position, Quaternion.identity);
             text.GetComponent<TMP_Text>().text = amount.ToString(); // Display the amount of damage taken
         }
 
-        // Flash the sprite if flashMaterial is set
         if (flashMaterial != null && !boss&&IsActived)
             Flash();
 
-        // Decrease health and debug log
         health -= amount;
         // Debug.Log($"{gameObject.name} took {amount} damage, current health: {health}");
 
-        // Check if health is below zero
         if (health <= 0 && IsActived)
         {
             IsActived = false;
-            Die(); // Handle death
+            Die();
         }
 
-        knockBackTime = _knockBackDuration; // Apply knockback duration
-
+        knockBackTime = _knockBackDuration;
     }
 
-    // Check if the enemy is alive (IDamageable)
     public bool IsAlive()
     {
         return IsActived;
     }
 
-    // Method for handling knockback logic
     protected virtual void ApplyKnockback(Vector3 direction, float force)
     {
 
@@ -490,7 +460,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         if (flashRoutine != null)
         {
-            StopCoroutine(flashRoutine); // Stop any ongoing flash to avoid overlap
+            StopCoroutine(flashRoutine);
         }
         flashRoutine = StartCoroutine(FlashRoutine());
     }
@@ -498,23 +468,16 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public IEnumerator FlashRoutine()
     {
         spriteRenderer.color = Color.red;
-        // Wait for the specified flash duration
         yield return new WaitForSeconds(duration);
-        // Restore the original color after the flash
         spriteRenderer.color = defaultColor;
 
-        // Reset the flash routine to null
         flashRoutine = null;
     }
 
-    // Method to get a random spawn position within a circle around the monster's death position
     private Vector2 GetRandomPositionAround(Vector2 centerPosition, float radius)
     {
-        // Random angle in radians
         float angle = Random.Range(0f, Mathf.PI * 2);
-        // Random distance within the radius
         float distance = Random.Range(0f, radius);
-        // Calculate the position
         float x = centerPosition.x + Mathf.Cos(angle) * distance;
         float y = centerPosition.y + Mathf.Sin(angle) * distance;
         return new Vector2(x, y);

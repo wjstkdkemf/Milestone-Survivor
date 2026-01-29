@@ -20,6 +20,7 @@ public class WaveSpawner : MonoBehaviour
     private int SpawnedEnemys;
     private bool SpawnAll;
     private bool SpawnCircle;
+    private bool SpawnBat;
     private System.Random random = new System.Random();
     [SerializeField] private bool onlySideSpawn;
     [SerializeField] private List<Transform> spawningPotions;
@@ -33,7 +34,7 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private int maxSpawnAttempts = 10;
     // 스폰 시 확인할 반경 (적 크기에 맞춰 조절)
     [SerializeField] private float spawnCheckRadius = 0.5f;
-    [SerializeField] private float circleRadius = 10f;//일괄 스폰용
+    [SerializeField] private float circleRadius = 20f;//일괄 스폰용
     [SerializeField] private bool is2DGame = true;
 
     private void Awake()
@@ -86,6 +87,10 @@ public class WaveSpawner : MonoBehaviour
                     spawnTimer = StartSpawnTimer;
                 }
                 // (실패하면 spawnTimer는 0 이하로 유지되어 다음 FixedUpdate에 다시 시도)
+            }
+            else if(SpawnAll && SpawnBat && SpawnedEnemys < WavesList[CurrentWave].EnemyNumber)
+            {
+                SpawnBatPattern(WavesList[CurrentWave].EnemyNumber);
             }
             else if(SpawnAll && SpawnCircle && SpawnedEnemys < WavesList[CurrentWave].EnemyNumber)
             {
@@ -221,6 +226,7 @@ public class WaveSpawner : MonoBehaviour
 
         SpawnAll = WavesList[CurrentWave].SpawnAll;
         SpawnCircle = WavesList[CurrentWave].SpawnCircle;
+        SpawnBat = WavesList[CurrentWave].SpawnBat;
         StartSpawnTimer = WavesList[CurrentWave].SpawnTimer;
         waveTimer = WavesList[CurrentWave].waveDuration;
         SpawnedEnemys = 0;
@@ -252,6 +258,38 @@ public class WaveSpawner : MonoBehaviour
         SpawnedEnemys++;
         return true; // 스폰 성공!
     }
+    public void SpawnBatPattern(int count)
+    {
+        if (playerTransform == null) return;
+
+        GameObject enemyPrefab = GetRandomEnemy();
+        if (enemyPrefab == null) return;
+
+        Vector3 center = playerTransform.position;
+
+        float randomAngle = Random.Range(0f, 360f);
+        float angleRad = randomAngle * Mathf.Deg2Rad;
+        
+        float baseX = Mathf.Cos(angleRad) * circleRadius;
+        float baseY = Mathf.Sin(angleRad) * circleRadius;
+        
+        Vector3 groupCenterPos = center + new Vector3(baseX, baseY, 0);
+        for(int i = 0 ; i < count ; i++)
+        {
+            Vector2 randomOffset = Random.insideUnitCircle * 3.0f;
+            Vector3 finalSpawnPos = groupCenterPos + new Vector3(randomOffset.x, randomOffset.y, 0);
+
+            if (!WavesList[CurrentWave].DontUseObjectPooling)
+            {
+                ObjectPoolingManager.instance.spawnGameObject(enemyPrefab, finalSpawnPos, Quaternion.identity);
+            }
+            else
+            {
+                Instantiate(enemyPrefab, finalSpawnPos, Quaternion.identity);
+            }
+            SpawnedEnemys++;
+        }
+    }
     public void SpawnCirclePattern(int count)
     {
         if (playerTransform == null) return;
@@ -282,7 +320,6 @@ public class WaveSpawner : MonoBehaviour
             {
                 continue; // 길을 못 찾으면 이번 몬스터는 스킵 (벽 속에 생성 방지)
             }
-            Debug.Log(spawnPos);
             // 3. 몬스터 소환 (풀링 사용)
             // 전용 몬스터 프리팹(enemyPrefab)을 그대로 소환만 하면 됩니다.
             if (!WavesList[CurrentWave].DontUseObjectPooling)
@@ -400,6 +437,7 @@ public class Wave
     [Header("Spawn All enemys at ones")]
     public int EnemyNumber;
     public bool SpawnAll;
+    public bool SpawnBat;
     public bool SpawnCircle;
     public bool RandomPostions = true;
     public bool DontUseObjectPooling;
