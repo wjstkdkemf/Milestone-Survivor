@@ -16,6 +16,8 @@ public class BarrierWeapon : WeaponBase
     private BarrierShield barrierScript; // 배리어 로직 스크립트
     private GameObject explosionEffect;
     private LayerMask enemyLayerMask;
+    private LayerMask projectileLayerMask;
+
     private PlayerHealth playerHealthScript;
 
     // 1. 초기화
@@ -28,6 +30,7 @@ public class BarrierWeapon : WeaponBase
             currentKnockbackForce = barrierData.knockbackForce;
             explosionEffect = barrierData.explosionEffectPrefab;
             enemyLayerMask = barrierData.enemyLayerMask;
+            projectileLayerMask = barrierData.projectileLayerMask;
 
             // 배리어 프리팹을 플레이어 자식으로 생성
             if (barrierData.barrierPrefab != null)
@@ -38,7 +41,7 @@ public class BarrierWeapon : WeaponBase
                 barrierScript = barrierInstance.GetComponent<BarrierShield>();
                 if (barrierScript == null) barrierScript = barrierInstance.AddComponent<BarrierShield>();
                 
-                barrierScript.Setup(this, enemyLayerMask);
+                barrierScript.Setup(this, enemyLayerMask, projectileLayerMask);
                 
                 // 시작은 비활성화
                 barrierInstance.SetActive(false);

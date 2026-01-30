@@ -23,12 +23,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public Transform player;
     public PlayerHealth playerHealth;
     private NavMeshAgent agent;
-    private float coolDownTimer;
+    protected float coolDownTimer;
     protected bool facingRight = true;
     protected bool chasing = false;
     protected bool running = false;
     protected bool inAttackRange = false;
-    private float knockBackTime = 0f;
+    protected float knockBackTime = 0f;
     public float _knockBackDuration = .2f;
     public bool CantBeKnocked = false;
 

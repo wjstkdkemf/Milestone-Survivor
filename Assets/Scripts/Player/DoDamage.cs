@@ -104,7 +104,6 @@ public class DoDamage : MonoBehaviour
 
     private void HandleSelfDestruction()
     {
-        Debug.Log("이름 : " + gameObject.name + "발생");
         if (selfDestroy)
         {
             if (IsUsingObjetPooling)
