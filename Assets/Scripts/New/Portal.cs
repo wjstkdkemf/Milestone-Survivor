@@ -41,7 +41,7 @@ public class Portal : MonoBehaviour
                 return; // 이동했으므로 더 이상 검사할 필요 없음
             }
         }
-
+        Debug.Log("이동확인");
         MainMapManager.Instance.ChangeMap(defaultMapName, defaultSpawnPoint);
     }
 }

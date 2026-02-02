@@ -107,7 +107,13 @@ public class MenuButtonController : MonoBehaviour
 		}
 
 	}
-
+	public void non()
+	{
+		Resources.UnloadUnusedAssets();
+		System.GC.Collect();
+		Caching.ClearCache(); // Addressable 캐시 강제 정리
+		Debug.Log("청소 실시");
+	}
 
 	public void Quit()
 	{

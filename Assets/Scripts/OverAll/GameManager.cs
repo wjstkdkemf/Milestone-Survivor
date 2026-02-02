@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public TMP_Text Player_Level_Count;
     public int NumberOfKills;
     public int activeEnemies = 0;
+    private int lastKillCount = -1;
+    private int lastLevel = -1;
     public bool AllKill = false;
     public bool Heal = false;
     public GameObject Panel;
@@ -32,11 +34,19 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (TextKill != null)
-            TextKill.text = NumberOfKills.ToString();
+        if (NumberOfKills != lastKillCount)
+        {
+            lastKillCount = NumberOfKills;
+            if (TextKill != null) 
+                TextKill.text = lastKillCount.ToString();
+        }
 
-        if (Player_Level_Count != null)
-            Player_Level_Count.text = PlayerStats.Instance.level.ToString();
+        if (PlayerStats.Instance.level != lastLevel)
+        {
+            lastLevel = PlayerStats.Instance.level;
+            if (Player_Level_Count != null)
+                Player_Level_Count.text = lastLevel.ToString();
+        }
 
         if (Pause)
         {

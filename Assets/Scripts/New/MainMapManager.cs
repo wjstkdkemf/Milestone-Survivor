@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 //using System.Threading.Tasks.Dataflow;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Linq;
 
 public class MainMapManager : MonoBehaviour
@@ -10,7 +11,7 @@ public class MainMapManager : MonoBehaviour
     public static MainMapManager Instance { get; private set; }
     public Transform mapContainer;
     private GameObject currentMapInstance;
-    public List<GameObject> mapInstances = new List<GameObject>();
+    //public List<GameObject> mapInstances = new List<GameObject>();
     public GameObject TeleportUI;
 
     void Awake()
@@ -24,67 +25,58 @@ public class MainMapManager : MonoBehaviour
             Instance = this;
         }
     }
+    public void OnDestroy()
+    {
+        if (currentMapInstance != null)
+            Addressables.ReleaseInstance(currentMapInstance);
 
-    public void ChangeMap(string newMapPrefab, string playerSpawnPosition)
+        Debug.Log("체크용");
+    }
+
+    public void ChangeMap(string newMapAddress, string playerSpawnPosition)
     {
         // FadeManager에게 화면을 어둡게 하라고 요청
         FadeManager.Instance.FadeOut(() =>
         {
-            GameObject foundObject = mapInstances.FirstOrDefault(obj => obj.name == newMapPrefab);
+            StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
+        });
+    }
+    private IEnumerator ProcessMapChange(string newMapAddress, string playerSpawnPosition)
+    {
+        // 1. 이전 맵 및 오브젝트 풀 정리 (메모리 확보 핵심)
+        if (currentMapInstance != null)
+        {
+            // 오브젝트 풀에 남아있는 몬스터들 제거
+            //ObjectPoolingManager.instance.ClearAllPools();
             
-            // 1. 이전 맵이 있다면 파괴
-            if (currentMapInstance != null && currentMapInstance.name != foundObject.name)
-            {
-                Destroy(currentMapInstance);
-                currentMapInstance = Instantiate(foundObject, mapContainer);
-            }
-            else if(currentMapInstance == null)
-            {
-                currentMapInstance = Instantiate(foundObject, mapContainer);
-            }
-            // 2. 새 맵 프리팹을 mapContainer 하위에 생성
-                
-            // 3. 플레이어 위치 이동 (화면이 검은색이라 유저는 못 봄)
-            // (Player 태그나 참조를 통해 플레이어 오브젝트를 찾아야 함)
+            // Addressables를 통해 생성된 인스턴스 해제
+            Addressables.ReleaseInstance(currentMapInstance);
+            currentMapInstance = null;
+        }
+
+        // 2. 새 맵 로드 (주소 기반)
+        AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(newMapAddress, mapContainer);
+        yield return handle; // 로드 완료까지 대기
+
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            currentMapInstance = handle.Result;
+            currentMapInstance.name = newMapAddress;
+
+            // 3. 플레이어 이동
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
-                TeleportManager.Instance.TeleportPlayer(player, newMapPrefab ,playerSpawnPosition);
+                TeleportManager.Instance.TeleportPlayer(player, newMapAddress, playerSpawnPosition);
             }
-
-            // 4. FadeManager에게 화면을 밝게 하라고 요청
-            FadeManager.Instance.FadeIn();
-        });
-    }
-    public void InitializeMap(string newMapPrefab, string playerSpawnPosition)
-    {
-        StartCoroutine(InitializeMapRoutine(newMapPrefab, playerSpawnPosition));
-    }
-
-    private IEnumerator InitializeMapRoutine(string newMapPrefab, string playerSpawnPosition)
-    {
-        // 1. 화면을 즉시 어둡게
-        FadeManager.Instance.SetBlack();
-        // 렌더링을 위해 한 프레임 대기
-        yield return null;
-
-        // 2. 맵 로딩 및 플레이어 배치
-        GameObject foundObject = mapInstances.FirstOrDefault(obj => obj.name == newMapPrefab);
-
-        if (currentMapInstance != null && currentMapInstance.name != foundObject.name)
-        {
-            Destroy(currentMapInstance);
-        }
-        currentMapInstance = Instantiate(foundObject, mapContainer);
-
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            TeleportManager.Instance.TeleportPlayer(player, newMapPrefab, playerSpawnPosition);
         }
 
-        // 3. 모든 로딩 완료 후 화면 밝게
+        // 4. 화면 밝게 하기
         FadeManager.Instance.FadeIn();
+    }
+    public void InitializeMap(string newMapAddress, string playerSpawnPosition)
+    {
+         StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
     }
     
     public GameObject GetTeleportUI()

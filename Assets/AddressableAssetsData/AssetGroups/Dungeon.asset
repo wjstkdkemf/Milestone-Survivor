@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Dungeon
+  m_EditorClassIdentifier: 
+  m_GroupName: Dungeon
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 0bfffa698596c364eb0897f790a1283d
+  m_SerializeEntries:
+  - m_GUID: f7974406deb7aa6499afcf535e524049
+    m_Address: "\uB358\uC8041-1"
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dungeon
+    - Map
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6eca8d2256e71284c9deb459b8f4fd25
+    m_Address: "\uB358\uC8042-1"
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dungeon
+    - Map
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 217ad8778d635d7488f015ea89b20ea2
+    m_Address: "\uB358\uC8043-1"
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dungeon
+    - Map
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 72a2aa6183253ce4eaaac6d77a13c5bd
+    m_Address: "\uB358\uC8044-1"
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dungeon
+    - Map
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f702a4b5b050a564d98a5ad247fe3a13
+    m_Address: "\uB358\uC8045-1"
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dungeon
+    - Map
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f8c68fa40aeb2054ab1cb73f6bd78402, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: b0823c0ff20ada54a8b517f7ca2c0b26, type: 2}
+    - {fileID: 11400000, guid: a3dfd0274d7b6d642a353b4b4bd89842, type: 2}

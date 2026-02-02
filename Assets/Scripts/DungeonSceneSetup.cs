@@ -8,6 +8,8 @@ public class DungeonSceneSetup : MonoBehaviour, ISceneInitializer
         Debug.Log("던전 씬 초기화 시작...");
         EnCounterSystem.Instance.InitializeSceneComponents();
 
+        TeleportManager.Instance.SetInitialSpawnPoint();
+
         PlayerStats.Instance.init();
         GameManager.Instance.GetComponent<CharacterSelection>().OnceSetting();
         

@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 26df801f73e459c40a8a449aeac88370
   m_currentHash:
     serializedVersion: 2
-    Hash: 48eb38a442ebe8515dffbdd625479907
+    Hash: 580dd80fb04421f42bab31e0add57b4c
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -50,6 +50,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b89310807474c5e499f50fa58936d52a, type: 2}
   - {fileID: 11400000, guid: ff99e8d29cc5c4c44b7f3928eeb16f8f, type: 2}
   - {fileID: 11400000, guid: 08897f19bf5e69a43ac7ad51f584f42b, type: 2}
+  - {fileID: 11400000, guid: ba5a38ed9144acb4d8d56ff3dd5dd64a, type: 2}
+  - {fileID: 11400000, guid: b7b35211bedfb99428d781d8a41a14f2, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -94,6 +96,9 @@ MonoBehaviour:
     - Locale
     - Locale-en
     - Locale-ko-KR
+    - Forest
+    - Dungeon
+    - Map
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 5a99a5c584621a0458a6dc04a76e871b, type: 2}

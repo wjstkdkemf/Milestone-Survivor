@@ -9,7 +9,7 @@ public class Teleporter : MonoBehaviour
     {
         if (TeleportManager.Instance != null)
         {
-            TeleportManager.Instance.SetInitialSpawnPoint();//gameObject
+            //TeleportManager.Instance.SetInitialSpawnPoint();//gameObject
         }
     }
 
