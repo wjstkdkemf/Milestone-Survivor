@@ -34,6 +34,15 @@ public class RingSelectionUI : MonoBehaviour
         }
         selectionPanel.SetActive(false); // 처음에는 UI를 숨김
     }
+    private void OnDestroy()
+    {
+        // 내가 현재 활성화된 인스턴스였다면, 파괴될 때 참조를 비워줌
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
 
     public void ShowSelection(InventoryItem ringItem, Vector3 screenPosition)
     {

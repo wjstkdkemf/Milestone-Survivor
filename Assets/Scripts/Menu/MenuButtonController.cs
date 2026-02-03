@@ -68,6 +68,14 @@ public class MenuButtonController : MonoBehaviour
 		}
 
 	}
+	private void OnDestroy()
+{
+    // 내가 현재 활성화된 인스턴스였다면, 파괴될 때 참조를 비워줌
+    if (Instance == this)
+    {
+        Instance = null;
+    }
+}
 	// Update is called once per frame
 	void Update()
 	{
@@ -89,7 +97,7 @@ public class MenuButtonController : MonoBehaviour
         //     GameManager.Instance.Pause = true;
 		// 	GameManager.Instance.StopMoveing = true;
         // }
-		else if (!Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu && !GameOver.Instance.isOver)
+		else if (!Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu )//&& !GameOver.Instance.isOver
 		{
 			GameManager.Instance.Pause = false;
 			GameManager.Instance.StopMoveing = false;

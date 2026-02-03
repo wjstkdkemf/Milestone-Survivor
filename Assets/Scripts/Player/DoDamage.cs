@@ -40,7 +40,7 @@ public class DoDamage : MonoBehaviour
             waitTime -= Time.deltaTime;
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    /*private void OnTriggerStay2D(Collider2D collision)
     {
         if (this.enabled == false || this.gameObject.activeInHierarchy == false) 
             return;
@@ -61,7 +61,7 @@ public class DoDamage : MonoBehaviour
         {
             HandleWallCollision();
         }
-    }
+    }*/
 
     private void DamagePlayer(Collider2D collision)
     {

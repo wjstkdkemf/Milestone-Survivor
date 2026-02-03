@@ -291,7 +291,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
 
         spriteRenderer.color = defaultColor;
-        GameManager.Instance.activeEnemies--;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.activeEnemies--;
+        }
         StopAllCoroutines();
         IsActived = false;
     }

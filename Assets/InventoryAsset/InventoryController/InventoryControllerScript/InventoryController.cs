@@ -1167,7 +1167,7 @@ namespace InventorySystem
         public void ReapplyAllEquipmentSkills()
         {
             // 기존 효과 모두 초기화
-            if(!UpgradeManager.Instance.playerWeaponController)
+            if(GameObject.FindGameObjectWithTag("Village") != null || !UpgradeManager.Instance.playerWeaponController)
                 return;
 
             UpgradeManager.Instance.playerWeaponController.ClearEquipmentSkills();

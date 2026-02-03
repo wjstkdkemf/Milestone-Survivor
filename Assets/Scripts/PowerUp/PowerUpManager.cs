@@ -40,6 +40,14 @@ public class PowerUpManager : MonoBehaviour
         if (Instance == null) { Instance = this; }
         else { Destroy(gameObject); }
     }
+    private void OnDestroy()
+    {
+        // 내가 현재 활성화된 인스턴스였다면, 파괴될 때 참조를 비워줌
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
 
     private void Start()
     {

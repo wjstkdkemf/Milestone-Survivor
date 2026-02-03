@@ -6,7 +6,7 @@ public class FirstTimeSetup : MonoBehaviour
 {
     private const string FirstTimeKey = "HasOpenedBefore";
     [SerializeField] private GameObject GameManager;
-    void Start()
+    /*void Start()
     {
         if (!PlayerPrefs.HasKey(FirstTimeKey))
         {
@@ -22,7 +22,7 @@ public class FirstTimeSetup : MonoBehaviour
             Debug.Log("Game has been opened before.");
         }
     }
-
+    */
     private void RunFirstTimeSetup()
     {
         GameManager.GetComponent<CharacterSelectionManager>().ResetCharacters();

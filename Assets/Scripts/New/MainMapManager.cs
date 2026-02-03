@@ -29,8 +29,6 @@ public class MainMapManager : MonoBehaviour
     {
         if (currentMapInstance != null)
             Addressables.ReleaseInstance(currentMapInstance);
-
-        Debug.Log("체크용");
     }
 
     public void ChangeMap(string newMapAddress, string playerSpawnPosition)

@@ -1748,12 +1748,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 201204059}
-  - component: {fileID: 201204060}
-  - component: {fileID: 201204062}
-  - component: {fileID: 201204063}
-  - component: {fileID: 201204064}
   - component: {fileID: 201204066}
-  - component: {fileID: 201204067}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1776,109 +1771,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &201204060
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 201204057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b11fe3220679ee4ebb15ed9db0fba4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StopMoveing: 0
-  Pause: 0
-  TextKill: {fileID: 0}
-  Player_Level_Count: {fileID: 0}
-  NumberOfKills: 0
-  activeEnemies: 0
-  AllKill: 0
-  Heal: 0
-  Panel: {fileID: 0}
-  CanSpawn: 0
---- !u!114 &201204062
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 201204057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b21183066e2a9d8468cc050dbf6f99fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  powerUpTiers: []
-  buttonContainer: {fileID: 0}
-  globalLockPanel: {fileID: 0}
-  leftButton: {fileID: 0}
-  rightButton: {fileID: 0}
-  tierTitleText: {fileID: 0}
-  panel: {fileID: 0}
-  MyGoldText: {fileID: 0}
-  nameText: {fileID: 1919392490}
-  costText: {fileID: 2016632386}
-  descriptionText: {fileID: 1305791938}
-  BuyButtons: {fileID: 1296223551}
-  PowerUpIcon: {fileID: 999960523}
-  playerStats: {fileID: 0}
-  InGame: 1
---- !u!114 &201204063
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 201204057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 653ce446d2f4efc4ea82eb4e1c2fbf1d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  characterButtons:
-  - {fileID: 809629492}
-  - {fileID: 774485698}
-  - {fileID: 602044135}
-  - {fileID: 7706660801101842294}
-  panle: {fileID: 727119758}
-  nameText: {fileID: 172846917}
-  costText: {fileID: 868403380}
-  descriptionText: {fileID: 1233223925}
-  playerStatsText: {fileID: 1616649100}
-  playerLevelUpStatsText: {fileID: 0}
-  BuyButtons: {fileID: 1940340334}
-  ConfirmButton: {fileID: 1235217239}
-  icon: {fileID: 1855284409}
-  characterSelectionButton: {fileID: 0}
-  characterList:
-  - {fileID: 11400000, guid: d7b6930103b488c4c942a9cf46da1f82, type: 2}
-  - {fileID: 11400000, guid: 2239958edd108c84ba78f8c3c968935f, type: 2}
-  - {fileID: 11400000, guid: 63b065118bf35f1448e2ffc93e24be02, type: 2}
-  - {fileID: 11400000, guid: d6f60f9124eb4cf449b12479a3437520, type: 2}
---- !u!114 &201204064
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 201204057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2b7c5f76eaee55428e3f961bc393f94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stageButtons:
-  - {fileID: 1385395281}
-  - {fileID: 2033957694}
-  - {fileID: 1102599596}
-  - {fileID: 1528858128}
-  panle: {fileID: 1792268518}
-  StageStats: {fileID: 771096998}
-  StartButtons: {fileID: 578467451}
-  icon: {fileID: 0}
-  stageSelectionButton: {fileID: 0}
 --- !u!114 &201204066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1892,27 +1784,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameManager: {fileID: 201204057}
---- !u!114 &201204067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 201204057}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: faf130049f4f2414d828b04e59b34218, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerWeaponController: {fileID: 0}
-  PlayerObject: {fileID: 0}
-  UpgradePanelObject: {fileID: 0}
-  UpgradeUiSlots: []
-  MasterDeck: []
-  StartingDeck: []
-  UpgradeDeck: []
-  allJobs: []
-  pendingUpgrades: 0
 --- !u!1 &210285783
 GameObject:
   m_ObjectHideFlags: 0
@@ -2129,7 +2000,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 201204062}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PowerUpManager, Assembly-CSharp
         m_MethodName: RefundPowerUp
         m_Mode: 1
@@ -2141,7 +2012,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 201204063}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterSelectionManager, Assembly-CSharp
         m_MethodName: ResetCharacters
         m_Mode: 1
@@ -4150,7 +4021,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 498962883}
-  - component: {fileID: 498962884}
   m_Layer: 0
   m_Name: MainScene
   m_TagString: MainScene
@@ -4173,19 +4043,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &498962884
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 498962882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b70bbf452b073d74cbaf880ab145cf90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemsToTransfer: []
 --- !u!1 &507333742
 GameObject:
   m_ObjectHideFlags: 0
@@ -4464,7 +4321,7 @@ PrefabInstance:
     - target: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
       propertyPath: characterSelectionManager
       value: 
-      objectReference: {fileID: 201204063}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5132,7 +4989,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 201204064}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: StageSelection, Assembly-CSharp
         m_MethodName: StartThegame
         m_Mode: 1
@@ -5434,17 +5291,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2698283904520156743, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
   m_PrefabInstance: {fileID: 873926346}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &602044135 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
-  m_PrefabInstance: {fileID: 873926346}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d2ee6e9eb556a4b9f535b3adfa5077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &603353455
 GameObject:
   m_ObjectHideFlags: 0
@@ -6929,17 +6775,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2698283904520156743, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
   m_PrefabInstance: {fileID: 1099673090}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &774485698 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
-  m_PrefabInstance: {fileID: 1099673090}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d2ee6e9eb556a4b9f535b3adfa5077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &774751371
 GameObject:
   m_ObjectHideFlags: 0
@@ -7374,17 +7209,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2698283904520156743, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
   m_PrefabInstance: {fileID: 547662877}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &809629492 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
-  m_PrefabInstance: {fileID: 547662877}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d2ee6e9eb556a4b9f535b3adfa5077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &826227074
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7963,7 +7787,7 @@ PrefabInstance:
     - target: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
       propertyPath: characterSelectionManager
       value: 
-      objectReference: {fileID: 201204063}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11035,7 +10859,7 @@ PrefabInstance:
     - target: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
       propertyPath: characterSelectionManager
       value: 
-      objectReference: {fileID: 201204063}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -12310,7 +12134,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 0
-      - m_Target: {fileID: 201204063}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterSelectionManager, Assembly-CSharp
         m_MethodName: ConfirmCharacter
         m_Mode: 1
@@ -12334,7 +12158,7 @@ MonoBehaviour:
           m_StringArgument: 1000
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 201204067}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UpgradeManager, Assembly-CSharp
         m_MethodName: ResetUpgrade
         m_Mode: 1
@@ -12346,7 +12170,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 201204064}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: StageSelection, Assembly-CSharp
         m_MethodName: StartThegame
         m_Mode: 1
@@ -12817,7 +12641,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 201204062}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: PowerUpManager, Assembly-CSharp
         m_MethodName: Purchase
         m_Mode: 1
@@ -13162,7 +12986,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 201204064}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: StageSelection, Assembly-CSharp
         m_MethodName: StartThegame
         m_Mode: 1
@@ -17840,8 +17664,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1999970107}
   m_HandleRect: {fileID: 1999970106}
   m_Direction: 2
-  m_Value: 1.0000005
-  m_Size: 0.83792794
+  m_Value: 1
+  m_Size: 0.8379279
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -18370,7 +18194,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 201204063}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterSelectionManager, Assembly-CSharp
         m_MethodName: Purchase
         m_Mode: 1
@@ -18382,7 +18206,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 201204063}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: CharacterSelectionManager, Assembly-CSharp
         m_MethodName: SaveCharacterData
         m_Mode: 1
@@ -20929,7 +20753,7 @@ PrefabInstance:
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 201204064}
+      objectReference: {fileID: 0}
     - target: {fileID: 3001693445381141608, guid: 8b368effdd49818409f3344d4e8b7a2c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[3].m_Target
       value: 
@@ -21213,7 +21037,7 @@ PrefabInstance:
     - target: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
       propertyPath: characterSelectionManager
       value: 
-      objectReference: {fileID: 201204063}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -22723,17 +22547,6 @@ RectTransform:
   m_AnchoredPosition: {x: 200, y: -0.0000038146973}
   m_SizeDelta: {x: 157.2609, y: 206.2731}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7706660801101842294 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5615225999511402502, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
-  m_PrefabInstance: {fileID: 1871359551205712991}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d2ee6e9eb556a4b9f535b3adfa5077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7713952492026059080
 GameObject:
   m_ObjectHideFlags: 0
