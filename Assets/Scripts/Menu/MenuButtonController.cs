@@ -89,15 +89,13 @@ public class MenuButtonController : MonoBehaviour
 			GameManager.Instance.Pause = true;
 			GameManager.Instance.StopMoveing = true;
 			UpgradeObject.SetActive(false);
-
-
 		}
 		// else if(Inventory && ingame)
         // {
         //     GameManager.Instance.Pause = true;
 		// 	GameManager.Instance.StopMoveing = true;
         // }
-		else if (!Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu )//&& !GameOver.Instance.isOver
+		else if (ingame && !Pause && !UpgradeObject.activeSelf && UpgradeObject != null && !Menu && !GameOver.Instance.isOver)//
 		{
 			GameManager.Instance.Pause = false;
 			GameManager.Instance.StopMoveing = false;

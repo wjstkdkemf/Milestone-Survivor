@@ -8,11 +8,15 @@ public class TurretBullet : MonoBehaviour
     [HideInInspector] public Transform EnemyPosition;
     Vector3 direction;
     [SerializeField] private bool IsActived = true;
-
+    private bool hasHit;
+    private DoDamage damageComponent;
 
     private void OnEnable()
     {
         IsActived = true;
+        hasHit = false;
+        damageComponent = GetComponent<DoDamage>();
+
         StartCoroutine(Reset());
         Invoke ("CalculateDirection", .01f);    
     }
@@ -23,11 +27,8 @@ public class TurretBullet : MonoBehaviour
     }
     void Update()
     {      
-       
         if(IsActived)
             transform.position += (direction) * (speed*(1+PlayerStats.Instance.projectileSpeedBonus/100)) * Time.deltaTime;
-
-     
     }
     private IEnumerator Reset()
     {
@@ -38,8 +39,14 @@ public class TurretBullet : MonoBehaviour
             ObjectPoolingManager.instance.ReturnObjectToPool(this.gameObject);
         }
     }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (hasHit) return;
 
-
-
-
+        if (damageComponent != null && damageComponent.TryApplyDamage(collision))
+        {
+            hasHit = true; 
+            //HandleSelfDestruction();
+        }
+    }
 }

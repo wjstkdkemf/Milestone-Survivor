@@ -8,12 +8,11 @@ public class Arrow : EnemyProjectile
     [SerializeField] private float lifeTime = 5f;
 
     private Rigidbody2D rb;
-    private DoDamage damageComponent;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         rb = GetComponent<Rigidbody2D>();
-        damageComponent = GetComponent<DoDamage>();
     }
 
     public override void Setup(Transform target, float speed, float damage)

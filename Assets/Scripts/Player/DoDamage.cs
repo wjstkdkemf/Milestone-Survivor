@@ -22,10 +22,10 @@ public class DoDamage : MonoBehaviour
     private float waitTime;
 
     // Layer references
-    [SerializeField] private LayerMask playerLayer;
-    [SerializeField] private LayerMask enemyLayer;
-    [SerializeField] private LayerMask wallLayer;
-    [SerializeField] private LayerMask shieldLayer;
+    [SerializeField] public LayerMask playerLayer;
+    [SerializeField] public LayerMask enemyLayer;
+    [SerializeField] public LayerMask wallLayer;
+    [SerializeField] public LayerMask shieldLayer;
 
     private void Start()
     {
@@ -40,14 +40,15 @@ public class DoDamage : MonoBehaviour
             waitTime -= Time.deltaTime;
     }
 
-    /*private void OnTriggerStay2D(Collider2D collision)
+    public bool TryApplyDamage(Collider2D collision)
     {
         if (this.enabled == false || this.gameObject.activeInHierarchy == false) 
-            return;
+            return false;
 
-        if (waitTime > 0) return; // Skip if cooldown hasn't expired
+        if (waitTime > 0) return false; // Skip if cooldown hasn't expired
 
         int collidedLayer = collision.gameObject.layer;
+        bool hitSuccess = false;
 
         if (((1 << collidedLayer) & playerLayer) != 0 && damagePlayer)
         {
@@ -61,7 +62,9 @@ public class DoDamage : MonoBehaviour
         {
             HandleWallCollision();
         }
-    }*/
+
+        return hitSuccess;
+    }
 
     private void DamagePlayer(Collider2D collision)
     {

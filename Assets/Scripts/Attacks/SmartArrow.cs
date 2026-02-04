@@ -9,12 +9,12 @@ public class SmartArrow : EnemyProjectile // [수정] MonoBehaviour 대신 Enemy
     [SerializeField] private float lifeTime = 5f;
 
     private Rigidbody2D rb;
-    private DoDamage damageComponent;
+    
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         rb = GetComponent<Rigidbody2D>();
-        damageComponent = GetComponent<DoDamage>();
     }
 
     // [수정] 추상 메서드 Setup 구현 (override 필수)
@@ -24,7 +24,6 @@ public class SmartArrow : EnemyProjectile // [수정] MonoBehaviour 대신 Enemy
         this.target = target;
         this.speed = speed;
         this.damage = damage;
-        Debug.Log(damage + " " + speed + " " + damage);
 
         // DoDamage 컴포넌트에 데미지 주입
         if (damageComponent != null)
