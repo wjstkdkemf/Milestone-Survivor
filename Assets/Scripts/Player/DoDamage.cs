@@ -82,7 +82,8 @@ public class DoDamage : MonoBehaviour
 
     private void DamageEnemy(Collider2D collision)
     {
-        IDamageable enemy = collision.GetComponent<IDamageable>();
+        int id = collision.gameObject.GetInstanceID();
+        IDamageable enemy = ObjectPoolingManager.instance.GetDamageable(id);
         if (enemy != null)
         {
             enemy.TakeDamage(damage);//1. 데미지 보너스를 여기서 보정해주는 방법 2. 스킬 자체의 데미지를 보정하는 방법 *(1+PlayerStats.Instance.DamageBonus/100)

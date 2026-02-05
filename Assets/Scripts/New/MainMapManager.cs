@@ -41,36 +41,40 @@ public class MainMapManager : MonoBehaviour
     }
     private IEnumerator ProcessMapChange(string newMapAddress, string playerSpawnPosition)
     {
-        // 1. 이전 맵 및 오브젝트 풀 정리 (메모리 확보 핵심)
-        if (currentMapInstance != null)
-        {
-            // 오브젝트 풀에 남아있는 몬스터들 제거
-            //ObjectPoolingManager.instance.ClearAllPools();
-            
-            // Addressables를 통해 생성된 인스턴스 해제
-            Addressables.ReleaseInstance(currentMapInstance);
-            currentMapInstance = null;
-        }
-
-        // 2. 새 맵 로드 (주소 기반)
-        AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(newMapAddress, mapContainer);
-        yield return handle; // 로드 완료까지 대기
-
+        var handle = Addressables.InstantiateAsync(newMapAddress, mapContainer);
+        yield return handle;
+        //이전 맵 및 오브젝트 풀 정리
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
-            currentMapInstance = handle.Result;
-            currentMapInstance.name = newMapAddress;
+            GameObject newMap = handle.Result;
+            newMap.SetActive(false); // 잠시 꺼둠 (초기화 등을 위해)
 
-            // 3. 플레이어 이동
+            // 기존 맵 제거 (이제 제거해도 번들은 newMap 때문에 메모리에 남음)
+            if (currentMapInstance != null)
+            {
+                Addressables.ReleaseInstance(currentMapInstance);
+            }
+
+            // 교체 및 설정
+            currentMapInstance = newMap;
+            currentMapInstance.name = newMapAddress;
+            currentMapInstance.SetActive(true);
+
+            ObjectPoolingManager.instance.ClearAllPools();
+
+            // 플레이어 이동 및 마무리
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
                 TeleportManager.Instance.TeleportPlayer(player, newMapAddress, playerSpawnPosition);
             }
+            
+            FadeManager.Instance.FadeIn();
         }
-
-        // 4. 화면 밝게 하기
-        FadeManager.Instance.FadeIn();
+        else
+        {
+            Debug.LogError("맵 로드 실패: " + newMapAddress);
+        }
     }
     public void InitializeMap(string newMapAddress, string playerSpawnPosition)
     {

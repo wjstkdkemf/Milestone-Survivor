@@ -9,6 +9,8 @@ public class ObjectPoolingManager : MonoBehaviour
     public List<PooledObjectInfo> objectPools = new List<PooledObjectInfo>(); // 인스펙터 확인용
     private static GameObject ObjectPooledParent;
 
+    public Dictionary<int, IDamageable> damageableCache = new Dictionary<int, IDamageable>();
+
     private void Awake()
     {
         // Ensure singleton pattern
@@ -32,6 +34,14 @@ public class ObjectPoolingManager : MonoBehaviour
         {
             poolDictionary[pool.name] = pool;
         }
+    }
+    public IDamageable GetDamageable(int instanceID)
+    {
+        if (damageableCache.TryGetValue(instanceID, out IDamageable damageable))
+        {
+            return damageable;
+        }
+        return null;
     }
 
     private void Update()
@@ -84,6 +94,11 @@ public class ObjectPoolingManager : MonoBehaviour
             spawnableObject = Instantiate(ObjectToSpawn, Position, Rotation);
             spawnableObject.name = prefabName; 
             spawnableObject.transform.SetParent(ObjectPooledParent.transform);
+
+            if (spawnableObject.TryGetComponent<IDamageable>(out var damageable))
+            {
+                damageableCache[spawnableObject.GetInstanceID()] = damageable;
+            }
         }
         else
         {
@@ -120,9 +135,60 @@ public class ObjectPoolingManager : MonoBehaviour
         }
         else
         {
+            int id = Obj.GetInstanceID();
+            if (damageableCache.ContainsKey(id))
+            {
+                damageableCache.Remove(id);
+            }
             Debug.LogWarning($"Pool not found for '{goName}'. Destroying.");
             Destroy(Obj);
         }
+    }
+    public void ReturnAllActiveObjectsToPool()
+    {
+        if (ObjectPooledParent != null)
+        {
+            // PoolParent 아래에 있는 모든 활성 오브젝트를 찾아서 반환
+            // (리스트를 역순으로 돌 필요 없이, 자식 트랜스폼을 순회)
+            foreach (Transform child in ObjectPooledParent.transform)
+            {
+                if (child.gameObject.activeSelf)
+                {
+                    ReturnObjectToPool(child.gameObject);
+                }
+            }
+        }
+    }
+    public void ClearAllPools()
+    {
+        // 모든 풀의 오브젝트 파괴
+        foreach (var pool in objectPools)
+        {
+            if (pool.gameObjects != null)
+            {
+                foreach (var obj in pool.gameObjects)
+                {
+                    if (obj != null) Destroy(obj);
+                }
+                pool.gameObjects.Clear();
+            }
+        }
+        
+        // 화면에 활성화되어 있는(풀에 안 들어온) 오브젝트들도 파괴
+        if (ObjectPooledParent != null)
+        {
+            foreach (Transform child in ObjectPooledParent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        // 딕셔너리 및 캐시 초기화
+        poolDictionary.Clear();
+        objectPools.Clear();
+        damageableCache.Clear(); // IDamageable 캐시도 비움
+
+        Debug.Log("ObjectPoolingManager: 모든 풀 완전 초기화 완료");
     }
 }
 public class PooledObjectInfo

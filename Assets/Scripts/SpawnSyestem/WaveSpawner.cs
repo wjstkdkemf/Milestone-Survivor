@@ -1,13 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using System.Collections; // Required for Coroutines
-
+using System.Collections;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 public class WaveSpawner : MonoBehaviour
 {
     public static WaveSpawner Instance;
 
     public List<Wave> WavesList = new List<Wave>();
+    private Dictionary<string, GameObject> _loadedEnemyPrefabs = new Dictionary<string, GameObject>();
+    private List<AsyncOperationHandle<GameObject>> _loadedHandles = new List<AsyncOperationHandle<GameObject>>();
     [SerializeField] private TMP_Text WaveText;
     [SerializeField] private Camera playerCamera;
     private Transform playerTransform;
@@ -150,6 +153,48 @@ public class WaveSpawner : MonoBehaviour
         WavesList = new List<Wave>(newWaves); 
         CurrentWave = 0;
         isClearingStage = false;
+        //GameManager.Instance.CanSpawn = true;
+
+        StartCoroutine(LoadWaveAssetsAndStart());
+        //GenerateWave();
+    }
+    private IEnumerator LoadWaveAssetsAndStart()
+    {
+        // 로딩 중임을 알리는 UI 처리 등이 필요하다면 여기서 수행
+
+        // 모든 웨이브를 순회하며 필요한 몬스터 수집
+        HashSet<string> assetsToLoad = new HashSet<string>();
+        foreach (var wave in WavesList)
+        {
+            foreach (var enemyInfo in wave.Enemys)
+            {
+                // AssetReference가 유효하고, 아직 로드되지 않았다면 리스트에 추가
+                if (enemyInfo.Enemy != null && enemyInfo.Enemy.RuntimeKeyIsValid())
+                {
+                    assetsToLoad.Add(enemyInfo.Enemy.AssetGUID);
+                }
+            }
+        }
+
+        foreach (var guid in assetsToLoad)
+        {
+            if (_loadedEnemyPrefabs.ContainsKey(guid)) continue;
+
+            var handle = Addressables.LoadAssetAsync<GameObject>(guid);
+            yield return handle;
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                _loadedEnemyPrefabs.Add(guid, handle.Result);
+                _loadedHandles.Add(handle);
+            }
+            else
+            {
+                Debug.LogError($"Failed to load enemy asset: {guid}");
+            }
+        }
+
+        Debug.Log("모든 몬스터 에셋 로드 완료. 웨이브 시작.");
         GameManager.Instance.CanSpawn = true;
         GenerateWave();
     }
@@ -165,6 +210,18 @@ public class WaveSpawner : MonoBehaviour
         LastSpawn = false;
         isClearingStage = false;
         StopAllCoroutines(); // Stop any running coroutines like ClearStageAfterItemCollection
+
+        //ReleaseWaveAssets();
+    }
+    public void ReleaseWaveAssets()
+    {
+        foreach (var handle in _loadedHandles)
+        {
+            Addressables.Release(handle);
+        }
+        _loadedHandles.Clear();
+        _loadedEnemyPrefabs.Clear();
+        Debug.Log("몬스터 에셋 메모리 해제 완료.");
     }
 
     private IEnumerator ClearStageAfterItemCollection()
@@ -419,7 +476,16 @@ public class WaveSpawner : MonoBehaviour
         {
             if (randomValue <= Enemy.Chance)
             {
-                return Enemy.Enemy;
+                string guid = Enemy.Enemy.AssetGUID;
+                if (_loadedEnemyPrefabs.TryGetValue(guid, out GameObject prefab))
+                {
+                    return prefab;
+                }
+                else
+                {
+                    Debug.LogWarning($"Enemy asset not loaded: {guid}");
+                    return null;
+                }
             }
             randomValue -= Enemy.Chance;
         }
@@ -446,7 +512,7 @@ public class Wave
 [System.Serializable]
 public class Enemys
 {
-    public GameObject Enemy;
+    public AssetReferenceGameObject Enemy;
     [Range(0, 100)]
     public int Chance;
 }
