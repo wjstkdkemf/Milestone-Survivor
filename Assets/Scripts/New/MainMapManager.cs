@@ -13,6 +13,7 @@ public class MainMapManager : MonoBehaviour
     private GameObject currentMapInstance;
     //public List<GameObject> mapInstances = new List<GameObject>();
     public GameObject TeleportUI;
+    private string currentMapTheme = "";
 
     void Awake()
     {
@@ -29,6 +30,8 @@ public class MainMapManager : MonoBehaviour
     {
         if (currentMapInstance != null)
             Addressables.ReleaseInstance(currentMapInstance);
+
+        Instance = null;
     }
 
     public void ChangeMap(string newMapAddress, string playerSpawnPosition)
@@ -41,6 +44,9 @@ public class MainMapManager : MonoBehaviour
     }
     private IEnumerator ProcessMapChange(string newMapAddress, string playerSpawnPosition)
     {
+        string[] nameParts = newMapAddress.Split(' ');
+        string newTheme = (nameParts.Length > 0) ? nameParts[0] : newMapAddress;
+
         var handle = Addressables.InstantiateAsync(newMapAddress, mapContainer);
         yield return handle;
         //이전 맵 및 오브젝트 풀 정리
@@ -54,13 +60,22 @@ public class MainMapManager : MonoBehaviour
             {
                 Addressables.ReleaseInstance(currentMapInstance);
             }
+            if(currentMapTheme != "" && currentMapTheme != newTheme)
+            {
+                ObjectPoolingManager.instance.ClearAllPools();
+                WaveSpawner.Instance.ReleaseWaveAssets();
+            }
+            else
+            {
+                ObjectPoolingManager.instance.ReturnAllActiveObjectsToPool();
+            }
+
+            currentMapTheme = newTheme;
 
             // 교체 및 설정
             currentMapInstance = newMap;
             currentMapInstance.name = newMapAddress;
             currentMapInstance.SetActive(true);
-
-            ObjectPoolingManager.instance.ClearAllPools();
 
             // 플레이어 이동 및 마무리
             GameObject player = GameObject.FindGameObjectWithTag("Player");

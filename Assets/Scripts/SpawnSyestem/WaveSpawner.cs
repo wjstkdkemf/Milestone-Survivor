@@ -512,7 +512,7 @@ public class Wave
 [System.Serializable]
 public class Enemys
 {
-    public AssetReferenceGameObject Enemy;
+    public AssetReference Enemy;
     [Range(0, 100)]
     public int Chance;
 }
