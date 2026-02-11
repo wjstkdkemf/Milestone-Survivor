@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4297926786030371863
+--- !u!1 &6122877895079379237
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,40 +8,42 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2427735592014166784}
-  - component: {fileID: 1389983516031664742}
-  - component: {fileID: 2146752558710800150}
-  - component: {fileID: 425809304595807850}
-  - component: {fileID: 8439886273045831116}
+  - component: {fileID: 3674902622389011841}
+  - component: {fileID: 9035511306770232905}
+  - component: {fileID: 81368178482250821}
+  - component: {fileID: 3818055999219736079}
+  - component: {fileID: -8385617512907771293}
+  - component: {fileID: 75390132348889614}
+  - component: {fileID: 4973453583499332392}
   m_Layer: 0
-  m_Name: Firetrail
+  m_Name: Meteor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2427735592014166784
+--- !u!4 &3674902622389011841
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4297926786030371863}
+  m_GameObject: {fileID: 6122877895079379237}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.71, y: 0.619, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.78, y: 0.33, z: 0}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1389983516031664742
+--- !u!212 &9035511306770232905
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4297926786030371863}
+  m_GameObject: {fileID: 6122877895079379237}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -75,29 +77,29 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: -5203152566283587904, guid: 2b16567b4487617499f39aa081e152ec, type: 3}
+  m_SortingOrder: 2
+  m_Sprite: {fileID: -891250280, guid: b83fbfa14da33504e92bb8b75a78d8c6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.825, y: 0.825}
+  m_Size: {x: 0.64, y: 0.64}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &2146752558710800150
+--- !u!95 &81368178482250821
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4297926786030371863}
+  m_GameObject: {fileID: 6122877895079379237}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5c4c583cbbf6a4844820de2b26ab9925, type: 2}
+  m_Controller: {fileID: 9100000, guid: ca1f0dde097ed704a958b98afee49dea, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -108,13 +110,13 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!58 &425809304595807850
-CircleCollider2D:
+--- !u!61 &3818055999219736079
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4297926786030371863}
+  m_GameObject: {fileID: 6122877895079379237}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -140,16 +142,26 @@ CircleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.02120769, y: -0.11227975}
+  m_Offset: {x: -0.041492134, y: -0.11999738}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2.25, y: 2.25}
+    newSize: {x: 0.64, y: 0.64}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Radius: 0.096990995
---- !u!114 &8439886273045831116
+  m_Size: {x: 0.85258096, y: 2.0100052}
+  m_EdgeRadius: 0
+--- !u!114 &-8385617512907771293
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4297926786030371863}
+  m_GameObject: {fileID: 6122877895079379237}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 225b719ab7b85f14cb1a98316b0bc34e, type: 3}
@@ -158,11 +170,11 @@ MonoBehaviour:
   damage: 5
   damagePlayer: 0
   damageEnemy: 1
-  selfDestroy: 1
+  selfDestroy: 0
   destroyAfterHit: 0
-  IsUsingObjetPooling: 1
+  IsUsingObjetPooling: 0
   lifeTime: 3
-  startWaitTime: 1
+  startWaitTime: 0
   playerLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -173,5 +185,48 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   shieldLayer:
+    serializedVersion: 2
+    m_Bits: 0
+--- !u!50 &75390132348889614
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6122877895079379237}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.0001
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &4973453583499332392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6122877895079379237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3ec72d88db518b419e71b51323e2f3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  explosionRadius: 3
+  targetLayerMask:
     serializedVersion: 2
     m_Bits: 0

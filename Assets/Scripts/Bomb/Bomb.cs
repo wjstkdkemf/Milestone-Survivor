@@ -14,7 +14,7 @@ public class Bomb : MonoBehaviour
     {
         if (collision.tag == "Enemy")
         {
-            collision.GetComponent<IDamageable>().TakeDamage(Damage);
+            //collision.GetComponent<IDamageable>().TakeDamage(Damage);
          
            
         }

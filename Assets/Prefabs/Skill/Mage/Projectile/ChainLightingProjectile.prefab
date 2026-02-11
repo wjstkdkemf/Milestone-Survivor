@@ -152,7 +152,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4297926786030371863}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 225b719ab7b85f14cb1a98316b0bc34e, type: 3}
   m_Name: 
@@ -163,8 +163,8 @@ MonoBehaviour:
   selfDestroy: 1
   destroyAfterHit: 1
   IsUsingObjetPooling: 1
-  lifeTime: 0.5
-  startWaitTime: 0.2
+  lifeTime: 1
+  startWaitTime: 0
   playerLayer:
     serializedVersion: 2
     m_Bits: 0

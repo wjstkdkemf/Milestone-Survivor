@@ -13,6 +13,8 @@ public class EvolvedFireballProjectile : MonoBehaviour
     private float spawnDistanceThreshold;
 
     private Vector3 lastSpawnPosition; // 마지막으로 장판을 깐 위치
+    //private bool hasHit;
+    private DoDamage damageComponent;
 
     // 무기에서 호출하여 데이터 초기화
     public void Setup(Transform newTarget, float newSpeed, GameObject trail, float tDamage, float tDuration, float tSpawnDist)
@@ -31,6 +33,10 @@ public class EvolvedFireballProjectile : MonoBehaviour
         {
             RotateTowardsTarget(target.position);
         }
+    }
+    private void OnEnable()
+    {
+        damageComponent = GetComponent<DoDamage>();        
     }
 
     void Update()
@@ -80,4 +86,11 @@ public class EvolvedFireballProjectile : MonoBehaviour
     }
 
     // 충돌 및 파괴는 같이 붙어있는 DoDamage 스크립트가 처리합니다.
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (damageComponent != null && damageComponent.TryApplyDamage(collision))
+        {
+            //HandleSelfDestruction();
+        }
+    }
 }

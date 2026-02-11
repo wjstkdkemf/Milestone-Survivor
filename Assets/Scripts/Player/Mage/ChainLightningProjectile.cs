@@ -19,8 +19,6 @@ public class ChainLightningProjectile : MonoBehaviour
     private bool hasChained = false; // 중복 체인 방지용
     private DoDamage damageComponent;
     private GameObject originalPrefab;
-    
-    private float maxLifeTime = 3.0f;
 
     // 무기 스크립트에서 호출하여 정보 초기화
     public void Setup(Transform newTarget, float newSpeed, int chains, float range, float reduction, LayerMask layer, HashSet<GameObject> visited , GameObject originalPrefabRef)
@@ -40,7 +38,7 @@ public class ChainLightningProjectile : MonoBehaviour
         damageComponent = GetComponent<DoDamage>();
         if (damageComponent != null)
         {
-            damageComponent.enabled = false; 
+            //damageComponent.enabled = false; 
             
             // 만약 DoDamage의 SelfDestroy 코루틴이 필요하다면 수동으로 실행해줘야 할 수 있으나,
             // 보통 투사체는 타겟에 닿으면 즉시 사라지므로 LifeTime만 체크하면 됩니다.
@@ -75,20 +73,7 @@ public class ChainLightningProjectile : MonoBehaviour
         hasChained = false;
 
         if(damageComponent == null) damageComponent = GetComponent<DoDamage>();
-        if(damageComponent != null) damageComponent.enabled = false;
-        // [추가 2] 태어나자마자 자폭 타이머를 실행합니다.
-        // 3초(maxLifeTime) 뒤에는 무슨 일이 있어도 무조건 사라지게 예약합니다.
-        StartCoroutine(AutoDestructRoutine());
-    }
-    IEnumerator AutoDestructRoutine()
-    {
-        yield return new WaitForSeconds(maxLifeTime);
-        
-        // 아직도 활성화되어 있다면 강제 폐기
-        if (gameObject.activeInHierarchy)
-        {
-            HandleDestruction();
-        }
+        //if(damageComponent != null) damageComponent.enabled = false;
     }
     private void RotateTowardsTarget()
     {
@@ -98,21 +83,15 @@ public class ChainLightningProjectile : MonoBehaviour
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
-    // DoDamage 스크립트가 작동하기 직전에 충돌을 감지하여 다음 체인을 실행
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (hasChained) return;
-        if (target == null) return;
+        if (hasChained || (enemyLayerMask.value & (1 << collision.gameObject.layer)) == 0) 
+            return;
 
-        // 충돌한 오브젝트가 '현재 나의 타겟'인지 확인
-        if (collision.gameObject == target.gameObject)
-        {
-            HitTarget(collision);
-        }
-        else
-        {
-            Debug.Log("오류발생");
-        }
+        if (visitedTargets.Contains(collision.gameObject)) 
+            return;
+
+        HitTarget(collision);
     }
 
     private void HitTarget(Collider2D collision)
@@ -120,21 +99,15 @@ public class ChainLightningProjectile : MonoBehaviour
         hasChained = true;
         visitedTargets.Add(collision.gameObject);
 
-        // 1. 데미지 주기 (DoDamage 컴포넌트의 수치 활용)
-        IDamageable enemy = collision.GetComponent<IDamageable>();
-        if (enemy != null && damageComponent != null)
-        {
-            enemy.TakeDamage(damageComponent.damage);
-        }
-
         // 2. 다음 체인 실행
         if (remainingChains > 0)
         {
             ChainToNextTarget(collision.transform.position);
         }
-
-        // 3. 자신 파괴 (DoDamage의 설정을 참고하여 풀링 반환 또는 파괴)
-        HandleDestruction();
+        if (damageComponent != null)
+        {
+            damageComponent.TryApplyDamage(collision);
+        }
     }
 
     private void ChainToNextTarget(Vector3 currentHitPosition)
@@ -183,20 +156,6 @@ public class ChainLightningProjectile : MonoBehaviour
         if (nextProjectile.TryGetComponent<ChainLightningProjectile>(out var nextChainComponent))
         {
             nextChainComponent.Setup(nextTarget, speed, remainingChains - 1, chainRange, damageReduction, enemyLayerMask, visitedTargets, originalPrefab);
-        }
-    }
-
-    private void HandleDestruction()
-    {
-        StopAllCoroutines();
-        // DoDamage 스크립트의 설정을 존중하여 파괴 처리
-        if (damageComponent != null && damageComponent.IsUsingObjetPooling)
-        {
-            ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
         }
     }
 }

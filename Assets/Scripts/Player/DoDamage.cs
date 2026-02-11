@@ -27,7 +27,7 @@ public class DoDamage : MonoBehaviour
     [SerializeField] public LayerMask wallLayer;
     [SerializeField] public LayerMask shieldLayer;
 
-    private void Start()
+    private void OnEnable()
     {
         waitTime = 0f; // Start with 0 to allow initial damage application
         if (selfDestroy)
@@ -129,6 +129,7 @@ public class DoDamage : MonoBehaviour
     IEnumerator SelfDestroy(float lifetime)
     {
         yield return new WaitForSeconds(lifetime);
+
         HandleSelfDestruction();
     }
 }

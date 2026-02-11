@@ -54,7 +54,7 @@ public class LeverPuzzleManager : MonoBehaviour
         {
             Debug.Log("문이 열렸습니다!");
             GameProgressManager.Instance.Unlock(ProgressID);
-            door.SetActive(false);
+            //door.SetActive(false);
             // 성공 사운드 재생
         }
     }
