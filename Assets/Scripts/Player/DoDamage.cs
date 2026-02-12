@@ -65,6 +65,19 @@ public class DoDamage : MonoBehaviour
 
         return hitSuccess;
     }
+    public bool TryCheakEnemy(Collider2D collision)
+    {
+        if (this.enabled == false || this.gameObject.activeInHierarchy == false) 
+            return false;
+
+        int collidedLayer = collision.gameObject.layer;
+
+        if (((1 << collidedLayer) & enemyLayer) != 0 && damageEnemy)
+        {
+            return true;
+        }
+        return false;
+    }
 
     private void DamagePlayer(Collider2D collision)
     {

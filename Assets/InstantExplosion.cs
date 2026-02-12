@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class InstantExplosion : MonoBehaviour
 {
-private DoDamage damageComponent;
+    private DoDamage damageComponent;
     
     [Header("Explosion Settings")]
     public float explosionRadius = 3f;

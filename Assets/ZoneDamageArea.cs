@@ -39,7 +39,7 @@ public class ZoneDamageArea : MonoBehaviour
             targetsInside.Remove(collision);
         }
     }
-    private void Update()
+    protected virtual void Update()
     {
         tickTimer -= Time.deltaTime;
 

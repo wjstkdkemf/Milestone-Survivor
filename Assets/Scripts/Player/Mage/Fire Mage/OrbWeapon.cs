@@ -13,7 +13,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
 
     // [내부 변수]
     private GameObject orbPrefab; // 작은 구체 프리팹
-    private List<GameObject> spawnedOrbs = new List<GameObject>();
+    protected List<GameObject> spawnedOrbs = new List<GameObject>();
     private float angleStep;
 
     private PlayerStats playerStats;   // 데미지 계산용
@@ -78,13 +78,16 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
             
             // 데미지 정보 전달
             // (IceOrb 스크립트가 있다면 그대로 사용)
-            var iceOrbScript = orb.GetComponent<IceOrb>();
-            if(iceOrbScript != null)
-                iceOrbScript.SetInfo(GetDamage(), 0); // 0은 크리티컬 확률 등
-            
+            SetupSpawnedOrb(orb);
             spawnedOrbs.Add(orb);
         }
     }
+    protected virtual void SetupSpawnedOrb(GameObject orb)
+{
+    var OrbScript = orb.GetComponent<Orb>();
+    if(OrbScript != null)
+        OrbScript.SetInfo(GetDamage(), 0);
+}
 
     Vector3 GetOrbPosition(float angle)
     {
@@ -136,7 +139,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         currentRotationSpeed += amount;
     }
     
-    public void UpgradeDamage(float amount)
+    public virtual void UpgradeDamage(float amount)
     {
         currentDamage += amount;
         SpawnOrbs(); // 데미지 갱신을 위해 재소환 (혹은 기존 orb들에 접근해서 수치만 변경)
@@ -148,7 +151,6 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         currentDamage++;
         SpawnOrbs();
     }
-
     public float GetDamage()
     {
         float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
