@@ -15,15 +15,15 @@ MonoBehaviour:
   weaponName: FireTrailOrb
   icon: {fileID: 1958572337, guid: b5224b5a45a166649b086ae1ebf0c01a, type: 3}
   description: 
-  weaponPrefab: {fileID: 0}
+  weaponPrefab: {fileID: 2875843379106286365, guid: a3c2e050776cfde4f99b892503b61805, type: 3}
   baseDamage: 5
   baseCooldown: 0
   fusionWeaponData: []
   orbCount: 1
-  radius: 2
+  radius: 4
   rotationSpeed: 50
-  orbProjectilePrefab: {fileID: 0}
-  trailPrefab: {fileID: 0}
+  orbProjectilePrefab: {fileID: 8800286586871075592, guid: 1360ff1199966bb43a2d36b3ef9584ee, type: 3}
+  trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
   spawnInterval: 0.2
   trailDuration: 2
   trailDamageScaling: 0.5

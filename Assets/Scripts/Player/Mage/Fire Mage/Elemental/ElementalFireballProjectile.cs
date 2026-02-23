@@ -16,11 +16,13 @@ public class ElementalFireballProjectile : MonoBehaviour
     private float lastFireBoomDamage;
 
     private Vector3 lastSpawnPosition; // 마지막으로 장판을 깐 위치
+    private Vector3 beforeDirection ;
     //private bool hasHit;
     private DoDamage damageComponent;
 
     // 무기에서 호출하여 데이터 초기화
-    public void Setup(Transform newTarget, float newSpeed, GameObject trail, float tDamage, float tDuration, float tSpawnDist , GameObject FireBoomPrefab , float FireBoomDamage)
+    public void Setup(Transform newTarget, float newSpeed, GameObject trail, float tDamage, float tDuration, float tSpawnDist , 
+                        GameObject FireBoomPrefab , float FireBoomDamage)
     {
         target = newTarget;
         speed = newSpeed;
@@ -41,18 +43,20 @@ public class ElementalFireballProjectile : MonoBehaviour
     }
     private void OnEnable()
     {
+        beforeDirection = transform.forward;
         damageComponent = GetComponent<DoDamage>();        
     }
 
     void Update()
     {
         // 1. 이동 로직
-        Vector3 moveDirection = transform.right; // 기본 직진
+        Vector3 moveDirection = beforeDirection; // 기본 직진
 
         if (target != null)
         {
             // 타겟이 있으면 유도 (원하면 TurretBullet처럼 직사로 바꿔도 됨)
-            moveDirection = (target.position - transform.position).normalized;
+            beforeDirection = (target.position - transform.position).normalized;
+            moveDirection = beforeDirection;
             RotateTowardsTarget(target.position);
         }
 
@@ -95,11 +99,10 @@ public class ElementalFireballProjectile : MonoBehaviour
     {
         if (damageComponent != null && damageComponent.TryCheakEnemy(collision))
         {
-            Debug.Log("체크용");
             GameObject FireBoom = Instantiate(lastFireBoom, transform.position, Quaternion.identity);
-            if (FireBoom.TryGetComponent<DoDamage>(out var damageComponent))
+            if (FireBoom.TryGetComponent<DoDamage>(out var DamageComponent))
             {
-                damageComponent.damage = lastFireBoomDamage;//GetDamage();
+                DamageComponent.damage = lastFireBoomDamage;//GetDamage();
             }
             damageComponent.TryApplyDamage(collision);
             //HandleSelfDestruction();

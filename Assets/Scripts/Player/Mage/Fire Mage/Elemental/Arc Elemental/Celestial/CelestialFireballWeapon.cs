@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
-public class ElementalFireballWeapon : WeaponBase
+public class CelestialFireballWeapon : WeaponBase
 {
     // [런타임 데이터]
     private int bulletNumber;
@@ -19,6 +18,9 @@ public class ElementalFireballWeapon : WeaponBase
 
     private float currentBaseDamage;
     private float currentPlayerScaling = 1.0f; // 기본값
+    private int chains;
+    private float chainRange;
+
 
     // [내부 변수]
     private GameObject fireballPrefab;
@@ -30,7 +32,7 @@ public class ElementalFireballWeapon : WeaponBase
 
     public override void Initialize(WeaponDataSO data)
     {
-        if (data is ElementalFireballSO evoData)
+        if (data is CelestialFireballSO evoData)
         {
             bulletNumber = evoData.bulletNumber;
             fireRate = evoData.baseCooldown;
@@ -45,6 +47,9 @@ public class ElementalFireballWeapon : WeaponBase
             trailDuration = evoData.trailDuration;
             trailSpawnDistance = evoData.trailSpawnDistance;
 
+            chains = evoData.chainCount;
+            chainRange = evoData.chainRange;
+
             fireballPrefab = evoData.fireballPrefab;
             trailPrefab = evoData.trailPrefab;
             LastFireBoomPrefab = evoData.lastFireBoomPrefab;
@@ -52,7 +57,7 @@ public class ElementalFireballWeapon : WeaponBase
         }
         else
         {
-            Debug.LogError("잘못된 데이터! ElementalFireballDataSO가 필요합니다.");
+            Debug.LogError("잘못된 데이터! CelestialFireballDataSO가 필요합니다.");
         }
 
         if (PlayerStats.Instance != null) playerStats = PlayerStats.Instance;
@@ -90,21 +95,20 @@ public class ElementalFireballWeapon : WeaponBase
         // 투사체 풀링 생성
         GameObject fireball = ObjectPoolingManager.instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
 
-        // 1. 직격 데미지 설정 (투사체 자체의 DoDamage)
         float directDamage = GetDamage();
-        if (fireball.TryGetComponent<DoDamage>(out var directDoDamage))
-        {
-            directDoDamage.damage = directDamage;
-        }
+        float finalTrailDamage = directDamage * trailDamageScaling;
+        lastFireBoomDamage = GetFireBoomDamage();
 
         // 2. 이동 및 장판 설정 (새로운 스크립트)
-        if (fireball.TryGetComponent<ElementalFireballProjectile>(out var evoScript))
+        if (fireball.TryGetComponent<CelestialFireballProjectile>(out var evoScript))
         {
-            // 장판 데미지 계산 (직격 데미지의 N%)
-            float finalTrailDamage = directDamage * trailDamageScaling;
-            lastFireBoomDamage = GetFireBoomDamage();
-            
-            evoScript.Setup(target, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance , LastFireBoomPrefab , lastFireBoomDamage);
+            ElementalFireballSO evoData = myData as ElementalFireballSO;
+
+            // 투사체 셋업에 모든 정보를 넘겨줍니다.
+            evoScript.Setup(
+                target, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
+                LastFireBoomPrefab, lastFireBoomDamage, lastFireBoomSize, chains, chainRange, enemyLayerMask
+            );
         }
     }
 

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ced95ca00ea0fa4ab8b26e0666bf493, type: 3}
+  m_Name: U_Celestial Fire ball
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 0}
+  Title: CelestialFireball
+  Description: 
+  Points: 0
+  MaxPoints: 5
+  UpgradesList: []
+  Chance: 0
+  InitialChance: 34
+  linkedWeaponData: {fileID: 11400000, guid: 2db11224769e11749a3c9ef71a8616e8, type: 2}
+  upgradeType: 0
+  statValue: 0

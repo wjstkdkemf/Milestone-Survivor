@@ -9905,7 +9905,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 64cf61fbd4ca23d479e8483c8cba65ef, type: 3}
+  m_Sprite: {fileID: 2881655999765225791, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -24222,12 +24222,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapContainer: {fileID: 1107543203}
-  mapInstances:
-  - {fileID: 1805105911574086843, guid: f7974406deb7aa6499afcf535e524049, type: 3}
-  - {fileID: 1805105911574086843, guid: 6eca8d2256e71284c9deb459b8f4fd25, type: 3}
-  - {fileID: 1805105911574086843, guid: 217ad8778d635d7488f015ea89b20ea2, type: 3}
-  - {fileID: 1805105911574086843, guid: 72a2aa6183253ce4eaaac6d77a13c5bd, type: 3}
-  - {fileID: 1805105911574086843, guid: f702a4b5b050a564d98a5ad247fe3a13, type: 3}
   TeleportUI: {fileID: 1684763416}
 --- !u!114 &549850753
 MonoBehaviour:
@@ -26541,7 +26535,11 @@ MonoBehaviour:
   SceneName: Endless mode 2
   waves:
   - Enemys:
-    - Enemy: {fileID: 736919748020417951, guid: aa932de0246bc694898a9856387ac7b8, type: 3}
+    - Enemy:
+        m_AssetGUID: 
+        m_SubObjectName: 
+        m_SubObjectType: 
+        m_EditorAssetChanged: 0
       Chance: 100
     waveDuration: 5
     SpawnTimer: 1
@@ -26552,7 +26550,11 @@ MonoBehaviour:
     RandomPostions: 1
     DontUseObjectPooling: 0
   - Enemys:
-    - Enemy: {fileID: 2797327662496399954, guid: f469f5168c651c34a9c531feda95f330, type: 3}
+    - Enemy:
+        m_AssetGUID: 
+        m_SubObjectName: 
+        m_SubObjectType: 
+        m_EditorAssetChanged: 0
       Chance: 100
     waveDuration: 5
     SpawnTimer: 1
@@ -26563,7 +26565,11 @@ MonoBehaviour:
     RandomPostions: 1
     DontUseObjectPooling: 0
   - Enemys:
-    - Enemy: {fileID: 736919748020417951, guid: aa932de0246bc694898a9856387ac7b8, type: 3}
+    - Enemy:
+        m_AssetGUID: 
+        m_SubObjectName: 
+        m_SubObjectType: 
+        m_EditorAssetChanged: 0
       Chance: 100
     waveDuration: 5
     SpawnTimer: 1
@@ -100645,6 +100651,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: -18.338379
       objectReference: {fileID: 0}
+    - target: {fileID: 155638792201495032, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -16.046204
+      objectReference: {fileID: 0}
     - target: {fileID: 380689636307264780, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -102031,7 +102041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7645007112584721385, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -6.011963
+      value: -6.012024
       objectReference: {fileID: 0}
     - target: {fileID: 7645007112584721386, guid: d2dc97bf11274b7468aad7923c44c5e7, type: 3}
       propertyPath: m_IsActive
