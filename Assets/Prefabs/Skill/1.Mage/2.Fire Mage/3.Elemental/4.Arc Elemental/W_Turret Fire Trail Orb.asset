@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e34eabbecf79fb4e8ec5f3c2e10edbc, type: 3}
+  m_Name: W_Turret Fire Trail Orb
+  m_EditorClassIdentifier: 
+  weaponName: TurretFireTrailOrb
+  icon: {fileID: 5088316998373936774, guid: 2eca09229b3d802468468bc9f37e70ca, type: 3}
+  description: 
+  weaponPrefab: {fileID: 8133142474223884936, guid: 4996d044a893ceb4fa2aff921997f44d, type: 3}
+  baseDamage: 5
+  baseCooldown: 3
+  fusionWeaponData: []
+  orbCount: 2
+  radius: 2
+  rotationSpeed: 50
+  orbProjectilePrefab: {fileID: 8800286586871075592, guid: 190add0d91ad0c7438f8581cf2fe89af, type: 3}
+  trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
+  spawnInterval: 0.2
+  trailDuration: 2
+  trailDamageScaling: 0.5
+  projectilePrefab: {fileID: 5356050523648152410, guid: 3933d887ac7dd514f8fdf3c18ca2e79b, type: 3}
+  fireRate: 1.5
+  fireRange: 8
+  projectileDamageScaling: 1
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 67109120
