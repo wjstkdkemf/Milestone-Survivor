@@ -172,9 +172,10 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     {
         if (flashMaterial != null && spriteRenderer != null)
         {
+            Material beforeMaterial = spriteRenderer.material;
             spriteRenderer.material = flashMaterial;
             yield return new WaitForSeconds(duration);
-            spriteRenderer.material = originalMaterial;
+            spriteRenderer.material = beforeMaterial;
         }
         flashRoutine = null;
     }

@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 2146752558710800150}
   - component: {fileID: 425809304595807850}
   - component: {fileID: 8439886273045831116}
-  - component: {fileID: 703019328651793635}
+  - component: {fileID: 1391742689896500284}
   m_Layer: 0
-  m_Name: Firetrail
+  m_Name: Aura
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 4297926786030371863}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.71, y: 0.619, z: 0}
+  m_LocalPosition: {x: -0.8122, y: 0.4596, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -5203152566283587904, guid: 2b16567b4487617499f39aa081e152ec, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.15686275}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -143,7 +143,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: -0.02120769, y: -0.11227975}
   serializedVersion: 2
-  m_Radius: 0.096990995
+  m_Radius: 0.5
 --- !u!114 &8439886273045831116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,7 +159,7 @@ MonoBehaviour:
   damage: 5
   damagePlayer: 0
   damageEnemy: 1
-  selfDestroy: 1
+  selfDestroy: 0
   destroyAfterHit: 0
   IsUsingObjetPooling: 1
   lifeTime: 3
@@ -176,7 +176,7 @@ MonoBehaviour:
   shieldLayer:
     serializedVersion: 2
     m_Bits: 0
---- !u!114 &703019328651793635
+--- !u!114 &1391742689896500284
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4297926786030371863}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d755fc9b9eea0340aada51d6d001822, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d60d61a235448e47b293e18a4461cb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damageComponent: {fileID: 0}

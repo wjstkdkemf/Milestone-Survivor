@@ -24,7 +24,7 @@ public class ZoneDamageArea : MonoBehaviour
         tickTimer = tickRate; // 켜지자마자 첫 타격을 주기 위해 조절 가능
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
         if (!targetsInside.Contains(collision))
         {
@@ -32,7 +32,7 @@ public class ZoneDamageArea : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    protected virtual void OnTriggerExit2D(Collider2D collision)
     {
         if (targetsInside.Contains(collision))
         {
@@ -57,6 +57,7 @@ public class ZoneDamageArea : MonoBehaviour
         for (int i = targetsInside.Count - 1; i >= 0; i--)
         {
             Collider2D target = targetsInside[i];
+            Debug.Log(targetsInside.Count);
 
             if (target == null || !target.gameObject.activeInHierarchy)
             {

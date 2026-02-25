@@ -34,6 +34,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     // ******************** Flash Elemnts*********************
     public Material flashMaterial;
+    public Color currentStateColor;
     protected float duration = .1f;
     protected SpriteRenderer spriteRenderer;
     protected Collider2D EnemyCollider2D;
@@ -51,6 +52,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     [SerializeField] private float checkInterval = 2.0f; // 검사 주기 (2초)
     [SerializeField] private float maxDistance = 30.0f;  // 이 거리를 넘으면 소환 (화면 밖)
     [SerializeField] private float respawnRadius = 15.0f; // 플레이어 주변 재소환 반경
+
+    [Header("Status Effects")]
+    private float baseSpeed; // 원래 이동 속도를 기억할 변수
+    private Coroutine slowCoroutine; // 현재 실행 중인 슬로우 코루틴
     private float maxDistanceSqr;
     // Multipliers based on monster rarity
     private readonly Dictionary<EnemyRarity, int> rarityMultipliers = new Dictionary<EnemyRarity, int>
@@ -77,8 +82,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         agent.acceleration = 100f; 
         agent.autoBraking = false; 
 
-        defaultColor = spriteRenderer.color; 
-
         if (boss)
         {
             spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>(); // Initialize the spriteRenderer
@@ -91,6 +94,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             originalMaterial = spriteRenderer.material;      // Initialize the original material
             EnemyCollider2D = GetComponent<Collider2D>();
         }
+        defaultColor = spriteRenderer.color;
+        currentStateColor = defaultColor;
+
+        baseSpeed = speed;
         maxDistanceSqr = maxDistance * maxDistance;
     }
     IEnumerator EnableAgentAndFollow()
@@ -282,6 +289,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             StartCoroutine(EnableAgentAndFollow());
             StartCoroutine(CheckDistanceRoutine());
         }
+
+        ResetStatusEffects();
     }
     public virtual void OnDisable()
     {
@@ -472,9 +481,73 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(duration);
-        spriteRenderer.color = defaultColor;
+        spriteRenderer.color = currentStateColor;
 
         flashRoutine = null;
+    }
+    public virtual void ApplySlow(float slowPercent)
+    {
+        // 무적 상태거나 이미 죽었으면 무시
+        if (I_frame || !IsActived || health <= 0) return;
+
+        // 이미 슬로우가 걸려있다면 기존 타이머를 취소합니다.
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+        }
+
+        float multiplier = 1f - Mathf.Clamp01(slowPercent);
+        speed = baseSpeed * multiplier;
+        
+        if (agent != null) agent.speed = speed; // NavMesh 속도도 같이 변경
+
+        currentStateColor = new Color(0.5f, 0.5f, 1f);
+        // 시각적 효과: 파란색으로 변하게 하기
+        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+    }
+    public virtual void ApplySlow(float slowPercent, float duration)
+    {
+        // 무적 상태거나 이미 죽었으면 무시
+        if (I_frame || !IsActived || health <= 0) return;
+
+        // 이미 슬로우가 걸려있다면 기존 타이머를 취소합니다.
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+        }
+
+        slowCoroutine = StartCoroutine(SlowRoutine(slowPercent, duration));
+    }
+    private IEnumerator SlowRoutine(float slowPercent, float duration)
+    {
+        //속도 감소 적용 (예: baseSpeed 10 * (1 - 0.3) = 7)
+        float multiplier = 1f - Mathf.Clamp01(slowPercent);
+        speed = baseSpeed * multiplier;
+        
+        if (agent != null) agent.speed = speed; // NavMesh 속도도 같이 변경
+
+        currentStateColor = new Color(0.5f, 0.5f, 1f);
+        // 시각적 효과: 파란색으로 변하게 하기
+        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+
+        // 지속 시간만큼 대기
+        yield return new WaitForSeconds(duration);
+
+        // 5. 지속 시간이 끝나면 원상 복구
+        ResetStatusEffects();
+    }
+    public void ResetStatusEffects()
+    {
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+            slowCoroutine = null;
+        }
+        // 속도 원상 복구
+        speed = baseSpeed;
+        if (agent != null) agent.speed = baseSpeed;
+        currentStateColor = defaultColor;
+        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
     }
 
     private Vector2 GetRandomPositionAround(Vector2 centerPosition, float radius)

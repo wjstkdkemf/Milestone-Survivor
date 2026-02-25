@@ -7,7 +7,7 @@ public class GoblinArcherScript : Enemy
 {
     [SerializeField] private float minMaintainDistance = 4.0f; // 이 거리보다 가까우면 도망감
     [SerializeField] private float changeDirectionInterval = 2.0f; // 방향 전환 주기
-    [SerializeField] private float strafeSpeed = 3.0f; // 옆으로 움직이는 속도
+    //[SerializeField] private float strafeSpeed = 3.0f; // 옆으로 움직이는 속도
     private float strafeTimer;
     private int strafeDir = 1; // 1: 오른쪽, -1: 왼쪽
 
@@ -109,7 +109,7 @@ public class GoblinArcherScript : Enemy
             finalMoveDir.Normalize();
 
             // 실제 이동 적용
-            transform.position += finalMoveDir * strafeSpeed * Time.deltaTime;
+            transform.position += finalMoveDir * speed * Time.deltaTime;
 
             // [중요] 이동 중에도 플레이어를 바라보게 함
             UpdateFacingDirection(delta);
