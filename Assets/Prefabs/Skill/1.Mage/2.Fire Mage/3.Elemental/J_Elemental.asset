@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc3039e302c6bd74baad8b2bb39b7d06, type: 3}
+  m_Name: J_Elemental
+  m_EditorClassIdentifier: 
+  jobName: Elemental
+  description: 
+  jobTier: 3
+  requirements:
+  - requiredUpgrade: {fileID: 11400000, guid: 9e190c724f5271947a7134d85564e176, type: 2}
+    requiredLevel: 2
+  - requiredUpgrade: {fileID: 11400000, guid: cf3fceedde3442540af6cf25771cf2ac, type: 2}
+    requiredLevel: 2
+  - requiredUpgrade: {fileID: 11400000, guid: e16f56a37297a244485623f3bbf505d1, type: 2}
+    requiredLevel: 2
+  - requiredUpgrade: {fileID: 11400000, guid: 059fbf23ff1d8224eb2e7c36e996725b, type: 2}
+    requiredLevel: 2
+  nextAbleJobs:
+  - {fileID: 11400000, guid: 4609999a65872cc4e87fe3de84c5ae36, type: 2}
+  bannedUpgrades: []
+  bonusUpgrades:
+  - {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
+  - {fileID: 11400000, guid: e77e5ccc08f0ec54d904c763c9d85b77, type: 2}
+  - {fileID: 11400000, guid: 401aa8ade2484c74e8d2c0d803ddb9c1, type: 2}
+  bonusChanceAmount: 50

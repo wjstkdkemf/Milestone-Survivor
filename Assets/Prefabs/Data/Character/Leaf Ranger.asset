@@ -19,7 +19,13 @@ MonoBehaviour:
   description: 
   Id: 0
   startingWeapon: {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
-  BaseHP: 80
+  StartingDeck:
+  - {fileID: 11400000, guid: 6546b45659e4e354c8c26712486b4c69, type: 2}
+  - {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
+  - {fileID: 11400000, guid: 6f27ff3e87d1f244ea48ca1940aaa0e8, type: 2}
+  - {fileID: 11400000, guid: a7596bb19f18c0a40aff25228bf7f51d, type: 2}
+  - {fileID: 11400000, guid: 3de82572370f9b746bb974258f8fd409, type: 2}
+  BaseHP: 1000
   Damage: 0
   MovementSpeed: 3
   Armor: 0

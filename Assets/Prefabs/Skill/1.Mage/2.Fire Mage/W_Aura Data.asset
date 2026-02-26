@@ -16,12 +16,12 @@ MonoBehaviour:
   icon: {fileID: 0}
   description: 
   weaponPrefab: {fileID: 7032629210314902157, guid: 78405d82dc4fd6244a22d88c861da3f2, type: 3}
-  baseDamage: 3
+  baseDamage: 0.5
   baseCooldown: 2
   fusionWeaponData: []
-  auraPrefab: {fileID: 7032629210314902157, guid: 78405d82dc4fd6244a22d88c861da3f2, type: 3}
-  baseRadius: 3
+  auraPrefab: {fileID: 4297926786030371863, guid: ec06abd6daaa74747b58d2017fc16266, type: 3}
+  baseRadius: 10
   tickRate: 0.5
   applyDamage: 1
   applySlow: 1
-  slowPercentage: 0.3
+  slowPercentage: 0.7

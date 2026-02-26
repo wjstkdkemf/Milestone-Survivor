@@ -35,8 +35,6 @@ public class AuraZone : ZoneDamageArea
             {
                 enemyMove.ApplySlow(slowPercentage);
             }
-            
-            Debug.Log($"{collision.name}에게 슬로우 {slowPercentage*100}% 부여!");
         }
     }
 
@@ -53,8 +51,6 @@ public class AuraZone : ZoneDamageArea
             {
                 enemyMove.ResetStatusEffects();
             }
-            
-            Debug.Log($"{collision.name} 슬로우 해제!");
         }
     }
 }

@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -639571069223099428}
   - component: {fileID: 3761190193143665214}
   - component: {fileID: -5406871495718923581}
+  - component: {fileID: -2803720151012050516}
   m_Layer: 8
   m_Name: TestBoss_1
   m_TagString: Enemy
@@ -155,7 +156,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2797327662496399954}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -190,12 +191,13 @@ MonoBehaviour:
   damagePlayer: 1
   damageEnemy: 0
   selfDestroy: 0
+  destroyAfterHit: 1
   IsUsingObjetPooling: 0
   lifeTime: 3
   startWaitTime: 0.2
   playerLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 696384
   enemyLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -285,13 +287,18 @@ MonoBehaviour:
   stopMoving: 0
   DamageText: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
   player: {fileID: 0}
+  playerHealth: {fileID: 0}
   _knockBackDuration: 0.2
   CantBeKnocked: 0
   flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
+  currentStateColor: {r: 0, g: 0, b: 0, a: 0}
   originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
   IsActived: 0
   DontUseObjectPooling: 0
   boss: 0
+  checkInterval: 2
+  maxDistance: 30
+  respawnRadius: 15
   currentState: 0
   idleTime: 2
   rangedAttackRange: 0.5
@@ -302,9 +309,32 @@ MonoBehaviour:
   slamEffectPrefab: {fileID: 0}
   playerLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 696384
   SquareSlamWarningPrefab: {fileID: 9026715396156587175, guid: 7a05ffbb587abc941bf1d655e79577de, type: 3}
   CircleSlamWarningPrefab: {fileID: 8506487129380186121, guid: 449785c0fc36bc4439ebcf03d6a3d942, type: 3}
   warningStartColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.7}
   warningEndColor: {r: 0, g: 0, b: 0, a: 0.9}
   JumpRadius: 3
+  landingKnockbackForce: 20
+--- !u!195 &-2803720151012050516
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2797327662496399954}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 1.5625
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 3.125
+  m_BaseOffset: 1.5625
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4

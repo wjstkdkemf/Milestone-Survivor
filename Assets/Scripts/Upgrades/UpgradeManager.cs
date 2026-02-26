@@ -50,7 +50,7 @@ public class UpgradeManager : MonoBehaviour
     // ========================================================================
     // [NEW] 리셋 기능 구현
     // ========================================================================
-    public void ResetRunData()
+    public void ResetRunData(List<UpgradeScriptableObject> startingDeck)
     {
         Debug.Log("새 게임을 위해 데이터를 초기화합니다...");
 
@@ -66,8 +66,10 @@ public class UpgradeManager : MonoBehaviour
             // 여기서 Chance도 초기값으로 돌려놔야 합니다.
             card.Chance = card.InitialChance; // (InitialChance 변수를 따로 뒀다면)
         }
-
-        UpgradeDeck = new List<UpgradeScriptableObject>(StartingDeck);
+        if(startingDeck.Count != 0)
+            UpgradeDeck = new List<UpgradeScriptableObject>(startingDeck);
+        else
+            UpgradeDeck = new List<UpgradeScriptableObject>(StartingDeck);
 
         // 3. 직업(Job) 상태 초기화
         currentJob = null;

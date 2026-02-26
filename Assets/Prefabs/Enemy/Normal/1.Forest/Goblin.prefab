@@ -169,6 +169,7 @@ MonoBehaviour:
   _knockBackDuration: 0.2
   CantBeKnocked: 0
   flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
+  currentStateColor: {r: 0, g: 0, b: 0, a: 0}
   originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
   IsActived: 0
   DontUseObjectPooling: 0
@@ -198,7 +199,7 @@ MonoBehaviour:
   startWaitTime: 0.2
   playerLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 696384
   enemyLayer:
     serializedVersion: 2
     m_Bits: 0

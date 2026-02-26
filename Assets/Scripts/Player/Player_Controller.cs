@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,6 +21,7 @@ public class Player_Controller : MonoBehaviour
    [SerializeField] private float dashSpeed, dashForce = 35, cooltime = 2;
     private State state;
     private float dashCoolDown;
+    private float knockbackTimer = 0f; // 넉백 지속 시간 타이머
    [HideInInspector] public bool Dashing;
     private TrailRenderer Trail;
     [SerializeField]
@@ -140,8 +142,20 @@ public class Player_Controller : MonoBehaviour
         }
         UpdateDashCoolTimeUI();
     }
+    public void ApplyKnockback(Vector2 forceDir, float forcePower, float duration)
+    {
+        knockbackTimer = duration;
+        rb.velocity = Vector2.zero;
+        rb.AddForce(forceDir * forcePower , ForceMode2D.Impulse);
+    }
     private void FixedUpdate()
     {
+        if (knockbackTimer > 0)
+        {
+            knockbackTimer -= Time.deltaTime;
+            return; 
+        }
+        
         switch (state)
         {
             case State.Normal:

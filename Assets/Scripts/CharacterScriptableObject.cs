@@ -16,6 +16,7 @@ public class CharacterScriptableObject : ScriptableObject
     [Header("Starting Gear")]
     // [핵심] 이 캐릭터가 시작할 때 들고 시작할 무기 데이터!
     public UpgradeScriptableObject startingWeapon; 
+    public List<UpgradeScriptableObject> StartingDeck;
     // 만약 무기를 여러 개 들고 시작한다면: public List<WeaponDataSO> startingWeapons;
     [Header("Stats")]
     public float BaseHP;

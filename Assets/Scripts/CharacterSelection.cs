@@ -53,7 +53,7 @@ public class CharacterSelection : MonoBehaviour
 
         if (UpgradeManager.Instance != null) 
         {
-            UpgradeManager.Instance.ResetRunData(); // 업글레이드 매니저 초기화.
+            UpgradeManager.Instance.ResetRunData(characterDatas.StartingDeck); // 업글레이드 매니저 초기화.
             UpgradeManager.Instance.OnUpgradeSelected(characterDatas.startingWeapon);
         }
 

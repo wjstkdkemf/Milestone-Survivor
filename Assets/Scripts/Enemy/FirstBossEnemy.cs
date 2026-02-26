@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class FirstBossEnemy : Enemy
 {
@@ -32,15 +33,21 @@ public class FirstBossEnemy : Enemy
     public Color warningStartColor = new Color(0.5f, 0.5f, 0.5f, 0.7f); // 반투명 회색
     public Color warningEndColor = new Color(0, 0, 0, 0.9f);         // 진한 검은색
     public float JumpRadius = 3f; // The radius of the Jump attack
+    public float landingKnockbackForce = 300f;
 
 
     private float specialAttackTimer;
     private DoDamage doDamage;
     private Coroutine currentCoroutine;
+    private Collider2D[] bossCollider;
 
     void Start()
     {
         doDamage = GetComponent<DoDamage>();
+        bossCollider = GetComponentsInChildren<Collider2D>();
+
+        CantBeKnocked = true;
+
         ChangeState(BossState.Idle);
     }
 
@@ -219,11 +226,18 @@ public class FirstBossEnemy : Enemy
         doDamage.damagePlayer = false;
         I_frame = true;
 
+        foreach (var col in bossCollider) 
+        {
+            if (col != null) col.enabled = false;
+        }
+        if (agent != null) agent.enabled = false;
+
         Debug.Log("Boss is preparing a special attack!");
         yield return new WaitForSeconds(0.5f); // Wind-up time
 
         GameObject indicatorInstance = null;
         Image warningImage = null;
+
         transform.position = player.position;
 
         if (CircleSlamWarningPrefab != null)
@@ -264,6 +278,19 @@ public class FirstBossEnemy : Enemy
                 warningImage.color = warningEndColor;
             }
         }
+        foreach (var col in bossCollider) 
+        {
+            if (col != null) col.enabled = true;
+        }
+
+        if (agent != null) 
+        {
+            agent.enabled = true;
+            agent.Warp(transform.position); 
+        }
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null) rb.velocity = Vector2.zero;
         //모습 다시 로드 + 착지모션 추가예정.
         spriteRenderer.enabled = true;
         doDamage.damagePlayer = true;
@@ -274,13 +301,35 @@ public class FirstBossEnemy : Enemy
             Instantiate(slamEffectPrefab, transform.position, Quaternion.identity);
         }
 
+        HashSet<GameObject> hitTargets = new HashSet<GameObject>();
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, JumpRadius, playerLayer);
+
         foreach (var hitCollider in hitColliders)
         {
+            GameObject targetObj = hitCollider.gameObject;
+            if (hitTargets.Contains(targetObj)) 
+            {
+                continue; // 이미 때린 대상이면 아래 로직을 무시하고 다음 콜라이더로 넘어감!
+            }
+        
+            // 때리지 않은 대상이라면 리스트에 추가
+            hitTargets.Add(targetObj);
+
             IDamageable damageable = hitCollider.GetComponent<IDamageable>();
             if (damageable != null)
             {
                 damageable.TakeDamage(damage);
+            }
+
+            Player_Controller playerScript = hitCollider.GetComponent<Player_Controller>();
+            if (playerScript != null)
+            {
+                Vector2 knockbackDir = (hitCollider.transform.position - transform.position).normalized;
+                
+                // 방향, 힘(20f~), 제어 불능 시간(0.3초) 전달!
+                playerScript.ApplyKnockback(knockbackDir, landingKnockbackForce, 0.3f);
+
+                Debug.Log($"플레이어를 {knockbackDir} 방향으로 튕겨냅니다!");
             }
         }
 

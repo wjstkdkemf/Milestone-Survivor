@@ -3818,6 +3818,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1193741965959808158, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
+      propertyPath: m_Mass
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1193741965959808158, guid: 2dd5e108722016f43a133ef0765019d2, type: 3}
       propertyPath: m_CollisionDetection
       value: 1
       objectReference: {fileID: 0}
@@ -24137,6 +24141,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
   - {fileID: 11400000, guid: 059fbf23ff1d8224eb2e7c36e996725b, type: 2}
   - {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
+  - {fileID: 11400000, guid: e16f56a37297a244485623f3bbf505d1, type: 2}
+  - {fileID: 11400000, guid: e77e5ccc08f0ec54d904c763c9d85b77, type: 2}
+  - {fileID: 11400000, guid: 401aa8ade2484c74e8d2c0d803ddb9c1, type: 2}
+  - {fileID: 11400000, guid: cb6f9e4aeed6f87479408e30f32b75c5, type: 2}
+  - {fileID: 11400000, guid: 4de550dfb1b50ec46b910e84a14066ed, type: 2}
+  - {fileID: 11400000, guid: 2b408ae84ca028a44a2b8d801e5a4aa1, type: 2}
   StartingDeck:
   - {fileID: 11400000, guid: 6f27ff3e87d1f244ea48ca1940aaa0e8, type: 2}
   - {fileID: 11400000, guid: df4f0946cfefdf844a282244a55eb3a6, type: 2}
@@ -24145,7 +24155,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
   UpgradeDeck: []
   allJobs:
+  - {fileID: 11400000, guid: 62bbd637395e0df488bf658239a264e4, type: 2}
   - {fileID: 11400000, guid: e73f627993aca9b44b81bc531e822e5d, type: 2}
+  - {fileID: 11400000, guid: 4c6387c21bd5d174a96436dfe3c099fc, type: 2}
+  - {fileID: 11400000, guid: e73f627993aca9b44b81bc531e822e5d, type: 2}
+  - {fileID: 11400000, guid: 4609999a65872cc4e87fe3de84c5ae36, type: 2}
   pendingUpgrades: 0
 --- !u!114 &549850748
 MonoBehaviour:

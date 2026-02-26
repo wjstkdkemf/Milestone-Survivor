@@ -15,7 +15,9 @@ MonoBehaviour:
   jobName: Mage
   description: 
   jobTier: 1
-  requirements: []
+  requirements:
+  - requiredUpgrade: {fileID: 11400000, guid: 6546b45659e4e354c8c26712486b4c69, type: 2}
+    requiredLevel: 1
   nextAbleJobs:
   - {fileID: 11400000, guid: e73f627993aca9b44b81bc531e822e5d, type: 2}
   bannedUpgrades: []

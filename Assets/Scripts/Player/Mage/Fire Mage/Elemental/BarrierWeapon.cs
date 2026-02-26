@@ -121,6 +121,12 @@ public class BarrierWeapon : WeaponBase
 
         foreach (Collider2D col in colliders)
         {
+            Enemy enemyScript = col.GetComponent<Enemy>();
+            
+            if (enemyScript != null && enemyScript.CantBeKnocked)
+            {
+                continue;
+            }
             // 적에게 Rigidbody2D가 있다면 힘을 가함
             Rigidbody2D enemyRb = col.GetComponent<Rigidbody2D>();
             if (enemyRb != null)

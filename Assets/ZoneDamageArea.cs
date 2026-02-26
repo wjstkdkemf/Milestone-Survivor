@@ -57,7 +57,6 @@ public class ZoneDamageArea : MonoBehaviour
         for (int i = targetsInside.Count - 1; i >= 0; i--)
         {
             Collider2D target = targetsInside[i];
-            Debug.Log(targetsInside.Count);
 
             if (target == null || !target.gameObject.activeInHierarchy)
             {

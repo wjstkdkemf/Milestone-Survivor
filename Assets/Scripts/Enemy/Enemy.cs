@@ -22,7 +22,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public GameObject DamageText;
     public Transform player;
     public PlayerHealth playerHealth;
-    private NavMeshAgent agent;
+    protected NavMeshAgent agent;
     protected float coolDownTimer;
     protected bool facingRight = true;
     protected bool chasing = false;
@@ -433,10 +433,13 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public virtual void TakeDamage(float amount, float knockBackDuration = .2f)
     {
         if (I_frame)
+        {
             return;
+        }
 
         // Play hurt sound (if you have an audio manager)
         // AudioManager.instance.PlaySound("Enemy_Hurt");
+
 
         if (DamageText != null)
         {
