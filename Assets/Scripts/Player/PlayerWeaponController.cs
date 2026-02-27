@@ -9,6 +9,7 @@ public class PlayerWeaponController : MonoBehaviour
     public List<WeaponBase> WeaponsFromEquipment = new List<WeaponBase>();
 
     [SerializeField] private Transform weaponHolder;
+    public PlayerSkillHUD playerHUD;
 
     // 레벨업해서 무기를 골랐을 때 호출!
     public void AddWeapon(WeaponDataSO data)
@@ -30,6 +31,11 @@ public class PlayerWeaponController : MonoBehaviour
             newWeapon.Initialize(data);
             newWeapon.myData = data;
             activeWeapons.Add(newWeapon);
+
+            if (playerHUD != null)
+            {
+                playerHUD.RefreshWeaponIcons();
+            }
         }
     }
     public void AddWeaponFromEquipment(WeaponDataSO data)
@@ -51,6 +57,11 @@ public class PlayerWeaponController : MonoBehaviour
             newWeapon.Initialize(data);
             newWeapon.myData = data;
             WeaponsFromEquipment.Add(newWeapon);
+
+            if (playerHUD != null)
+            {
+                playerHUD.RefreshWeaponIcons();
+            }
         }
     }
     public void RemoveWeaponFromEquipment(WeaponDataSO data)
@@ -69,6 +80,11 @@ public class PlayerWeaponController : MonoBehaviour
                 if (weaponToRemove != null)
                 {
                     Destroy(weaponToRemove.gameObject);
+                }
+
+                if (playerHUD != null)
+                {
+                    playerHUD.RefreshWeaponIcons();
                 }
 
                 return;
@@ -90,6 +106,11 @@ public class PlayerWeaponController : MonoBehaviour
                 if (weaponToRemove != null)
                 {
                     Destroy(weaponToRemove.gameObject);
+                }
+
+                if (playerHUD != null)
+                {
+                    playerHUD.RefreshWeaponIcons();
                 }
 
                 return;
@@ -162,6 +183,11 @@ public class PlayerWeaponController : MonoBehaviour
             {
                 Destroy(weaponToRemove.gameObject);
             }
+        }
+        
+        if (playerHUD != null)
+        {
+            playerHUD.RefreshWeaponIcons();
         }
         WeaponsFromEquipment.Clear();
     }

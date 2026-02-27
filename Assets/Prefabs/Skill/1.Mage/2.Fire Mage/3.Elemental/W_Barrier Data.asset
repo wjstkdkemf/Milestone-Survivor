@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 164a633abf62bf44ebc19fd9353ed083, type: 3}
   m_Name: W_Barrier Data
   m_EditorClassIdentifier: 
-  weaponName: Barrier
-  icon: {fileID: 6157748173069639754, guid: 315906bd04ec2314cbfcfb9d4fa8e3c1, type: 3}
-  description: 
   weaponPrefab: {fileID: 5967004975636487340, guid: 88813ef3b0e696b4f9fffc84a9f010e4, type: 3}
+  upgradeData: {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
   baseDamage: 0
   baseCooldown: 0
   fusionWeaponData: []

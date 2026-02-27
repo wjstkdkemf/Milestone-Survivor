@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac7e9f83c93e78b4baf918e216076b9f, type: 3}
   m_Name: W_Meteor Data
   m_EditorClassIdentifier: 
-  weaponName: Meteor
-  icon: {fileID: 6985626698306143173, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
-  description: 
   weaponPrefab: {fileID: 4975883650434929251, guid: 3e62fd68600714644a5003da26b1d9b2, type: 3}
+  upgradeData: {fileID: 11400000, guid: 9e190c724f5271947a7134d85564e176, type: 2}
   baseDamage: 3
   baseCooldown: 3
   fusionWeaponData: []

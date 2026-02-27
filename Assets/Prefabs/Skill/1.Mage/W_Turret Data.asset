@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 737923d0844e90b4c8c45cef938e754f, type: 3}
   m_Name: W_Turret Data
   m_EditorClassIdentifier: 
-  weaponName: Turret
-  icon: {fileID: -1259408508766424310, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
-  description: 
   weaponPrefab: {fileID: 5611114301269066899, guid: 2d8dde83d958c454b92605bb3f59ed39, type: 3}
+  upgradeData: {fileID: 11400000, guid: 6546b45659e4e354c8c26712486b4c69, type: 2}
   baseDamage: 4
   baseCooldown: 1
   fusionWeaponData: []

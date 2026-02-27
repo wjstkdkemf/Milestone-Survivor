@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e34eabbecf79fb4e8ec5f3c2e10edbc, type: 3}
   m_Name: W_Turret Fire Trail Orb
   m_EditorClassIdentifier: 
-  weaponName: TurretFireTrailOrb
-  icon: {fileID: 5088316998373936774, guid: 2eca09229b3d802468468bc9f37e70ca, type: 3}
-  description: 
   weaponPrefab: {fileID: 8133142474223884936, guid: 4996d044a893ceb4fa2aff921997f44d, type: 3}
+  upgradeData: {fileID: 11400000, guid: 4de550dfb1b50ec46b910e84a14066ed, type: 2}
   baseDamage: 5
   baseCooldown: 3
   fusionWeaponData: []

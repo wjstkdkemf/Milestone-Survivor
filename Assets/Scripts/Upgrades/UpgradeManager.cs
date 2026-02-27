@@ -173,7 +173,7 @@ public class UpgradeManager : MonoBehaviour
             if (playerWeaponController != null)
             {
                 playerWeaponController.AddWeapon(chosenUpgrade.linkedWeaponData);
-                Debug.Log($"[Upgrade] 무기 적용: {chosenUpgrade.linkedWeaponData.weaponName}");
+                //Debug.Log($"[Upgrade] 무기 적용: {chosenUpgrade.linkedWeaponData.weaponName}");
             }
         }
         else
