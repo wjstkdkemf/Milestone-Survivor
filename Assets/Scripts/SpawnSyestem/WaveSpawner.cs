@@ -3,14 +3,12 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 public class WaveSpawner : MonoBehaviour
 {
     public static WaveSpawner Instance;
 
     public List<Wave> WavesList = new List<Wave>();
     private Dictionary<string, GameObject> _loadedEnemyPrefabs = new Dictionary<string, GameObject>();
-    private List<AsyncOperationHandle<GameObject>> _loadedHandles = new List<AsyncOperationHandle<GameObject>>();
     [SerializeField] private TMP_Text WaveText;
     [SerializeField] private Camera playerCamera;
     private Transform playerTransform;
@@ -139,62 +137,67 @@ public class WaveSpawner : MonoBehaviour
             }*/
         }
     }
-
-    public void StartWaves(List<Wave> newWaves)
+    public IEnumerator PreloadWaveAssets(List<Wave> newWaves)
     {
         if (newWaves == null || newWaves.Count == 0)
         {
             Debug.LogError("New waves list is null or empty.");
-            return;
+            yield break;
         }
 
         StopWaves();
-
         WavesList = new List<Wave>(newWaves); 
         CurrentWave = 0;
         isClearingStage = false;
-        //GameManager.Instance.CanSpawn = true;
 
-        StartCoroutine(LoadWaveAssetsAndStart());
-        //GenerateWave();
-    }
-    private IEnumerator LoadWaveAssetsAndStart()
-    {
-        // 로딩 중임을 알리는 UI 처리 등이 필요하다면 여기서 수행
-
-        // 모든 웨이브를 순회하며 필요한 몬스터 수집
-        HashSet<string> assetsToLoad = new HashSet<string>();
+        // 이번 전투에 필요한 몬스터 참조(AssetReference) 수집 (중복 방지용 HashSet)
+        HashSet<AssetReference> assetsToLoad = new HashSet<AssetReference>();
         foreach (var wave in WavesList)
         {
             foreach (var enemyInfo in wave.Enemys)
             {
-                // AssetReference가 유효하고, 아직 로드되지 않았다면 리스트에 추가
                 if (enemyInfo.Enemy != null && enemyInfo.Enemy.RuntimeKeyIsValid())
                 {
-                    assetsToLoad.Add(enemyInfo.Enemy.AssetGUID);
+                    assetsToLoad.Add(enemyInfo.Enemy);
                 }
             }
         }
 
-        foreach (var guid in assetsToLoad)
+        int totalAssets = assetsToLoad.Count;
+        int loadedCount = 0;
+
+        // 수집된 몬스터들을 ResourceManager에게 로딩하라고 지시!
+        foreach (var assetRef in assetsToLoad)
         {
-            if (_loadedEnemyPrefabs.ContainsKey(guid)) continue;
-
-            var handle = Addressables.LoadAssetAsync<GameObject>(guid);
-            yield return handle;
-
-            if (handle.Status == AsyncOperationStatus.Succeeded)
+            string guid = assetRef.AssetGUID;
+            
+            // 이미 내 장부에 있다면 굳이 다시 안 부릅니다.
+            if (_loadedEnemyPrefabs.ContainsKey(guid))
             {
-                _loadedEnemyPrefabs.Add(guid, handle.Result);
-                _loadedHandles.Add(handle);
+                loadedCount++;
+                continue;
             }
-            else
+
+            // 직접 로드하지 않고 ResourceManager에게 콜백( Action )으로 부탁합니다.
+            ResourceManager.Instance.LoadAsset(assetRef, (prefab) =>
             {
-                Debug.LogError($"Failed to load enemy asset: {guid}");
-            }
+                if (prefab != null)
+                {
+                    // 로딩이 완료되면 내 장부에 등록!
+                    _loadedEnemyPrefabs[guid] = prefab;
+                }
+                loadedCount++; // 완료 카운트 증가
+            });
         }
 
-        Debug.Log("모든 몬스터 에셋 로드 완료. 웨이브 시작.");
+        // 리소스 매니저가 모든 몬스터 로딩을 끝낼 때까지 코루틴을 잠시 멈추고 기다립니다.
+        yield return new WaitUntil(() => loadedCount == totalAssets);
+
+        Debug.Log("모든 몬스터 에셋 로드 완료 (ResourceManager 위임).");
+    }
+
+    public void StartWaves()
+    {
         GameManager.Instance.CanSpawn = true;
         GenerateWave();
     }
@@ -215,13 +218,30 @@ public class WaveSpawner : MonoBehaviour
     }
     public void ReleaseWaveAssets()
     {
-        foreach (var handle in _loadedHandles)
+        if (WavesList != null)
         {
-            Addressables.Release(handle);
+            // 내가 사용했던 몬스터들 목록을 다시 뽑아서 해제 요청
+            HashSet<AssetReference> assetsToUnload = new HashSet<AssetReference>();
+            foreach (var wave in WavesList)
+            {
+                foreach (var enemyInfo in wave.Enemys)
+                {
+                    if (enemyInfo.Enemy != null && enemyInfo.Enemy.RuntimeKeyIsValid())
+                    {
+                        assetsToUnload.Add(enemyInfo.Enemy);
+                    }
+                }
+            }
+
+            foreach (var assetRef in assetsToUnload)
+            {
+                ResourceManager.Instance.UnloadAsset(assetRef);
+            }
         }
-        _loadedHandles.Clear();
+        
+        // 내 장부도 깨끗하게 비워줍니다.
         _loadedEnemyPrefabs.Clear();
-        Debug.Log("몬스터 에셋 메모리 해제 완료.");
+        Debug.Log("몬스터 에셋 메모리 해제 완료 (ResourceManager 위임).");
     }
 
     private IEnumerator ClearStageAfterItemCollection()

@@ -1,69 +1,78 @@
 using System.Collections;
-using System.Collections.Generic;
-//using System.Threading.Tasks.Dataflow;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using System.Linq;
 
 public class MainMapManager : MonoBehaviour
 {
     public static MainMapManager Instance { get; private set; }
+    
     public Transform mapContainer;
     private GameObject currentMapInstance;
-    //public List<GameObject> mapInstances = new List<GameObject>();
     public GameObject TeleportUI;
+    
     private string currentMapTheme = "";
+    
+    // 메모리 해제를 위해 현재 맵의 '문자열 주소'를 기억해둡니다.
+    private string currentMapAddress = ""; 
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+        if (Instance != null && Instance != this) Destroy(gameObject);
+        else Instance = this;
     }
+    
     public void OnDestroy()
     {
+        // 씬이 파괴될 때 맵 인스턴스 파괴 및 메모리 해제 지시
         if (currentMapInstance != null)
-            Addressables.ReleaseInstance(currentMapInstance);
-
+        {
+            Destroy(currentMapInstance);
+            if (!string.IsNullOrEmpty(currentMapAddress))
+            {
+                ResourceManager.Instance.UnloadAssetByKey(currentMapAddress);
+            }
+        }
         Instance = null;
     }
 
     public void ChangeMap(string newMapAddress, string playerSpawnPosition)
     {
-        // FadeManager에게 화면을 어둡게 하라고 요청
         FadeManager.Instance.FadeOut(() =>
         {
             StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
         });
     }
+
     private IEnumerator ProcessMapChange(string newMapAddress, string playerSpawnPosition)
     {
         string[] nameParts = newMapAddress.Split(' ');
         string newTheme = (nameParts.Length > 0) ? nameParts[0] : newMapAddress;
 
-        var handle = Addressables.InstantiateAsync(newMapAddress, mapContainer);
-        yield return handle;
-        //이전 맵 및 오브젝트 풀 정리
-        if (handle.Status == AsyncOperationStatus.Succeeded)
-        {
-            GameObject newMap = handle.Result;
-            newMap.SetActive(false); // 잠시 꺼둠 (초기화 등을 위해)
+        bool isMapLoaded = false;
+        GameObject mapPrefab = null;
 
-            // 기존 맵 제거 (이제 제거해도 번들은 newMap 때문에 메모리에 남음)
+        //  ResourceManager에게 맵 프리팹을 메모리에 올려달라고 지시
+        ResourceManager.Instance.LoadAssetByKey(newMapAddress, (loadedPrefab) => 
+        {
+            mapPrefab = loadedPrefab;
+            isMapLoaded = true;
+        });
+
+        // 리소스 매니저가 메모리에 맵을 다 올릴 때까지 대기
+        yield return new WaitUntil(() => isMapLoaded);
+
+        if (mapPrefab != null)
+        {
+            // 이전 맵 및 오브젝트 풀 정리
             if (currentMapInstance != null)
             {
-                Addressables.ReleaseInstance(currentMapInstance);
+                Destroy(currentMapInstance);
+                ResourceManager.Instance.UnloadAssetByKey(currentMapAddress);
             }
-            if(currentMapTheme != "" && currentMapTheme != newTheme)
+
+            if (currentMapTheme != "" && currentMapTheme != newTheme)
             {
                 ObjectPoolingManager.instance.ClearAllPools();
-                WaveSpawner.Instance.ReleaseWaveAssets();
+                if (WaveSpawner.Instance != null) WaveSpawner.Instance.ReleaseWaveAssets();
             }
             else
             {
@@ -72,12 +81,13 @@ public class MainMapManager : MonoBehaviour
 
             currentMapTheme = newTheme;
 
-            // 교체 및 설정
-            currentMapInstance = newMap;
+            // 메모리에 올라온 프리팹을 유니티 기본 Instantiate로 맵 생성
+            currentMapInstance = Instantiate(mapPrefab, mapContainer);
             currentMapInstance.name = newMapAddress;
+            currentMapAddress = newMapAddress; // 다음 맵 이동 시 해제할 수 있게 주소 기억
             currentMapInstance.SetActive(true);
 
-            // 플레이어 이동 및 마무리
+            //플레이어 이동 및 마무리
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
@@ -91,6 +101,7 @@ public class MainMapManager : MonoBehaviour
             Debug.LogError("맵 로드 실패: " + newMapAddress);
         }
     }
+
     public void InitializeMap(string newMapAddress, string playerSpawnPosition)
     {
          StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
@@ -100,4 +111,5 @@ public class MainMapManager : MonoBehaviour
     {
         return TeleportUI;
     }
+    
 }

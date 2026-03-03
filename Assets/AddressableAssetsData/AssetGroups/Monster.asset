@@ -10,51 +10,44 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Dungeon
+  m_Name: Monster
   m_EditorClassIdentifier: 
-  m_GroupName: Dungeon
+  m_GroupName: Monster
   m_Data:
     m_SerializedData: []
-  m_GUID: 0bfffa698596c364eb0897f790a1283d
+  m_GUID: 26ad7efb646758b4b84e3986f0d2e23c
   m_SerializeEntries:
-  - m_GUID: f7974406deb7aa6499afcf535e524049
-    m_Address: "\uB358\uC804 1-1"
+  - m_GUID: 5c1cd7a1f7816b7419c709c490e63dbe
+    m_Address: Org
     m_ReadOnly: 0
     m_SerializedLabels:
     - Dun
-    - Map
+    - Monster
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 6eca8d2256e71284c9deb459b8f4fd25
-    m_Address: "\uB358\uC804 2-1"
+  - m_GUID: c846e36fdb697a947b470868a5e590d6
+    m_Address: GoblinArcher
     m_ReadOnly: 0
     m_SerializedLabels:
     - Dun
-    - Map
+    - Monster
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 217ad8778d635d7488f015ea89b20ea2
-    m_Address: "\uB358\uC804 3-1"
+  - m_GUID: f469f5168c651c34a9c531feda95f330
+    m_Address: Goblin
     m_ReadOnly: 0
     m_SerializedLabels:
     - Dun
-    - Map
+    - Monster
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 72a2aa6183253ce4eaaac6d77a13c5bd
-    m_Address: "\uB358\uC804 4-1"
+  - m_GUID: eb325c68be60193478056ca4fa908c02
+    m_Address: Bat
     m_ReadOnly: 0
     m_SerializedLabels:
     - Dun
-    - Map
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f702a4b5b050a564d98a5ad247fe3a13
-    m_Address: "\uB358\uC804 5-1"
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Dun
-    - Map
+    - Monster
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f8c68fa40aeb2054ab1cb73f6bd78402, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: b0823c0ff20ada54a8b517f7ca2c0b26, type: 2}
-    - {fileID: 11400000, guid: a3dfd0274d7b6d642a353b4b4bd89842, type: 2}
+    - {fileID: 11400000, guid: ba171d776185b684f909410ce9b0bc09, type: 2}
+    - {fileID: 11400000, guid: 6934ce234a725c64abd17d971fc58ace, type: 2}

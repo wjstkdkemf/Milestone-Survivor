@@ -136,15 +136,15 @@ public class EnCounterSystem : MonoBehaviour
         }
         enCounterPos = PlayerTransform.position; // Save player's current position
 
-        // 1. Generate the battle map and move the player
         tilemapManager.GenerateMap(SceneName);
 
-        // 2. Wait for the next frame to ensure the camera has updated its position
+        // 1. Generate the battle map and move the player
+        yield return StartCoroutine(waveSpawner.PreloadWaveAssets(SceneWave));
+
+        // 카메라 위치 업데이트 등, 프레임 안정화를 위해 한 프레임 대기
         yield return null;
 
-        // 3. Start the monster waves
-        waveSpawner.StartWaves(SceneWave);
-
+        waveSpawner.StartWaves();
         // 4. Activate combat abilities
         if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(true);
 
@@ -167,6 +167,7 @@ public class EnCounterSystem : MonoBehaviour
 
             // 2. Stop the monster spawner
             if (waveSpawner != null) waveSpawner.StopWaves();
+            if (waveSpawner != null) waveSpawner.ReleaseWaveAssets();
 
             // 3. Deactivate combat abilities
             if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(false);
