@@ -9,6 +9,7 @@ public class WaveSpawner : MonoBehaviour
 
     public List<Wave> WavesList = new List<Wave>();
     private Dictionary<string, GameObject> _loadedEnemyPrefabs = new Dictionary<string, GameObject>();
+    private HashSet<AssetReference> _activeAssetRefs = new HashSet<AssetReference>();
     [SerializeField] private TMP_Text WaveText;
     [SerializeField] private Camera playerCamera;
     private Transform playerTransform;
@@ -159,6 +160,7 @@ public class WaveSpawner : MonoBehaviour
                 if (enemyInfo.Enemy != null && enemyInfo.Enemy.RuntimeKeyIsValid())
                 {
                     assetsToLoad.Add(enemyInfo.Enemy);
+                    _activeAssetRefs.Add(enemyInfo.Enemy);
                 }
             }
         }
@@ -218,30 +220,19 @@ public class WaveSpawner : MonoBehaviour
     }
     public void ReleaseWaveAssets()
     {
-        if (WavesList != null)
+        foreach (var assetRef in _activeAssetRefs)
         {
-            // 내가 사용했던 몬스터들 목록을 다시 뽑아서 해제 요청
-            HashSet<AssetReference> assetsToUnload = new HashSet<AssetReference>();
-            foreach (var wave in WavesList)
-            {
-                foreach (var enemyInfo in wave.Enemys)
-                {
-                    if (enemyInfo.Enemy != null && enemyInfo.Enemy.RuntimeKeyIsValid())
-                    {
-                        assetsToUnload.Add(enemyInfo.Enemy);
-                    }
-                }
-            }
-
-            foreach (var assetRef in assetsToUnload)
+            if (assetRef != null && assetRef.RuntimeKeyIsValid())
             {
                 ResourceManager.Instance.UnloadAsset(assetRef);
             }
         }
         
-        // 내 장부도 깨끗하게 비워줍니다.
+        // 메모리 반환이 끝났으니 전용 장부와 프리팹 딕셔너리도 깨끗하게 태워버립니다.
+        _activeAssetRefs.Clear();
         _loadedEnemyPrefabs.Clear();
-        Debug.Log("몬스터 에셋 메모리 해제 완료 (ResourceManager 위임).");
+        
+        Debug.Log("몬스터 에셋 메모리 해제 완료 (전용 장부 기준).");
     }
 
     private IEnumerator ClearStageAfterItemCollection()

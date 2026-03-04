@@ -167,7 +167,6 @@ public class EnCounterSystem : MonoBehaviour
 
             // 2. Stop the monster spawner
             if (waveSpawner != null) waveSpawner.StopWaves();
-            if (waveSpawner != null) waveSpawner.ReleaseWaveAssets();
 
             // 3. Deactivate combat abilities
             if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(false);
