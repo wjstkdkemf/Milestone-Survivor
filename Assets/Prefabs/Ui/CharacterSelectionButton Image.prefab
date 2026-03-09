@@ -90,9 +90,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 789998350780618296}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 230e05aebcac43a459fec58944b72e36, type: 3}
+  m_Script: {fileID: 11500000, guid: 7c00b383be6e6514997fa827d213e437, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Description: 
+  hoverScaleFactor: 1.1
+  animationDuration: 0.2
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  cardText: {fileID: 0}
+  glowOutlineWidth: 0.2
+  glowOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  hoverShadowOffset: {x: 5, y: -5}
+  hoverSound: {fileID: 0}
+  customCursor: {fileID: 0}
 --- !u!114 &5615225999511402502
 MonoBehaviour:
   m_ObjectHideFlags: 0
