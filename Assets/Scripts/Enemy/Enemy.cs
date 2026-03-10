@@ -52,6 +52,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     [SerializeField] private float checkInterval = 2.0f; // 검사 주기 (2초)
     [SerializeField] private float maxDistance = 30.0f;  // 이 거리를 넘으면 소환 (화면 밖)
     [SerializeField] private float respawnRadius = 15.0f; // 플레이어 주변 재소환 반경
+    [SerializeField] private float minimumMoveDistance = 0.5f; // 이 거리 이하로 움직이면 끼인 것으로 간주
+    [SerializeField] private int maxStuckCount = 2; // 2번 연속 제자리걸음 시 재소환 발동
 
     [Header("Status Effects")]
     private float baseSpeed; // 원래 이동 속도를 기억할 변수
@@ -131,24 +133,63 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
     IEnumerator CheckDistanceRoutine()
     {
-        // 1. 모든 몬스터가 동시에 연산하지 않도록 랜덤 딜레이를 줍니다. (부하 분산)
+        // 모든 몬스터가 동시에 연산하지 않도록 랜덤 딜레이를 줍니다. (부하 분산)
         yield return new WaitForSeconds(Random.Range(0f, checkInterval));
+
+        Vector3 lastPosition = transform.position;
+        int stuckCount = 0;
+        float minMoveSqr = minimumMoveDistance * minimumMoveDistance; // 최적화를 위해 미리 제곱
 
         while (player != null)
         {
-            // 2. 설정한 주기만큼 대기 (Update보다 훨씬 가벼움)
+            // 설정한 주기만큼 대기 (Update보다 훨씬 가벼움)
             yield return new WaitForSeconds(checkInterval);
 
             if (!gameObject.activeInHierarchy || !agent.enabled) continue;
 
-            // 3. 거리 계산 (sqrMagnitude 사용으로 최적화)
+            // 거리 계산 (sqrMagnitude 사용으로 최적화)
             float distSqr = (player.position - transform.position).sqrMagnitude;
 
-            // 4. 제한 거리를 넘었다면?
             if (distSqr > maxDistanceSqr)
             {
                 RepositionEnemy();
+
+                lastPosition = transform.position;
+                stuckCount = 0;
+                continue;
             }
+
+            if (knockBackTime > 0 || isRecovering || stopMoving)
+            {
+                lastPosition = transform.position; // 억울하게 카운트 먹지 않도록 현재 위치만 갱신
+                stuckCount = 0;
+                continue;
+            }
+
+            // 제자리걸음을 하고 있는가? (벽 끼임, 길막 감지)
+            float movedDistSqr = (transform.position - lastPosition).sqrMagnitude;
+
+            if (movedDistSqr < minMoveSqr)
+            {
+                stuckCount++; // 경고 누적
+                
+                if (stuckCount >= maxStuckCount)
+                {
+                    Debug.Log($"[{gameObject.name}] 몬스터가 길막/벽끼임으로 인해 텔레포트합니다!");
+                    RepositionEnemy();
+                    
+                    stuckCount = 0; // 리셋
+                    lastPosition = transform.position; // 리셋
+                    continue;
+                }
+            }
+            else
+            {
+                stuckCount = 0; 
+            }
+
+            // 이번 턴의 위치를 기억해두고 다음 검사 준비
+            lastPosition = transform.position;
         }
     }
     IEnumerator UpdatePathRoutine()
