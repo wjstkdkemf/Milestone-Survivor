@@ -81,24 +81,19 @@ public class GoblinArcherScript : Enemy
             return;
         }
 
-        // 공격 사거리 안에 들어왔을 때 -> "카이팅(Kiting) 모드"
+        // 공격 사거리 안에 들어왔을 때
         if (distanceToPlayer <= attackRange)
         {
-            // NavMesh 이동 멈춤 (수동 제어를 위해)
-            // agent.updatePosition = false; (이미 부모에서 되어있음)
-            
             Vector3 finalMoveDir = Vector3.zero;
             Vector3 dirToPlayer = delta.normalized; // 나 -> 플레이어 방향
 
-            // 1. 거리 조절 (너무 가까우면 뒤로, 적당하면 제자리)
+            // 거리 조절
             if (distanceToPlayer < minMaintainDistance)
             {
-                // 플레이어 반대 방향으로 도망 (Backstep)
+                // 플레이어 반대 방향으로 도망
                 finalMoveDir -= dirToPlayer; 
             }
-            // (선택) 너무 멀어지면 살짝 접근하게 할 수도 있음
-
-            // 2. 좌우 무빙 (Strafe)
+            // 좌우 무빙
             // 플레이어 방향의 수직 벡터 구하기 (-y, x) = 2D에서의 수직
             Vector3 perpendicularDir = new Vector3(-dirToPlayer.y, dirToPlayer.x, 0);
             
@@ -111,7 +106,7 @@ public class GoblinArcherScript : Enemy
             // 실제 이동 적용
             transform.position += finalMoveDir * speed * Time.deltaTime;
 
-            // [중요] 이동 중에도 플레이어를 바라보게 함
+            // 이동 중에도 플레이어를 바라보게 함
             UpdateFacingDirection(delta);
 
             // 공격 쿨타임 체크 및 공격
@@ -123,11 +118,10 @@ public class GoblinArcherScript : Enemy
         }
         else
         {
-            // 사거리 밖이면? -> 부모의 추적 로직(NavMesh) 실행
             base.HandleMovement(distanceToPlayer, delta);
         }
         
-        // Agent 동기화 (부모 코드에 이미 있지만 안전하게)
+        // Agent 동기화
         NavMeshAgent agent = GetComponent<NavMeshAgent>();
         if (agent != null && Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
         {

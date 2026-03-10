@@ -147,7 +147,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
             if (!gameObject.activeInHierarchy || !agent.enabled) continue;
 
-            // 거리 계산 (sqrMagnitude 사용으로 최적화)
+            // 거리 계산 (sqrMagnitude 사용으로 최적화) -> 물리 연산 대체
             float distSqr = (player.position - transform.position).sqrMagnitude;
 
             if (distSqr > maxDistanceSqr)
@@ -294,6 +294,13 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             }
         }
         isRecovering = false;
+        /*
+            HandleMovement() 함수의 아래 부분을 통해 이동 방향을 유지하여 자연스럽게 움직이는 것처럼 보이게 만듬.
+            if (knockBackTime > 0 && !CantBeKnocked)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * knockBackForce * Time.deltaTime);
+            }
+        */
     }
     void RepositionEnemy()
     {
@@ -303,10 +310,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         Vector3 potentialPos = player.position + new Vector3(randomPoint.x, randomPoint.y, 0);
 
         NavMeshHit hit;
-        // 5. 해당 위치 근처(3.0f)에 유효한 NavMesh(길)가 있는지 확인
+        // 해당 위치 근처(3.0f)에 유효한 NavMesh(길)가 있는지 확인
         if (NavMesh.SamplePosition(potentialPos, out hit, 3.0f, NavMesh.AllAreas))
         {
-            // [중요] updatePosition=false를 쓰고 계시므로, 둘 다 옮겨야 합니다.
             agent.Warp(hit.position);       // Agent(영혼) 이동
             transform.position = hit.position; // 몸(Sprite) 이동
             
@@ -395,7 +401,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         HandleMovement(distanceToPlayer, delta);
     }
 
-    // Updates the direction the enemy is facing
     protected virtual void UpdateFacingDirection(Vector3 delta)
     {
         if (delta.x >= 0 && !facingRight)
@@ -564,7 +569,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
     private IEnumerator SlowRoutine(float slowPercent, float duration)
     {
-        //속도 감소 적용 (예: baseSpeed 10 * (1 - 0.3) = 7)
+        //속도 감소 적용
         float multiplier = 1f - Mathf.Clamp01(slowPercent);
         speed = baseSpeed * multiplier;
         
@@ -577,7 +582,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         // 지속 시간만큼 대기
         yield return new WaitForSeconds(duration);
 
-        // 5. 지속 시간이 끝나면 원상 복구
+        // 지속 시간이 끝나면 원상 복구
         ResetStatusEffects();
     }
     public void ResetStatusEffects()

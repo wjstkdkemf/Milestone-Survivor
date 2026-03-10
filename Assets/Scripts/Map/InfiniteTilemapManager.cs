@@ -189,14 +189,14 @@ public class InfiniteTilemapManager : MonoBehaviour
         }
     }
 
-//Update()에서 분리, GC Alloc 최적화
+    //Update()에서 분리, GC Alloc 최적화
     private void UpdateChunks(Vector2Int playerChunkCoord)
     {
-        // 1. 재사용 컬렉션 초기화
+        // 재사용 컬렉션 초기화
         requiredChunks.Clear();
         chunksToUnload.Clear();
         
-        // 2. 필요한 청크 계산 및 로드
+        // 필요한 청크 계산 및 로드
         for (int x = -loadRadius; x <= loadRadius; x++)
         {
             for (int y = -loadRadius; y <= loadRadius; y++)
@@ -211,7 +211,6 @@ public class InfiniteTilemapManager : MonoBehaviour
             }
         }
 
-        // 3.LINQ 대신 루프를 사용해 언로드할 청크 목록 생성
         foreach (Vector2Int coord in activeChunks.Keys)
         {
             if (!requiredChunks.Contains(coord))
@@ -220,7 +219,7 @@ public class InfiniteTilemapManager : MonoBehaviour
             }
         }
         
-        // 4.재사용 리스트를 기반으로 청크 언로드
+        // 재사용 리스트를 기반으로 청크 언로드
         foreach (Vector2Int coord in chunksToUnload)
         {
             UnloadChunk(coord);

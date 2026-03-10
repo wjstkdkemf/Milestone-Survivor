@@ -371,14 +371,14 @@ public class WaveSpawner : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            // 1. 원형 좌표 계산 (삼각함수)
+            // 원형 좌표 계산 (삼각함수)
             float angle = i * angleStep * Mathf.Deg2Rad; // 라디안 변환
             float x = Mathf.Cos(angle) * circleRadius;
             float y = Mathf.Sin(angle) * circleRadius;
             
             Vector3 spawnPos = center + new Vector3(x, y, 0);
 
-            // 2. 유효한 위치인지 확인 (NavMesh 위인지, 벽 안인지)
+            // 유효한 위치인지 확인 (NavMesh 위인지, 벽 안인지)
             UnityEngine.AI.NavMeshHit hit;
             if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out hit, 2.0f, UnityEngine.AI.NavMesh.AllAreas))
             {
@@ -388,7 +388,7 @@ public class WaveSpawner : MonoBehaviour
             {
                 continue; // 길을 못 찾으면 이번 몬스터는 스킵 (벽 속에 생성 방지)
             }
-            // 3. 몬스터 소환 (풀링 사용)
+            // 몬스터 소환 (풀링 사용)
             // 전용 몬스터 프리팹(enemyPrefab)을 그대로 소환만 하면 됩니다.
             if (!WavesList[CurrentWave].DontUseObjectPooling)
             {
