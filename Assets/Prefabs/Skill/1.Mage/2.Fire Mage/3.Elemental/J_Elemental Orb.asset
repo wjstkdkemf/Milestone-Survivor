@@ -10,18 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc3039e302c6bd74baad8b2bb39b7d06, type: 3}
-  m_Name: J_Elemental
+  m_Name: J_Elemental Orb
   m_EditorClassIdentifier: 
   jobName: Elemental
   description: 
   jobTier: 3
   requirements:
-  - requiredUpgrade: {fileID: 11400000, guid: 401aa8ade2484c74e8d2c0d803ddb9c1, type: 2}
-    requiredLevel: 5
-  - requiredUpgrade: {fileID: 11400000, guid: e77e5ccc08f0ec54d904c763c9d85b77, type: 2}
+  - requiredUpgrade: {fileID: 11400000, guid: cf3fceedde3442540af6cf25771cf2ac, type: 2}
     requiredLevel: 5
   nextAbleJobs:
-  - {fileID: 11400000, guid: ec79637c5d09c18409b6219111480bfd, type: 2}
+  - {fileID: 11400000, guid: 4c6387c21bd5d174a96436dfe3c099fc, type: 2}
   bannedUpgrades: []
-  bonusUpgrades: []
+  bonusUpgrades:
+  - {fileID: 11400000, guid: 401aa8ade2484c74e8d2c0d803ddb9c1, type: 2}
   bonusChanceAmount: 50

@@ -16,13 +16,12 @@ MonoBehaviour:
   description: 
   jobTier: 0
   requirements:
-  - requiredUpgrade: {fileID: 11400000, guid: 401aa8ade2484c74e8d2c0d803ddb9c1, type: 2}
-    requiredLevel: 2
-  - requiredUpgrade: {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
-    requiredLevel: 0
-  - requiredUpgrade: {fileID: 11400000, guid: e77e5ccc08f0ec54d904c763c9d85b77, type: 2}
-    requiredLevel: 2
-  nextAbleJobs: []
+  - requiredUpgrade: {fileID: 11400000, guid: cb6f9e4aeed6f87479408e30f32b75c5, type: 2}
+    requiredLevel: 5
+  - requiredUpgrade: {fileID: 11400000, guid: 4de550dfb1b50ec46b910e84a14066ed, type: 2}
+    requiredLevel: 5
+  nextAbleJobs:
+  - {fileID: 0}
   bannedUpgrades: []
   bonusUpgrades: []
   bonusChanceAmount: 50

@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq; // 리스트 검색용 (FirstOrDefault 등)
-using System.IO;   // 저장 기능용
+using System.IO;
+using TMPro;
+using UnityEngine.Localization.Settings;
+using Unity.VisualScripting;   // 저장 기능용
 
 public class UpgradeManager : MonoBehaviour
 {
@@ -13,13 +16,17 @@ public class UpgradeManager : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private GameObject UpgradePanelObject; // 전체 UI 패널
-    public GameObject[] UpgradeUiSlots; // UI 슬롯들 (3~4개)
+    public List<GameObject> UpgradeUiSlots; // UI 슬롯들 (3~4개)
+    public PowerUpScriptableObject PowerUpgrade;
 
     [Header("Data Deck")]
     public List<UpgradeScriptableObject> MasterDeck;
     public List<UpgradeScriptableObject> StartingDeck;
     public List<UpgradeScriptableObject> UpgradeDeck; // 뽑을 카드 목록 (기존 UpgadeToSpawn)
     private List<UpgradeScriptableObject> spawnedUpgrades = new List<UpgradeScriptableObject>();
+    private int UpgradeCount = 3;
+    public Transform UpgradeUIContainer;
+    public GameObject UpgradeUIPrefab;
 
     [Header("Job System")]
     public List<JobDataSO> allJobs; // 모든 직업 데이터 리스트 (인스펙터 할당)
@@ -47,6 +54,21 @@ public class UpgradeManager : MonoBehaviour
         // UI 초기화
         SetUpgradePanelState(false);
     }
+    public void SetUpgradeUICount()
+    {
+        foreach (Transform child in UpgradeUIContainer) Destroy(child.gameObject);// 기존 UpgradeUI 삭제
+
+        for(int i = 0 ; i < UpgradeCount ; i++)
+        {
+            GameObject UIObj = Instantiate(UpgradeUIPrefab, UpgradeUIContainer);
+            UpgradeUiSlots.Add(UIObj);
+        }
+    }
+    public void SetUpgradeCount()
+    {
+        UpgradeCount = (int)PowerUpgrade.upgradeValues[PowerUpgrade.CurrentLevel - 1] + 3;
+        Debug.Log(UpgradeCount);
+    }
     // ========================================================================
     // [NEW] 리셋 기능 구현
     // ========================================================================
@@ -56,6 +78,8 @@ public class UpgradeManager : MonoBehaviour
 
         // 1. 덱(Deck) 초기화 (만렙 찍어서 사라진 카드들 복구)
         // MasterDeck에 있는 모든 카드를 복사해서 UpgradeDeck으로 가져옴
+        SetUpgradeCount();
+        SetUpgradeUICount();
 
         // 2. 카드 상태 초기화 (레벨 0으로, 확률 원상복구)
         foreach (var card in MasterDeck)
@@ -106,9 +130,9 @@ public class UpgradeManager : MonoBehaviour
 
         // 3. 랜덤 뽑기 로직
         List<UpgradeScriptableObject> availableUpgrades = new List<UpgradeScriptableObject>(UpgradeDeck);
-        int slotsCount = Mathf.Min(UpgradeUiSlots.Length, availableUpgrades.Count);
+        int slotsCount = Mathf.Min(UpgradeCount, availableUpgrades.Count);
 
-        for (int i = 0; i < UpgradeUiSlots.Length; i++)
+        for (int i = 0; i < UpgradeCount; i++)
         {
             if (i < slotsCount)
             {
@@ -184,7 +208,9 @@ public class UpgradeManager : MonoBehaviour
         }
 
         // 3. 잡 클래스 조건 달성 확인
-        CheckAndSetJobClass();
+        while(CheckAndSetJobClass())
+        {
+        }
 
         // 4. 창 닫기
         ProcessNextUpgrade();
@@ -235,7 +261,7 @@ public class UpgradeManager : MonoBehaviour
     // ========================================================================
     // 4. 잡 클래스 시스템 (데이터 기반)
     // ========================================================================
-    private void CheckAndSetJobClass()
+    private bool CheckAndSetJobClass()
     {
         if (currentJob == null)
         {
@@ -244,25 +270,24 @@ public class UpgradeManager : MonoBehaviour
                 if (CheckJobRequirements(job))
                 {
                     SetJob(job);
-                    break;
+                    return true;
                 }
             }
         }
         else
         {
-            if(currentJob.nextAbleJobs == null || currentJob.nextAbleJobs.Count == 0) return;
+            if(currentJob.nextAbleJobs == null || currentJob.nextAbleJobs.Count == 0) return false;
 
             foreach (JobDataSO nextjob in currentJob.nextAbleJobs)
             {
                 if (CheckJobRequirements(nextjob))
                 {
                     SetJob(nextjob);
-                    break;
+                    return true;
                 }
             }
         }
-
-
+        return false;
     }
 
     private bool CheckJobRequirements(JobDataSO job)

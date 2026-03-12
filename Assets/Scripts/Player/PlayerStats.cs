@@ -244,15 +244,15 @@ public class PlayerStats : MonoBehaviour
         if (PlayerStatsCalculate.Instance != null)
             PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
 
-        if (level < 10)
+        if (level < 100)
         {
             LevelUpLess10();
         }
-        else if (level < 100)
+        else if (level < 1000)
         {
             LevelUpLess100();
         }
-        else if (level < 1000)
+        else if (level < 10000)
         {
             LevelUpLess1000();
         }
@@ -292,7 +292,7 @@ public class PlayerStats : MonoBehaviour
 
     public void LevelUpLess10()
     {
-        if (level < 10)
+        if (level < 100)
         {
             MilestoneLevelUp();
         }
