@@ -16,8 +16,10 @@ MonoBehaviour:
   upgradeData: {fileID: 11400000, guid: 4de550dfb1b50ec46b910e84a14066ed, type: 2}
   baseDamage: 5
   baseCooldown: 3
-  fusionWeaponData: []
-  orbCount: 2
+  fusionWeaponData:
+  - {fileID: 11400000, guid: ff9f8742b97a78b498e3c35da5369668, type: 2}
+  - {fileID: 11400000, guid: 33e5ad923a914314eb30fb0c7d6edbe3, type: 2}
+  orbCount: 5
   radius: 2
   rotationSpeed: 50
   orbProjectilePrefab: {fileID: 8800286586871075592, guid: 190add0d91ad0c7438f8581cf2fe89af, type: 3}

@@ -442,7 +442,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         if (knockBackTime > 0 && !CantBeKnocked)
         {
-            transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * knockBackForce * Time.deltaTime);
+            float finalKnockBack = knockBackForce * (1 + PlayerStats.Instance.KnockBackBonus);
+            transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * finalKnockBack * Time.deltaTime);
         }
         else
         {

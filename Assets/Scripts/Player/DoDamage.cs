@@ -84,7 +84,7 @@ public class DoDamage : MonoBehaviour
         IDamageable playerHealth = collision.GetComponent<IDamageable>();
         if (playerHealth != null)
         {
-            playerHealth.TakeDamage(damage*(1-(PlayerStats.Instance.ArmorBonus/100)));
+            playerHealth.TakeDamage(damage*(1-(PlayerStats.Instance.ArmorBonus / (PlayerStats.Instance.ArmorBonus + PlayerStats.Instance.NormalArmorRatio))));
             if (destroyAfterHit)
             {
                 HandleSelfDestruction();
@@ -97,9 +97,12 @@ public class DoDamage : MonoBehaviour
     {
         int id = collision.gameObject.GetInstanceID();
         IDamageable enemy = ObjectPoolingManager.instance.GetDamageable(id);
+        float Deal = PlayerStats.Instance.DamageBonus * damage;
+        if(Random.value <= PlayerStats.Instance.DoubleDamageChance)
+            Deal *= 2;
         if (enemy != null)
         {
-            enemy.TakeDamage(damage);//1. 데미지 보너스를 여기서 보정해주는 방법 2. 스킬 자체의 데미지를 보정하는 방법 *(1+PlayerStats.Instance.DamageBonus/100)
+            enemy.TakeDamage(Deal);//damage는 실제 해당 스킬의 계수로 결정.
             if (destroyAfterHit)
             {
                 HandleSelfDestruction();

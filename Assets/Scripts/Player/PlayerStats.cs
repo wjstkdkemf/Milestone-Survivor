@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements.Experimental;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -40,14 +41,18 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private Slider ExpBar;
     public float DamageBonus { get; set; }
     public float SpeedBonus { get; set; }
+    public float projectileSpeedBonus { get; set; }
     public float HealthRegeneration { get; set; }
     public float experienceBonus { get; set; }
-    public float projectileSpeedBonus { get; set; }
     public float cooldownReduction { get; set; }
     public float LuckBonus { get; set; }
     public float KnockBackBonus { get; set; }
     public float ArmorBonus { get; set; }
-    public float DoubleDamageChance { get; set; }
+    private float _doubleDamageChance;
+    public float DoubleDamageChance { 
+        get { return _doubleDamageChance; }
+        set { _doubleDamageChance = Mathf.Clamp(value, 0.0f, 1.0f); }}
+    public float NormalArmorRatio = 1000.0f;
 
     public TMP_Text GoldAmountText;
      private static readonly string[] Suffixes = { "", "K", "M", "B", "T", "Q", "aa", "ab", "ac" };
@@ -232,6 +237,8 @@ public class PlayerStats : MonoBehaviour
             LevelUp();
         }
 
+        PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
+
         UpdateExpBar();
     }
 
@@ -240,9 +247,6 @@ public class PlayerStats : MonoBehaviour
         currentXP -= (int)requiredXP;
         level++;
         requiredXP *= 1.5f;
-
-        if (PlayerStatsCalculate.Instance != null)
-            PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
 
         if (level < 100)
         {

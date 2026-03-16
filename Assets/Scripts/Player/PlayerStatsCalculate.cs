@@ -11,9 +11,6 @@ public class PlayerStatsCalculate : MonoBehaviour
     public float baseDamage = 0;
     public float baseSpeed = 0;
     public float baseHealthRegen = 0;
-    public float baseExperienceBonus = 0;
-    public float baseProjectileSpeed = 0;
-    public float baseCooldownReduction = 0;
     public float baseLuck = 0;
     public float baseKnockBack = 0;
     public float baseArmor = 0;
@@ -26,13 +23,13 @@ public class PlayerStatsCalculate : MonoBehaviour
     private float powerUpSpeed = 0;
     private float powerUpHealthRegen = 0;
     private float powerUpExperienceBonus = 0;
-    private float powerUpProjectileSpeed = 0;
     private float powerUpCooldownReduction = 0;
     private float powerUpLuck = 0;
     private float powerUpKnockBack = 0;
     private float powerUpArmor = 0;
     private float powerUpDoubleDamageChance = 0;
     private float powerUpMaxHealth = 0;
+    private float powerUpProjectileSpeed = 0;
     private int powerUpEncounter = 0;
 
     // In-game real-time bonuses
@@ -40,25 +37,19 @@ public class PlayerStatsCalculate : MonoBehaviour
     private float realTimeSpeed = 0;
     private float realTimeHealthRegen = 0;
     private float realTimeExperienceBonus = 0;
-    private float realTimeProjectileSpeed = 0;
     private float realTimeCooldownReduction = 0;
     private float realTimeLuck = 0;
     private float realTimeKnockBack = 0;
     private float realTimeArmor = 0;
     private float realTimeDoubleDamageChance = 0;
     private float realTimeMaxHealth = 0;
+    private float realTimeProjectileSpeed = 0;
 
     // Level-up bonuses
     private float levelDamage = 0;
-    private float levelSpeed = 0;
     private float levelHealthRegen = 0;
-    private float levelExperienceBonus = 0;
-    private float levelProjectileSpeed = 0;
     private float levelCooldownReduction = 0;
-    private float levelLuck = 0;
-    private float levelKnockBack = 0;
     private float levelArmor = 0;
-    private float levelDoubleDamageChance = 0;
     private float levelMaxHealth = 0;
 
 
@@ -75,12 +66,11 @@ public class PlayerStatsCalculate : MonoBehaviour
         }
     }
 
-    public void SetBaseStats(float maxHealth, float speed, float healthRegen, float experienceBonus, float luck, float damage, List<StatModifier> statModifiers)
+    public void SetBaseStats(float maxHealth, float speed, float healthRegen, float luck, float damage, List<StatModifier> statModifiers)
     {
         baseMaxHealth = maxHealth;
         baseSpeed = speed;
         baseHealthRegen = healthRegen;
-        baseExperienceBonus = experienceBonus;
         baseLuck = luck;
         baseDamage = damage;
         baseStatModifiers = new List<StatModifier>(statModifiers);// 복사
@@ -92,17 +82,11 @@ public class PlayerStatsCalculate : MonoBehaviour
 
         // Reset level bonuses
         levelDamage = 0;
-        levelSpeed = 0;
         levelHealthRegen = 0;
-        levelExperienceBonus = 0;
-        levelProjectileSpeed = 0;
-        levelCooldownReduction = 0;
-        levelLuck = 0;
-        levelKnockBack = 0;
         levelArmor = 0;
-        levelDoubleDamageChance = 0;
         levelMaxHealth = 0;
 
+        float LevelRation = Level * 0.2f;
         if (baseStatModifiers != null)
         {
             foreach (var modifier in baseStatModifiers)
@@ -110,37 +94,16 @@ public class PlayerStatsCalculate : MonoBehaviour
                 switch (modifier.statName) // Assuming StatModifier has a 'stat' string field
                 {
                     case "Damage":
-                        levelDamage += modifier.value * Level;
-                        break;
-                    case "MovementSpeed":
-                        levelSpeed += modifier.value * Level;
+                        levelDamage += modifier.value * LevelRation;
                         break;
                     case "HealthRegeneration":
-                        levelHealthRegen += modifier.value * Level;
-                        break;
-                    case "XPBoost":
-                        levelExperienceBonus += modifier.value * Level;
-                        break;
-                    case "ProjectileSpeed":
-                        levelProjectileSpeed += modifier.value * Level;
-                        break;
-                    case "CooldownReduction":
-                        levelCooldownReduction += modifier.value * Level;
-                        break;
-                    case "luckBoost":
-                        levelLuck += modifier.value * Level;
-                        break;
-                    case "KnockBack":
-                        levelKnockBack += modifier.value * Level;
+                        levelHealthRegen += modifier.value * LevelRation;
                         break;
                     case "Armor":
-                        levelArmor += modifier.value * Level;
-                        break;
-                    case "DobleDamageChance":
-                        levelDoubleDamageChance += modifier.value * Level;
+                        levelArmor += modifier.value * LevelRation;
                         break;
                     case "MaxHealth":
-                        levelMaxHealth += modifier.value * Level;
+                        levelMaxHealth += modifier.value * LevelRation;
                         break;
                 }
             }
@@ -157,8 +120,8 @@ public class PlayerStatsCalculate : MonoBehaviour
             case PowerUpType.MovementSpeed: powerUpSpeed += value; break;
             case PowerUpType.HealthRegeneration: powerUpHealthRegen += value; break;
             case PowerUpType.XPBoost: powerUpExperienceBonus += value; break;
-            case PowerUpType.ProjectileSpeed: powerUpProjectileSpeed += value; break;
             case PowerUpType.CooldownReduction: powerUpCooldownReduction += value; break;
+            case PowerUpType.projectilespeed: powerUpProjectileSpeed += value; break;
             case PowerUpType.luckBoost: powerUpLuck += value; break;
             case PowerUpType.KnockBack: powerUpKnockBack += value; break;
             case PowerUpType.Armor: powerUpArmor += value; break;
@@ -176,7 +139,6 @@ public class PlayerStatsCalculate : MonoBehaviour
             case PowerUpType.MovementSpeed: realTimeSpeed += value; break;
             case PowerUpType.HealthRegeneration: realTimeHealthRegen += value; break;
             case PowerUpType.XPBoost: realTimeExperienceBonus += value; break;
-            case PowerUpType.ProjectileSpeed: realTimeProjectileSpeed += value; break;
             case PowerUpType.CooldownReduction: realTimeCooldownReduction += value; break;
             case PowerUpType.luckBoost: realTimeLuck += value; break;
             case PowerUpType.KnockBack: realTimeKnockBack += value; break;
@@ -192,7 +154,6 @@ public class PlayerStatsCalculate : MonoBehaviour
         powerUpSpeed = 0;
         powerUpHealthRegen = 0;
         powerUpExperienceBonus = 0;
-        powerUpProjectileSpeed = 0;
         powerUpCooldownReduction = 0;
         powerUpLuck = 0;
         powerUpKnockBack = 0;
@@ -203,19 +164,18 @@ public class PlayerStatsCalculate : MonoBehaviour
         realTimeSpeed = 0;
         realTimeHealthRegen = 0;
         realTimeExperienceBonus = 0;
-        realTimeProjectileSpeed = 0;
         realTimeCooldownReduction = 0;
         realTimeLuck = 0;
         realTimeKnockBack = 0;
         realTimeArmor = 0;
         realTimeDoubleDamageChance = 0;
+        realTimeProjectileSpeed = 0;
 
         UpdatePlayerStats();
     }
 
     public void UpdatePlayerStats()
     {
-        Debug.Log("스탯 업데이트");
         if (PlayerStats.Instance != null)
         {
             // EquipmentEffectManager에서 스탯 보너스 가져오기
@@ -223,7 +183,6 @@ public class PlayerStatsCalculate : MonoBehaviour
             float equipSpeed = EquipmentEffectManager.Instance.GetStatBonus("MovementSpeed");
             float equipHealthRegen = EquipmentEffectManager.Instance.GetStatBonus("HealthRegeneration");
             float equipExpBonus = EquipmentEffectManager.Instance.GetStatBonus("XPBoost");
-            float equipProjectileSpeed = EquipmentEffectManager.Instance.GetStatBonus("ProjectileSpeed");
             float equipCooldown = EquipmentEffectManager.Instance.GetStatBonus("CooldownReduction");
             float equipLuck = EquipmentEffectManager.Instance.GetStatBonus("luckBoost");
             float equipKnockback = EquipmentEffectManager.Instance.GetStatBonus("KnockBack");
@@ -231,27 +190,27 @@ public class PlayerStatsCalculate : MonoBehaviour
             float equipDoubleDamage = EquipmentEffectManager.Instance.GetStatBonus("DobleDamageChance");
             float equipMaxHealth = EquipmentEffectManager.Instance.GetStatBonus("MaxHealth");
             float equiDamageRation = EquipmentEffectManager.Instance.GetStatBonus("DamageRation");
+            float equipProjectileSpeed = EquipmentEffectManager.Instance.GetStatBonus("ProjectileSpeed");
+
             int equipEncount = (int)EquipmentEffectManager.Instance.GetStatBonus("Encount");
             // 최종 스탯 계산
-            PlayerStats.Instance.DamageBonus = (baseDamage + powerUpDamage + realTimeDamage + equipDamage + levelDamage) * (1 + equiDamageRation);
-            PlayerStats.Instance.SpeedBonus = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed + levelSpeed;
+            PlayerStats.Instance.DamageBonus = (baseDamage + powerUpDamage + realTimeDamage + levelDamage) * (1 + equiDamageRation) + equipDamage;
+            PlayerStats.Instance.SpeedBonus = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed;
             PlayerStats.Instance.HealthRegeneration = baseHealthRegen + powerUpHealthRegen + realTimeHealthRegen + equipHealthRegen + levelHealthRegen;
-            PlayerStats.Instance.experienceBonus = baseExperienceBonus + powerUpExperienceBonus + realTimeExperienceBonus + equipExpBonus + levelExperienceBonus;
-            PlayerStats.Instance.projectileSpeedBonus = baseProjectileSpeed + powerUpProjectileSpeed + realTimeProjectileSpeed + equipProjectileSpeed + levelProjectileSpeed;
-            PlayerStats.Instance.cooldownReduction = baseCooldownReduction + powerUpCooldownReduction + realTimeCooldownReduction + equipCooldown + levelCooldownReduction;
-            PlayerStats.Instance.LuckBonus = baseLuck + powerUpLuck + realTimeLuck + equipLuck + levelLuck;
-            PlayerStats.Instance.KnockBackBonus = baseKnockBack + powerUpKnockBack + realTimeKnockBack + equipKnockback + levelKnockBack;
+            PlayerStats.Instance.experienceBonus = powerUpExperienceBonus + realTimeExperienceBonus + equipExpBonus ;
+            PlayerStats.Instance.cooldownReduction = powerUpCooldownReduction + realTimeCooldownReduction + equipCooldown + levelCooldownReduction;
+            PlayerStats.Instance.LuckBonus = baseLuck + powerUpLuck + realTimeLuck + equipLuck;
+            PlayerStats.Instance.KnockBackBonus = baseKnockBack + powerUpKnockBack + realTimeKnockBack + equipKnockback;
             PlayerStats.Instance.ArmorBonus = baseArmor + powerUpArmor + realTimeArmor + equipArmor + levelArmor;
-            PlayerStats.Instance.DoubleDamageChance = baseDoubleDamageChance + powerUpDoubleDamageChance + realTimeDoubleDamageChance + equipDoubleDamage + levelDoubleDamageChance;
-
+            PlayerStats.Instance.DoubleDamageChance = baseDoubleDamageChance + powerUpDoubleDamageChance + realTimeDoubleDamageChance + equipDoubleDamage;
+            PlayerStats.Instance.projectileSpeedBonus = powerUpProjectileSpeed + equipProjectileSpeed + realTimeProjectileSpeed;
             if (GameObject.FindGameObjectWithTag("GameScene") != null)
                 EnCounterSystem.Instance.maxEncounter = EnCounterSystem.Instance.normalMaxEncounter + equipEncount + powerUpEncounter;
 
             if (PlayerStats.Instance.Player != null)
             {
-                PlayerStats.Instance.Player.GetComponent<Player_Controller>().movmentSpeed = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed + levelSpeed;
+                PlayerStats.Instance.Player.GetComponent<Player_Controller>().movmentSpeed = PlayerStats.Instance.SpeedBonus;
                 PlayerStats.Instance.Player.GetComponent<PlayerHealth>().MaxHealth = baseMaxHealth + powerUpMaxHealth + realTimeMaxHealth + equipMaxHealth + levelMaxHealth;
-                Debug.Log(baseMaxHealth + "체력 셋팅성공");
             }
         }
     }

@@ -27,7 +27,6 @@ public class CharacterScriptableObject : ScriptableObject
     public float LuckBoost;
     public float CooldownReduction;
     public float DobleDamageChance;
-    public float XPBoost;
     public List<StatModifier> statModifiers;
 
     public int costPerLevel; // Base cost per level

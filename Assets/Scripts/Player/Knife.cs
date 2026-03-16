@@ -18,7 +18,7 @@ public class Knife : MonoBehaviour
 
     private void Update()
     {
-        transform.Translate(direction * (speed*(1+PlayerStats.Instance.projectileSpeedBonus)) * Time.deltaTime);
+        //transform.Translate(direction * (speed*(1+PlayerStats.Instance.projectileSpeedBonus)) * Time.deltaTime);
     }
 
 

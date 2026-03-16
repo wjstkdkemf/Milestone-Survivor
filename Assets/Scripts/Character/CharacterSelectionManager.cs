@@ -76,8 +76,7 @@ public class CharacterSelectionManager : MonoBehaviour
                $"Health Regeneration: {info.HealthRegeneration}\n" +
                $"Luck Boost: {info.LuckBoost}%\n" +
                $"Cooldown Reduction: {info.CooldownReduction}%\n" +
-               $"Double Damage Chance: {info.DobleDamageChance}%\n" +
-               $"XP Boost: {info.XPBoost}%";
+               $"Double Damage Chance: {info.DobleDamageChance}%\n";
 
         playerStatsText.text = playerStats;
         //BuyButtons.SetActive(!info.purchased);

@@ -120,14 +120,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
 
     public void Heal(float Healing)
     {
-        if (CurrentHealth + Healing >= MaxHealth)
-        {
-            CurrentHealth = MaxHealth;
-        }
-        else
-        {
-            CurrentHealth += Healing;
-        }
+        CurrentHealth = Mathf.Clamp(CurrentHealth + Healing, 0.0f, MaxHealth);
         UpdateHealthUI();
     }
 

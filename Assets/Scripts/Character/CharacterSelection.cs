@@ -31,7 +31,6 @@ public class CharacterSelection : MonoBehaviour
                 characterData[selectedCharacter].BaseHP,
                 characterData[selectedCharacter].MovementSpeed,
                 characterData[selectedCharacter].HealthRegeneration,
-                characterData[selectedCharacter].XPBoost,
                 characterData[selectedCharacter].LuckBoost,
                 characterData[selectedCharacter].Damage,
                 characterData[selectedCharacter].statModifiers
