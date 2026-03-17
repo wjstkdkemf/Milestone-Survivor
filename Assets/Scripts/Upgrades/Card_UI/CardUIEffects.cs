@@ -95,7 +95,7 @@ public class CardUIEffects : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             Cursor.SetCursor(customCursor, Vector2.zero, CursorMode.Auto);
         }
-        TooltipManager.instance.SetInfo(Description);
+        //TooltipManager.instance.SetInfo(Description);
     }
 
     // On hover exit, scale back to normal, reset color, remove glow, and reset shadow

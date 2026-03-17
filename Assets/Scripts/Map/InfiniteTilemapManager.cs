@@ -41,6 +41,7 @@ public class InfiniteTilemapManager : MonoBehaviour
     private List<Vector2Int> chunksToUnload = new List<Vector2Int>();
     private Vector2Int lastPlayerChunkCoord = Vector2Int.one * int.MaxValue;
     public MapChunkManager mapChunkManager;
+    private int currentMapSeed;
     private void Start()
     {
         Instance = this;
@@ -79,6 +80,8 @@ public class InfiniteTilemapManager : MonoBehaviour
             Debug.LogError($"Map theme '{themeName}' not found.");
             return;
         } 
+
+        currentMapSeed = UnityEngine.Random.Range(0, int.MaxValue);
 
         if (player != null)
         {
@@ -269,7 +272,7 @@ public class InfiniteTilemapManager : MonoBehaviour
         if (currentTheme == null) return;
 
         // 청크 좌표를 시드로 사용해 항상 동일한 내용물이 생성되도록 함
-        System.Random random = new System.Random(chunkCoord.GetHashCode());
+        System.Random random = new System.Random(chunkCoord.GetHashCode() ^ currentMapSeed);
 
         if (currentTheme.backgroundPrefab != null)
         {

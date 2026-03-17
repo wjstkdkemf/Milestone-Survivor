@@ -66,7 +66,8 @@ public class UpgradeManager : MonoBehaviour
     }
     public void SetUpgradeCount()
     {
-        UpgradeCount = (int)PowerUpgrade.upgradeValues[PowerUpgrade.CurrentLevel - 1] + 3;
+         if (PowerUpgrade.CurrentLevel > 0 && PowerUpgrade.CurrentLevel <= PowerUpgrade.upgradeValues.Length)
+            UpgradeCount = (int)PowerUpgrade.upgradeValues[PowerUpgrade.CurrentLevel] + 3;
         Debug.Log(UpgradeCount);
     }
     // ========================================================================

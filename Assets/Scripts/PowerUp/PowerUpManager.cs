@@ -205,9 +205,10 @@ public class PowerUpManager : MonoBehaviour
         currentSelectedButton.UpdateUI();
         UpdateDetailPanel(powerUp);
         UpdateGoldUI();
+        LoadScreenManager.Instance.ConfirmSelectionSave();
 
         // 구매로 인해 다음 티어 해금 조건이 바뀔 수 있으므로 체크 (필요시)
-        // CheckLockStatus(); 
+        CheckLockStatus(); 
     }
 
     // --- 환불 로직 (데이터 기반) ---

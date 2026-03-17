@@ -55,11 +55,16 @@ private void OnEnable()
         if (InventoryController.instance != null && itemData != null)
         {
             // "ClearInventory"라는 이름의 인벤토리로 아이템 1개 추가
+            DropGold();
             InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);
         }
 
         // 제거 혹은 비활성화
         Destroy(gameObject); 
         // 만약 풀링을 쓴다면: gameObject.SetActive(false);
+    }
+    private void DropGold()
+    {
+        PlayerStats.Instance.AddCoin(itemData.price);
     }
 }

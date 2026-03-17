@@ -177,6 +177,7 @@ public class ItemEnchanter : MonoBehaviour
                     HandleEnchantSync(currentItem);
 
                     Debug.Log($"'{currentItem.GetItemType()}' successfully enchanted to +{currentItem.GetEnhancementLevel()}!");
+                    LoadScreenManager.Instance.ConfirmSelectionSave();
 
                     // Update the UI (ItemInfoDisplay and Enchant Button)
                     InventoryEventSystem.RaiseSlotClicked(currentItem, currentItem.GetInventory());

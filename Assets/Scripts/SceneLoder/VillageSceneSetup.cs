@@ -42,6 +42,17 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
         InventoryController.instance.init();
 
         Resources.UnloadUnusedAssets();
+        if(!GameProgressManager.Instance.IsUnlocked("Tutorial"))
+        {
+            if (TutorialManager.Instance != null)
+            {
+                TutorialManager.Instance.StartTutorial();
+            }
+            else
+            {
+                Debug.LogWarning("튜토리얼을 시작해야 하는데 TutorialManager 인스턴스가 없습니다!");
+            }
+        }
 
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
     }
@@ -52,7 +63,7 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
         Debug.Log(">>> 던전에서 복귀: 전리품 정산 및 자동 저장 중...");
 
         InventoryController.instance.init();
-
+        LoadScreenManager.Instance.ConfirmSelectionSave();
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
     }
 }

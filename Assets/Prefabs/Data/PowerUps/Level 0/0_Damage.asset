@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a9cdf2bcd9c92b746b230f4bda089831, type: 3}
-  m_Name: Damage
+  m_Name: 0_Damage
   m_EditorClassIdentifier: 
   powerUpType: 1
   IconSprite: {fileID: -7634800435284293121, guid: 557274c3687466342827d8b19503cfbe, type: 3}
@@ -20,11 +20,9 @@ MonoBehaviour:
   - 10
   - 20
   - 30
-  - 40
   CurrentLevel: 4
   isPercentage: 0
   upgradeValues:
   - 5
   - 10
-  - 15
   - 20
