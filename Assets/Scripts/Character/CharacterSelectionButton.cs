@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine.UI;
 using Unity.VisualScripting;
 
-
+[RequireComponent(typeof(Button))]
 public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public CharacterScriptableObject characterInfo;
@@ -37,6 +37,11 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
     public Texture2D customCursor;
     // Start is called before the first frame update
     public bool IsSelected;
+    private Button myButton;
+    private void Awake()
+    {
+        myButton = GetComponent<Button>();
+    }
     public void Initialize(CharacterSelectionManager manager)
     {
         characterSelectionManager = manager;
@@ -76,6 +81,7 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (!myButton.interactable) return;
         // Play hover sound
         if (hoverSound != null)
         {
@@ -98,8 +104,8 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
 
     public void Selected()
     {
-        characterSelectionManager.DeselectOtherButtons();
-        characterSelectionManager.SetInfo(characterInfo, this);
+        characterSelectionManager?.DeselectOtherButtons();
+        characterSelectionManager?.SetInfo(characterInfo, this);
         IsSelected = true;
         // Play hover sound
         if (hoverSound != null)
@@ -151,6 +157,8 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
     // On click, add a small scale "pop" effect
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!myButton.interactable) return;
+
         Selected();
     }
 }

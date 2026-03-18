@@ -30,6 +30,7 @@ namespace InventorySystem
         private float textSize;
         private Vector2 SlotItemHolderSize;
         private bool returnOnMiss = false;//checks whether or not item should return to inventory when the user misses
+        public System.Action OnSlotClickedForTutorial;
 
 
 
@@ -130,6 +131,7 @@ namespace InventorySystem
                 //InventoryEventSystem.RaiseSlotClicked(item, slotType);
             //}
             // --------------------------
+            OnSlotClickedForTutorial?.Invoke();
             InventoryEventSystem.RaiseSlotClicked(item, slotType);
             // 더블클릭 감지
             if (eventData.clickCount == 2)

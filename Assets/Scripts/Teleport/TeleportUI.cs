@@ -43,6 +43,7 @@ public class TeleportUI : MonoBehaviour
         {
 
             GameObject buttonObj = Instantiate(teleportBigButtonPrefab, bigButtonContainer);
+            buttonObj.name = group.zoneName;
             buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = group.zoneName; // 혹은 Text
 
             // (중요) 버튼 클릭 시 'PopulatePointList' 함수를 호출하도록 연결
@@ -77,6 +78,7 @@ public class TeleportUI : MonoBehaviour
         foreach (TeleportData pointData in selectedGroup.pointsInZone)
         {
             GameObject buttonObj = Instantiate(teleportSmallButtonPrefab, smallButtonContainer);
+            buttonObj.name = pointData.pointID;
             buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = pointData.displayName;
 
             // TeleportManager에서 이 포인트의 '잠금 해제' 여부를 물어봄

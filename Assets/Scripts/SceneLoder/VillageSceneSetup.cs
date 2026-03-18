@@ -53,6 +53,10 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
                 Debug.LogWarning("튜토리얼을 시작해야 하는데 TutorialManager 인스턴스가 없습니다!");
             }
         }
+        else
+        {
+            TutorialManager.Instance.CheakTutorial();
+        }
 
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
     }
