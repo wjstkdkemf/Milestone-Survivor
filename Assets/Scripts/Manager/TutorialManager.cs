@@ -80,7 +80,7 @@ public class TutorialManager : MonoBehaviour
         {
             // 이벤트(OnSceneLoaded)를 기다리지 않고, 태어나자마자 1부를 강제로 시작!
             
-            StartCoroutine(TownPhase2_Routine());//TownPhase1_Routine
+            StartCoroutine(TownPhase1_Routine());//TownPhase1_Routine
         }
     }
 
@@ -145,7 +145,7 @@ public class TutorialManager : MonoBehaviour
         }
         yield return null;//1프레임 대기
 
-        battleBtnObj = GameObject.Find("던전"); 
+        battleBtnObj = GameObject.Find("숲"); 
         
         if (battleBtnObj != null)
         {
@@ -154,7 +154,7 @@ public class TutorialManager : MonoBehaviour
         }
         yield return null;//1프레임 대기
 
-        battleBtnObj = GameObject.Find("던전 1-1"); 
+        battleBtnObj = GameObject.Find("숲 1-1"); 
         
         if (battleBtnObj != null)
         {
