@@ -30,6 +30,7 @@ public class Player_Controller : MonoBehaviour
     private Material originalMaterial;
     private Animator animator;
     public float DashCoolTimeRation = 1;
+    public bool StopMoving = false;
     private void Awake()
     {    
         state = State.Normal;
@@ -59,6 +60,8 @@ public class Player_Controller : MonoBehaviour
     }
     private void Update()
     {
+        if(StopMoving)
+            return;
 
         Trail.emitting = Dashing;
         switch (state)

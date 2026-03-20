@@ -106,12 +106,12 @@ public class MenuButtonController : MonoBehaviour
 		{
 			back();
 		}
-
+/*
 		if (Input.GetKeyDown(KeyCode.I))
 		{
 			InventoryButton();
 		}
-
+*/
 	}
 	public void non()
 	{

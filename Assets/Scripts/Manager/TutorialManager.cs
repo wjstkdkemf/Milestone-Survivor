@@ -89,7 +89,7 @@ public class TutorialManager : MonoBehaviour
         // 이미 튜토리얼이 끝났다면 무시
         if (currentStep == TutorialStep.Complete) return;
 
-        if (scene.name == "Viliage")
+        if (scene.name == "Village")
         {
             if (currentStep == TutorialStep.BattlePhase_Attack)
             {
@@ -102,6 +102,7 @@ public class TutorialManager : MonoBehaviour
             if (currentStep == TutorialStep.TownPhase1_GoBattle)
             {
                 // 전투 씬 최초 진입
+                Debug.Log("호출타이밍 체크");
                 StartCoroutine(BattlePhase_Routine());
             }
         }
@@ -179,16 +180,27 @@ public class TutorialManager : MonoBehaviour
         currentStep = TutorialStep.BattlePhase_Attack;
         tutorialCanvas.SetActive(true);
         blockerPanel.gameObject.SetActive(true);
+        GameObject playerObj = GameObject.FindWithTag("Player");
+        Player_Controller playerMove = null;
+        if (playerObj != null)
+        {
+            playerMove = playerObj.GetComponent<Player_Controller>();
+            
+            if (playerMove != null) playerMove.StopMoving = true;
+        }
 
-        yield return ShowDialog("전투에 진입했습니다!");
-        yield return ShowDialog("가까이 다가가면 자동으로 공격합니다. 적을 모두 처치하세요!");
+        yield return ShowDialog("전투는 기본적으로 인카운트를 통해 발생합니다.");
+        yield return ShowDialog("위의 검은 네모칸 안에서 돌아다녀보세요");
+        yield return ShowDialog("최대 인카운트 횟수는 지도 아래 적혀있습니다.");
+        yield return ShowDialog("이동은 WASD를 통해 가능하고 SPACE BAR를 통해 대쉬가 가능합니다.");
+        yield return ShowDialog("대쉬 쿨타임은 왼쪽 위 HP바 아래에 존재합니다.");
 
-        // 조작을 해야 하므로 차단막 해제 및 대화창 숨김
+        EnCounterSystem.Instance.maxEncounter = 1;
+
         blockerPanel.gameObject.SetActive(false); 
-        dialogText.transform.parent.gameObject.SetActive(false); 
+        dialogText.transform.parent.gameObject.SetActive(false);
 
-        // 튜토리얼 전용 몬스터 소환 등 로직 진행...
-        // 전투가 끝나고 다시 마을 씬으로 로딩될 때까지 매니저는 조용히 잠복합니다.
+        if (playerMove != null) playerMove.StopMoving = false;
     }
 
     private IEnumerator TownPhase2_Routine()
@@ -250,6 +262,9 @@ public class TutorialManager : MonoBehaviour
 
         yield return ShowDialog("다양한 등급별 강화가 존재하고");
         yield return ShowDialog("이전 단계의 모든 업그레이드를 완료해야 다음 단계를 진행할 수 있습니다.");
+        yield return ShowDialog("아이템을 줍고, 강화하고 , 스탯 업그레이드를 해보세요");
+        yield return ShowDialog("점점 더 높은 사냥터에서 싸움을 시작할 수 있게되게 될 것입니다.");
+        yield return ShowDialog("아이템의 경우 장착해제불가 아이템이 아닌이상 드랍한 아이템으로 갈아입는것이 가능합니다.");
         yield return ShowDialog("완벽합니다! 이제 모든 준비가 끝났습니다. 행운을 빕니다!");
 
         EndTutorialAndDestroy();

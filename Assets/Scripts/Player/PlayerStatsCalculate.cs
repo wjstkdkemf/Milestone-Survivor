@@ -204,7 +204,7 @@ public class PlayerStatsCalculate : MonoBehaviour
             PlayerStats.Instance.ArmorBonus = baseArmor + powerUpArmor + realTimeArmor + equipArmor + levelArmor;
             PlayerStats.Instance.DoubleDamageChance = baseDoubleDamageChance + powerUpDoubleDamageChance + realTimeDoubleDamageChance + equipDoubleDamage;
             PlayerStats.Instance.projectileSpeedBonus = powerUpProjectileSpeed + equipProjectileSpeed + realTimeProjectileSpeed;
-            if (GameObject.FindGameObjectWithTag("GameScene") != null)
+            if (GameObject.FindGameObjectWithTag("GameScene") != null && GameProgressManager.Instance.IsUnlocked("Tutorial"))
                 EnCounterSystem.Instance.maxEncounter = EnCounterSystem.Instance.normalMaxEncounter + equipEncount + powerUpEncounter;
 
             if (PlayerStats.Instance.Player != null)

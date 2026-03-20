@@ -21,6 +21,7 @@ public class EnCounterSystem : MonoBehaviour
     private Vector3 lastPos;
     private float walkedDistance = 0.0f;
     private Vector3 enCounterPos;
+    public GameObject InventoryIcon;
 
     // System References
     private InfiniteTilemapManager tilemapManager;
@@ -126,10 +127,21 @@ public class EnCounterSystem : MonoBehaviour
             Debug.LogError("Cannot start encounter: a required component is missing.");
             yield break;
         }
+        if(InventoryIcon != null)
+        {
+            InventoryIcon.SetActive(false);
+        }
+
         string SceneName = currentMap.SceneName;
         List<Wave> SceneWave = new List<Wave>(currentMap.waves);
 
         isEncounterActive = true;
+
+        if (currentMap.battleBGM != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBGMWithFade(currentMap.battleBGM);
+        }
+
         if(MenuButtonController.Instance.Inventory && MenuButtonController.Instance.ingame)
         {
             MenuButtonController.Instance.back();
@@ -138,14 +150,11 @@ public class EnCounterSystem : MonoBehaviour
 
         tilemapManager.GenerateMap(SceneName);
 
-        // 1. Generate the battle map and move the player
         yield return StartCoroutine(waveSpawner.PreloadWaveAssets(SceneWave));
 
-        // 카메라 위치 업데이트 등, 프레임 안정화를 위해 한 프레임 대기
         yield return null;
 
         waveSpawner.StartWaves();
-        // 4. Activate combat abilities
         if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(true);
 
         CurEncounter++;
@@ -153,30 +162,31 @@ public class EnCounterSystem : MonoBehaviour
 
     public void ClearEncount()
     {
-        // Optional: Save stats if needed
-        // PlayerStats.Instance.SaveStats();
-
         if (CurEncounter >= maxEncounter)
         {
             if (GameOver.Instance != null) GameOver.Instance.GameEnded(true);
         }
         else
         {
-            // 1. Clear the battle map
             if (tilemapManager != null) tilemapManager.ClearMap();
 
-            // 2. Stop the monster spawner
             if (waveSpawner != null) waveSpawner.StopWaves();
 
-            // 3. Deactivate combat abilities
             if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(false);
 
-            // 4. Teleport player back to where the encounter started
             if (PlayerTransform != null) PlayerTransform.position = enCounterPos;
             isEncounterActive = false;
         }
+        if (currentMap != null && currentMap.explorationBGM != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBGMWithFade(currentMap.explorationBGM);
+        }
+
         if(currentMap != null && currentMap.BossEncounter)
             currentMap = null;
+
+        if(InventoryIcon != null)
+            InventoryIcon.SetActive(true);
     }
     public void PlusMaxEncount(int PlusEn)
     {

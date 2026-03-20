@@ -3,6 +3,7 @@ using System.Collections;
 using InventorySystem;
 public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
 {
+    public AudioClip MainBGM;
     public IEnumerator Initialize()
     {
         string prevScene = LoadingManager.Instance.PreviousSceneName;
@@ -28,6 +29,7 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
             // 그 외 (상점 등에서 왔을 때)
             Debug.Log("일반 복귀 초기화 수행");
         }
+        AudioManager.Instance.PlayBGM(MainBGM);
 
         yield return null;
     }
