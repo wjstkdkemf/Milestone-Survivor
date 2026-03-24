@@ -80,7 +80,7 @@ public class TutorialManager : MonoBehaviour
         {
             // 이벤트(OnSceneLoaded)를 기다리지 않고, 태어나자마자 1부를 강제로 시작!
             
-            StartCoroutine(TownPhase1_Routine());//TownPhase1_Routine
+            //StartCoroutine(TownPhase1_Routine());//TownPhase1_Routine
         }
     }
 
