@@ -264,10 +264,9 @@ public class PlayerStats : MonoBehaviour
 
     public void ShowUpgradeMenu()
     {
-        if(MenuButtonController.Instance.Inventory == true)
+        if(MenuButtonController.Instance == true)
         {
-            MenuButtonController.Instance.Inventory = false;
-			MenuButtonController.Instance.InventoryObject.SetActive(false);
+            MenuButtonController.Instance.CloseAllMenus();
         }
         if (UpgradeManager.Instance != null)
         {

@@ -18,6 +18,7 @@ public class DungeonSceneSetup : MonoBehaviour, ISceneInitializer
         GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerHealth>().InitializeForNewScene();
 
         Resources.UnloadUnusedAssets();
+
         yield return new WaitForSeconds(0.5f); // 연출용 대기
     }
 }

@@ -33,6 +33,13 @@ public class PanelMessage : MonoBehaviour
         // 패널이 투명할 때는 클릭 등 상호작용이 되지 않도록 설정
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+
+        if(MenuButtonController.Instance != null)
+        {
+            MenuButtonController.Instance.warningPanel = this;
+        }
+
+        gameObject.SetActive(false);
     }
 
     /// <summary>

@@ -11,25 +11,26 @@ public class UpgradeManager : MonoBehaviour
     public static UpgradeManager Instance;
 
     [Header("Core References")]
-    public PlayerWeaponController playerWeaponController; // [핵심] 무기 관리자 연결
+    public PlayerWeaponController playerWeaponController; // 무기 관리자 연결
     public GameObject PlayerObject; // 패시브 스탯 적용을 위한 플레이어 참조
 
     [Header("UI References")]
     [SerializeField] private GameObject UpgradePanelObject; // 전체 UI 패널
-    public List<GameObject> UpgradeUiSlots; // UI 슬롯들 (3~4개)
+    public List<GameObject> UpgradeUiSlots; // UI 슬롯들
     public PowerUpScriptableObject PowerUpgrade;
 
     [Header("Data Deck")]
     public List<UpgradeScriptableObject> MasterDeck;
     public List<UpgradeScriptableObject> StartingDeck;
-    public List<UpgradeScriptableObject> UpgradeDeck; // 뽑을 카드 목록 (기존 UpgadeToSpawn)
+    public List<UpgradeScriptableObject> UpgradeDeck; // 뽑을 카드 목록
     private List<UpgradeScriptableObject> spawnedUpgrades = new List<UpgradeScriptableObject>();
     private int UpgradeCount = 3;
+    private bool InGameUpgrade = false;
     public Transform UpgradeUIContainer;
     public GameObject UpgradeUIPrefab;
 
     [Header("Job System")]
-    public List<JobDataSO> allJobs; // 모든 직업 데이터 리스트 (인스펙터 할당)
+    public List<JobDataSO> allJobs; // 모든 직업 데이터 리스트
     private JobDataSO currentJob = null;
 
     [Header("Level Up Queue")]
@@ -56,7 +57,7 @@ public class UpgradeManager : MonoBehaviour
     }
     public void SetUpgradeUICount()
     {
-        foreach (Transform child in UpgradeUIContainer) Destroy(child.gameObject);// 기존 UpgradeUI 삭제
+        foreach (Transform child in UpgradeUIContainer) Destroy(child.gameObject);
 
         for(int i = 0 ; i < UpgradeCount ; i++)
         {
@@ -70,44 +71,32 @@ public class UpgradeManager : MonoBehaviour
             UpgradeCount = (int)PowerUpgrade.upgradeValues[PowerUpgrade.CurrentLevel] + 3;
         Debug.Log(UpgradeCount);
     }
-    // ========================================================================
-    // [NEW] 리셋 기능 구현
-    // ========================================================================
     public void ResetRunData(List<UpgradeScriptableObject> startingDeck)
     {
         Debug.Log("새 게임을 위해 데이터를 초기화합니다...");
 
-        // 1. 덱(Deck) 초기화 (만렙 찍어서 사라진 카드들 복구)
+        // 덱 초기화
         // MasterDeck에 있는 모든 카드를 복사해서 UpgradeDeck으로 가져옴
         SetUpgradeCount();
         SetUpgradeUICount();
 
-        // 2. 카드 상태 초기화 (레벨 0으로, 확률 원상복구)
+        // 카드 상태 초기화
         foreach (var card in MasterDeck)
         {
-            card.Points = 0; // 레벨 0
-            
-            // [주의] 만약 직업 시스템이나 이벤트로 Chance를 건드렸다면,
-            // 여기서 Chance도 초기값으로 돌려놔야 합니다.
-            card.Chance = card.InitialChance; // (InitialChance 변수를 따로 뒀다면)
+            card.Points = 0;
+            card.Chance = card.InitialChance;
         }
         if(startingDeck.Count != 0)
             UpgradeDeck = new List<UpgradeScriptableObject>(startingDeck);
         else
             UpgradeDeck = new List<UpgradeScriptableObject>(StartingDeck);
 
-        // 3. 직업(Job) 상태 초기화
+        // 직업 상태 초기화
         currentJob = null;
-        // 5. 저장된 진행 데이터(파일)가 있다면 삭제 로직 (선택사항)
-        // if (File.Exists(saveUpgradeFilePath)) File.Delete(saveUpgradeFilePath);
     }
 
-    // ========================================================================
-    // 1. 업그레이드 UI 표시 로직 (가중치 랜덤 뽑기)
-    // ========================================================================
     public void DisplayUpgrades()
     {
-        // 1. 만렙 찍은 스킬은 덱에서 제거
         for (int i = UpgradeDeck.Count - 1; i >= 0; i--)
         {
             if (UpgradeDeck[i].Points >= UpgradeDeck[i].MaxPoints)
@@ -116,9 +105,11 @@ public class UpgradeManager : MonoBehaviour
             }
         }
 
-        // 2. 게임 일시정지 및 UI 켜기
-        if (MenuButtonController.Instance != null) MenuButtonController.Instance.InGameUpgrade = true;
+        // 게임 일시정지 및 UI 켜기
+        if (MenuButtonController.Instance != null) MenuButtonController.Instance.CloseAllMenus();
         if (GameManager.Instance != null) GameManager.Instance.Pause = true;
+
+        InGameUpgrade = true;
         SetUpgradePanelState(true);
 
         foreach (var slot in UpgradeUiSlots)
@@ -129,7 +120,7 @@ public class UpgradeManager : MonoBehaviour
             }
         }
 
-        // 3. 랜덤 뽑기 로직
+        // 랜덤 뽑기 로직
         List<UpgradeScriptableObject> availableUpgrades = new List<UpgradeScriptableObject>(UpgradeDeck);
         int slotsCount = Mathf.Min(UpgradeCount, availableUpgrades.Count);
 
@@ -137,13 +128,13 @@ public class UpgradeManager : MonoBehaviour
         {
             if (i < slotsCount)
             {
-                // 가중치(Chance) 합계 계산
+                // 가중치합계 계산
                 int totalChance = availableUpgrades.Sum(x => x.Chance);
 
                 UpgradeScriptableObject chosenUpgrade = null;
                 if (totalChance <= 0)
                 {
-                    // 비상 대책: 확률 무시하고 그냥 아무거나(0번) 뽑음
+                    // 비상 대책: 확률 무시하고 그냥 아무거나 뽑음
                     if (availableUpgrades.Count > 0)
                     {
                         int fallbackIndex = Random.Range(0, availableUpgrades.Count);
@@ -153,7 +144,6 @@ public class UpgradeManager : MonoBehaviour
                 else
                 {
                     int randomValue = Random.Range(0, totalChance);
-                    // 룰렛 돌리기
                     foreach (var upgrade in availableUpgrades)
                     {
                         if (randomValue < upgrade.Chance)
@@ -169,7 +159,7 @@ public class UpgradeManager : MonoBehaviour
                 if (chosenUpgrade != null)
                 {
                     UpgradeUiSlots[i].SetActive(true);
-                    // UI 슬롯 스크립트에 정보 전달 (UpgradeUi 스크립트가 있다고 가정)
+                    // UI 슬롯 스크립트에 정보 전달
                     UpgradeUiSlots[i].GetComponent<UpgradeUi>().SetInfo(chosenUpgrade);
                     
                     spawnedUpgrades.Add(chosenUpgrade);
@@ -183,18 +173,14 @@ public class UpgradeManager : MonoBehaviour
         }
     }
 
-    // ========================================================================
-    // 2. 업그레이드 선택 시 실행 (UI 버튼에서 이 함수를 호출해야 함!)
-    // ========================================================================
     public void OnUpgradeSelected(UpgradeScriptableObject chosenUpgrade)
     {
-        // 1. 포인트(레벨) 증가
         chosenUpgrade.Points++;
 
-        // 2. [핵심] 무기인가? 패시브 스탯인가?
+        // 무기인가? 패시브 스탯인가?
         if (chosenUpgrade.linkedWeaponData != null)
         {
-            // A. 무기라면 -> 플레이어 웨폰 컨트롤러에게 "이거 장착해/레벨업해"라고 던짐
+            // 무기라면
             if (playerWeaponController != null)
             {
                 playerWeaponController.AddWeapon(chosenUpgrade.linkedWeaponData);
@@ -203,31 +189,26 @@ public class UpgradeManager : MonoBehaviour
         }
         else
         {
-            // B. 스탯이라면 -> 패시브 적용 로직 실행
+            // 스탯이라면 
             ApplyStatBonus(chosenUpgrade);
             Debug.Log($"[Upgrade] 스탯 적용: {chosenUpgrade.upgradeType}");
         }
 
-        // 3. 잡 클래스 조건 달성 확인
+        // 잡 클래스 조건 달성 확인
         while(CheckAndSetJobClass())
         {
         }
 
-        // 4. 창 닫기
+        // 창 닫기
         ProcessNextUpgrade();
     }
 
-    // ========================================================================
-    // 3. 패시브 스탯 적용 로직 (Switch문)
-    // ========================================================================
     private void ApplyStatBonus(UpgradeScriptableObject upgrade)
     {
-        // PlayerStats 싱글톤이 없다면 PlayerObject에서 가져옴
         var stats = PlayerStats.Instance; 
-        // PlayerHealth 컴포넌트
         var health = PlayerObject.GetComponent<PlayerHealth>();
 
-        float value = upgrade.statValue; // SO에 설정된 값 (예: 10, 0.5 ...)
+        float value = upgrade.statValue; // SO에 설정된 값
 
         switch (upgrade.upgradeType)
         {
@@ -239,7 +220,7 @@ public class UpgradeManager : MonoBehaviour
                 if (health != null) health.Heal(value);
                 break;
 
-            case UpgradeScriptableObject.UpgradeType.Stat_Might: // 데미지
+            case UpgradeScriptableObject.UpgradeType.Stat_Might:
                 if (stats != null) stats.DamageBonus += value;
                 break;
 
@@ -248,20 +229,16 @@ public class UpgradeManager : MonoBehaviour
                 break;
 
             case UpgradeScriptableObject.UpgradeType.Stat_Cooldown:
-                if (stats != null) stats.cooldownReduction += value; // 쿨타임 감소 로직에 따라 +인지 -인지 확인 필요
+                if (stats != null) stats.cooldownReduction += value; 
                 break;
             
-            case UpgradeScriptableObject.UpgradeType.Stat_Growth: // 경험치
+            case UpgradeScriptableObject.UpgradeType.Stat_Growth:
                 if (stats != null) stats.experienceBonus += value;
                 break;
 
-            // 필요한 스탯 케이스들 추가
         }
     }
 
-    // ========================================================================
-    // 4. 잡 클래스 시스템 (데이터 기반)
-    // ========================================================================
     private bool CheckAndSetJobClass()
     {
         if (currentJob == null)
@@ -295,26 +272,23 @@ public class UpgradeManager : MonoBehaviour
     {
         foreach (JobDataSO.JobRequirement req in job.requirements)
         {
-            // 1. 플레이어가 해당 업그레이드 카드를 가지고 있는지 확인
-            // (ScriptableObject는 인스턴스가 다를 수 있으므로 이름이나 원본 참조로 비교하는 것이 안전합니다)
+            // 플레이어가 해당 업그레이드 카드를 가지고 있는지 확인
             UpgradeScriptableObject myUpgrade = MasterDeck.Find(u => u.name == req.requiredUpgrade.name);
 
-            // 2. 카드가 아예 없다면 탈락
+            // 카드가 아예 없다면 탈락
             if (myUpgrade == null)
             {
                 //Debug.Log($"전직 실패: {req.requiredUpgrade.Title} 없음");
                 return false; 
             }
 
-            // 3. 카드는 있지만 레벨이 부족하면 탈락
-            // UpgradeScriptableObject의 Points가 현재 레벨이라고 가정합니다.
+            // 카드는 있지만 레벨이 부족하면 탈락
             if (myUpgrade.Points < req.requiredLevel)
             {
                 //Debug.Log($"전직 실패: {myUpgrade.Title} 레벨 부족 (현재:{myUpgrade.Points} / 필요:{req.requiredLevel})");
                 return false;
             }
         }
-        // 모든 조건을 통과했으면 전직 가능!
         return true;
     }
 
@@ -323,7 +297,7 @@ public class UpgradeManager : MonoBehaviour
         currentJob = newJob;
         Debug.Log($"[Job Change] {newJob.jobName} 전직 완료!");
 
-        // 1. [추가] 직업 보너스 스킬 추가 (Additive)
+        // 직업 보너스 스킬 추가
         if (newJob.bonusUpgrades != null)
         {
             foreach (var bonusCard in newJob.bonusUpgrades)
@@ -340,12 +314,11 @@ public class UpgradeManager : MonoBehaviour
             }
         }
 
-        // 2. [제거] 금지된 스킬 제거 (Subtractive)
+        // 금지된 스킬 제거
         if (newJob.bannedUpgrades != null)
         {
             foreach (var bannedCard in newJob.bannedUpgrades)
             {
-                // 덱에 있다면 제거해라
                 if (UpgradeDeck.Contains(bannedCard))
                 {
                     UpgradeDeck.Remove(bannedCard);
@@ -358,17 +331,13 @@ public class UpgradeManager : MonoBehaviour
             }
         }
             
-        // 잡 클래스 상태 저장 필요 시 호출
         // SaveUpgradeData(); 
     }
 
-    // ========================================================================
-    // 5. 유틸리티 및 종료
-    // ========================================================================
     public void Close()
     {
         if (GameManager.Instance != null) GameManager.Instance.Pause = false;
-        if (MenuButtonController.Instance != null) MenuButtonController.Instance.InGameUpgrade = false;
+        InGameUpgrade = false;
         
         SetUpgradePanelState(false);
         spawnedUpgrades.Clear();
@@ -378,7 +347,7 @@ public class UpgradeManager : MonoBehaviour
         pendingUpgrades++;
 
         // 만약 지금 UI가 꺼져있다면, 바로 보여주기 시작
-        if (!MenuButtonController.Instance.InGameUpgrade) 
+        if (!InGameUpgrade) 
         {
             ProcessNextUpgrade();
         }
@@ -390,7 +359,6 @@ public class UpgradeManager : MonoBehaviour
             // 대기열 하나 소모
             pendingUpgrades--; 
             
-            // UI 띄우기
             DisplayUpgrades(); 
         }
         else

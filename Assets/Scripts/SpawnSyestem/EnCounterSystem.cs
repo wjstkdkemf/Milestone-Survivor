@@ -142,9 +142,9 @@ public class EnCounterSystem : MonoBehaviour
             AudioManager.Instance.PlayBGMWithFade(currentMap.battleBGM);
         }
 
-        if(MenuButtonController.Instance.Inventory && MenuButtonController.Instance.ingame)
+        if(MenuButtonController.Instance != null)
         {
-            MenuButtonController.Instance.back();
+            MenuButtonController.Instance.CloseAllMenus();
         }
         enCounterPos = PlayerTransform.position; // Save player's current position
 

@@ -1444,7 +1444,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: LoadScene
         m_Mode: 3
@@ -3816,7 +3816,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: LoadScene
         m_Mode: 3
@@ -4219,7 +4219,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: Quit
         m_Mode: 1
@@ -4778,6 +4778,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Mixer: {fileID: 24100000, guid: 409578c449ff92b4c8dd679045ae1a3d, type: 2}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &7645007111496515695
 GameObject:
   m_ObjectHideFlags: 0
@@ -5344,7 +5347,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: Setting
         m_Mode: 1
@@ -6027,7 +6030,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: back
         m_Mode: 1
@@ -6578,7 +6581,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: Graphics
         m_Mode: 1
@@ -7366,7 +7369,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: back
         m_Mode: 1
@@ -7859,7 +7862,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: back
         m_Mode: 1
@@ -7871,7 +7874,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: Quit
         m_Mode: 1
@@ -8512,6 +8515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resolutionDropDown: {fileID: 7645007112188114025}
+  fullScreenToggle: {fileID: 0}
 --- !u!1 &7645007112294682223
 GameObject:
   m_ObjectHideFlags: 0
@@ -9240,6 +9244,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Mixer: {fileID: 24100000, guid: 409578c449ff92b4c8dd679045ae1a3d, type: 2}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &7645007112557752044
 GameObject:
   m_ObjectHideFlags: 0
@@ -11164,7 +11171,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: back
         m_Mode: 1
@@ -11619,7 +11626,6 @@ GameObject:
   - component: {fileID: 7645007113186534646}
   - component: {fileID: 7645007113186534647}
   - component: {fileID: 7645007113186534640}
-  - component: {fileID: 7645007113186534644}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -11653,10 +11659,10 @@ RectTransform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7645007113186534646
 Canvas:
   m_ObjectHideFlags: 0
@@ -11720,45 +11726,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &7645007113186534644
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7645007113186534641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 415599b20e4d0af4db1c16401287b365, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MaineMenuObject: {fileID: 380689636307264780}
-  CharacterSelectionObject: {fileID: 0}
-  PowerUpObject: {fileID: 0}
-  PauseObject: {fileID: 7645007111647033686}
-  SettingsObject: {fileID: 7645007111522179033}
-  AudioObject: {fileID: 7645007113211062443}
-  GraphicsObject: {fileID: 7645007112255970382}
-  UpgradeObject: {fileID: 7645007111693401742}
-  SelectObject: {fileID: 0}
-  LoadObject: {fileID: 0}
-  InventoryObject: {fileID: 0}
-  Menu: 0
-  Pause: 0
-  Settings: 0
-  SettingsTwo: 0
-  SettingsThree: 0
-  Settingsfour: 0
-  CharacterSelection: 0
-  PowerUp: 0
-  Load: 0
-  Save: 0
-  Inventory: 0
-  CurntButton: {fileID: 0}
-  PowerUpButton: {fileID: 0}
-  CharacterSelectionButton: {fileID: 0}
-  FunctionName: 
-  ingame: 0
 --- !u!1 &7645007113211062443
 GameObject:
   m_ObjectHideFlags: 0
@@ -11852,6 +11819,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Mixer: {fileID: 0}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &7645007113233659705
 GameObject:
   m_ObjectHideFlags: 0
@@ -13119,7 +13089,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: back
         m_Mode: 1
@@ -13417,7 +13387,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 7645007113186534644}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuButtonController, Assembly-CSharp
         m_MethodName: Audio
         m_Mode: 1
@@ -13680,6 +13650,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Mixer: {fileID: 24100000, guid: 409578c449ff92b4c8dd679045ae1a3d, type: 2}
+  masterSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
+  bgmSlider: {fileID: 0}
 --- !u!1 &7961101471787903537
 GameObject:
   m_ObjectHideFlags: 0
