@@ -49,7 +49,6 @@ public class GraphicsSettings : MonoBehaviour
         }
 
         Screen.SetResolution(resolutions[savedResIndex].width, resolutions[savedResIndex].height, isFullScreen);
-        gameObject.SetActive(false);
     }
 
     public void SetResolution(int resolutionIndex)

@@ -103,7 +103,7 @@ public class TeleportUI : MonoBehaviour
         foreach (Transform child in smallButtonContainer) Destroy(child.gameObject);
     }
 
-    void OnTeleportButtonClick(TeleportData teleportPoint , Button Button)//Name
+    public void OnTeleportButtonClick(TeleportData teleportPoint , Button Button)//Name
     {
         if (SelectsmallButton != null && SelectsmallButton != Button)
         {

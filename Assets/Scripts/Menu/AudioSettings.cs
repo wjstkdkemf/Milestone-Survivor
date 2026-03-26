@@ -23,8 +23,6 @@ public class AudioSettings : MonoBehaviour
         if (masterSlider != null) masterSlider.value = savedMaster;
         if (sfxSlider != null) sfxSlider.value = savedSFX;
         if (bgmSlider != null) bgmSlider.value = savedBGM;
-
-        gameObject.SetActive(false);
     }
     public void SetVolumeMaster(float Volume)
     {
