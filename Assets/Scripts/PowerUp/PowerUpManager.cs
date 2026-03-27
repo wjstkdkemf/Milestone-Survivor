@@ -26,6 +26,7 @@ public class PowerUpManager : MonoBehaviour
     public GameObject panel;
     public TMP_Text MyGoldText;
     public TMP_Text nameText;
+    public TMP_Text currentLevelText;
     public TMP_Text costText;
     public TMP_Text descriptionText;
     public GameObject BuyButtons;
@@ -42,7 +43,6 @@ public class PowerUpManager : MonoBehaviour
     }
     private void OnDestroy()
     {
-        // 내가 현재 활성화된 인스턴스였다면, 파괴될 때 참조를 비워줌
         if (Instance == this)
         {
             Instance = null;
@@ -55,19 +55,14 @@ public class PowerUpManager : MonoBehaviour
 
         playerStats = FindAnyObjectByType<PlayerStats>();
 
-        // 1. 버튼 풀 초기화 (Content 자식에 있는 버튼들을 긁어옴)
         InitializeButtonPool();
 
-        // 2. 초기 UI 설정 (0페이지)
         UpdateTierView();
         UpdateGoldUI();
     }
 
-    // --- 초기화: 미리 배치된 버튼들을 풀에 등록 ---
     void InitializeButtonPool()
     {
-        // buttonContainer 아래의 모든 PowerUpButton 컴포넌트를 가져옴
-        // (IncludeInactive = true로 하여 꺼져있는 것도 가져옴)
         if(buttonContainer != null)
             buttonPool = buttonContainer.GetComponentsInChildren<PowerUpButton>(true).ToList();
 
@@ -76,8 +71,6 @@ public class PowerUpManager : MonoBehaviour
             Debug.LogWarning("PowerUpManager: ScrollView Content 안에 PowerUpButton이 하나도 없습니다!");
         }
     }
-
-    // --- 페이지 전환 ---
     
     public void OnClickLeftBtn()
     {
@@ -99,79 +92,57 @@ public class PowerUpManager : MonoBehaviour
         }
     }
 
-    // [핵심] 현재 티어에 맞춰 버튼 재활용 및 UI 갱신
     public void UpdateTierView()
     {
-        // 1. 현재 티어 데이터 가져오기
         PowerUpTier currentTier = powerUpTiers[currentTierIndex];
 
-        // 2. 타이틀 갱신
         if (tierTitleText != null)
             tierTitleText.text = currentTier.tierName;
 
-        // 3. 버튼 풀링 로직 (데이터 바인딩)
         int dataCount = currentTier.tierPowerUps.Count;
         
         for (int i = 0; i < buttonPool.Count; i++)
         {
             if (i < dataCount)
             {
-                // 사용할 버튼: 켜고 데이터 연결
                 PowerUpButton btn = buttonPool[i];
                 btn.gameObject.SetActive(true);
                 btn.powerUp = currentTier.tierPowerUps[i]; // 데이터 교체
-                btn.Initialize(this); // UI 새로고침 (이름, 레벨 등)
+                btn.Initialize(this); // UI 새로고침
                 
-                // 버튼 선택 상태 초기화 (페이지 넘길 때 선택 해제)
+                // 버튼 선택 상태 초기화
                 btn.DeSelected(); 
             }
             else
             {
-                // 남는 버튼: 끄기
                 buttonPool[i].gameObject.SetActive(false);
             }
         }
 
-        // 4. 잠금 상태 체크 (이전 티어 완료 여부)
         CheckLockStatus();
 
-        // 5. 네비게이션 버튼 갱신
         if (leftButton != null) leftButton.interactable = (currentTierIndex > 0);
         if (rightButton != null) rightButton.interactable = (currentTierIndex < powerUpTiers.Count - 1);
     }
 
-    // 잠금 상태 확인 및 처리
     void CheckLockStatus()
     {
         bool isLocked = IsCurrentTierLocked();
 
-        // 전역 잠금 패널 제어
         if (globalLockPanel != null)
         {
             globalLockPanel.SetActive(isLocked);
-            // 만약 패널에 텍스트가 있다면 "이전 단계 훈련을 완료하세요" 등으로 변경 가능
         }
-
-        // 잠겨있으면 버튼들 상호작용 막기 (패널이 덮으면 굳이 안 해도 되지만 안전장치)
-        /*
-        foreach (var btn in buttonPool)
-        {
-            if (btn.gameObject.activeSelf)
-                btn.GetComponent<Button>().interactable = !isLocked;
-        }
-        */
     }
 
     public bool IsCurrentTierLocked()
     {
         if (currentTierIndex == 0) return false;
         
-        // 이전 티어 확인
         var prevTier = powerUpTiers[currentTierIndex - 1];
         return !prevTier.IsAllMaxed();
     }
 
-    // --- 구매 로직 ---
 
     public void Purchase()
     {
@@ -201,21 +172,16 @@ public class PowerUpManager : MonoBehaviour
         playerStats.GoldAmount -= Mathf.RoundToInt(cost);
         powerUp.CurrentLevel++;
 
-        // UI 갱신
         currentSelectedButton.UpdateUI();
         UpdateDetailPanel(powerUp);
         UpdateGoldUI();
         LoadScreenManager.Instance.ConfirmSelectionSave();
 
-        // 구매로 인해 다음 티어 해금 조건이 바뀔 수 있으므로 체크 (필요시)
         CheckLockStatus(); 
     }
 
-    // --- 환불 로직 (데이터 기반) ---
-    // 버튼 인스턴스는 현재 페이지만 보여주므로, 전체 환불을 위해선 데이터를 순회해야 함
     public void RefundPowerUp()
     {
-        // 모든 티어 데이터 순회
         foreach (var tier in powerUpTiers)
         {
             foreach (var powerUp in tier.tierPowerUps)
@@ -229,7 +195,6 @@ public class PowerUpManager : MonoBehaviour
                     }
                     PlayerStats.Instance.GoldAmount += Mathf.RoundToInt(amount);
                     
-                    // 데이터 초기화
                     powerUp.CurrentLevel = 0;
                 }
             }
@@ -237,14 +202,12 @@ public class PowerUpManager : MonoBehaviour
 
         UpdateGoldUI();
         
-        // 현재 보고 있는 페이지의 버튼들 UI 갱신 (데이터가 0이 되었으니)
         foreach (var btn in buttonPool)
         {
             if(btn.gameObject.activeSelf) 
                 btn.UpdateUI();
         }
 
-        // 상세 패널 갱신
         if (currentSelectedButton != null && panel != null)
         {
             UpdateDetailPanel(currentSelectedButton.powerUp);
@@ -253,7 +216,6 @@ public class PowerUpManager : MonoBehaviour
         CheckLockStatus();
     }
 
-    // --- UI 및 기타 함수들 ---
 
     public void SetInfo(PowerUpButton button)
     {
@@ -263,7 +225,6 @@ public class PowerUpManager : MonoBehaviour
 
     public void DeselectOtherButtons()
     {
-        // 현재 활성화된 버튼 풀만 돌면 됨
         foreach (var btn in buttonPool)
         {
             if(btn.gameObject.activeSelf)
@@ -276,6 +237,7 @@ public class PowerUpManager : MonoBehaviour
         panel.SetActive(true);
         nameText.text = info.powerUpName;
         descriptionText.text = info.description;
+        currentLevelText.text = "+ " + info.CurrentLevel.ToString();
         PowerUpIcon.sprite = info.IconSprite;
 
         bool isMaxLevel = info.CurrentLevel >= info.upgradeValues.Length;
@@ -343,7 +305,6 @@ public class PowerUpManager : MonoBehaviour
             }
         }
 
-        // 데이터 로드 후 현재 뷰 갱신
         UpdateTierView();
         UpdateGoldUI();
     }
