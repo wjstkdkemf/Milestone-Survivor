@@ -3844,6 +3844,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 676af077510a24e41bdea49d4d14de98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DamageTextOrigin: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
 --- !u!1 &104498162
 GameObject:
   m_ObjectHideFlags: 0
@@ -25458,6 +25459,7 @@ MonoBehaviour:
   AllKill: 0
   Heal: 0
   Panel: {fileID: 163008177}
+  Player: {fileID: 0}
   CanSpawn: 1
 --- !u!4 &549850736
 Transform:
