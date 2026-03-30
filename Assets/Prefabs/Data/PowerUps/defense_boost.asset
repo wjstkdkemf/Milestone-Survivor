@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9cdf2bcd9c92b746b230f4bda089831, type: 3}
+  m_Name: defense_boost
+  m_EditorClassIdentifier: 
+  powerUpType: 2
+  IconSprite: {fileID: 2087931828202778420, guid: 261f32aaf2252fa4981fae9c18d5a738, type: 3}
+  powerUpName: Armor
+  description: Reduce Incoming Damage
+  costPerLevel:
+  - 600
+  - 900
+  - 1300
+  CurrentLevel: 0
+  isPercentage: 0
+  upgradeValues:
+  - 2
+  - 4
+  - 6

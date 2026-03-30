@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc3039e302c6bd74baad8b2bb39b7d06, type: 3}
+  m_Name: J_Elemental Orb
+  m_EditorClassIdentifier: 
+  jobName: Elemental
+  description: 
+  jobTier: 3
+  requirements:
+  - requiredUpgrade: {fileID: 11400000, guid: cf3fceedde3442540af6cf25771cf2ac, type: 2}
+    requiredLevel: 5
+  nextAbleJobs:
+  - {fileID: 11400000, guid: 4c6387c21bd5d174a96436dfe3c099fc, type: 2}
+  bannedUpgrades: []
+  bonusUpgrades:
+  - {fileID: 11400000, guid: 401aa8ade2484c74e8d2c0d803ddb9c1, type: 2}
+  bonusChanceAmount: 50

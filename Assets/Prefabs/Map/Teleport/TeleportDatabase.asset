@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e38914b5720a4184f9a0fcad1601efca, type: 3}
+  m_Name: TeleportDatabase
+  m_EditorClassIdentifier: 
+  allZoneGroups:
+  - zoneName: "\uC232"
+    pointsInZone:
+    - {fileID: 11400000, guid: aeb97af0c8594b7439cd1490ab601f6b, type: 2}
+  - zoneName: "\uB3D9\uAD74"
+    pointsInZone:
+    - {fileID: 11400000, guid: e1588a6257b2100499d403facee94906, type: 2}
+  - zoneName: "\uBCBD \uC2E4\uD5D8"
+    pointsInZone:
+    - {fileID: 11400000, guid: 74ad6a9269761fc40a9f7105a7501356, type: 2}
+    - {fileID: 11400000, guid: b270d2085690b584fbfa1742741f4ea9, type: 2}
+  - zoneName: "\uB358\uC804"
+    pointsInZone:
+    - {fileID: 11400000, guid: 3fdf5f8aca7505e4383033552695a38c, type: 2}
+    - {fileID: 11400000, guid: b2e85dad61ed89c4c9407734ee675e48, type: 2}
+    - {fileID: 11400000, guid: 1b0a297d3b663044cab8ce93c08fbb71, type: 2}
+    - {fileID: 11400000, guid: 79e9a53151740a440b138c8444018979, type: 2}
+    - {fileID: 11400000, guid: c5dacc50b4351724083a5a44cc69178b, type: 2}
+    - {fileID: 11400000, guid: b304de61167890b4f9d4cb8691d801e7, type: 2}

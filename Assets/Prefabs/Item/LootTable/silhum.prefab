@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5304167622817196155
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5309827999655132778}
+  - component: {fileID: 8172630282274020310}
+  m_Layer: 0
+  m_Name: silhum
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5309827999655132778
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5304167622817196155}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 528.64124, y: 330.25955, z: 0.70159775}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8172630282274020310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5304167622817196155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b3d8fbeb860d5644a6d94bcd8437dd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lootItems:
+  - itemPrefab: {fileID: 8306731627452137064, guid: c95989621830ab34e85f8d2429befb4d, type: 3}
+    dropChance: 10
+  - itemPrefab: {fileID: 8306731627452137064, guid: eeae2bf146db56447bc1d7ebb953c32f, type: 3}
+    dropChance: 10
+  - itemPrefab: {fileID: 8306731627452137064, guid: af5c830333a751840ac2103d55f55e79, type: 3}
+    dropChance: 10
+  - itemPrefab: {fileID: 8306731627452137064, guid: b2c0886d0a03a32409ab5e7c28f57f41, type: 3}
+    dropChance: 10
+  - itemPrefab: {fileID: 8306731627452137064, guid: 0c8af09ccc38e7a448b0509f5176fef1, type: 3}
+    dropChance: 10

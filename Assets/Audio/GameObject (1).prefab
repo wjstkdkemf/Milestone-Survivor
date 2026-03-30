@@ -1,0 +1,239 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2094167662532515422
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6486951050802611926}
+  - component: {fileID: 6880919657984299251}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6486951050802611926
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094167662532515422}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.0609226, y: 0.18373111, z: 1.4921129}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 35
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6880919657984299251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094167662532515422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 682d8e905c0840c40a78e86cb62a8c54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_sounds:
+  - m_name: Footstep
+    m_clips:
+    - {fileID: 8300000, guid: 1a631ada4ecd9cf49a88b135aa70c396, type: 3}
+    - {fileID: 8300000, guid: ee00faf8b8432ff40a6e008c84d5ae59, type: 3}
+    - {fileID: 8300000, guid: 9b0833c02b71a294faba6438278d937a, type: 3}
+    volume: 1
+    pitch: 1
+    m_randomVolumeRange: {x: 0.6, y: 1}
+    m_randomPitchRange: {x: 0.6, y: 0.9}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: RunStop
+    m_clips:
+    - {fileID: 8300000, guid: 1a631ada4ecd9cf49a88b135aa70c396, type: 3}
+    volume: 1
+    pitch: 1
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Jump
+    m_clips:
+    - {fileID: 8300000, guid: 5a18f2ef7db9f1943bedda13ff85ee89, type: 3}
+    volume: 1
+    pitch: 1.2
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Landing
+    m_clips:
+    - {fileID: 8300000, guid: 5329b99920a6642409627b29d379aff7, type: 3}
+    volume: 1
+    pitch: 1
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: SwordAttack
+    m_clips:
+    - {fileID: 8300000, guid: 952f4e06b9fc14a4abd72725f0c66eb2, type: 3}
+    volume: 0.8
+    pitch: 1
+    m_randomVolumeRange: {x: 0.7, y: 1}
+    m_randomPitchRange: {x: 0.9, y: 1.1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Hurt
+    m_clips:
+    - {fileID: 8300000, guid: 4acaf282c31675042873963419dc479d, type: 3}
+    volume: 0.8
+    pitch: 1
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 0.9, y: 1.1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Death
+    m_clips:
+    - {fileID: 8300000, guid: 628c4205ac542644b9286a339010668f, type: 3}
+    volume: 0.8
+    pitch: 1
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: SheathSword
+    m_clips:
+    - {fileID: 8300000, guid: 3e1c4661705bfe74fbfc9d0c9357d51d, type: 3}
+    volume: 0.2
+    pitch: 1
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1.2}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Dodge
+    m_clips:
+    - {fileID: 8300000, guid: cc0a09af0c0ff0e45843d8ebcf4bf2e0, type: 3}
+    volume: 1
+    pitch: 1.2
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 0.9, y: 1.1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: LedgeGrab
+    m_clips:
+    - {fileID: 8300000, guid: 5329b99920a6642409627b29d379aff7, type: 3}
+    volume: 0.8
+    pitch: 1.4
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 0.9, y: 1.1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: WallSlide
+    m_clips:
+    - {fileID: 8300000, guid: c121abe05053b164d98e52f12af5b14c, type: 3}
+    volume: 0.3
+    pitch: 1
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1}
+    m_loop: 1
+    AudioMixer: {fileID: 0}
+  - m_name: DrawSword
+    m_clips:
+    - {fileID: 8300000, guid: 456299c8c9de76e4cb2322a4113fdd81, type: 3}
+    volume: 0.25
+    pitch: 1.05
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: AirSlamLanding
+    m_clips:
+    - {fileID: 8300000, guid: c2b13e0fd18ea1c4880fbf37b7f10a70, type: 3}
+    volume: 0.35
+    pitch: 1
+    m_randomVolumeRange: {x: 1, y: 1}
+    m_randomPitchRange: {x: 1, y: 1}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Parry
+    m_clips:
+    - {fileID: 8300000, guid: 3a115dcb4dde9fb45a72f397319eec92, type: 3}
+    volume: 0.25
+    pitch: 0.9
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Enemy_Hurt
+    m_clips:
+    - {fileID: 8300000, guid: 473c5c53bf7f0ef47aec29dd41e10bae, type: 3}
+    volume: 0.201
+    pitch: 0.9
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Grenade
+    m_clips:
+    - {fileID: 8300000, guid: 0966312a0c2a9f94ca45592d6f106aa0, type: 3}
+    volume: 0.093
+    pitch: 0.897
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Dash
+    m_clips:
+    - {fileID: 8300000, guid: 447e497fb1eddc94a9c92fd19eef994c, type: 3}
+    volume: 0.08
+    pitch: 0.9
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Coin
+    m_clips:
+    - {fileID: 8300000, guid: cb36ff73a754c7248a51b941c80b3fd8, type: 3}
+    volume: 0.386
+    pitch: 0.9
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: EnemyDeath
+    m_clips:
+    - {fileID: 8300000, guid: 6ac873475162bd2448fc45ac2aab88f9, type: 3}
+    volume: 0.6
+    pitch: 0.9
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Highlight
+    m_clips:
+    - {fileID: 8300000, guid: da1b160ba7e6b4bf0a40defe83b864d4, type: 3}
+    volume: 0.26
+    pitch: 0.9
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  - m_name: Click
+    m_clips:
+    - {fileID: 8300000, guid: cd8f231778a234138849b780b1e91d98, type: 3}
+    volume: 0.22
+    pitch: 0.9
+    m_randomVolumeRange: {x: 0.95, y: 1.05}
+    m_randomPitchRange: {x: 0.95, y: 1.05}
+    m_loop: 0
+    AudioMixer: {fileID: 0}
+  AudioMixer: {fileID: -352800310859688401, guid: f23dd3d7d53930b449a2580ec17091a8, type: 2}

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc3039e302c6bd74baad8b2bb39b7d06, type: 3}
+  m_Name: J_Arc Element
+  m_EditorClassIdentifier: 
+  jobName: Arc Element
+  description: 
+  jobTier: 0
+  requirements:
+  - requiredUpgrade: {fileID: 11400000, guid: cb6f9e4aeed6f87479408e30f32b75c5, type: 2}
+    requiredLevel: 5
+  - requiredUpgrade: {fileID: 11400000, guid: 4de550dfb1b50ec46b910e84a14066ed, type: 2}
+    requiredLevel: 5
+  nextAbleJobs:
+  - {fileID: 0}
+  bannedUpgrades: []
+  bonusUpgrades: []
+  bonusChanceAmount: 50

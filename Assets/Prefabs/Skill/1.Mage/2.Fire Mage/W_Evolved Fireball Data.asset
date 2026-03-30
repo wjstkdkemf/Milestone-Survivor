@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5289c325deea0d8418bfa58a87a6f9ea, type: 3}
+  m_Name: W_Evolved Fireball Data
+  m_EditorClassIdentifier: 
+  weaponPrefab: {fileID: 5754844922066117109, guid: 8852084d23a88564994b8bc9cbe19cd0, type: 3}
+  upgradeData: {fileID: 11400000, guid: 059fbf23ff1d8224eb2e7c36e996725b, type: 2}
+  baseDamage: 5
+  baseCooldown: 2
+  fusionWeaponData: []
+  bulletNumber: 1
+  range: 10
+  projectileSpeed: 12
+  trailDamageScaling: 0.5
+  trailDuration: 3
+  trailSpawnDistance: 0.8
+  fireballPrefab: {fileID: 2202201730951133944, guid: feeb30991914426498de2d9ea07f15fc, type: 3}
+  trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 67109120

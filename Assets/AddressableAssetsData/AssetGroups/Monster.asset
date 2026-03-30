@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Monster
+  m_EditorClassIdentifier: 
+  m_GroupName: Monster
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 26ad7efb646758b4b84e3986f0d2e23c
+  m_SerializeEntries:
+  - m_GUID: 5c1cd7a1f7816b7419c709c490e63dbe
+    m_Address: Org
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dun
+    - Monster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c846e36fdb697a947b470868a5e590d6
+    m_Address: GoblinArcher
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dun
+    - Monster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f469f5168c651c34a9c531feda95f330
+    m_Address: Goblin
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dun
+    - Monster
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb325c68be60193478056ca4fa908c02
+    m_Address: Bat
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Dun
+    - Monster
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: f8c68fa40aeb2054ab1cb73f6bd78402, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: ba171d776185b684f909410ce9b0bc09, type: 2}
+    - {fileID: 11400000, guid: 6934ce234a725c64abd17d971fc58ace, type: 2}

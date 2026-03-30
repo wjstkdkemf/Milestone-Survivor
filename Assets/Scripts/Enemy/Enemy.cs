@@ -1,0 +1,608 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.AI;
+using TMPro;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public abstract class Enemy : MonoBehaviour, IDamageable
+{
+    public enum EnemyState { Idle, Escape, Chasing, Attacking, Fleeing, Stunned, Dead }
+    public EnemyState currentNormalState = EnemyState.Idle;
+    public EnemyRarity rarity;
+    public bool IsActived = false;//혹시모를 생존체크
+    protected bool facingRight = true;//좌우 구분
+    protected bool I_frame = false;//무적효과
+    protected bool isRecovering = false;//위치 리커버리작업
+    public bool CantBeKnocked = false;// 넉백방지
+    [SerializeField] protected float maxhealth;
+    protected float health;             // Base health for the enemy
+    [SerializeField] protected float damage;             // Base damage for the enemy
+    [SerializeField] protected float speed;              // Movement speed for the enemy
+    [SerializeField] protected float knockBackForce = 4;     // Force applied during knockback
+    [SerializeField] protected float coolDown = 3;
+    [SerializeField] protected float range = 5f;         // Detection range for chasing the player
+    [SerializeField] protected float attackRange = 2f;   // Range within which the enemy can attack
+    [SerializeField] protected float escapeRange = 1f;   // Range at which the enemy flees
+    [SerializeField] protected bool canRun = false;      // Can the enemy flee?
+    public bool stopMoving = false;  // Flag to stop movement
+    public GameObject DamageText;
+    public Transform player;
+    public PlayerHealth playerHealth;
+    protected NavMeshAgent agent;
+    protected float coolDownTimer;
+    protected float knockBackTime = 0f;
+    public float _knockBackDuration = .2f;
+
+    // ******************** Flash Elemnts*********************
+    [SerializeField] protected Material originalMaterial;
+    [SerializeField] protected Material flashMaterial;
+    [SerializeField] protected Color currentStateColor;
+    protected float duration = .1f;
+    protected SpriteRenderer spriteRenderer;
+    protected Collider2D EnemyCollider2D;
+    
+    protected Coroutine flashRoutine;
+    [SerializeField] protected bool DontUseObjectPooling;
+    [SerializeField] protected bool boss;
+    protected Vector3 lastVelocity;
+    protected Color defaultColor = Color.white;
+
+    [Header("Reposition Settings")]
+    [SerializeField] protected float checkInterval = 2.0f; // 검사 주기 (2초)
+    [SerializeField] protected float maxDistance = 30.0f;  // 이 거리를 넘으면 소환 (화면 밖)
+    [SerializeField] protected float respawnRadius = 15.0f; // 플레이어 주변 재소환 반경
+    [SerializeField] protected float minimumMoveDistance = 0.5f; // 이 거리 이하로 움직이면 끼인 것으로 간주
+    [SerializeField] protected int maxStuckCount = 2; // 2번 연속 제자리걸음 시 재소환 발동
+
+    [Header("Status Effects")]
+    protected float baseSpeed; // 원래 이동 속도를 기억할 변수
+    protected Coroutine slowCoroutine; // 현재 실행 중인 슬로우 코루틴
+    protected float maxDistanceSqr;
+    protected readonly Dictionary<EnemyRarity, int> rarityMultipliers = new Dictionary<EnemyRarity, int>
+    {
+        { EnemyRarity.Normal, 1 },
+        { EnemyRarity.Magic, 100 },
+        { EnemyRarity.Rare, 200 },
+        { EnemyRarity.Boss, 500 }
+    };
+    
+    void Awake()
+    {
+        GameObject gameObject = GameManager.Instance.Player;
+        player = gameObject.transform.Find("CenterPosition").transform;
+        playerHealth = gameObject.GetComponent<PlayerHealth>();
+
+        agent = GetComponent<NavMeshAgent>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+        agent.updatePosition = false;
+        agent.acceleration = 100f; 
+        agent.autoBraking = false; 
+
+        if (boss)
+        {
+            spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>(); // Initialize the spriteRenderer
+            originalMaterial = spriteRenderer.material;      // Initialize the original material
+            EnemyCollider2D = GetComponent<Collider2D>();
+        }
+        else
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>(); // Initialize the spriteRenderer
+            originalMaterial = spriteRenderer.material;      // Initialize the original material
+            EnemyCollider2D = GetComponent<Collider2D>();
+        }
+        defaultColor = spriteRenderer.color;
+        currentStateColor = defaultColor;
+
+        baseSpeed = speed;
+        maxDistanceSqr = maxDistance * maxDistance;
+    }
+    IEnumerator EnableAgentAndFollow()
+    {
+        yield return new WaitForSeconds(Random.Range(0.0f, 0.2f));
+
+        int maxRetries = 10; 
+        float searchRadius = 5.0f;
+
+        for (int i = 0; i < maxRetries; i++)
+        {
+            // 맵 생성 직후 프레임 대기
+            yield return new WaitForSeconds(0.1f);
+            if (!gameObject.activeInHierarchy) yield break;
+
+            NavMeshHit hit;
+            // 내 위치 주변에 NavMesh가 있는지 확인
+            // SamplePosition(중심점, 결과저장변수, 반경, 영역마스크)
+            if (NavMesh.SamplePosition(transform.position, out hit, searchRadius, NavMesh.AllAreas)) 
+            {
+                // 찾았다면 해당 위치로 순간이동(Warp) 후 활성화
+                agent.Warp(hit.position); 
+                agent.enabled = true;
+                
+                // 추적 루틴 시작
+                StartCoroutine(UpdatePathRoutine());
+                yield break;
+            }
+        }
+        Die();
+    }
+    IEnumerator CheckDistanceRoutine()
+    {
+        // 모든 몬스터가 동시에 연산하지 않도록 랜덤 딜레이를 줍니다. (부하 분산)
+        yield return new WaitForSeconds(Random.Range(0f, checkInterval));
+
+        Vector3 lastPosition = transform.position;
+        int stuckCount = 0;
+        float minMoveSqr = minimumMoveDistance * minimumMoveDistance; // 최적화를 위해 미리 제곱
+
+        while (player != null)
+        {
+            // 설정한 주기만큼 대기 (Update보다 훨씬 가벼움)
+            yield return new WaitForSeconds(checkInterval);
+
+            if (!gameObject.activeInHierarchy || !agent.enabled) continue;
+
+            // 거리 계산 (sqrMagnitude 사용으로 최적화) -> 물리 연산 대체
+            float distSqr = (player.position - transform.position).sqrMagnitude;
+
+            if (distSqr > maxDistanceSqr)
+            {
+                RepositionEnemy();
+
+                lastPosition = transform.position;
+                stuckCount = 0;
+                continue;
+            }
+
+            if (knockBackTime > 0 || isRecovering || stopMoving)
+            {
+                lastPosition = transform.position; // 억울하게 카운트 먹지 않도록 현재 위치만 갱신
+                stuckCount = 0;
+                continue;
+            }
+
+            // 제자리걸음을 하고 있는가? (벽 끼임, 길막 감지)
+            float movedDistSqr = (transform.position - lastPosition).sqrMagnitude;
+
+            if (movedDistSqr < minMoveSqr)
+            {
+                stuckCount++; // 경고 누적
+                
+                if (stuckCount >= maxStuckCount)
+                {
+                    Debug.Log($"[{gameObject.name}] 몬스터가 길막/벽끼임으로 인해 텔레포트합니다!");
+                    RepositionEnemy();
+                    
+                    stuckCount = 0; // 리셋
+                    lastPosition = transform.position; // 리셋
+                    continue;
+                }
+            }
+            else
+            {
+                stuckCount = 0; 
+            }
+
+            // 이번 턴의 위치를 기억해두고 다음 검사 준비
+            lastPosition = transform.position;
+        }
+    }
+    IEnumerator UpdatePathRoutine()
+    {
+        while (player != null && agent.enabled)
+        {
+            // Agent가 켜져있고, 활성화 상태일 때만 목적지 설정
+            if (agent.isOnNavMesh) 
+            {
+                agent.SetDestination(player.position);
+            }
+            yield return new WaitForSeconds(Random.Range(0.2f, 0.3f));
+        }
+    }
+    public void OnNavMeshUpdated()
+    {
+        // 코루틴으로 안전하게 다음 프레임에 처리
+        StartCoroutine(RecoverAgent());
+    }
+
+    IEnumerator RecoverAgent()
+    {
+        isRecovering = true;
+
+        if (agent.enabled) agent.enabled = false;
+
+        yield return new WaitForSeconds(Random.Range(0.0f, 0.2f));
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(transform.position, out hit, 0.2f, NavMesh.AllAreas))
+        {
+            agent.enabled = true;
+            agent.Warp(hit.position);
+
+            yield return null;
+
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                if (player != null)
+                {
+                    agent.SetDestination(player.position);
+                }
+                StartCoroutine(UpdatePathRoutine());
+            }
+        }
+        else
+        {
+            Vector3 rescuePosition = transform.position;
+            bool foundRescuePoint = false;
+
+            if (player != null)
+            {
+                // 플레이어 방향 벡터
+                Vector3 directionToPlayer = (player.position - transform.position).normalized;
+                
+                // 내 위치에서 플레이어 쪽으로 1m, 2m, 3m 떨어진 지점을 순차적으로 검사
+                float[] checkDistances = { 0.5f, 1.0f, 1.5f }; 
+
+                foreach (float dist in checkDistances)
+                {
+                    // 플레이어 쪽으로 dist만큼 이동한 가상의 지점
+                    Vector3 checkPos = transform.position + (directionToPlayer * dist);
+                    
+                    // 그 지점 주변에서 NavMesh를 찾음 (반경 1.0f)
+                    if (NavMesh.SamplePosition(checkPos, out hit, 1.0f, NavMesh.AllAreas))
+                    {
+                        rescuePosition = hit.position;
+                        foundRescuePoint = true;
+                        break; // 유효한 곳을 찾으면 즉시 탈출
+                    }
+                }
+            }
+
+            // 플레이어 방향으로 못 찾았다면, 최후의 수단으로 그냥 주변(5.0f) 검색
+            if (!foundRescuePoint)
+            {
+                 if (NavMesh.SamplePosition(transform.position, out hit, 5.0f, NavMesh.AllAreas))
+                 {
+                     rescuePosition = hit.position;
+                     foundRescuePoint = true;
+                 }
+            }
+
+            if (foundRescuePoint)
+            {
+                transform.position = rescuePosition; 
+                agent.enabled = true;
+                agent.Warp(rescuePosition);
+                
+                
+                yield return null;
+                
+                if (agent.isActiveAndEnabled && agent.isOnNavMesh && player != null)
+                {
+                    agent.SetDestination(player.position);
+                }
+                StartCoroutine(UpdatePathRoutine());
+            }
+            else
+            {
+                Die();
+            }
+        }
+        isRecovering = false;
+        /*
+            HandleMovement() 함수의 아래 부분을 통해 이동 방향을 유지하여 자연스럽게 움직이는 것처럼 보이게 만듬.
+            if (knockBackTime > 0 && !CantBeKnocked)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * knockBackForce * Time.deltaTime);
+            }
+        */
+    }
+    void RepositionEnemy()
+    {
+        // 플레이어 주변의 랜덤한 위치(원형) 계산
+        // insideUnitCircle을 사용하여 플레이어 주변 랜덤 위치를 잡습니다.
+        Vector2 randomPoint = Random.insideUnitCircle.normalized * respawnRadius;
+        Vector3 potentialPos = player.position + new Vector3(randomPoint.x, randomPoint.y, 0);
+
+        NavMeshHit hit;
+        // 해당 위치 근처(3.0f)에 유효한 NavMesh(길)가 있는지 확인
+        if (NavMesh.SamplePosition(potentialPos, out hit, 3.0f, NavMesh.AllAreas))
+        {
+            agent.Warp(hit.position);       // Agent(영혼) 이동
+            transform.position = hit.position; // 몸(Sprite) 이동
+            
+            // 이동 후 즉시 목적지 갱신
+            agent.SetDestination(player.position);
+            
+            Debug.Log("몬스터가 너무 멀어져서 재소환되었습니다.");
+        }
+    }
+
+    public virtual void OnEnable()
+    {
+        health = maxhealth;
+        IsActived = true;
+        spriteRenderer.material = originalMaterial;
+        spriteRenderer.color = defaultColor;
+        GameManager.Instance.activeEnemies++;
+        agent.enabled = false;
+        if (player != null)
+        {
+            StartCoroutine(EnableAgentAndFollow());
+            StartCoroutine(CheckDistanceRoutine());
+        }
+
+        ResetStatusEffects();
+    }
+    public virtual void OnDisable()
+    {
+        if (health > 0) // 피가 남았는데 꺼진 경우만 추적
+        {
+            Debug.LogWarning($"[Enemy CSI] {gameObject.name} 비정상 종료! (Health: {health})\n호출 경로:\n{System.Environment.StackTrace}");
+        }
+
+        spriteRenderer.color = defaultColor;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.activeEnemies--;
+        }
+        StopAllCoroutines();
+        IsActived = false;
+    }
+    void Start()
+    {
+      
+    }
+
+    public abstract void Attack();
+
+    public virtual void Die()
+    {
+        IsActived = false;
+        GameManager.Instance.NumberOfKills++;
+
+        LootDrop lootDrop = GetComponent<LootDrop>();
+        if (lootDrop != null)
+        {
+            lootDrop.DropLoot();
+        }
+
+        if (DontUseObjectPooling == false)
+        {
+            ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
+            IsActived = false;
+        }
+        else
+        {
+            Destroy(gameObject);
+            IsActived = false;
+        }
+      
+    }
+
+    protected virtual void Update()
+    {
+        if (player == null || stopMoving || IsActived == false) return;
+
+        knockBackTime -= Time.deltaTime;
+        coolDownTimer -= Time.deltaTime;
+
+        Vector3 delta = player.position - transform.position;
+        UpdateFacingDirection(delta);
+
+        //float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        float distanceSqrToPlayer = delta.sqrMagnitude;
+
+        DetermineState(distanceSqrToPlayer);
+        HandleMovement(distanceSqrToPlayer, delta);
+    }
+
+    protected virtual void UpdateFacingDirection(Vector3 delta)
+    {
+        if (delta.x >= 0 && !facingRight)
+        {
+            transform.localScale = new Vector3(1, 1, 1);  // Face right
+            facingRight = true;
+        }
+        else if (delta.x < 0 && facingRight)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);  // Face left
+            facingRight = false;
+        }
+    }
+
+    protected virtual void DetermineState(float distanceToPlayer)
+    {
+        if (distanceToPlayer <= attackRange * attackRange)
+        {
+            currentNormalState = EnemyState.Attacking;
+        }
+        else if (canRun && distanceToPlayer <= escapeRange * escapeRange)
+        {
+            currentNormalState = EnemyState.Escape;
+        }
+        else
+        {
+            // 공격 범위도 아니고, 도망갈 거리도 아니면 '추적' 해야 합니다!
+            currentNormalState = EnemyState.Chasing;
+        }
+    }
+
+    protected virtual void HandleMovement(float distanceToPlayer, Vector3 delta)
+    {
+        if (knockBackTime > 0 && !CantBeKnocked)
+        {
+            float finalKnockBack = knockBackForce * (1 + PlayerStats.Instance.KnockBackBonus);
+            transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * finalKnockBack * Time.deltaTime);
+        }
+        else
+        {
+            switch (currentNormalState)
+            {
+                case EnemyState.Chasing:
+                case EnemyState.Escape:
+                    transform.position += agent.velocity * Time.deltaTime;
+                    break;
+
+                case EnemyState.Attacking:
+                    if (coolDownTimer <= 0)
+                    {
+                        Attack();
+                        coolDownTimer = coolDown;
+                    }
+                    break;
+
+                case EnemyState.Idle:
+                    transform.position += lastVelocity * Time.deltaTime;
+                    break;
+            }
+        }
+
+        if (agent.velocity.sqrMagnitude > 0.1f)
+            lastVelocity = agent.velocity;
+        if (Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
+            agent.nextPosition = transform.position;
+    }
+
+    public virtual void TakeDamage(float amount, float knockBackDuration = .2f)
+    {
+        if (I_frame)
+        {
+            return;
+        }
+
+        // Play hurt sound (if you have an audio manager)
+        // AudioManager.instance.PlaySound("Enemy_Hurt");
+
+
+        if (DamageText != null)
+        {
+            GameObject textObj = ObjectPoolingManager.Instance.spawnGameObject(DamageText, transform.position, Quaternion.identity);
+            if (textObj != null)
+            {
+                textObj.GetComponent<TMP_Text>().text = amount.ToString();
+            }
+        }
+
+        if (flashMaterial != null && !boss&&IsActived)
+            Flash();
+
+        health -= amount;
+        // Debug.Log($"{gameObject.name} took {amount} damage, current health: {health}");
+
+        if (health <= 0 && IsActived)
+        {
+            IsActived = false;
+            Die();
+        }
+
+        knockBackTime = _knockBackDuration;
+    }
+
+    public bool IsAlive()
+    {
+        return IsActived;
+    }
+
+    protected virtual void ApplyKnockback(Vector3 direction, float force)
+    {
+
+    }
+    public void Flash()
+    {
+        if (flashRoutine != null)
+        {
+            StopCoroutine(flashRoutine);
+        }
+        flashRoutine = StartCoroutine(FlashRoutine());
+    }
+
+    public IEnumerator FlashRoutine()
+    {
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(duration);
+        spriteRenderer.color = currentStateColor;
+
+        flashRoutine = null;
+    }
+    public virtual void ApplySlow(float slowPercent)
+    {
+        // 무적 상태거나 이미 죽었으면 무시
+        if (I_frame || !IsActived || health <= 0) return;
+
+        // 이미 슬로우가 걸려있다면 기존 타이머를 취소합니다.
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+        }
+
+        float multiplier = 1f - Mathf.Clamp01(slowPercent);
+        speed = baseSpeed * multiplier;
+        
+        if (agent != null) agent.speed = speed; // NavMesh 속도도 같이 변경
+
+        currentStateColor = new Color(0.5f, 0.5f, 1f);
+        // 시각적 효과: 파란색으로 변하게 하기
+        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+    }
+    public virtual void ApplySlow(float slowPercent, float duration)
+    {
+        // 무적 상태거나 이미 죽었으면 무시
+        if (I_frame || !IsActived || health <= 0) return;
+
+        // 이미 슬로우가 걸려있다면 기존 타이머를 취소합니다.
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+        }
+
+        slowCoroutine = StartCoroutine(SlowRoutine(slowPercent, duration));
+    }
+    private IEnumerator SlowRoutine(float slowPercent, float duration)
+    {
+        //속도 감소 적용
+        float multiplier = 1f - Mathf.Clamp01(slowPercent);
+        speed = baseSpeed * multiplier;
+        
+        if (agent != null) agent.speed = speed; // NavMesh 속도도 같이 변경
+
+        currentStateColor = new Color(0.5f, 0.5f, 1f);
+        // 시각적 효과: 파란색으로 변하게 하기
+        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+
+        // 지속 시간만큼 대기
+        yield return new WaitForSeconds(duration);
+
+        // 지속 시간이 끝나면 원상 복구
+        ResetStatusEffects();
+    }
+    public void ResetStatusEffects()
+    {
+        if (slowCoroutine != null)
+        {
+            StopCoroutine(slowCoroutine);
+            slowCoroutine = null;
+        }
+        // 속도 원상 복구
+        speed = baseSpeed;
+        if (agent != null) agent.speed = baseSpeed;
+        currentStateColor = defaultColor;
+        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+    }
+
+    private Vector2 GetRandomPositionAround(Vector2 centerPosition, float radius)
+    {
+        float angle = Random.Range(0f, Mathf.PI * 2);
+        float distance = Random.Range(0f, radius);
+        float x = centerPosition.x + Mathf.Cos(angle) * distance;
+        float y = centerPosition.y + Mathf.Sin(angle) * distance;
+        return new Vector2(x, y);
+    }
+}
+
+[System.Serializable]
+public enum EnemyRarity { Normal, Magic, Rare, Boss }

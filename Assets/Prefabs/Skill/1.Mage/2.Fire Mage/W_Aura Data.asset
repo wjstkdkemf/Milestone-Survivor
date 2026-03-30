@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6bbfce9747437f478efdbffb9f88139, type: 3}
+  m_Name: W_Aura Data
+  m_EditorClassIdentifier: 
+  weaponPrefab: {fileID: 7032629210314902157, guid: 78405d82dc4fd6244a22d88c861da3f2, type: 3}
+  upgradeData: {fileID: 11400000, guid: e16f56a37297a244485623f3bbf505d1, type: 2}
+  baseDamage: 0.5
+  baseCooldown: 2
+  fusionWeaponData: []
+  auraPrefab: {fileID: 4297926786030371863, guid: ec06abd6daaa74747b58d2017fc16266, type: 3}
+  baseRadius: 10
+  tickRate: 0.5
+  applyDamage: 1
+  applySlow: 1
+  slowPercentage: 0.7

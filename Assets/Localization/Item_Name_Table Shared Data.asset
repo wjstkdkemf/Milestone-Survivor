@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Item_Name_Table Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: Item_Name_Table
+  m_TableCollectionNameGuidString: 07acb98c2ec2f3743b58680bdf5baef6
+  m_Entries:
+  - m_Id: 10845268615168
+    m_Key: Empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 57552281600
+    m_Key: Helmet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59833982976
+    m_Key: Helmet 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62681915392
+    m_Key: Helmet 2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 65454350336
+    m_Key: Helmet 3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10145166168039424
+    m_Key: otherHelmet
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3562453135996485659
+  references:
+    version: 2
+    RefIds:
+    - rid: 3562453135996485659
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1762938060815

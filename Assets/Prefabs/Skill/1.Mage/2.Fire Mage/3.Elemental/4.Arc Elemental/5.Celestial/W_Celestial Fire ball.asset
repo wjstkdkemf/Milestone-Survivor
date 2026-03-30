@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e71aee57c18350439c8fc19ba690931, type: 3}
+  m_Name: W_Celestial Fire ball
+  m_EditorClassIdentifier: 
+  weaponPrefab: {fileID: 1052515358152804445, guid: 91926b039fe7b4a48b1f9daa220fb8e6, type: 3}
+  upgradeData: {fileID: 11400000, guid: 2b408ae84ca028a44a2b8d801e5a4aa1, type: 2}
+  baseDamage: 5
+  baseCooldown: 3
+  fusionWeaponData: []
+  bulletNumber: 1
+  range: 10
+  projectileSpeed: 12
+  trailDamageScaling: 0.5
+  trailDuration: 3
+  trailSpawnDistance: 0.8
+  FireBoomSize: 3
+  chainCount: 3
+  chainRange: 8
+  fireballPrefab: {fileID: 2202201730951133944, guid: e28602c2abc565443a7936bfed7891f1, type: 3}
+  trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
+  lastFireBoomPrefab: {fileID: 6122877895079379237, guid: f7c2669d57d680049a9167789c95b257, type: 3}
+  enemyLayerMask:
+    serializedVersion: 2
+    m_Bits: 67109120
