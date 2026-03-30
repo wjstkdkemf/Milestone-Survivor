@@ -12,6 +12,9 @@ public class DungeonSceneSetup : MonoBehaviour, ISceneInitializer
 
         PlayerStats.Instance.init();
         GameManager.Instance.GetComponent<CharacterSelection>().OnceSetting();
+        GameManager.Instance.SearchPlayer();
+        
+        ObjectPoolingManager.Instance.PrewarmDamageText(100);
         
         InventorySystem.InventoryController.instance.init();
 

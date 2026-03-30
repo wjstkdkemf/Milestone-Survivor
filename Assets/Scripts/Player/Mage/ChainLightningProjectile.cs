@@ -143,7 +143,7 @@ public class ChainLightningProjectile : MonoBehaviour
         GameObject prefabToSpawn = originalPrefab != null ? originalPrefab : gameObject;
 
 
-        GameObject nextProjectile = ObjectPoolingManager.instance.spawnGameObject(prefabToSpawn, transform.position, Quaternion.identity);
+        GameObject nextProjectile = ObjectPoolingManager.Instance.spawnGameObject(prefabToSpawn, transform.position, Quaternion.identity);
 
         // 다음 투사체의 DoDamage 수치 조절
         if (nextProjectile.TryGetComponent<DoDamage>(out var nextDamageComponent))

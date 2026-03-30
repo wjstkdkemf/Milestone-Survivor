@@ -68,8 +68,8 @@ public class SmartArrow : EnemyProjectile // [수정] MonoBehaviour 대신 Enemy
     {
         if (gameObject.activeInHierarchy)
         {
-            if (ObjectPoolingManager.instance != null)
-                ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
+            if (ObjectPoolingManager.Instance != null)
+                ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
             else
                 Destroy(gameObject);
         }

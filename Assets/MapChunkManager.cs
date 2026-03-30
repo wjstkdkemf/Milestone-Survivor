@@ -32,7 +32,7 @@ public class MapChunkManager : MonoBehaviour
 
     void RefreshAllEnemies()
     {
-        foreach (var pair in ObjectPoolingManager.instance.damageableCache)
+        foreach (var pair in ObjectPoolingManager.Instance.damageableCache)
         {
             // 캐시된 인터페이스가 Enemy 타입인지 확인
             if (pair.Value is Enemy enemy)

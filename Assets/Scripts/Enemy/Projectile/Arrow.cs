@@ -52,8 +52,8 @@ public class Arrow : EnemyProjectile
     {
         if (gameObject.activeInHierarchy)
         {
-            if (ObjectPoolingManager.instance != null)
-                ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
+            if (ObjectPoolingManager.Instance != null)
+                ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
             else
                 Destroy(gameObject);
         }

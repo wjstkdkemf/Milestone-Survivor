@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9072583635786855888}
   - component: {fileID: 6195820798500359860}
   - component: {fileID: 3157051602346805787}
-  - component: {fileID: 7447111005420644354}
+  - component: {fileID: 7336186284430033057}
   m_Layer: 0
   m_Name: Damage Text
   m_TagString: Untagged
@@ -196,7 +196,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7447111005420644354
+--- !u!114 &7336186284430033057
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -205,8 +205,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 5830339192291648505}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04a7f61fa29b04745ab8a2e25b729f2e, type: 3}
+  m_Script: {fileID: 11500000, guid: f98028776428912498355c37c5ef636e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Time: 0.5
-  DontDestroy: 0

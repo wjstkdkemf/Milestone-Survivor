@@ -43,7 +43,7 @@ public class TurretFireTrailOrb : FireTrailOrb
         if (target == null) return;
 
         // 2. 미사일 발사 (오브젝트 풀링 사용)
-        GameObject bullet = ObjectPoolingManager.instance.spawnGameObject(projectilePrefab, transform.position, Quaternion.identity);
+        GameObject bullet = ObjectPoolingManager.Instance.spawnGameObject(projectilePrefab, transform.position, Quaternion.identity);
 
         // 3. 미사일 설정 (TurretBullet 스크립트에 타겟 주입)
         if (bullet.TryGetComponent<TurretBullet>(out var turretBullet))

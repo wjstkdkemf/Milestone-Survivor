@@ -49,7 +49,7 @@ public class GoblinArcherScript : Enemy
         if(animator != null)
             animator.SetTrigger("Attack");
 
-        GameObject arrow = ObjectPoolingManager.instance.spawnGameObject(arrowPrefab, firePoint.position, Quaternion.identity);
+        GameObject arrow = ObjectPoolingManager.Instance.spawnGameObject(arrowPrefab, firePoint.position, Quaternion.identity);
         EnemyProjectile arrowScript = arrow.GetComponent<EnemyProjectile>();
 
         if (arrowScript != null)

@@ -71,12 +71,12 @@ public class MainMapManager : MonoBehaviour
 
             if (currentMapTheme != "" && currentMapTheme != newTheme)
             {
-                ObjectPoolingManager.instance.ClearAllPools();
+                ObjectPoolingManager.Instance.ClearAllPools();
                 if (WaveSpawner.Instance != null) WaveSpawner.Instance.ReleaseWaveAssets();
             }
             else
             {
-                ObjectPoolingManager.instance.ReturnAllActiveObjectsToPool();
+                ObjectPoolingManager.Instance.ReturnAllActiveObjectsToPool();
             }
 
             currentMapTheme = newTheme;

@@ -11,7 +11,7 @@ public class ClearButton : MonoBehaviour
 
 		InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
 		WaveSpawner.Instance.ReleaseWaveAssets();
-		ObjectPoolingManager.instance.ClearAllPools();
+		ObjectPoolingManager.Instance.ClearAllPools();
 		LoadingManager.Instance.LoadScene("Village");
 	}
 }

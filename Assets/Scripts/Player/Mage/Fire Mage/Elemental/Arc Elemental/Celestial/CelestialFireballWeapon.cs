@@ -93,7 +93,7 @@ public class CelestialFireballWeapon : WeaponBase
     void FireProjectile(Transform target)
     {
         // 투사체 풀링 생성
-        GameObject fireball = ObjectPoolingManager.instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
+        GameObject fireball = ObjectPoolingManager.Instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
 
         float directDamage = GetDamage();
         float finalTrailDamage = directDamage * trailDamageScaling;

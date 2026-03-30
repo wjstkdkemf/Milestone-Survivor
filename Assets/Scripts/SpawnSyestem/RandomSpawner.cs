@@ -27,7 +27,7 @@ public class RandomSpawner : MonoBehaviour
     {
 
         Vector3 randomPosition = RandomPositionInCircle();      
-        ObjectPoolingManager.instance.spawnGameObject(objectToSpawn, randomPosition, Quaternion.identity); // spawn first enemy in our list
+        ObjectPoolingManager.Instance.spawnGameObject(objectToSpawn, randomPosition, Quaternion.identity); // spawn first enemy in our list
 
     }
 

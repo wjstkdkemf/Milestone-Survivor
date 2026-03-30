@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public bool AllKill = false;
     public bool Heal = false;
     public GameObject Panel;
+    public GameObject Player;
     public bool CanSpawn;
 
     private void Awake()
@@ -38,6 +39,10 @@ public class GameManager : MonoBehaviour
         {
             Instance = null;
         }
+    }
+    public void SearchPlayer()
+    {
+        Player = GameObject.FindWithTag("Player");
     }
 
     void Update()

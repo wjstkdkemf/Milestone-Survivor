@@ -7,60 +7,59 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour, IDamageable
 {
+    public enum EnemyState { Idle, Escape, Chasing, Attacking, Fleeing, Stunned, Dead }
+    public EnemyState currentNormalState = EnemyState.Idle;
     public EnemyRarity rarity;
-    public float maxhealth;
-    public float health;             // Base health for the enemy
-    public float damage;             // Base damage for the enemy
-    public float speed;              // Movement speed for the enemy
-    public float knockBackForce = 4;     // Force applied during knockback
-    public float coolDown = 3;
-    public float range = 5f;         // Detection range for chasing the player
-    public float attackRange = 2f;   // Range within which the enemy can attack
-    public float escapeRange = 1f;   // Range at which the enemy flees
-    public bool canRun = false;      // Can the enemy flee?
+    public bool IsActived = false;//혹시모를 생존체크
+    protected bool facingRight = true;//좌우 구분
+    protected bool I_frame = false;//무적효과
+    protected bool isRecovering = false;//위치 리커버리작업
+    public bool CantBeKnocked = false;// 넉백방지
+    [SerializeField] protected float maxhealth;
+    protected float health;             // Base health for the enemy
+    [SerializeField] protected float damage;             // Base damage for the enemy
+    [SerializeField] protected float speed;              // Movement speed for the enemy
+    [SerializeField] protected float knockBackForce = 4;     // Force applied during knockback
+    [SerializeField] protected float coolDown = 3;
+    [SerializeField] protected float range = 5f;         // Detection range for chasing the player
+    [SerializeField] protected float attackRange = 2f;   // Range within which the enemy can attack
+    [SerializeField] protected float escapeRange = 1f;   // Range at which the enemy flees
+    [SerializeField] protected bool canRun = false;      // Can the enemy flee?
     public bool stopMoving = false;  // Flag to stop movement
     public GameObject DamageText;
     public Transform player;
     public PlayerHealth playerHealth;
     protected NavMeshAgent agent;
     protected float coolDownTimer;
-    protected bool facingRight = true;
-    protected bool chasing = false;
-    protected bool running = false;
-    protected bool inAttackRange = false;
     protected float knockBackTime = 0f;
     public float _knockBackDuration = .2f;
-    public bool CantBeKnocked = false;
 
     // ******************** Flash Elemnts*********************
-    public Material flashMaterial;
-    public Color currentStateColor;
+    [SerializeField] protected Material originalMaterial;
+    [SerializeField] protected Material flashMaterial;
+    [SerializeField] protected Color currentStateColor;
     protected float duration = .1f;
     protected SpriteRenderer spriteRenderer;
     protected Collider2D EnemyCollider2D;
-    public Material originalMaterial;
+    
     protected Coroutine flashRoutine;
-    public bool IsActived = false;
-    public bool DontUseObjectPooling;
-    public bool boss;
-    protected bool I_frame = false;
-    private Vector3 lastVelocity;
-    private bool isRecovering = false;
-    private Color defaultColor = Color.white;
+    [SerializeField] protected bool DontUseObjectPooling;
+    [SerializeField] protected bool boss;
+    protected Vector3 lastVelocity;
+    protected Color defaultColor = Color.white;
 
     [Header("Reposition Settings")]
-    [SerializeField] private float checkInterval = 2.0f; // 검사 주기 (2초)
-    [SerializeField] private float maxDistance = 30.0f;  // 이 거리를 넘으면 소환 (화면 밖)
-    [SerializeField] private float respawnRadius = 15.0f; // 플레이어 주변 재소환 반경
-    [SerializeField] private float minimumMoveDistance = 0.5f; // 이 거리 이하로 움직이면 끼인 것으로 간주
-    [SerializeField] private int maxStuckCount = 2; // 2번 연속 제자리걸음 시 재소환 발동
+    [SerializeField] protected float checkInterval = 2.0f; // 검사 주기 (2초)
+    [SerializeField] protected float maxDistance = 30.0f;  // 이 거리를 넘으면 소환 (화면 밖)
+    [SerializeField] protected float respawnRadius = 15.0f; // 플레이어 주변 재소환 반경
+    [SerializeField] protected float minimumMoveDistance = 0.5f; // 이 거리 이하로 움직이면 끼인 것으로 간주
+    [SerializeField] protected int maxStuckCount = 2; // 2번 연속 제자리걸음 시 재소환 발동
 
     [Header("Status Effects")]
-    private float baseSpeed; // 원래 이동 속도를 기억할 변수
-    private Coroutine slowCoroutine; // 현재 실행 중인 슬로우 코루틴
-    private float maxDistanceSqr;
-    // Multipliers based on monster rarity
-    private readonly Dictionary<EnemyRarity, int> rarityMultipliers = new Dictionary<EnemyRarity, int>
+    protected float baseSpeed; // 원래 이동 속도를 기억할 변수
+    protected Coroutine slowCoroutine; // 현재 실행 중인 슬로우 코루틴
+    protected float maxDistanceSqr;
+    protected readonly Dictionary<EnemyRarity, int> rarityMultipliers = new Dictionary<EnemyRarity, int>
     {
         { EnemyRarity.Normal, 1 },
         { EnemyRarity.Magic, 100 },
@@ -70,7 +69,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     
     void Awake()
     {
-        GameObject gameObject = GameObject.FindWithTag("Player");
+        GameObject gameObject = GameManager.Instance.Player;
         player = gameObject.transform.Find("CenterPosition").transform;
         playerHealth = gameObject.GetComponent<PlayerHealth>();
 
@@ -374,7 +373,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         if (DontUseObjectPooling == false)
         {
-            ObjectPoolingManager.instance.ReturnObjectToPool(gameObject);
+            ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
             IsActived = false;
         }
         else
@@ -390,15 +389,16 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         if (player == null || stopMoving || IsActived == false) return;
 
         knockBackTime -= Time.deltaTime;
-        Vector3 delta = player.position - transform.position;
         coolDownTimer -= Time.deltaTime;
+
+        Vector3 delta = player.position - transform.position;
         UpdateFacingDirection(delta);
 
-        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        //float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        float distanceSqrToPlayer = delta.sqrMagnitude;
 
-        DetermineState(distanceToPlayer);
-
-        HandleMovement(distanceToPlayer, delta);
+        DetermineState(distanceSqrToPlayer);
+        HandleMovement(distanceSqrToPlayer, delta);
     }
 
     protected virtual void UpdateFacingDirection(Vector3 delta)
@@ -417,24 +417,18 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     protected virtual void DetermineState(float distanceToPlayer)
     {
-        chasing = true;
-       
-        if (distanceToPlayer <= attackRange)
+        if (distanceToPlayer <= attackRange * attackRange)
         {
-            inAttackRange = true;
+            currentNormalState = EnemyState.Attacking;
+        }
+        else if (canRun && distanceToPlayer <= escapeRange * escapeRange)
+        {
+            currentNormalState = EnemyState.Escape;
         }
         else
         {
-            inAttackRange = false;
-        }
-
-        if (canRun && distanceToPlayer <= escapeRange)
-        {
-            running = true;
-        }
-        else
-        {
-            running = false;
+            // 공격 범위도 아니고, 도망갈 거리도 아니면 '추적' 해야 합니다!
+            currentNormalState = EnemyState.Chasing;
         }
     }
 
@@ -447,34 +441,31 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
         else
         {
-            if(isRecovering)
+            switch (currentNormalState)
             {
-                transform.position += lastVelocity * Time.deltaTime;
-            }
-            else if (chasing)
-            {
-                transform.position += agent.velocity * Time.deltaTime;
-            }
-            else if (running)
-            {
-                transform.position += agent.velocity * Time.deltaTime;
-            }
-            
-            if (inAttackRange && coolDownTimer <= 0)
-            {
-                Attack();
-                coolDownTimer = coolDown;
-            }
+                case EnemyState.Chasing:
+                case EnemyState.Escape:
+                    transform.position += agent.velocity * Time.deltaTime;
+                    break;
 
-            if (agent.velocity.sqrMagnitude > 0.1f)
-            {
-                lastVelocity = agent.velocity;
+                case EnemyState.Attacking:
+                    if (coolDownTimer <= 0)
+                    {
+                        Attack();
+                        coolDownTimer = coolDown;
+                    }
+                    break;
+
+                case EnemyState.Idle:
+                    transform.position += lastVelocity * Time.deltaTime;
+                    break;
             }
         }
+
+        if (agent.velocity.sqrMagnitude > 0.1f)
+            lastVelocity = agent.velocity;
         if (Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
-        {
             agent.nextPosition = transform.position;
-        }
     }
 
     public virtual void TakeDamage(float amount, float knockBackDuration = .2f)
@@ -490,8 +481,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         if (DamageText != null)
         {
-            GameObject text = Instantiate(DamageText, transform.position, Quaternion.identity);
-            text.GetComponent<TMP_Text>().text = amount.ToString(); // Display the amount of damage taken
+            GameObject textObj = ObjectPoolingManager.Instance.spawnGameObject(DamageText, transform.position, Quaternion.identity);
+            if (textObj != null)
+            {
+                textObj.GetComponent<TMP_Text>().text = amount.ToString();
+            }
         }
 
         if (flashMaterial != null && !boss&&IsActived)

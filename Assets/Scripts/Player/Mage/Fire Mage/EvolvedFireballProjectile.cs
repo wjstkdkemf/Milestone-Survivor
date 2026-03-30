@@ -65,7 +65,7 @@ public class EvolvedFireballProjectile : MonoBehaviour
     void SpawnTrail()
     {
         // 오브젝트 풀에서 장판 가져오기
-        GameObject trail = ObjectPoolingManager.instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
+        GameObject trail = ObjectPoolingManager.Instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
 
         // 장판의 DoDamage 스크립트 설정
         if (trail.TryGetComponent<DoDamage>(out var doDamage))

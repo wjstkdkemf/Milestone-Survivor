@@ -316,7 +316,7 @@ public class WaveSpawner : MonoBehaviour
 
         if (!WavesList[CurrentWave].DontUseObjectPooling)
         {
-            ObjectPoolingManager.instance.spawnGameObject(enemyToSpawn, spawnPosition, Quaternion.identity);
+            ObjectPoolingManager.Instance.spawnGameObject(enemyToSpawn, spawnPosition, Quaternion.identity);
         }
         else
         {
@@ -349,7 +349,7 @@ public class WaveSpawner : MonoBehaviour
 
             if (!WavesList[CurrentWave].DontUseObjectPooling)
             {
-                ObjectPoolingManager.instance.spawnGameObject(enemyPrefab, finalSpawnPos, Quaternion.identity);
+                ObjectPoolingManager.Instance.spawnGameObject(enemyPrefab, finalSpawnPos, Quaternion.identity);
             }
             else
             {
@@ -392,7 +392,7 @@ public class WaveSpawner : MonoBehaviour
             // 전용 몬스터 프리팹(enemyPrefab)을 그대로 소환만 하면 됩니다.
             if (!WavesList[CurrentWave].DontUseObjectPooling)
             {
-                ObjectPoolingManager.instance.spawnGameObject(enemyPrefab, spawnPos, Quaternion.identity);
+                ObjectPoolingManager.Instance.spawnGameObject(enemyPrefab, spawnPos, Quaternion.identity);
             }
             else
             {

@@ -107,7 +107,7 @@ public class TurretWeapon : WeaponBase
         // 오브젝트 풀링 사용 (기존 유지)
         if (closestEnemyPosition != null) // 쏘는 순간 타겟이 사라졌을 수도 있으니 체크
         {
-            GameObject bullet = ObjectPoolingManager.instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
+            GameObject bullet = ObjectPoolingManager.Instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
             
             if (bullet == null)
             {

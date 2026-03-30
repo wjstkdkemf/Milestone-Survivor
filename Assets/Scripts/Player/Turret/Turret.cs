@@ -58,7 +58,7 @@ public class Turret : AttackBase
     {
         yield return new WaitForSeconds(delay);
 
-        GameObject bullet = ObjectPoolingManager.instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
+        GameObject bullet = ObjectPoolingManager.Instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
 
         if (bullet.GetComponent<TurretBullet>() != null)
         {

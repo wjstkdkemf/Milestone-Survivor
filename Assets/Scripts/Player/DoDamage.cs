@@ -96,7 +96,7 @@ public class DoDamage : MonoBehaviour
     private void DamageEnemy(Collider2D collision)
     {
         int id = collision.gameObject.GetInstanceID();
-        IDamageable enemy = ObjectPoolingManager.instance.GetDamageable(id);
+        IDamageable enemy = ObjectPoolingManager.Instance.GetDamageable(id);
         float Deal = PlayerStats.Instance.DamageBonus * damage;
         if(Random.value <= PlayerStats.Instance.DoubleDamageChance)
             Deal *= 2;
@@ -127,7 +127,7 @@ public class DoDamage : MonoBehaviour
         if (selfDestroy)
         {
             if (IsUsingObjetPooling)
-                ObjectPoolingManager.instance.ReturnObjectToPool(this.gameObject);
+                ObjectPoolingManager.Instance.ReturnObjectToPool(this.gameObject);
             else 
                 Destroy(gameObject);
         }

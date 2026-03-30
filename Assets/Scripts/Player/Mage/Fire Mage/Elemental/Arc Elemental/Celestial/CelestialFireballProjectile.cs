@@ -81,7 +81,7 @@ private Transform target;
 
     void SpawnTrail()
     {
-        GameObject trail = ObjectPoolingManager.instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
+        GameObject trail = ObjectPoolingManager.Instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
         if (trail.TryGetComponent<DoDamage>(out var doDamage))
         {
             doDamage.damage = trailDamage;           
@@ -143,7 +143,7 @@ private Transform target;
 
         // 남은 횟수가 없거나, 타겟을 못 찾았으면 투사체 파괴 (풀링 반환)
         if (damageComponent.IsUsingObjetPooling)
-            ObjectPoolingManager.instance.ReturnObjectToPool(this.gameObject);
+            ObjectPoolingManager.Instance.ReturnObjectToPool(this.gameObject);
         else
             Destroy(gameObject);
     }
