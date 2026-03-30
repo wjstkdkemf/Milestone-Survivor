@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine.Localization.Settings; 
 using UnityEngine.Localization;
 
-public class LanguageDrop : MonoBehaviour
+public class LanguageDropdown : MonoBehaviour
 {
     public TMP_Dropdown dropdown;
 

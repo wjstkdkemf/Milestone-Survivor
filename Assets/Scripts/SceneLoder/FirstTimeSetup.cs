@@ -14,10 +14,9 @@ public class FirstTimeSetup : MonoBehaviour
         float savedSFX = PlayerPrefs.GetFloat("SFXVolume", 0f);
         float savedBGM = PlayerPrefs.GetFloat("BGMVolume", 0f);
 
-        Mixer.SetFloat("Master", Mathf.Log10(savedMaster) * 20f);
-        Mixer.SetFloat("SFX", Mathf.Log10(savedSFX) * 20f);
-        Mixer.SetFloat("BGM", Mathf.Log10(savedBGM) * 20f);
-        Debug.Log(savedMaster + " " + savedSFX + " " + savedBGM);
+        Mixer.SetFloat("Master", savedMaster);
+        Mixer.SetFloat("SFX", savedSFX);
+        Mixer.SetFloat("BGM", savedBGM);
 
         Resolution[] resolutions = Screen.resolutions;
         
