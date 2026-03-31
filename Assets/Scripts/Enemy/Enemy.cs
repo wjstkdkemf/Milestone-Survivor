@@ -13,8 +13,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public bool IsActived = false;//혹시모를 생존체크
     protected bool facingRight = true;//좌우 구분
     protected bool I_frame = false;//무적효과
-    protected bool isRecovering = false;//위치 리커버리작업
     public bool CantBeKnocked = false;// 넉백방지
+    public bool stopMoving = false;  // Flag to stop movement
+    protected bool isAgentReady = false;
     [SerializeField] protected float maxhealth;
     protected float health;             // Base health for the enemy
     [SerializeField] protected float damage;             // Base damage for the enemy
@@ -25,7 +26,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     [SerializeField] protected float attackRange = 2f;   // Range within which the enemy can attack
     [SerializeField] protected float escapeRange = 1f;   // Range at which the enemy flees
     [SerializeField] protected bool canRun = false;      // Can the enemy flee?
-    public bool stopMoving = false;  // Flag to stop movement
     public GameObject DamageText;
     public Transform player;
     public PlayerHealth playerHealth;
@@ -66,6 +66,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         { EnemyRarity.Rare, 200 },
         { EnemyRarity.Boss, 500 }
     };
+    protected float pathUpdateTimer = 0f;
+    protected float distanceCheckTimer = 0f;
+    protected int stuckCount = 0;
+    Vector3 lastPosition = Vector3.zero;
     
     void Awake()
     {
@@ -101,6 +105,67 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         baseSpeed = speed;
         maxDistanceSqr = maxDistance * maxDistance;
     }
+    private void HandlePathUpdate()
+    {
+        if (!agent.enabled) return;
+
+        pathUpdateTimer -= Time.deltaTime;
+        if (pathUpdateTimer <= 0)
+        {
+            if (agent.isOnNavMesh) 
+            {
+                agent.SetDestination(player.position);
+            }
+            pathUpdateTimer = Random.Range(0.2f, 0.3f); 
+        }
+    }
+
+    private void HandleDistanceCheck(float distanceSqrToPlayer)
+    {
+        distanceCheckTimer -= Time.deltaTime;
+        if (distanceCheckTimer <= 0)
+        {
+            // 화면 밖으로 너무 멀어지면 텔레포트
+            if (distanceSqrToPlayer > maxDistanceSqr)
+            {
+                RepositionEnemy();
+                
+                stuckCount = 0;
+            }
+            else
+            {
+                if (knockBackTime > 0 || stopMoving)
+                {
+                    lastPosition = transform.position; // 억울하게 카운트 먹지 않도록 현재 위치만 갱신
+                    stuckCount = 0;
+                }
+
+                // 제자리걸음을 하고 있는가? (벽 끼임, 길막 감지)
+                float movedDistSqr = (transform.position - lastPosition).sqrMagnitude;
+
+                if (movedDistSqr < minimumMoveDistance * minimumMoveDistance)
+                {
+                    stuckCount++; // 경고 누적
+                    
+                    if (stuckCount >= maxStuckCount)
+                    {
+                        Debug.Log($"[{gameObject.name}] 몬스터가 길막/벽끼임으로 인해 텔레포트합니다!");
+                        RepositionEnemy();
+                        
+                        stuckCount = 0; // 리셋
+                    }
+                }
+                else
+                {
+                    stuckCount = 0; 
+                }
+
+                lastPosition = transform.position;
+            }
+
+            distanceCheckTimer = checkInterval;
+        }
+    }
     IEnumerator EnableAgentAndFollow()
     {
         yield return new WaitForSeconds(Random.Range(0.0f, 0.2f));
@@ -123,202 +188,39 @@ public abstract class Enemy : MonoBehaviour, IDamageable
                 agent.Warp(hit.position); 
                 agent.enabled = true;
                 
-                // 추적 루틴 시작
-                StartCoroutine(UpdatePathRoutine());
+                isAgentReady = true;
                 yield break;
             }
         }
         Die();
     }
-    IEnumerator CheckDistanceRoutine()
-    {
-        // 모든 몬스터가 동시에 연산하지 않도록 랜덤 딜레이를 줍니다. (부하 분산)
-        yield return new WaitForSeconds(Random.Range(0f, checkInterval));
-
-        Vector3 lastPosition = transform.position;
-        int stuckCount = 0;
-        float minMoveSqr = minimumMoveDistance * minimumMoveDistance; // 최적화를 위해 미리 제곱
-
-        while (player != null)
-        {
-            // 설정한 주기만큼 대기 (Update보다 훨씬 가벼움)
-            yield return new WaitForSeconds(checkInterval);
-
-            if (!gameObject.activeInHierarchy || !agent.enabled) continue;
-
-            // 거리 계산 (sqrMagnitude 사용으로 최적화) -> 물리 연산 대체
-            float distSqr = (player.position - transform.position).sqrMagnitude;
-
-            if (distSqr > maxDistanceSqr)
-            {
-                RepositionEnemy();
-
-                lastPosition = transform.position;
-                stuckCount = 0;
-                continue;
-            }
-
-            if (knockBackTime > 0 || isRecovering || stopMoving)
-            {
-                lastPosition = transform.position; // 억울하게 카운트 먹지 않도록 현재 위치만 갱신
-                stuckCount = 0;
-                continue;
-            }
-
-            // 제자리걸음을 하고 있는가? (벽 끼임, 길막 감지)
-            float movedDistSqr = (transform.position - lastPosition).sqrMagnitude;
-
-            if (movedDistSqr < minMoveSqr)
-            {
-                stuckCount++; // 경고 누적
-                
-                if (stuckCount >= maxStuckCount)
-                {
-                    Debug.Log($"[{gameObject.name}] 몬스터가 길막/벽끼임으로 인해 텔레포트합니다!");
-                    RepositionEnemy();
-                    
-                    stuckCount = 0; // 리셋
-                    lastPosition = transform.position; // 리셋
-                    continue;
-                }
-            }
-            else
-            {
-                stuckCount = 0; 
-            }
-
-            // 이번 턴의 위치를 기억해두고 다음 검사 준비
-            lastPosition = transform.position;
-        }
-    }
-    IEnumerator UpdatePathRoutine()
-    {
-        while (player != null && agent.enabled)
-        {
-            // Agent가 켜져있고, 활성화 상태일 때만 목적지 설정
-            if (agent.isOnNavMesh) 
-            {
-                agent.SetDestination(player.position);
-            }
-            yield return new WaitForSeconds(Random.Range(0.2f, 0.3f));
-        }
-    }
-    public void OnNavMeshUpdated()
-    {
-        // 코루틴으로 안전하게 다음 프레임에 처리
-        StartCoroutine(RecoverAgent());
-    }
-
-    IEnumerator RecoverAgent()
-    {
-        isRecovering = true;
-
-        if (agent.enabled) agent.enabled = false;
-
-        yield return new WaitForSeconds(Random.Range(0.0f, 0.2f));
-
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(transform.position, out hit, 0.2f, NavMesh.AllAreas))
-        {
-            agent.enabled = true;
-            agent.Warp(hit.position);
-
-            yield return null;
-
-            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
-            {
-                if (player != null)
-                {
-                    agent.SetDestination(player.position);
-                }
-                StartCoroutine(UpdatePathRoutine());
-            }
-        }
-        else
-        {
-            Vector3 rescuePosition = transform.position;
-            bool foundRescuePoint = false;
-
-            if (player != null)
-            {
-                // 플레이어 방향 벡터
-                Vector3 directionToPlayer = (player.position - transform.position).normalized;
-                
-                // 내 위치에서 플레이어 쪽으로 1m, 2m, 3m 떨어진 지점을 순차적으로 검사
-                float[] checkDistances = { 0.5f, 1.0f, 1.5f }; 
-
-                foreach (float dist in checkDistances)
-                {
-                    // 플레이어 쪽으로 dist만큼 이동한 가상의 지점
-                    Vector3 checkPos = transform.position + (directionToPlayer * dist);
-                    
-                    // 그 지점 주변에서 NavMesh를 찾음 (반경 1.0f)
-                    if (NavMesh.SamplePosition(checkPos, out hit, 1.0f, NavMesh.AllAreas))
-                    {
-                        rescuePosition = hit.position;
-                        foundRescuePoint = true;
-                        break; // 유효한 곳을 찾으면 즉시 탈출
-                    }
-                }
-            }
-
-            // 플레이어 방향으로 못 찾았다면, 최후의 수단으로 그냥 주변(5.0f) 검색
-            if (!foundRescuePoint)
-            {
-                 if (NavMesh.SamplePosition(transform.position, out hit, 5.0f, NavMesh.AllAreas))
-                 {
-                     rescuePosition = hit.position;
-                     foundRescuePoint = true;
-                 }
-            }
-
-            if (foundRescuePoint)
-            {
-                transform.position = rescuePosition; 
-                agent.enabled = true;
-                agent.Warp(rescuePosition);
-                
-                
-                yield return null;
-                
-                if (agent.isActiveAndEnabled && agent.isOnNavMesh && player != null)
-                {
-                    agent.SetDestination(player.position);
-                }
-                StartCoroutine(UpdatePathRoutine());
-            }
-            else
-            {
-                Die();
-            }
-        }
-        isRecovering = false;
-        /*
-            HandleMovement() 함수의 아래 부분을 통해 이동 방향을 유지하여 자연스럽게 움직이는 것처럼 보이게 만듬.
-            if (knockBackTime > 0 && !CantBeKnocked)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, player.position, -1 * knockBackForce * Time.deltaTime);
-            }
-        */
-    }
     void RepositionEnemy()
     {
-        // 플레이어 주변의 랜덤한 위치(원형) 계산
-        // insideUnitCircle을 사용하여 플레이어 주변 랜덤 위치를 잡습니다.
         Vector2 randomPoint = Random.insideUnitCircle.normalized * respawnRadius;
         Vector3 potentialPos = player.position + new Vector3(randomPoint.x, randomPoint.y, 0);
 
         NavMeshHit hit;
-        // 해당 위치 근처(3.0f)에 유효한 NavMesh(길)가 있는지 확인
-        if (NavMesh.SamplePosition(potentialPos, out hit, 3.0f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(potentialPos, out hit, 5.0f, NavMesh.AllAreas))
         {
-            agent.Warp(hit.position);       // Agent(영혼) 이동
-            transform.position = hit.position; // 몸(Sprite) 이동
+            agent.enabled = false;
+            transform.position = hit.position;
             
-            // 이동 후 즉시 목적지 갱신
-            agent.SetDestination(player.position);
-            
-            Debug.Log("몬스터가 너무 멀어져서 재소환되었습니다.");
+            agent.enabled = true;
+            agent.Warp(hit.position); 
+
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.SetDestination(player.position);
+                
+                isAgentReady = true; 
+                Debug.Log($"[{gameObject.name}] 재소환 및 동기화 성공");
+            }
+            else
+            {
+                isAgentReady = false;
+                StartCoroutine(EnableAgentAndFollow());
+                Debug.LogWarning($"[{gameObject.name}] Warp 실패. 초기화 루틴 재실행");
+            }
         }
     }
 
@@ -326,14 +228,22 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         health = maxhealth;
         IsActived = true;
+        isAgentReady = false;
+
         spriteRenderer.material = originalMaterial;
         spriteRenderer.color = defaultColor;
         GameManager.Instance.activeEnemies++;
         agent.enabled = false;
+
+        lastPosition = transform.position;
+        stuckCount = 0;
+
+        pathUpdateTimer = Random.Range(0.0f, 0.5f);
+        distanceCheckTimer = Random.Range(0.0f, checkInterval);
+
         if (player != null)
         {
             StartCoroutine(EnableAgentAndFollow());
-            StartCoroutine(CheckDistanceRoutine());
         }
 
         ResetStatusEffects();
@@ -386,7 +296,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     protected virtual void Update()
     {
-        if (player == null || stopMoving || IsActived == false) return;
+        if (player == null || stopMoving || IsActived == false || isAgentReady == false) return;
 
         knockBackTime -= Time.deltaTime;
         coolDownTimer -= Time.deltaTime;
@@ -396,6 +306,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         //float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         float distanceSqrToPlayer = delta.sqrMagnitude;
+
+        HandleDistanceCheck(distanceSqrToPlayer);
+        HandlePathUpdate();
 
         DetermineState(distanceSqrToPlayer);
         HandleMovement(distanceSqrToPlayer, delta);
@@ -444,7 +357,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             switch (currentNormalState)
             {
                 case EnemyState.Chasing:
-                case EnemyState.Escape:
                     transform.position += agent.velocity * Time.deltaTime;
                     break;
 
@@ -592,6 +504,39 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         if (agent != null) agent.speed = baseSpeed;
         currentStateColor = defaultColor;
         if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+    }
+    public void OnNavMeshUpdated()
+    {
+        // 죽어있거나 정지 상태면 연산할 필요 없음
+        if (!IsActived || stopMoving) return;
+
+        NavMeshHit hit;
+        // 내 발밑(현재 위치)에서 반경 2.0f 이내에 새로운 길이 깔렸는지 확인
+        if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
+        {
+            // [5단계 안전 공정 적용]
+            agent.enabled = false;
+            transform.position = hit.position;
+            
+            agent.enabled = true;
+            agent.Warp(hit.position);
+
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                if (player != null) agent.SetDestination(player.position);
+                isAgentReady = true; // 다시 쌩쌩하게 움직이도록 깃발 ON!
+            }
+            else
+            {
+                isAgentReady = false; // 실패 시 Update 문에서 멈춰있도록 제어
+            }
+        }
+        else
+        {
+            // 만약 지형이 바뀌면서 발밑에 길이 아예 사라져버렸다? (절벽 밖으로 밀려남)
+            // 망설이지 않고 사장님의 완벽한 '텔레포트' 함수로 구조를 요청합니다!
+            RepositionEnemy(); 
+        }
     }
 
     private Vector2 GetRandomPositionAround(Vector2 centerPosition, float radius)

@@ -25,8 +25,6 @@ public class GoblinArcherScript : Enemy
     }
     protected override void Update()
     {
-        base.Update(); // 부모의 상태 결정 및 쿨타임 로직 실행
-
         // 방향 전환 타이머
         strafeTimer -= Time.deltaTime;
         if (strafeTimer <= 0)
@@ -36,6 +34,7 @@ public class GoblinArcherScript : Enemy
             // 다음 전환 시간 랜덤 설정 (1초 ~ 설정값)
             strafeTimer = Random.Range(1.0f, changeDirectionInterval);
         }
+        base.Update(); // 부모의 상태 결정 및 쿨타임 로직 실행
     }
 
     public override void Attack()
@@ -82,13 +81,13 @@ public class GoblinArcherScript : Enemy
         }
 
         // 공격 사거리 안에 들어왔을 때
-        if (distanceToPlayer <= attackRange)
+        if (distanceToPlayer <= attackRange * attackRange)
         {
             Vector3 finalMoveDir = Vector3.zero;
             Vector3 dirToPlayer = delta.normalized; // 나 -> 플레이어 방향
 
             // 거리 조절
-            if (distanceToPlayer < minMaintainDistance)
+            if (distanceToPlayer < minMaintainDistance * minMaintainDistance)
             {
                 // 플레이어 반대 방향으로 도망
                 finalMoveDir -= dirToPlayer; 
@@ -115,17 +114,15 @@ public class GoblinArcherScript : Enemy
                 Attack();
                 coolDownTimer = coolDown;
             }
+            // Agent 동기화
+            if (agent != null && Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
+            {
+                agent.nextPosition = transform.position;
+            }
         }
         else
         {
             base.HandleMovement(distanceToPlayer, delta);
-        }
-        
-        // Agent 동기화
-        NavMeshAgent agent = GetComponent<NavMeshAgent>();
-        if (agent != null && Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
-        {
-            agent.nextPosition = transform.position;
         }
     }
 }

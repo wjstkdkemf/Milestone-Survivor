@@ -67,6 +67,8 @@ public class EvolvedFireballProjectile : MonoBehaviour
         // 오브젝트 풀에서 장판 가져오기
         GameObject trail = ObjectPoolingManager.Instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
 
+        if (trail == null) return;
+
         // 장판의 DoDamage 스크립트 설정
         if (trail.TryGetComponent<DoDamage>(out var doDamage))
         {
