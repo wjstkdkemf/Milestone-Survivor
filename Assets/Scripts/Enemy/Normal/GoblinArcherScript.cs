@@ -49,7 +49,12 @@ public class GoblinArcherScript : Enemy
             animator.SetTrigger("Attack");
 
         GameObject arrow = ObjectPoolingManager.Instance.spawnGameObject(arrowPrefab, firePoint.position, Quaternion.identity);
+        
+        if(arrow == null)
+            return;
+
         EnemyProjectile arrowScript = arrow.GetComponent<EnemyProjectile>();
+           
 
         if (arrowScript != null)
         {
@@ -74,7 +79,7 @@ public class GoblinArcherScript : Enemy
     protected override void HandleMovement(float distanceToPlayer, Vector3 delta)
     {
         // 넉백 중이거나 행동 불가 상태면 부모 로직 따름
-        if ((knockBackTime > 0 && !CantBeKnocked) || !IsActived) 
+        if ((knockBackTime > 0 && !CantBeKnocked) || currentNormalState == EnemyState.Dead) 
         {
             base.HandleMovement(distanceToPlayer, delta);
             return;

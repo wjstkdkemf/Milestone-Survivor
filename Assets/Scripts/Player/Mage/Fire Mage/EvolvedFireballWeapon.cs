@@ -82,6 +82,8 @@ public class EvolvedFireballWeapon : WeaponBase
         // 투사체 풀링 생성
         GameObject fireball = ObjectPoolingManager.Instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
 
+        if (fireball == null) return;
+
         // 1. 직격 데미지 설정 (투사체 자체의 DoDamage)
         float directDamage = GetDamage();
         if (fireball.TryGetComponent<DoDamage>(out var directDoDamage))

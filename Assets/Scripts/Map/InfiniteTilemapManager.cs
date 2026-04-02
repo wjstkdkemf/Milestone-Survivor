@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Cinemachine;
 using Unity.VisualScripting;
 
 [System.Serializable]
@@ -10,6 +11,7 @@ public class MapTheme
     public string themeName;
     public GameObject chunkPrefab;
     public GameObject backgroundPrefab;
+    public GameObject borderWallPrefab;
     public List<GameObject> resourcePrefabs;
     public int resourceCountPerChunk = 5;
 }
@@ -31,6 +33,7 @@ public class InfiniteTilemapManager : MonoBehaviour
     private MapTheme currentTheme;
     private Transform player;
     private Dictionary<Vector2Int, GameObject> activeChunks = new Dictionary<Vector2Int, GameObject>();
+    private GameObject BorderWall;
     private Queue<GameObject> chunkPool = new Queue<GameObject>();
     private Dictionary<GameObject, Queue<GameObject>> resourcePools = new Dictionary<GameObject, Queue<GameObject>>();
     private float chunkUpdateDelay = 0.5f;
@@ -93,6 +96,17 @@ public class InfiniteTilemapManager : MonoBehaviour
         InitializeChunkPool();
         InitializeResourcePools();
 
+        BorderWall = Instantiate(currentTheme.borderWallPrefab);
+        BorderWall.transform.position = battleMapStartPosition;
+
+        CinemachineVirtualCamera encounterCam = BorderWall.GetComponentInChildren<CinemachineVirtualCamera>();
+        
+
+        if (encounterCam != null)
+        {
+            encounterCam.Follow = player;
+        }
+
         isMapActive = true;
 
         lastPlayerChunkCoord = new Vector2Int(
@@ -130,6 +144,11 @@ public class InfiniteTilemapManager : MonoBehaviour
         resourcePools.Clear();
         requiredChunks.Clear();
         chunksToUnload.Clear();
+
+        if(BorderWall != null) Destroy(BorderWall);
+
+        BorderWall = null;
+        
         lastPlayerChunkCoord = Vector2Int.one * int.MaxValue;
     }
 
@@ -324,10 +343,8 @@ public class InfiniteTilemapManager : MonoBehaviour
         return instance;
     }
     
-    //청크의 모든 자식(리소스)을 풀에 반납하는 함수
     private void ReturnChunkContentToPool(GameObject chunk)
     {
-        // 자식 리스트를 미리 복사 (순회 중 부모가 바뀌므로)
         List<Transform> children = new List<Transform>();
         foreach (Transform child in chunk.transform)
         {
@@ -348,7 +365,7 @@ public class InfiniteTilemapManager : MonoBehaviour
                 }
                 else
                 {
-                    // 풀이 없는 비정상적인 경우 (예: 런타임에 생성된 오브젝트)
+                    // 풀이 없는 비정상적인 경우
                     Destroy(child.gameObject);
                 }
             }

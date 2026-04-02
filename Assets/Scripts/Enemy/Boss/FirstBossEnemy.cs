@@ -55,7 +55,7 @@ public class FirstBossEnemy : Enemy
     {
         base.Update(); // Call the base class Update method to handle basic enemy logic
 
-        if (player == null || IsActived == false) return;
+        if (player == null || currentNormalState == EnemyState.Dead) return;
 
         specialAttackTimer -= Time.deltaTime;
 

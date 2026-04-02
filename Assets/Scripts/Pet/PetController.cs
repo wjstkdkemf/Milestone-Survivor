@@ -103,7 +103,7 @@ public class PetController : MonoBehaviour
         foreach (Enemy currentEnemy in allEnemies)
         {
             float distanceToEnemy = (currentEnemy.transform.position - this.transform.position).sqrMagnitude;
-            if (distanceToEnemy < Distance * 100 && currentEnemy.IsActived)
+            if (distanceToEnemy < Distance * 100 && currentEnemy.currentNormalState != Enemy.EnemyState.Dead)
             {
 
                 closestEnemy = currentEnemy.gameObject;

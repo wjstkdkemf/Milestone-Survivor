@@ -153,7 +153,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentNormalState: 0
   rarity: 0
-  IsActived: 0
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8
   CantBeKnocked: 0
   stopMoving: 0
   maxhealth: 10
@@ -175,7 +177,7 @@ MonoBehaviour:
   DontUseObjectPooling: 0
   boss: 0
   checkInterval: 2
-  maxDistance: 30
+  maxDistance: 45
   respawnRadius: 15
   minimumMoveDistance: 0.5
   maxStuckCount: 2

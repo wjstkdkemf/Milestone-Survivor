@@ -34,7 +34,7 @@ public class LightningSparkAbility : MonoBehaviour
     IEnumerator FireLightning()
     {
         List<Enemy> enemies = FindObjectsOfType<Enemy>().ToList();
-        enemies = enemies.Where(e => e.IsActived && Vector2.Distance(transform.position, e.transform.position) < range).ToList();
+        enemies = enemies.Where(e => e.currentNormalState != Enemy.EnemyState.Dead && Vector2.Distance(transform.position, e.transform.position) < range).ToList();
 
         if (enemies.Count == 0)
             yield break;

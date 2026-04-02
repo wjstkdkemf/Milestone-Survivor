@@ -23,7 +23,7 @@ public class BatEnemy : Enemy
     private void InitializeBat()
     {
         health = maxhealth;
-        IsActived = true;
+        currentNormalState = EnemyState.Idle;
         if(spriteRenderer != null) 
         {
             spriteRenderer.material = originalMaterial;
@@ -59,7 +59,7 @@ public class BatEnemy : Enemy
 
     protected override void Update()
     {
-        if (!IsActived || stopMoving) return;
+        if (currentNormalState == EnemyState.Dead || stopMoving) return;
 
         transform.position += moveDirection * speed * Time.deltaTime;
 
@@ -85,7 +85,7 @@ public class BatEnemy : Enemy
     
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (!IsActived) return;
+        if (currentNormalState == EnemyState.Dead) return;
 
         if (collision.CompareTag("Player"))
         {

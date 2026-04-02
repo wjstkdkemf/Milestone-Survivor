@@ -10,12 +10,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public enum EnemyState { Idle, Escape, Chasing, Attacking, Fleeing, Stunned, Dead }
     public EnemyState currentNormalState = EnemyState.Idle;
     public EnemyRarity rarity;
-    public bool IsActived = false;//혹시모를 생존체크
     protected bool facingRight = true;//좌우 구분
     protected bool I_frame = false;//무적효과
     public bool CantBeKnocked = false;// 넉백방지
     public bool stopMoving = false;  // Flag to stop movement
-    protected bool isAgentReady = false;
+    protected bool isAgentReady = false; // agent 안전용
     [SerializeField] protected float maxhealth;
     protected float health;             // Base health for the enemy
     [SerializeField] protected float damage;             // Base damage for the enemy
@@ -227,8 +226,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public virtual void OnEnable()
     {
         health = maxhealth;
-        IsActived = true;
         isAgentReady = false;
+        currentNormalState = EnemyState.Chasing;
 
         spriteRenderer.material = originalMaterial;
         spriteRenderer.color = defaultColor;
@@ -261,7 +260,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             GameManager.Instance.activeEnemies--;
         }
         StopAllCoroutines();
-        IsActived = false;
+        currentNormalState = EnemyState.Dead;
     }
     void Start()
     {
@@ -272,7 +271,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     public virtual void Die()
     {
-        IsActived = false;
+        currentNormalState = EnemyState.Dead;
         GameManager.Instance.NumberOfKills++;
 
         LootDrop lootDrop = GetComponent<LootDrop>();
@@ -284,19 +283,17 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         if (DontUseObjectPooling == false)
         {
             ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
-            IsActived = false;
         }
         else
         {
             Destroy(gameObject);
-            IsActived = false;
         }
       
     }
 
     protected virtual void Update()
     {
-        if (player == null || stopMoving || IsActived == false || isAgentReady == false) return;
+        if (currentNormalState == EnemyState.Dead || player == null || stopMoving || isAgentReady == false) return;
 
         knockBackTime -= Time.deltaTime;
         coolDownTimer -= Time.deltaTime;
@@ -308,7 +305,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         float distanceSqrToPlayer = delta.sqrMagnitude;
 
         HandleDistanceCheck(distanceSqrToPlayer);
-        HandlePathUpdate();
+        //HandlePathUpdate();
 
         DetermineState(distanceSqrToPlayer);
         HandleMovement(distanceSqrToPlayer, delta);
@@ -357,7 +354,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             switch (currentNormalState)
             {
                 case EnemyState.Chasing:
-                    transform.position += agent.velocity * Time.deltaTime;
+                    //transform.position += agent.velocity * Time.deltaTime;
+                    Vector3 directMoveDir = delta.normalized;
+                    transform.position += directMoveDir * speed * Time.deltaTime;
                     break;
 
                 case EnemyState.Attacking:
@@ -382,7 +381,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     public virtual void TakeDamage(float amount, float knockBackDuration = .2f)
     {
-        if (I_frame)
+        if (I_frame || currentNormalState == EnemyState.Dead)
         {
             return;
         }
@@ -400,24 +399,18 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             }
         }
 
-        if (flashMaterial != null && !boss&&IsActived)
+        if (flashMaterial != null && !boss)
             Flash();
 
         health -= amount;
         // Debug.Log($"{gameObject.name} took {amount} damage, current health: {health}");
 
-        if (health <= 0 && IsActived)
+        if (health <= 0)
         {
-            IsActived = false;
             Die();
         }
 
         knockBackTime = _knockBackDuration;
-    }
-
-    public bool IsAlive()
-    {
-        return IsActived;
     }
 
     protected virtual void ApplyKnockback(Vector3 direction, float force)
@@ -444,7 +437,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public virtual void ApplySlow(float slowPercent)
     {
         // 무적 상태거나 이미 죽었으면 무시
-        if (I_frame || !IsActived || health <= 0) return;
+        if (I_frame || currentNormalState == EnemyState.Dead || health <= 0) return;
 
         // 이미 슬로우가 걸려있다면 기존 타이머를 취소합니다.
         if (slowCoroutine != null)
@@ -464,7 +457,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public virtual void ApplySlow(float slowPercent, float duration)
     {
         // 무적 상태거나 이미 죽었으면 무시
-        if (I_frame || !IsActived || health <= 0) return;
+        if (I_frame || currentNormalState == EnemyState.Dead || health <= 0) return;
 
         // 이미 슬로우가 걸려있다면 기존 타이머를 취소합니다.
         if (slowCoroutine != null)
@@ -507,14 +500,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
     public void OnNavMeshUpdated()
     {
-        // 죽어있거나 정지 상태면 연산할 필요 없음
-        if (!IsActived || stopMoving) return;
+        if (currentNormalState == EnemyState.Dead || stopMoving) return;
 
         NavMeshHit hit;
-        // 내 발밑(현재 위치)에서 반경 2.0f 이내에 새로운 길이 깔렸는지 확인
         if (NavMesh.SamplePosition(transform.position, out hit, 2.0f, NavMesh.AllAreas))
         {
-            // [5단계 안전 공정 적용]
             agent.enabled = false;
             transform.position = hit.position;
             
@@ -524,17 +514,15 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             if (agent.isActiveAndEnabled && agent.isOnNavMesh)
             {
                 if (player != null) agent.SetDestination(player.position);
-                isAgentReady = true; // 다시 쌩쌩하게 움직이도록 깃발 ON!
+                isAgentReady = true; 
             }
             else
             {
-                isAgentReady = false; // 실패 시 Update 문에서 멈춰있도록 제어
+                isAgentReady = false;
             }
         }
         else
         {
-            // 만약 지형이 바뀌면서 발밑에 길이 아예 사라져버렸다? (절벽 밖으로 밀려남)
-            // 망설이지 않고 사장님의 완벽한 '텔레포트' 함수로 구조를 요청합니다!
             RepositionEnemy(); 
         }
     }

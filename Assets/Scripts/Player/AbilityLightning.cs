@@ -42,9 +42,8 @@ public class AbilityLightning : MonoBehaviour
         foreach (Enemy currentEnemy in allEnemies)
         {
             float distanceToEnemy = (currentEnemy.transform.position - this.transform.position).sqrMagnitude;
-            if (distanceToEnemy < Distance * 10 && currentEnemy.IsActived)
+            if (distanceToEnemy < Distance * 10 && currentEnemy.currentNormalState != Enemy.EnemyState.Dead)
             {
-
                 closeEnemyPostions.Add(currentEnemy.gameObject);
             }
         }

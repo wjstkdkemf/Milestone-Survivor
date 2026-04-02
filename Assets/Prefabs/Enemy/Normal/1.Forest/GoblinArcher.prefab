@@ -305,9 +305,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51c95f1c212648c459ecd456c809fa6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentNormalState: 0
   rarity: 0
+  CantBeKnocked: 0
+  stopMoving: 0
   maxhealth: 10
-  health: 10
   damage: 25
   speed: 2.5
   knockBackForce: 4
@@ -316,23 +318,22 @@ MonoBehaviour:
   attackRange: 5
   escapeRange: 0
   canRun: 0
-  stopMoving: 0
   DamageText: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
   player: {fileID: 0}
   playerHealth: {fileID: 0}
   _knockBackDuration: 0.2
-  CantBeKnocked: 0
-  flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
   originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
-  IsActived: 0
+  flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
+  currentStateColor: {r: 0, g: 0, b: 0, a: 0}
   DontUseObjectPooling: 0
   boss: 0
   checkInterval: 2
-  maxDistance: 30
+  maxDistance: 45
   respawnRadius: 15
+  minimumMoveDistance: 0.5
+  maxStuckCount: 2
   minMaintainDistance: 4
   changeDirectionInterval: 2
-  strafeSpeed: 3
   arrowPrefab: {fileID: 1742303142779913472, guid: 1c7edc60cf244f347aa6890198e53183, type: 3}
   firePoint: {fileID: 1888334710317461516}
   arrowSpeed: 5
