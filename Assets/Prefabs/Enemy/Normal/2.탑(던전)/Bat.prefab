@@ -206,7 +206,7 @@ MonoBehaviour:
     m_Bits: 0
   shieldLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
 --- !u!58 &-639571069223099428
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -295,9 +295,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c9cc74a26a60fa4c8e5756232187243, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentNormalState: 0
   rarity: 0
+  CantBeKnocked: 0
+  stopMoving: 0
   maxhealth: 5
-  health: 5
   damage: 3
   speed: 10
   knockBackForce: 4
@@ -306,18 +308,18 @@ MonoBehaviour:
   attackRange: 2
   escapeRange: 1
   canRun: 0
-  stopMoving: 0
   DamageText: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
   player: {fileID: 0}
   playerHealth: {fileID: 0}
   _knockBackDuration: 0.2
-  CantBeKnocked: 0
-  flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
   originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
-  IsActived: 0
+  flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
+  currentStateColor: {r: 0, g: 0, b: 0, a: 0}
   DontUseObjectPooling: 0
   boss: 0
   checkInterval: 2
   maxDistance: 30
   respawnRadius: 15
+  minimumMoveDistance: 0.5
+  maxStuckCount: 2
   flyDistance: 30

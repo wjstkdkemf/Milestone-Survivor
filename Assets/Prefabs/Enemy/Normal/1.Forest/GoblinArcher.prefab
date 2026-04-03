@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1888334710317461516}
-  m_Layer: 8
+  m_Layer: 13
   m_Name: FireShot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49,7 +49,7 @@ GameObject:
   - component: {fileID: 3761190193143665214}
   - component: {fileID: 6977877894474144951}
   - component: {fileID: -8643676318364062523}
-  m_Layer: 8
+  m_Layer: 13
   m_Name: GoblinArcher
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -238,7 +238,7 @@ MonoBehaviour:
     m_Bits: 0
   shieldLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
 --- !u!58 &-639571069223099428
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -332,6 +332,11 @@ MonoBehaviour:
   respawnRadius: 15
   minimumMoveDistance: 0.5
   maxStuckCount: 2
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 8192
+  separationRadius: 0.5
+  separationForce: 2
   minMaintainDistance: 4
   changeDirectionInterval: 2
   arrowPrefab: {fileID: 1742303142779913472, guid: 1c7edc60cf244f347aa6890198e53183, type: 3}

@@ -56,13 +56,20 @@ public class ResourceManager : MonoBehaviour
 
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
-            // 로딩 성공 시 장부에 기록하고 결과물을 넘겨줌
-            loadedAssets.Add(key, handle);
-            onLoaded?.Invoke(handle.Result);
+            if (!loadedAssets.ContainsKey(key))
+            {
+                loadedAssets.Add(key, handle);
+                onLoaded?.Invoke(handle.Result);
+            }
+            else
+            {
+                Addressables.Release(handle);
+                AsyncOperationHandle<GameObject> existingHandle = loadedAssets[key];
+                onLoaded?.Invoke(existingHandle.Result);
+            }
         }
         else
         {
-            Debug.LogError($"[ResourceManager] 로딩 실패: {key}");
             Addressables.Release(handle);
             onLoaded?.Invoke(null);
         }

@@ -38,6 +38,7 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private float spawnCheckRadius = 0.5f;
     [SerializeField] private float circleRadius = 20f;//일괄 스폰용
     [SerializeField] private bool is2DGame = true;
+    private bool isMassiveSpawning = false;
 
     private void Awake()
     {
@@ -100,7 +101,10 @@ public class WaveSpawner : MonoBehaviour
             }
             else if (SpawnAll && SpawnedEnemys < WavesList[CurrentWave].EnemyNumber)
             {
-                SpawnEnemy(); // SpawnAll 모드는 성공 여부와 관계없이 계속 시도
+                if (!isMassiveSpawning)
+                    {
+                        StartCoroutine(SpawnMassiveEnemies(WavesList[CurrentWave].EnemyNumber));
+                    }
             }
             else
             {
@@ -137,6 +141,41 @@ public class WaveSpawner : MonoBehaviour
                 StartCoroutine(ClearStageAfterItemCollection());
             }*/
         }
+    }
+    IEnumerator SpawnMassiveEnemies(int targetAmount)
+    {
+        isMassiveSpawning = true; 
+
+        int spawnedThisFrame = 0;
+        int maxPerFrame = 50; 
+        int failCount = 0; 
+
+        while (SpawnedEnemys < targetAmount)
+        {
+            if (SpawnEnemy()) 
+            {
+                spawnedThisFrame++;
+                failCount = 0;
+            }
+            else
+            {
+                failCount++;
+                if (failCount > 100)
+                {
+                    Debug.LogWarning("스폰 위치가 꽉 차서 대량 스폰을 잠시 대기합니다.");
+                    yield return new WaitForSeconds(0.5f);
+                    failCount = 0;
+                }
+            }
+
+            if (spawnedThisFrame >= maxPerFrame)
+            {
+                spawnedThisFrame = 0;
+                yield return null; 
+            }
+        }
+
+        isMassiveSpawning = false; 
     }
     public IEnumerator PreloadWaveAssets(List<Wave> newWaves)
     {

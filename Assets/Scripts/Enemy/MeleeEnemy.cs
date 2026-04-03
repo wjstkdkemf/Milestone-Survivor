@@ -1,18 +1,67 @@
 using UnityEngine;
-
+using System.Collections;
 public class MeleeEnemy : Enemy
 {
-    private Animator animator;
+    [Header("Animation Frames")]
+    public Sprite[] runFrames; // 걷기 이미지들 (Inspector에서 드래그 앤 드롭)
+    public Sprite[] attackFrames; // 걷기 이미지들 (Inspector에서 드래그 앤 드롭)
 
-    void Start()
+    // 필요하다면 attackFrames 등 추가 가능
+
+    [Header("Settings")]
+    public float frameRate = 0.15f; // 이미지가 바뀌는 속도 (0.15초마다 다음 장)
+
+    private float timer;
+    private int currentFrameIndex;
+
+    protected override void Update()
     {
-        animator = GetComponent<Animator>();
+        base.Update();
+        if (currentState == AnimState.Run && runFrames.Length > 0)
+        {
+            UpdateRunAnimation();
+        }
+    }
+    private void UpdateRunAnimation()
+    {
+        timer += Time.deltaTime;
+        if (timer >= frameRate)
+        {
+            timer -= frameRate;
+            currentFrameIndex = (currentFrameIndex + 1) % runFrames.Length;
+            spriteRenderer.sprite = runFrames[currentFrameIndex];
+        }
     }
 
+    public void PlayAttackAnimation()
+    {
+        if (currentState == AnimState.Attack) return;
+        if (attackFrames.Length == 0) return;
+
+        StopAllCoroutines();
+        StartCoroutine(AttackAnimationCoroutine());
+    }
+
+    private IEnumerator AttackAnimationCoroutine()
+    {
+        currentState = AnimState.Attack;
+        currentFrameIndex = 0;
+
+        while (currentFrameIndex < attackFrames.Length)
+        {
+            spriteRenderer.sprite = attackFrames[currentFrameIndex];
+            currentFrameIndex++;
+
+            yield return new WaitForSeconds(frameRate);
+        }
+
+        currentState = AnimState.Run;
+        currentFrameIndex = 0;
+    }
     public override void Attack()
     {
         // Example melee attack logic
-        animator.SetTrigger("Attack");
+        PlayAttackAnimation();
         playerHealth.TakeDamage(damage);
         
         Debug.Log(gameObject.name + " performs a melee attack, dealing " + damage + " damage.");

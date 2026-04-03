@@ -13679,13 +13679,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 287186814}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &289138733
 GameObject:
   m_ObjectHideFlags: 0
@@ -43002,7 +43002,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 267937535
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -48842,10 +48842,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 6365943629430808430}
   minimapCamera: {fileID: 287186815}
-  minimapImage: {fileID: 1784368351}
-  playerMarker: {fileID: 1724348965}
-  enemyMarkerPrefab: {fileID: 7307171921157767615, guid: e2997abe017d5134bbc688a451b68cfc, type: 3}
-  Yaxiscorrection: 4
 --- !u!4 &1050248805
 Transform:
   m_ObjectHideFlags: 0
