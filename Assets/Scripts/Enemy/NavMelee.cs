@@ -1,6 +1,8 @@
-using UnityEngine;
 using System.Collections;
-public class MeleeEnemy : Enemy
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NavMelee : NavEnemy
 {
     [Header("Animation Frames")]
     public Sprite[] runFrames; // 걷기 이미지들 (Inspector에서 드래그 앤 드롭)

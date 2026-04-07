@@ -1,8 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class FirstNamedEnemy : Enemy
+public class FirstNamedEnemy : NavEnemy
 {
     public enum State
     {
@@ -32,11 +31,11 @@ public class FirstNamedEnemy : Enemy
         ChangeState(State.Idle);
     }
 
-    protected override void Update()
+    public override void ManualUpdate()
     {
-        base.Update(); // Call the base class Update method to handle basic enemy logic
+        base.ManualUpdate(); // Call the base class Update method to handle basic enemy logic
 
-        if (player == null || currentNormalState == EnemyState.Dead) return;
+        if (player == null) return;
 
         // State transition logic
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -177,4 +176,3 @@ public class FirstNamedEnemy : Enemy
         Gizmos.DrawWireSphere(transform.position, slamRadius);
     }
 }
-

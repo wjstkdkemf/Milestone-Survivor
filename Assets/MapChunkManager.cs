@@ -32,17 +32,6 @@ public class MapChunkManager : MonoBehaviour
 
     void RefreshAllEnemies()
     {
-        foreach (var pair in ObjectPoolingManager.Instance.damageableCache)
-        {
-            // 캐시된 인터페이스가 Enemy 타입인지 확인
-            if (pair.Value is Enemy enemy)
-            {
-                // 풀에 들어가지 않고 필드에 활성화된 상태인지 확인
-                if (enemy.gameObject.activeSelf)
-                {
-                    enemy.OnNavMeshUpdated();
-                }
-            }
-        }
+        WaveSpawner.Instance.RefreshAllEnemies();
     }
 }

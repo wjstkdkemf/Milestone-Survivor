@@ -39,6 +39,36 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private float circleRadius = 20f;//일괄 스폰용
     [SerializeField] private bool is2DGame = true;
     private bool isMassiveSpawning = false;
+    private List<Enemy> activeEnemiesList = new List<Enemy>();
+
+    public void RegisterEnemy(Enemy enemy)
+    {
+        if (!activeEnemiesList.Contains(enemy))
+        {
+            activeEnemiesList.Add(enemy);
+        }
+    }
+
+    public void UnregisterEnemy(Enemy enemy)
+    {
+        activeEnemiesList.Remove(enemy);
+    }
+
+    private void Update()
+    {
+        if (GameManager.Instance.Pause)
+            return;
+
+        // 중앙 집중식 업데이트 루프
+        // 역순으로 순회하여 리스트 조작 시의 안전성을 확보합니다.
+        for (int i = activeEnemiesList.Count - 1; i >= 0; i--)
+        {
+            if (activeEnemiesList[i] != null)
+            {
+                activeEnemiesList[i].ManualUpdate();
+            }
+        }
+    }
 
     private void Awake()
     {
@@ -541,6 +571,16 @@ public class WaveSpawner : MonoBehaviour
         }
 
         return null;
+    }
+    public void RefreshAllEnemies()
+    {
+        for (int i = 0; i < activeEnemiesList.Count; i++)
+        {
+            if (activeEnemiesList[i] is NavEnemy navEnemy)
+            {
+                navEnemy.OnNavMeshUpdated();
+            }
+        }
     }
 }
 

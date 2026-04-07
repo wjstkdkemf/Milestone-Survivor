@@ -109781,6 +109781,11 @@ MonoBehaviour:
   haveAnimation: 1
   DashCoolTimeRation: 1
   StopMoving: 0
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 8192
+  playerRadius: 0.5
+  bumpResistance: 5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

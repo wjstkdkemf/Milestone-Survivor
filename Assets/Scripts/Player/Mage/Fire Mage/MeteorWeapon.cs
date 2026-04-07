@@ -53,22 +53,18 @@ public class MeteorWeapon : WeaponBase
             Debug.LogError("잘못된 데이터! MeteorWeaponDataSO가 필요합니다.");
         }
 
-        // 플레이어 스탯 가져오기 (싱글톤 혹은 부모 컴포넌트)
         if (PlayerStats.Instance != null)
         {
             playerStats = PlayerStats.Instance;
         }
         else
         {
-            // 만약 싱글톤이 아니라면 부모에서 찾기
             playerStats = GetComponentInParent<PlayerStats>();
         }
     }
 
-    // 2. 매 프레임 실행 (PlayerWeaponController가 호출)
     public override void OnUpdate()
     {
-        // 쿨타임 감소
         if (cooldownTimer > 0)
         {
             cooldownTimer -= Time.deltaTime;

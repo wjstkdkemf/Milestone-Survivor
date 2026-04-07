@@ -9,7 +9,7 @@ public class BatEnemy : Enemy
     private Vector3 moveDirection; // 날아갈 방향
     //private bool isSetup = false;
 
-    public override void OnEnable()
+    protected override void OnEnable()
     {
         // 부모(Enemy)의 기본 초기화 실행 (체력 리셋 등)
         // 주의: 부모의 OnEnable에 StartCoroutine(EnableAgentAndFollow)가 있다면,
@@ -57,7 +57,7 @@ public class BatEnemy : Enemy
         //isSetup = true;
     }
 
-    protected override void Update()
+    public override void ManualUpdate()
     {
         if (currentNormalState == EnemyState.Dead || stopMoving) return;
 

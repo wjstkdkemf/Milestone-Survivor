@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public class FirstBossEnemy : Enemy
+public class FirstBossEnemy : NavEnemy
 {
     public enum BossState
     {
@@ -51,11 +51,11 @@ public class FirstBossEnemy : Enemy
         ChangeState(BossState.Idle);
     }
 
-    protected override void Update()
+    public override void ManualUpdate()
     {
-        base.Update(); // Call the base class Update method to handle basic enemy logic
+        base.ManualUpdate(); // Call the base class Update method to handle basic enemy logic
 
-        if (player == null || currentNormalState == EnemyState.Dead) return;
+        if (player == null) return;
 
         specialAttackTimer -= Time.deltaTime;
 

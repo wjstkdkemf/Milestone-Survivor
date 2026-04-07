@@ -23,7 +23,7 @@ public class GoblinArcherScript : Enemy
         attackRange = 7.0f;
         animator = GetComponent<Animator>();
     }
-    protected override void Update()
+    public override void ManualUpdate()
     {
         // 방향 전환 타이머
         strafeTimer -= Time.deltaTime;
@@ -34,7 +34,7 @@ public class GoblinArcherScript : Enemy
             // 다음 전환 시간 랜덤 설정 (1초 ~ 설정값)
             strafeTimer = Random.Range(1.0f, changeDirectionInterval);
         }
-        base.Update(); // 부모의 상태 결정 및 쿨타임 로직 실행
+        base.ManualUpdate(); // 부모의 상태 결정 및 쿨타임 로직 실행
     }
 
     public override void Attack()
@@ -118,11 +118,6 @@ public class GoblinArcherScript : Enemy
             {
                 Attack();
                 coolDownTimer = coolDown;
-            }
-            // Agent 동기화
-            if (agent != null && Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
-            {
-                agent.nextPosition = transform.position;
             }
         }
         else

@@ -104,7 +104,7 @@ public class TurretWeapon : WeaponBase
     {
         yield return new WaitForSeconds(delay);
 
-        // 오브젝트 풀링 사용 (기존 유지)
+        // 오브젝트 풀링 사용
         if (closestEnemyPosition != null) // 쏘는 순간 타겟이 사라졌을 수도 있으니 체크
         {
             GameObject bullet = ObjectPoolingManager.Instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
@@ -153,7 +153,7 @@ public class TurretWeapon : WeaponBase
         closestEnemyPosition = closestEnemyTransform;
     }
 
-    // 3. 레벨업 로직 (UpgradeManager에서 호출됨)
+    //레벨업 로직 (UpgradeManager에서 호출됨)
     public override void LevelUp()
     {
         // 예시: 레벨업 시 총알 개수 증가 혹은 데미지 증가
