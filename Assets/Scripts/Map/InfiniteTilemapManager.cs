@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using Cinemachine;
 using Unity.VisualScripting;
+using Unity.Collections;
 
 [System.Serializable]
 public class MapTheme
@@ -45,12 +46,22 @@ public class InfiniteTilemapManager : MonoBehaviour
     private Vector2Int lastPlayerChunkCoord = Vector2Int.one * int.MaxValue;
     public MapChunkManager mapChunkManager;
     private int currentMapSeed;
-    private void Start()
+    [Header("Job System Grid Data")]
+    public NativeParallelHashMap<Vector2Int, byte> globalWallMap;
+    private void Awake()
     {
         Instance = this;
+        globalWallMap = new NativeParallelHashMap<Vector2Int, byte>(10000, Allocator.Persistent);
+    }
+    private void Start()
+    {
         player = GameObject.FindWithTag("Player").transform;
-
         //GenerateMap(mapThemes[0].themeName);
+    }
+    private void OnDestroy()
+    {
+        Instance = null;
+        if (globalWallMap.IsCreated) globalWallMap.Dispose();
     }
 
     private void Update()
@@ -100,7 +111,6 @@ public class InfiniteTilemapManager : MonoBehaviour
         BorderWall.transform.position = battleMapStartPosition;
 
         CinemachineVirtualCamera encounterCam = BorderWall.GetComponentInChildren<CinemachineVirtualCamera>();
-        
 
         if (encounterCam != null)
         {
@@ -120,6 +130,8 @@ public class InfiniteTilemapManager : MonoBehaviour
     public void ClearMap()
     {
         isMapActive = false;
+        globalWallMap.Clear();
+
         List<Vector2Int> allActiveCoords = activeChunks.Keys.ToList();
         foreach (Vector2Int coord in allActiveCoords)
         {
@@ -270,13 +282,24 @@ public class InfiniteTilemapManager : MonoBehaviour
 
         GenerateChunkContent(chunk, coord); //내용물 생성 로직 호출
         activeChunks.Add(coord, chunk);
+
+        TilemapGridChunk gridChunk = chunk.GetComponentInChildren<TilemapGridChunk>();
+        if (gridChunk != null)
+        {
+            gridChunk.RegisterWallsToGlobalMap();
+        }
     }
 
     private void UnloadChunk(Vector2Int coord)
     {
         if (activeChunks.TryGetValue(coord, out GameObject chunk))
         {
-            //Destroy 대신 리소스 풀에 반납
+            TilemapGridChunk gridChunk = chunk.GetComponentInChildren<TilemapGridChunk>();
+            if (gridChunk != null)
+            {
+                gridChunk.UnregisterWallsFromGlobalMap();
+            }
+
             ReturnChunkContentToPool(chunk); 
 
             chunk.SetActive(false);
@@ -285,12 +308,10 @@ public class InfiniteTilemapManager : MonoBehaviour
         }
     }
 
-    // Instantiate 대신 풀에서 가져오도록 변경
     private void GenerateChunkContent(GameObject chunk, Vector2Int chunkCoord)
     {
         if (currentTheme == null) return;
 
-        // 청크 좌표를 시드로 사용해 항상 동일한 내용물이 생성되도록 함
         System.Random random = new System.Random(chunkCoord.GetHashCode() ^ currentMapSeed);
 
         if (currentTheme.backgroundPrefab != null)

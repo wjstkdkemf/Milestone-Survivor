@@ -479,7 +479,6 @@ public class WaveSpawner : MonoBehaviour
     {
         if (WavesList[CurrentWave].RandomPostions)
         {
-            // out 매개변수는 함수 시작 시 초기화해야 합니다.
             spawnPosition = Vector3.zero;
 
             for (int i = 0; i < maxSpawnAttempts; i++)
@@ -504,12 +503,10 @@ public class WaveSpawner : MonoBehaviour
                 bool hitWall = false;
                 if (is2DGame)
                 {
-                    // 2D Physics 체크
                     hitWall = Physics2D.OverlapCircle(spawnPosition, spawnCheckRadius, wallLayerMask) != null;
                 }
                 else
                 {
-                    // 3D Physics 체크
                     hitWall = Physics.CheckSphere(spawnPosition, spawnCheckRadius, wallLayerMask);
                 }
 
@@ -518,11 +515,6 @@ public class WaveSpawner : MonoBehaviour
                     return true;
                 }
             }
-
-            // [수정] 최대 시도 횟수를 초과한 경우
-            //Debug.LogWarning($"Failed to find valid spawn position after {maxSpawnAttempts} attempts. Cancelling spawn.");
-
-            // 실패! false 반환
             return false;
         }
         else
@@ -580,6 +572,18 @@ public class WaveSpawner : MonoBehaviour
             {
                 navEnemy.OnNavMeshUpdated();
             }
+        }
+    }
+    public void GetNearbyEnemies(Vector3 pos, float radius, List<Enemy> result)
+    {
+        result.Clear();
+        float sqr = radius * radius;
+
+        foreach (var e in activeEnemiesList)
+        {
+            if (e == null) continue;
+            if ((e.transform.position - pos).sqrMagnitude < sqr)
+                result.Add(e);
         }
     }
 }

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-// 🚨 UnityEngine.AI 네임스페이스 삭제 완료 (NavMesh 완전 독립)
-
 public abstract class Enemy : MonoBehaviour, IDamageable
 {
     public enum EnemyState { Idle, Escape, Chasing, Attacking, Fleeing, Stunned, Dead }
@@ -43,8 +41,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     [SerializeField] protected Color currentStateColor;
     protected float duration = .1f;
     protected SpriteRenderer spriteRenderer;
-    protected Collider2D EnemyCollider2D;
-    private Rigidbody2D EnemyRigidbody2D; 
+    //protected Collider2D EnemyCollider2D;
+    //private Rigidbody2D EnemyRigidbody2D;
+    protected Vector3 velocity;
     protected Coroutine flashRoutine;
     
     [SerializeField] protected bool DontUseObjectPooling;
@@ -69,19 +68,16 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         { EnemyRarity.Normal, 1 }, { EnemyRarity.Magic, 100 }, { EnemyRarity.Rare, 200 }, { EnemyRarity.Boss, 500 }
     };
-
-    [Header("Soft Separation")]
-    public LayerMask enemyLayer; 
-    public float separationRadius = 0.5f; 
-    public float separationForce = 2.0f; 
-    
-    private Collider2D[] neighbors = new Collider2D[5];
-    private Vector3 cachedPushVector = Vector3.zero;
-    private float separationTimer = 0f;
-    
     protected float distanceCheckTimer = 0f;
     protected int stuckCount = 0;
     private Vector3 lastPosition = Vector3.zero;
+    public float separationWeight = 2.5f;
+    public float targetWeight = 1.0f;
+    public float maxForce = 10f;
+    public float neighborRadius = 1.2f;
+    public Vector2Int currentCell;
+
+    private static List<Enemy> nearbyEnemies = new List<Enemy>(32);
 
     void Awake()
     {
@@ -93,15 +89,15 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         {
             spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>(); 
             originalMaterial = spriteRenderer.material;      
-            EnemyCollider2D = GetComponent<Collider2D>();
-            EnemyRigidbody2D = GetComponent<Rigidbody2D>();
+            //EnemyCollider2D = GetComponent<Collider2D>();
+           // EnemyRigidbody2D = GetComponent<Rigidbody2D>();
         }
         else
         {
             spriteRenderer = GetComponent<SpriteRenderer>(); 
             originalMaterial = spriteRenderer.material;      
-            EnemyRigidbody2D = GetComponent<Rigidbody2D>();
-            EnemyCollider2D = GetComponent<Collider2D>();
+            //EnemyRigidbody2D = GetComponent<Rigidbody2D>();
+            //EnemyCollider2D = GetComponent<Collider2D>();
         }
         
         defaultColor = spriteRenderer.color;
@@ -113,10 +109,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     protected virtual void OnEnable()
     {
-        if (EnemyRigidbody2D != null) 
-        {
-            EnemyRigidbody2D.simulated = true; 
-        }
+       // if (EnemyRigidbody2D != null) 
+       // {
+       //     EnemyRigidbody2D.simulated = true; 
+       // }
 
         health = maxhealth;
         currentNormalState = EnemyState.Chasing;
@@ -128,12 +124,14 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         lastPosition = transform.position;
         stuckCount = 0;
         distanceCheckTimer = Random.Range(0.0f, checkInterval);
-        separationTimer = Random.Range(0.0f, 0.25f);
 
         ResetStatusEffects();
 
         if (WaveSpawner.Instance != null)
             WaveSpawner.Instance.RegisterEnemy(this);
+
+        if (EnemySwarmSystem.Instance != null)
+            EnemySwarmSystem.Instance.RegisterEnemy(this);
     }
 
     public virtual void OnDisable()
@@ -152,7 +150,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         if (WaveSpawner.Instance != null)
             WaveSpawner.Instance.UnregisterEnemy(this);
+
+        if (EnemySwarmSystem.Instance != null)
+            EnemySwarmSystem.Instance.UnregisterEnemy(this);
     }
+    public float GetKnockBackTime() { return knockBackTime; }
+    public float GetSpeed() { return speed; }
 
     protected virtual void RepositionEnemy()
     {
@@ -213,8 +216,33 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         HandleDistanceCheck(distanceSqrToPlayer);
         DetermineState(distanceSqrToPlayer);
-        HandleMovement(distanceSqrToPlayer, delta);
+        //HandleMovement(distanceSqrToPlayer, delta);
         
+        //transform.position += velocity * Time.deltaTime;
+        //GridManager.Instance.UpdateCell(this);
+        HandleAction(delta);
+    }
+    protected virtual void HandleAction(Vector3 delta)
+    {
+        // 넉백 처리 (이것은 Job이 아니라 여기서 직접 처리합니다)
+        if (knockBackTime > 0 && !CantBeKnocked)
+        {
+            float finalKnockBack = knockBackForce * (1 + PlayerStats.Instance.KnockBackBonus);
+            Vector3 knockbackDir = -delta.normalized;
+            transform.position += knockbackDir * finalKnockBack * Time.deltaTime;
+            return;
+        }
+
+        switch (currentNormalState)
+        {
+            case EnemyState.Attacking:
+                if (coolDownTimer <= 0)
+                {
+                    Attack();
+                    coolDownTimer = coolDown;
+                }
+                break;
+        }
     }
 
     protected virtual void UpdateFacingDirection(Vector3 delta)
@@ -247,64 +275,53 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-protected virtual void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
+    protected virtual void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
     {
         if (knockBackTime > 0 && !CantBeKnocked)
         {
             float finalKnockBack = knockBackForce * (1 + PlayerStats.Instance.KnockBackBonus);
             Vector3 knockbackDir = -delta.normalized;
-            EnemyRigidbody2D.velocity = knockbackDir * finalKnockBack;
-            return; 
+            velocity = knockbackDir * finalKnockBack;
+            return;
         }
 
         switch (currentNormalState)
         {
             case EnemyState.Chasing:
-                Vector3 targetDirection = delta.normalized;
-                Vector3 randomWobble = new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(-0.3f, 0.3f), 0f);
-                Vector3 swarmDirection = (targetDirection + randomWobble).normalized;
+            {
+                Vector3 targetDir = delta.normalized;
 
-                EnemyRigidbody2D.velocity = swarmDirection * speed;
+                Vector3 separation = ComputeSeparation();
+
+                Vector3 finalDir = targetDir * targetWeight + separation * separationWeight;
+
+                Vector3 desiredVelocity = finalDir.normalized * speed;
+
+                velocity = Vector3.Lerp(velocity, desiredVelocity, Time.deltaTime * 6f);
                 break;
+            }
 
             case EnemyState.Attacking:
-                EnemyRigidbody2D.velocity = Vector3.zero; 
+            {
+                velocity = Vector3.zero;
+
                 if (coolDownTimer <= 0)
                 {
                     Attack();
                     coolDownTimer = coolDown;
                 }
                 break;
+            }
 
             case EnemyState.Idle:
-                EnemyRigidbody2D.velocity = Vector3.Lerp(EnemyRigidbody2D.velocity, Vector3.zero, Time.deltaTime * 5f);
-                break;
-        }
-
-        if (EnemyRigidbody2D.velocity.sqrMagnitude > 0.1f)
-            lastVelocity = EnemyRigidbody2D.velocity;
-    }
-
-    protected Vector3 GetSoftSeparationVector()
-    {
-        int count = Physics2D.OverlapCircleNonAlloc(transform.position, separationRadius, neighbors, enemyLayer);
-        Vector3 pushVector = Vector3.zero;
-
-        for (int i = 0; i < count; i++)
-        {
-            if (neighbors[i].gameObject == this.gameObject) continue;
-
-            Vector3 diff = transform.position - neighbors[i].transform.position;
-            float sqrDist = diff.sqrMagnitude; 
-
-            if (sqrDist > 0.0001f && sqrDist < separationRadius * separationRadius)
             {
-                float dist = Mathf.Sqrt(sqrDist);
-                float pushStrength = 1.0f - (dist / separationRadius); 
-                pushVector += diff.normalized * pushStrength;
+                velocity = Vector3.Lerp(velocity, Vector3.zero, Time.deltaTime * 5f);
+                break;
             }
         }
-        return pushVector;
+
+        if (velocity.sqrMagnitude > 0.1f)
+            lastVelocity = velocity;
     }
 
     public abstract void Attack();
@@ -335,10 +352,10 @@ protected virtual void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
     {
         currentNormalState = EnemyState.Dead;
 
-        if (EnemyRigidbody2D != null) 
-        {
-            EnemyRigidbody2D.simulated = false; 
-        }
+        //if (EnemyRigidbody2D != null) 
+        //{
+          //  EnemyRigidbody2D.simulated = false; 
+        //}
         GameManager.Instance.NumberOfKills++;
 
         LootDrop lootDrop = GetComponent<LootDrop>();
@@ -409,6 +426,30 @@ protected virtual void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
         speed = baseSpeed;
         currentStateColor = defaultColor;
         if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+    }
+    Vector3 ComputeSeparation()
+    {
+        GridManager.Instance.GetNearby(transform.position, nearbyEnemies);
+
+        Vector3 force = Vector3.zero;
+
+        foreach (var other in nearbyEnemies)
+        {
+            if (other == this) continue;
+
+            Vector3 diff = transform.position - other.transform.position;
+            float sqrDist = diff.sqrMagnitude;
+
+            if (sqrDist < neighborRadius * neighborRadius && sqrDist > 0.0001f)
+            {
+                float dist = Mathf.Sqrt(sqrDist);
+                float push = 1.0f - (dist / neighborRadius);
+
+                force += diff.normalized * push;
+            }
+        }
+
+        return force;
     }
 }
 [System.Serializable]
