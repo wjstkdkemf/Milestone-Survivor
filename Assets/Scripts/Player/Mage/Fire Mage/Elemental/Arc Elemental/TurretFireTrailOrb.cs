@@ -24,7 +24,7 @@ public class TurretFireTrailOrb : FireTrailOrb
     }
 
     // [핵심 설명] 부모의 Update(장판 생성, 타격 연산)를 실행한 뒤, 미사일 발사 타이머를 돌립니다.
-    protected override void Update()
+    /*protected override void Update()
     {
         base.Update(); // 중요: 부모의 장판 쿨타임과 ZoneDamage 로직이 여기서 실행됨
 
@@ -34,7 +34,7 @@ public class TurretFireTrailOrb : FireTrailOrb
             TryFireProjectile();
             fireTimer = fireRate;
         }
-    }
+    }*/
 
     private void TryFireProjectile()
     {
@@ -48,7 +48,7 @@ public class TurretFireTrailOrb : FireTrailOrb
         // 3. 미사일 설정 (TurretBullet 스크립트에 타겟 주입)
         if (bullet.TryGetComponent<TurretBullet>(out var turretBullet))
         {
-            turretBullet.EnemyPosition = target;
+            //turretBullet.EnemyPosition = target;
         }
 
         // 4. 미사일 데미지 설정 (DoDamage 스크립트)

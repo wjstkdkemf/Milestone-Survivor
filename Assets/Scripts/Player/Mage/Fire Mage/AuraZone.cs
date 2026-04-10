@@ -1,56 +1,78 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class AuraZone : ZoneDamageArea
+
+public class AuraZone : SkillProjectileBase
 {
+private float tickRate;
     private bool applySlow;
     private float slowPercentage;
+    
+    private float damageTimer;
+    private float slowRefreshTimer;
 
-    // 무기 관리자에서 호출하여 오라 정보 주입
-    public void SetAuraInfo(float rate, float damage, bool doSlow, float slowPct)
+    // 가비지 생성을 막기 위한 인덱스 바구니
+    private List<int> enemiesInsideIndices = new List<int>(100);
+
+    // 💡 투사체의 Fire() 대신 오라에 맞는 셋업 함수를 만듭니다.
+    public void SetupAura(float rate, float dmg, float rad, bool doSlow, float slowPct)
     {
+        this.damage = dmg;
+        this.hitRadius = rad;
+        this.maxHits = -1;
+
         this.tickRate = rate;
         this.applySlow = doSlow;
         this.slowPercentage = slowPct;
 
-        if (damageComponent != null)
-        {
-            damageComponent.damage = damage;
-            // 오라는 무한 지속이므로 파괴 옵션을 끕니다.
-            damageComponent.selfDestroy = false;
-            damageComponent.destroyAfterHit = false; 
-        }
+        this.damageTimer = 0f;
+        this.slowRefreshTimer = 0f;
     }
 
-    // 영역에 들어왔을 때 (슬로우 부여)
-    protected override void OnTriggerEnter2D(Collider2D collision)
+    protected virtual void Update()
     {
-        base.OnTriggerEnter2D(collision); // 부모 로직(명단 추가) 먼저 실행
+        bool timeToDamage = (damageTimer -= Time.deltaTime) <= 0f;
+        bool timeToSlow = applySlow && (slowRefreshTimer -= Time.deltaTime) <= 0f;
 
-        if (applySlow)
+        if (!timeToDamage && !timeToSlow) return;
+
+        EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, hitRadius, enemiesInsideIndices);
+
+        for (int i = 0; i < enemiesInsideIndices.Count; i++)
         {
-            // 몬스터의 이동 스크립트를 가져와서 슬로우를 겁니다.
-            // (주의: 님의 프로젝트에 있는 실제 몬스터 스크립트 이름으로 변경해야 합니다!)
-            
-            if (collision.TryGetComponent<Enemy>(out var enemyMove))
+            int enemyIdx = enemiesInsideIndices[i];
+            if (enemyIdx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
+
+            Enemy target = EnemySwarmSystem.Instance.activeEnemies[enemyIdx];
+
+            if (target == null || target.currentNormalState == Enemy.EnemyState.Dead) continue;
+
+            if (timeToSlow)
             {
-                enemyMove.ApplySlow(slowPercentage);
+                target.ApplySlow(slowPercentage, 0.2f); 
+            }
+
+            if (timeToDamage)
+            {
+                if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[enemyIdx])
+                {
+                    target.TakeDamage(damage);
+                    EnemySwarmSystem.Instance.nextHitTimes[enemyIdx] = Time.time + 0.1f; 
+                }
             }
         }
+
+        // 타이머 리셋
+        if (timeToDamage) damageTimer = tickRate;
+        if (timeToSlow) slowRefreshTimer = 0.1f; 
     }
 
-    // 영역에서 나갔을 때 (슬로우 해제)
-    protected override void OnTriggerExit2D(Collider2D collision)
-    {
-        base.OnTriggerExit2D(collision); // 부모 로직(명단 제거) 먼저 실행
+    // 오라는 Job System의 OnHit을 안 쓸 수도 있으므로 빈 함수로 오버라이드
+    public override void OnHit(Enemy hitEnemy) { }
 
-        if (applySlow)
-        {
-            // 영역에서 벗어나면 원래 속도로 복구합니다.
-            
-            if (collision.TryGetComponent<Enemy>(out var enemyMove))
-            {
-                enemyMove.ResetStatusEffects();
-            }
-        }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(0.5f, 1f, 0f, 0.3f);
+        Gizmos.DrawSphere(transform.position, hitRadius);
     }
 }

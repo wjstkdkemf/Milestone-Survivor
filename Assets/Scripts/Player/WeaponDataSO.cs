@@ -18,6 +18,11 @@ public class WeaponDataSO : ScriptableObject
     [Header("밸런스 데이터 (선택사항)")]
     public float baseDamage;
     public float baseCooldown;
+    [Header("Job System 물리 데이터 (핵심)")]
+    public float hitRadius = 0.5f;  // 충돌 반경
+    public int maxHits = 1;         // 관통 횟수 (-1: 무한, 1: 단일 타격)
+    public float projectileSpeed = 5f; // 투사체 속도
+
     [Header("융합 스킬 정보")]
     public List<WeaponDataSO> fusionWeaponData;
     // 필요한 데이터들을 여기에 추가하면 기획자가 밸런스 잡기 좋습니다.

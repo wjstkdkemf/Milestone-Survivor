@@ -4,7 +4,6 @@ public class AuraWeapon : WeaponBase
 {
     // [런타임 상태 변수]
     private float currentRadius;
-    private float currentBaseDamage;
     private float currentTickRate;
     private bool applySlow;
     private float slowPercentage;
@@ -20,7 +19,7 @@ public class AuraWeapon : WeaponBase
         {
             currentRadius = auraData.baseRadius;
             currentTickRate = auraData.tickRate;
-            currentBaseDamage = auraData.baseDamage;
+            currentDamage = auraData.baseDamage;
             applySlow = auraData.applySlow;
             slowPercentage = auraData.slowPercentage;
 
@@ -31,7 +30,7 @@ public class AuraWeapon : WeaponBase
                 auraScript = auraInstance.GetComponent<AuraZone>();
                 if (auraScript != null)
                 {
-                    auraScript.SetAuraInfo(currentTickRate, GetDamage(), applySlow, slowPercentage);
+                    auraScript.SetupAura(currentTickRate, GetDamage(), currentRadius, applySlow, slowPercentage);
                 }
 
                 UpdateAuraSize();
@@ -55,17 +54,14 @@ public class AuraWeapon : WeaponBase
     // 데미지 계산식
     public float GetDamage()
     {
-        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return currentBaseDamage + bonus; // 필요시 계수(Scaling) 추가 가능
+        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
+        return currentDamage + bonus;
     }
 
-    // [핵심] 오라 크기 변경 로직
     private void UpdateAuraSize()
     {
         if (auraInstance != null)
         {
-            // localScale을 조절하면, 오라 프리팹에 있는 Collider2D의 반경과
-            // 시각적 이펙트(Particle, Sprite 등)의 크기가 동시에 커집니다.
             auraInstance.transform.localScale = new Vector3(currentRadius, currentRadius, 1f);
         }
     }
@@ -73,18 +69,13 @@ public class AuraWeapon : WeaponBase
     // 레벨업 시 범위와 데미지 증가
     public override void LevelUp()
     {
-        currentBaseDamage += 2f;    // 데미지 증가
-        currentRadius += 1.5f;      // 반경(크기) 증가!
+        currentDamage += 2f;
+        currentRadius += 1.5f;
 
-        // 변경된 데미지 오라에 실시간 갱신
         if (auraScript != null)
         {
-            auraScript.SetAuraInfo(currentTickRate, GetDamage(), applySlow, slowPercentage);
+            auraScript.SetupAura(currentTickRate, GetDamage(), currentRadius, applySlow, slowPercentage);
         }
-        
-        // 커진 반경 적용
         UpdateAuraSize();
-
-        Debug.Log($"[Aura Level Up] 데미지: {currentBaseDamage}, 반경: {currentRadius}");
     }
 }

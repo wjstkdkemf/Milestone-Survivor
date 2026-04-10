@@ -1,65 +1,102 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class Meteor : MonoBehaviour
+public class Meteor : SkillProjectileBase
 {
     [Header("Impact")]
     public float impactRadius = 4f; 
-    public int damage = 100;
     public float fallSpeed = 20f;
+    public float warningDuration = 1f;
 
     [Header("Effects")]
     public GameObject explosionPrefab;
-
+    public GameObject magicCirclePrefab;
     private Vector3 targetPosition;
+    private GameObject activeMagicCircle;
 
-    void Start()
+    private int state = 0; 
+    private float timer = 0f;
+    private List<int> enemiesHitIndices = new List<int>(100);
+
+    public void Fire(Vector3 targetPos, float meteorDamage, float expRadius)
     {
-        targetPosition = new Vector3(transform.position.x, transform.position.y - 15f, transform.position.z);
+        this.damage = meteorDamage;
+        this.impactRadius = expRadius;
+        
+        this.hitRadius = 0f; 
+        this.maxHits = 0;    
+
+        this.targetPosition = targetPos;
+        
+        transform.position = targetPosition + new Vector3(0, 15f, 0);
+
+        if (magicCirclePrefab != null)
+        {
+            activeMagicCircle = ObjectPoolingManager.Instance.spawnGameObject(magicCirclePrefab, targetPosition, Quaternion.identity);
+        }
+        
+
+        state = 0;
+        timer = warningDuration;
     }
 
-    void Update()
+    // 부모의 이동 로직(Update)을 메테오 전용 낙하 로직으로 덮어씌웁니다.
+    protected virtual void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, fallSpeed * Time.deltaTime);
-
-        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        if (state == 0) // 경고 단계
         {
-            Explode();
+            timer -= Time.deltaTime;
+            if (timer <= 0)
+            {
+                if (activeMagicCircle != null) ObjectPoolingManager.Instance.ReturnObjectToPool(activeMagicCircle);
+                state = 1; // 낙하 시작
+            }
+        }
+        else if (state == 1) // 낙하 단계
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, fallSpeed * Time.deltaTime);
+
+            // 땅(목표 좌표)에 닿으면 폭발!
+            if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+            {
+                Explode();
+            }
         }
     }
 
     void Explode()
     {
-        // 1. Instantiate explosion visual effect
         if (explosionPrefab != null)
         {
-            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+            ObjectPoolingManager.Instance.spawnGameObject(explosionPrefab, targetPosition, Quaternion.identity);
         }
 
-        // 2. Create a new GameObject for the damage area
-        GameObject damageArea = new GameObject("MeteorDamageArea");
-        damageArea.transform.position = transform.position;
+        EnemySwarmSystem.Instance.GetEnemiesInRadius(targetPosition, impactRadius, enemiesHitIndices);
 
-        // 3. Add and configure the CircleCollider2D for the explosion radius
-        CircleCollider2D collider = damageArea.AddComponent<CircleCollider2D>();
-        collider.radius = impactRadius;
-        collider.isTrigger = true;
+        for (int i = 0; i < enemiesHitIndices.Count; i++)
+        {
+            int idx = enemiesHitIndices[i];
+            
+            if (idx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
+            Enemy target = EnemySwarmSystem.Instance.activeEnemies[idx];
+            if (target == null || target.currentNormalState == Enemy.EnemyState.Dead) continue;
 
-        // 4. Add and configure the DoDamage script
-        DoDamage doDamage = damageArea.AddComponent<DoDamage>();
-        doDamage.damage = this.damage; // Pass the meteor's damage value
-        doDamage.damageEnemy = true;
-        doDamage.damagePlayer = false;
-        doDamage.selfDestroy = true;      // The damage area should destroy itself
-        doDamage.lifeTime = 0.1f;         // It only needs to exist for a moment to apply damage
-        doDamage.IsUsingObjetPooling = false;
+            if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[idx])
+            {
+                target.TakeDamage(damage);
+                EnemySwarmSystem.Instance.nextHitTimes[idx] = Time.time + 0.1f;
+            }
+        }
+        Debug.Log("폭발!");
 
-        // 5. Destroy the meteor itself
-        Destroy(gameObject);
+        ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
     }
+
+    public override void OnHit(Enemy hitEnemy) { }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, impactRadius);
+        Gizmos.DrawWireSphere(targetPosition, impactRadius);
     }
 }

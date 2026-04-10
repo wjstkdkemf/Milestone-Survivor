@@ -51,6 +51,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected Vector3 lastVelocity;
     protected Color defaultColor = Color.white;
     protected AnimState currentState = AnimState.Run;
+    private float slowEndTime = 0f;       // 슬로우가 끝나는 시간
+    private float currentSlowPercent = 0f;
+    private bool isSlowed = false;        // 현재 슬로우 상태인지 여부
 
     [Header("Reposition Settings")]
     [SerializeField] protected float checkInterval = 2.0f; 
@@ -211,6 +214,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         Vector3 delta = player.position - transform.position;
         UpdateFacingDirection(delta);
+        CheckStatusEffects();
 
         float distanceSqrToPlayer = delta.sqrMagnitude;
 
@@ -381,48 +385,39 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         flashRoutine = null;
     }
 
-    public virtual void ApplySlow(float slowPercent)
-    {
-        if (I_frame || currentNormalState == EnemyState.Dead || health <= 0) return;
-
-        if (slowCoroutine != null) StopCoroutine(slowCoroutine);
-
-        float multiplier = 1f - Mathf.Clamp01(slowPercent);
-        speed = baseSpeed * multiplier;
-        
-        currentStateColor = new Color(0.5f, 0.5f, 1f);
-        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
-    }
-
     public virtual void ApplySlow(float slowPercent, float duration)
     {
         if (I_frame || currentNormalState == EnemyState.Dead || health <= 0) return;
 
-        if (slowCoroutine != null) StopCoroutine(slowCoroutine);
+        currentSlowPercent = Mathf.Clamp01(slowPercent);
+        slowEndTime = Time.time + duration; 
 
-        slowCoroutine = StartCoroutine(SlowRoutine(slowPercent, duration));
+        if (!isSlowed)
+        {
+            isSlowed = true;
+            currentStateColor = new Color(0.5f, 0.5f, 1f);
+            if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
+        }
     }
-
-    private IEnumerator SlowRoutine(float slowPercent, float duration)
+    private void CheckStatusEffects()
     {
-        float multiplier = 1f - Mathf.Clamp01(slowPercent);
-        speed = baseSpeed * multiplier;
-        
-        currentStateColor = new Color(0.5f, 0.5f, 1f);
-        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
-
-        yield return new WaitForSeconds(duration);
-
-        ResetStatusEffects();
+        if (isSlowed)
+        {
+            // 아직 만료 시간이 안 지났다면? 속도를 깎아버립니다.
+            if (Time.time < slowEndTime)
+            {
+                speed = baseSpeed * (1f - currentSlowPercent);
+            }
+            // 시간이 지났다면? 원상 복구! (Exit 이벤트나 코루틴 종료 대기 필요 없음)
+            else
+            {
+                ResetStatusEffects();
+            }
+        }
     }
-
     public void ResetStatusEffects()
     {
-        if (slowCoroutine != null)
-        {
-            StopCoroutine(slowCoroutine);
-            slowCoroutine = null;
-        }
+        isSlowed = false;
         speed = baseSpeed;
         currentStateColor = defaultColor;
         if (spriteRenderer != null) spriteRenderer.color = currentStateColor;

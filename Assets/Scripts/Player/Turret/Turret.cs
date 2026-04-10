@@ -62,7 +62,7 @@ public class Turret : AttackBase
 
         if (bullet.GetComponent<TurretBullet>() != null)
         {
-            bullet.GetComponent<TurretBullet>().EnemyPosition = closestEnemyPosition;
+            //bullet.GetComponent<TurretBullet>().EnemyPosition = closestEnemyPosition;
         }
         
         if (bullet.GetComponent<DoDamage>() != null)

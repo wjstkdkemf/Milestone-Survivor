@@ -137,7 +137,7 @@ public class PlayerWeaponController : MonoBehaviour
         return false;
     }
 
-    void Update()
+    void LateUpdate()
     {
         // 내가 가진 무기들만 동작시킴
         foreach (var weapon in activeWeapons)

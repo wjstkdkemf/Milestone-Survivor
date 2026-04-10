@@ -4,178 +4,152 @@ using System.Collections.Generic;
 
 public class MeteorWeapon : WeaponBase
 {
-    // [런타임 상태 변수]
     private int currentMeteorNumber;
     private float currentCooldownTime;
-    private float warningDuration = 1f;
-    private float volleyDelay = 0.3f; 
-    private float currentScaling;
-    private float currentBaseDamage;
+    private float warningDuration;
+    private float volleyDelay; 
     private float searchRadius;
     private float densityCheckRadius;
 
-    // [내부 변수]
     private GameObject MeteorPrefab;
-    private GameObject magicCirclePrefab;
-    private LayerMask enemyLayerMask;
-    private float targetUpdateRate;
     
-    // 타이머 변수들
-    private float cooldownTimer;       // 공격 쿨타임 계산용
-    private float targetUpdateTimer;   // 타겟 검색 최적화용
-    private PlayerStats playerStats;   // 데미지 계산용
+    // 타이머 및 상태 변수
+    private float cooldownTimer; 
+    private float volleyTimer;
+    private int pendingMeteors = 0; // 아직 덜 쏜 메테오 개수
+    private List<Vector3> currentTargets = new List<Vector3>();
 
-    // 1. 초기화 (데이터 주입)
+    // 가비지 방지용 바구니
+    private List<int> searchResults = new List<int>(200);
+
     public override void Initialize(WeaponDataSO data)
     {
         if (data is MeteorWeaponSO MeteorData)
         {
-            // 데이터로부터 초기값 설정
             currentMeteorNumber = MeteorData.MeteorNumber;
             currentCooldownTime = MeteorData.baseCooldown;
-            cooldownTimer = currentCooldownTime;
             warningDuration = MeteorData.warningDuration;
             volleyDelay = MeteorData.volleyDelay;
             searchRadius = MeteorData.range;
             densityCheckRadius = MeteorData.densityCheckRadius;
-            currentScaling = MeteorData.playerDamageScaling;
-            currentBaseDamage = MeteorData.baseDamage; // 부모 SO의 데미지
-            
+            currentDamage = MeteorData.baseDamage;
             MeteorPrefab = MeteorData.MeteorPrefab;
-            magicCirclePrefab = MeteorData.magicCirclePrefab;
-            enemyLayerMask = MeteorData.enemyLayerMask;
-            targetUpdateRate = MeteorData.targetUpdateRate;
-
-            Debug.Log("MeteorWeaponDataSO 완료");
-        }
-        else
-        {
-            Debug.LogError("잘못된 데이터! MeteorWeaponDataSO가 필요합니다.");
-        }
-
-        if (PlayerStats.Instance != null)
-        {
-            playerStats = PlayerStats.Instance;
-        }
-        else
-        {
-            playerStats = GetComponentInParent<PlayerStats>();
+            
+            cooldownTimer = 0f; 
         }
     }
 
     public override void OnUpdate()
     {
-        if (cooldownTimer > 0)
+        if (pendingMeteors <= 0)
         {
-            cooldownTimer -= Time.deltaTime;
-        }
+            if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
 
-        if (cooldownTimer <= 0f)
-        {
-            ActivateMeteorStrike();
-        }
-    }
-    void ActivateMeteorStrike()
-    {
-        Collider2D[] enemiesInSearchRadius = Physics2D.OverlapCircleAll(transform.position, searchRadius, enemyLayerMask);
-
-        
-        if (enemiesInSearchRadius.Length == 0)
-        {
-            return;
-        }
-
-        cooldownTimer = currentCooldownTime;
-        
-        List<Vector3> targetPoints = FindTargetPoints(enemiesInSearchRadius);
-
-        StartCoroutine(LaunchMeteorVolley(targetPoints));
-    }
-
-    private List<Vector3> FindTargetPoints(Collider2D[] enemies)
-    {
-        List<Vector3> targets = new List<Vector3>();
-        List<Collider2D> potentialRandomTargets = new List<Collider2D>(enemies);
-
-        Vector3? densestPoint = FindDensestPoint(potentialRandomTargets.ToArray());
-        if (densestPoint.HasValue)
-        {
-            targets.Add(densestPoint.Value);
+            if (cooldownTimer <= 0f)
+            {
+                ActivateMeteorStrike();
+            }
         }
         else
         {
-            targets.Add(potentialRandomTargets[0].transform.position);
+            volleyTimer -= Time.deltaTime;
+            if (volleyTimer <= 0f)
+            {
+                FireSingleMeteor();
+            }
         }
+    }
+
+    void ActivateMeteorStrike()
+    {
+        // 물리 엔진 대신 초고속 광역 레이더 가동
+        EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, searchRadius, searchResults);
+
+        if (searchResults.Count == 0) return; // 주변에 적이 없음
+
+        FindTargetPoints(); // 타겟팅 좌표 계산
+
+        pendingMeteors = currentMeteorNumber;
+        volleyTimer = 0f; // 첫 발은 즉시 발사
+    }
+
+    private void FindTargetPoints()
+    {
+        currentTargets.Clear();
+
+        Vector3 densestPoint = GetDensestPoint();
+        currentTargets.Add(densestPoint);
 
         for (int i = 1; i < currentMeteorNumber; i++)
         {
-            if (potentialRandomTargets.Count > 0)
+            int randomIdx = searchResults[Random.Range(0, searchResults.Count)];
+            
+            if (randomIdx < EnemySwarmSystem.Instance.activeEnemies.Count)
             {
-                int randomIndex = Random.Range(0, potentialRandomTargets.Count);
-                targets.Add(potentialRandomTargets[randomIndex].transform.position);
-                potentialRandomTargets.RemoveAt(randomIndex);
+                Enemy randomEnemy = EnemySwarmSystem.Instance.activeEnemies[randomIdx];
+                if (randomEnemy != null) currentTargets.Add(randomEnemy.transform.position);
             }
             else
             {
-                targets.Add(densestPoint.Value);
+                currentTargets.Add(densestPoint); // 에러 시 밀집 지점으로 쏨
             }
         }
-
-        return targets;
     }
-    private Vector3? FindDensestPoint(Collider2D[] enemies)
-    {
-        if (enemies.Length == 0) return null;
 
+    private Vector3 GetDensestPoint()
+    {
         int maxDensity = 0;
-        Vector3 densestPoint = Vector3.zero;
+        Vector3 bestPoint = EnemySwarmSystem.Instance.activeEnemies[searchResults[0]].transform.position;
 
-        foreach (Collider2D enemyCollider in enemies)
+        int sampleCount = Mathf.Min(searchResults.Count, 5); 
+        List<int> densityResults = new List<int>(50);
+
+        for (int i = 0; i < sampleCount; i++)
         {
-            Collider2D[] enemiesInDensityRadius = Physics2D.OverlapCircleAll(enemyCollider.transform.position, densityCheckRadius, enemyLayerMask);
-            if (enemiesInDensityRadius.Length > maxDensity)
+            int randomIdx = searchResults[Random.Range(0, searchResults.Count)];
+            if (randomIdx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
+
+            Vector3 checkPos = EnemySwarmSystem.Instance.activeEnemies[randomIdx].transform.position;
+            
+            EnemySwarmSystem.Instance.GetEnemiesInRadius(checkPos, densityCheckRadius, densityResults);
+            
+            if (densityResults.Count > maxDensity)
             {
-                maxDensity = enemiesInDensityRadius.Length;
-                densestPoint = enemyCollider.transform.position;
+                maxDensity = densityResults.Count;
+                bestPoint = checkPos;
             }
         }
 
-        return maxDensity > 0 ? densestPoint : (Vector3?)enemies[0].transform.position;
+        return bestPoint;
     }
 
-    private IEnumerator LaunchMeteorVolley(List<Vector3> targets)
+    private void FireSingleMeteor()
     {
-        foreach (Vector3 target in targets)
+        Vector3 target = currentTargets[currentTargets.Count - pendingMeteors];
+
+        GameObject meteorObj = ObjectPoolingManager.Instance.spawnGameObject(MeteorPrefab, target, Quaternion.identity);
+        if (meteorObj != null && meteorObj.TryGetComponent<Meteor>(out var meteorSkill))
         {
-            StartCoroutine(MeteorImpactSequence(target));
-            yield return new WaitForSeconds(volleyDelay);
+            float finalDamage = currentDamage + (PlayerStats.Instance != null ? PlayerStats.Instance.DamageBonus : 0);
+            meteorSkill.Fire(target, finalDamage, currentHitRadius);
+            meteorSkill.warningDuration = this.warningDuration;
+        }
+
+        pendingMeteors--;
+
+        if (pendingMeteors > 0)
+        {
+            volleyTimer = volleyDelay;
+        }
+        else
+        {
+            cooldownTimer = currentCooldownTime; // 다 쐈으면 다시 무기 쿨타임 시작
         }
     }
 
-    private IEnumerator MeteorImpactSequence(Vector3 targetPoint)
-    {
-        GameObject circle = Instantiate(magicCirclePrefab, targetPoint, Quaternion.identity);
-        yield return new WaitForSeconds(warningDuration);
-        Destroy(circle);
-
-        Vector3 meteorSpawnPoint = targetPoint + new Vector3(0, 0, 0);
-        GameObject meteor = Instantiate(MeteorPrefab, meteorSpawnPoint, Quaternion.identity);
-        if (meteor.TryGetComponent<DoDamage>(out var damageComponent))
-        {
-            damageComponent.damage = GetDamage();//GetDamage();
-        }
-    }
-    public float GetDamage()
-    {
-        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return currentBaseDamage + (bonus * currentScaling);
-    }
     public override void LevelUp()
     {
-        // 예시: 레벨업 시 총알 개수 증가 혹은 데미지 증가
         currentMeteorNumber++;
-        currentBaseDamage += 2f;
-        
-        Debug.Log($"[Meteor Level Up] 총알: {currentMeteorNumber}, 데미지: {currentBaseDamage}");
+        currentDamage += 2f;
     }
 }

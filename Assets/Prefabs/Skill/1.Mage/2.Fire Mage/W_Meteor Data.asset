@@ -16,6 +16,9 @@ MonoBehaviour:
   upgradeData: {fileID: 11400000, guid: 9e190c724f5271947a7134d85564e176, type: 2}
   baseDamage: 3
   baseCooldown: 3
+  hitRadius: 2
+  maxHits: 1
+  projectileSpeed: 5
   fusionWeaponData: []
   MeteorNumber: 1
   range: 15
@@ -23,9 +26,5 @@ MonoBehaviour:
   targetUpdateRate: 0.5
   warningDuration: 0.3
   volleyDelay: 0.3
+  MeteorPrefab: {fileID: 5900696834571491212, guid: c260634eeb81b1844b3c56ce2715437f, type: 3}
   playerDamageScaling: 0.5
-  MeteorPrefab: {fileID: 6122877895079379237, guid: f7c2669d57d680049a9167789c95b257, type: 3}
-  magicCirclePrefab: {fileID: 1834663730095758510, guid: abee44e7975a322428df936b5fcd8d01, type: 3}
-  enemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 67133440

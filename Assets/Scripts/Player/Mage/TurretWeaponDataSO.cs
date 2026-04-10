@@ -14,5 +14,4 @@ public class TurretWeaponDataSO : WeaponDataSO
 
     [Header("Setup")]
     public GameObject bulletPrefab;       // 총알 프리팹
-    public LayerMask enemyLayerMask;      // 적 레이어
 }

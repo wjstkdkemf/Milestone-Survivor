@@ -3,8 +3,17 @@ using UnityEngine;
 public abstract class WeaponBase : MonoBehaviour
 {
     public WeaponDataSO myData;
-    // 무기 데이터(SO)를 받아서 초기화하는 함수
-    public abstract void Initialize(WeaponDataSO data);
+    protected float currentDamage;
+    protected float currentCooldown;
+    protected float currentHitRadius;
+    protected int currentMaxHits;
+    protected float currentProjectileSpeed;
+    public virtual void Initialize(WeaponDataSO data)
+    {   
+        currentHitRadius = data.hitRadius;
+        currentMaxHits = data.maxHits;
+        currentProjectileSpeed = data.projectileSpeed;
+    }
 
     // 플레이어의 Update에서 매 프레임 호출해줄 함수
     public abstract void OnUpdate();

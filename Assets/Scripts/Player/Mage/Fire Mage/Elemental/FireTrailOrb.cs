@@ -23,7 +23,7 @@ private GameObject trailPrefab;
     }
 
     // ZoneDamageArea의 Update를 오버라이드하여 장판 생성 로직 추가
-    protected override void Update()
+    /*protected override void Update()
     {
         // 부모(ZoneDamageArea)의 지속 데미지 로직 실행
         base.Update();
@@ -35,7 +35,7 @@ private GameObject trailPrefab;
             SpawnTrail();
             spawnTimer = spawnInterval; // 타이머 리셋
         }
-    }
+    }*/
 
     private void SpawnTrail()
     {

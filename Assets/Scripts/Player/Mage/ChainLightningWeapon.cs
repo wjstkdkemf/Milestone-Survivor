@@ -6,20 +6,16 @@ public class ChainLightningWeapon : WeaponBase
     // [런타임 상태 변수]
     private float currentCooldownTime;
     private float currentInitialRange;
-    private float currentProjectileSpeed;
     private int currentChainCount;
     private float currentChainRange;
     private float currentDamageReduction;
     private float currentBaseDamage;
     private float currentScaling;
 
-    // [내부 변수]
     private GameObject projectilePrefab;
-    private LayerMask enemyLayerMask;
     private float cooldownTimer;
     private PlayerStats playerStats;
 
-    // 1. 초기화
     public override void Initialize(WeaponDataSO data)
     {
         if (data is ChainLightningDataSO lightningData)
@@ -34,7 +30,6 @@ public class ChainLightningWeapon : WeaponBase
             currentScaling = lightningData.playerDamageScaling;
 
             projectilePrefab = lightningData.projectilePrefab;
-            enemyLayerMask = lightningData.enemyLayerMask;
         }
         else
         {
@@ -46,10 +41,9 @@ public class ChainLightningWeapon : WeaponBase
         else
              playerStats = GetComponentInParent<PlayerStats>();
 
-        cooldownTimer = 0f; // 시작하자마자 쏠 수 있게 0으로 초기화
+        cooldownTimer = 0f; 
     }
 
-    // 2. 매 프레임 실행
     public override void OnUpdate()
     {
         if (cooldownTimer > 0)
@@ -65,64 +59,26 @@ public class ChainLightningWeapon : WeaponBase
 
     private void TryAttack()
     {
-        // 가장 가까운 첫 번째 타겟 찾기 (TurretWeapon 로직 재사용)
-        Transform closestTarget = FindClosestEnemy(transform.position, currentInitialRange);
+        Enemy firstTarget = EnemySwarmSystem.Instance.GetClosestEnemy(transform.position, currentInitialRange);
 
-        if (closestTarget != null)
+        if (firstTarget != null)
         {
-            FireFirstLightning(closestTarget);
+            FireFirstLightning(firstTarget);
             cooldownTimer = currentCooldownTime;
         }
     }
 
-    private void FireFirstLightning(Transform target)
+    private void FireFirstLightning(Enemy target)
     {
-        // 첫 발사체 생성
-        GameObject lightning = ObjectPoolingManager.Instance.spawnGameObject(projectilePrefab, transform.position, Quaternion.identity);
-        if (lightning == null)
-        {
-            // 게임이 멈췄거나, 풀링 매니저 오류 등으로 생성이 안 된 경우입니다.
-            return; 
-        }
+        GameObject lightningObj = ObjectPoolingManager.Instance.spawnGameObject(
+            projectilePrefab, transform.position, Quaternion.identity
+        );
 
-        // 데미지 계산 및 설정 (DoDamage 스크립트)
-        float finalDamage = GetDamage();
-        if (lightning.TryGetComponent<DoDamage>(out var damageComponent))
+        if (lightningObj != null && lightningObj.TryGetComponent<ChainLightningProjectile>(out var chainSkill))
         {
-            damageComponent.damage = finalDamage;//finalDamage
+            float finalDamage = GetDamage();
+            chainSkill.Fire(target, finalDamage, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction);
         }
-
-        // 체인 로직 설정 (새로운 스크립트)
-        if (lightning.TryGetComponent<ChainLightningProjectile>(out var chainComponent))
-        {
-            // 이미 맞은 적을 기록할 리스트 생성 (이번 체인 공격 동안 공유됨)
-            HashSet<GameObject> visitedTargets = new HashSet<GameObject>();
-            
-            // 첫 타겟 정보 주입
-            chainComponent.Setup(target, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction, enemyLayerMask, visitedTargets, lightning);
-        }
-    }
-
-    // 가장 가까운 적 찾는 함수 (재사용성을 위해 분리)
-    private Transform FindClosestEnemy(Vector3 center, float range)
-    {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(center, range, enemyLayerMask);
-        Transform closestEnemy = null;
-        float closestDistanceSqr = Mathf.Infinity;
-
-        foreach (Collider2D hit in hitColliders)
-        {
-            if (hit.TryGetComponent<IDamageable>(out _))
-            {
-                float distanceToEnemySqr = (hit.transform.position - center).sqrMagnitude;
-                if (distanceToEnemySqr < closestDistanceSqr)
-                {
-                    closestDistanceSqr = distanceToEnemySqr;
-                    closestEnemy = hit.transform;
-                }
-            }
-        }
-        return closestEnemy;
     }
     
     public float GetDamage()
@@ -133,9 +89,8 @@ public class ChainLightningWeapon : WeaponBase
 
     public override void LevelUp()
     {
-        // 예시: 레벨업 시 데미지 증가 및 튕기는 횟수 증가
         currentBaseDamage += 3f;
-        if (currentChainCount < 5) // 최대 5번까지만 증가
+        if (currentChainCount < 5) 
             currentChainCount++;
         Debug.Log($"[Chain Lightning Level Up] 데미지: {currentBaseDamage}, 체인 횟수: {currentChainCount}");
     }

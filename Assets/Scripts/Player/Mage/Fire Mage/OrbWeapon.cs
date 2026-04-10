@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class OrbWeapon : WeaponBase // 부모 클래스 변경
 {
-    // [런타임 상태 변수] (게임 중에 변할 수 있는 값들)
     private int currentOrbCount;
     private float currentRadius;
     private float currentRotationSpeed;
-    private float currentDamage;
     private float currentScaling = 1.0f;
 
-    // [내부 변수]
+    
     private GameObject orbPrefab; // 작은 구체 프리팹
     protected List<GameObject> spawnedOrbs = new List<GameObject>();
     private float angleStep;
@@ -21,14 +19,15 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     // 초기화: 플레이어가 무기를 획득했을 때 딱 1번 실행됨
     public override void Initialize(WeaponDataSO data)
     {
-        // 1. 데이터 가져오기 (다운캐스팅 사용)
-        // "너 일반 무기 데이터 아니고, Orb 전용 데이터 맞지?"
         if (data is OrbWeaponDataSO orbData)
         {
             currentOrbCount = orbData.orbCount;
             currentRadius = orbData.radius;
             currentRotationSpeed = orbData.rotationSpeed;
             currentDamage = orbData.baseDamage; // 부모 SO에 있는 데미지
+
+            currentHitRadius = orbData.hitRadius;
+
             orbPrefab = orbData.orbProjectilePrefab;
         }
         else
@@ -46,19 +45,14 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
             // 만약 싱글톤이 아니라면 부모에서 찾기
             playerStats = GetComponentInParent<PlayerStats>();
         }
-
-        // 2. 구체 생성 시작
         SpawnOrbs();
     }
 
     // 플레이어 컨트롤러가 매 프레임 호출해줌
     public override void OnUpdate()
     {
-        // 기존의 OrbitOrbs 로직을 여기서 실행
         OrbitOrbs();
     }
-
-    // --- 아래는 기존 로직을 거의 그대로 사용 ---
 
     void SpawnOrbs()
     {
@@ -70,44 +64,44 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
 
         for (int i = 0; i < currentOrbCount; i++)
         {
+            GameObject orb = Instantiate(orbPrefab, transform.position, Quaternion.identity, transform);
+            
             float angle = i * angleStep;
-            Vector3 orbPosition = GetOrbPosition(angle);
+            orb.transform.localPosition = GetOrbPosition(angle);
             
-            // transform은 이제 Player 밑에 붙은 "OrbWeapon" 오브젝트가 됨
-            GameObject orb = Instantiate(orbPrefab, orbPosition, Quaternion.identity, transform);
-            
-            // 데미지 정보 전달
-            // (IceOrb 스크립트가 있다면 그대로 사용)
             SetupSpawnedOrb(orb);
             spawnedOrbs.Add(orb);
         }
     }
-    protected virtual void SetupSpawnedOrb(GameObject orb)
-{
-    var OrbScript = orb.GetComponent<Orb>();
-    if(OrbScript != null)
-        OrbScript.SetInfo(GetDamage(), 0);
-}
-
     Vector3 GetOrbPosition(float angle)
     {
         float angleInRadians = angle * Mathf.Deg2Rad;
         float x = Mathf.Cos(angleInRadians) * currentRadius;
         float y = Mathf.Sin(angleInRadians) * currentRadius;
-        
-        // transform.position은 이 무기(플레이어의 자식)의 위치 = 플레이어 위치
+
         return new Vector3(x, y, 0) + transform.position;
     }
-
+    protected virtual void SetupSpawnedOrb(GameObject orb)
+    {
+        if (orb.TryGetComponent<Orb>(out var orbScript))
+        {
+            orbScript.SetInfo(GetDamage(), currentHitRadius, 0);
+        }
+    }
     void OrbitOrbs()
     {
-        // 굳이 FixedUpdate 아니어도 Time.deltaTime 쓰면 Update에서도 부드러움
-        for (int i = 0; i < spawnedOrbs.Count; i++)
+       for (int i = 0; i < spawnedOrbs.Count; i++)
+
         {
+
             if (spawnedOrbs[i] == null) continue;
 
+
+
             float angle = (i * angleStep) + Time.time * currentRotationSpeed;
+
             spawnedOrbs[i].transform.position = GetOrbPosition(angle);
+
         }
     }
 
@@ -115,12 +109,11 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     {
         foreach (GameObject orb in spawnedOrbs)
         {
-            if (orb != null) Destroy(orb);
+            if (orb != null) ObjectPoolingManager.Instance.ReturnObjectToPool(orb);
         }
         spawnedOrbs.Clear();
     }
 
-    // --- 업그레이드 시스템을 위한 함수들 ---
 
     public void UpgradeOrbCount(int amount)
     {
@@ -131,7 +124,6 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     public void UpgradeRadius(float amount)
     {
         currentRadius += amount;
-        // 반경은 실시간 반영되므로 재소환 안 해도 됨 (OrbitOrbs에서 계산함)
     }
 
     public void UpgradeSpeed(float amount)

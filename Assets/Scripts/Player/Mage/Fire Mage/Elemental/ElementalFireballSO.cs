@@ -8,7 +8,6 @@ public class ElementalFireballSO : WeaponDataSO
     [Header("Fireball Stats")]
     public int bulletNumber = 1;
     public float range = 10f;
-    public float projectileSpeed = 12f;
 
     [Header("Trail Stats (장판 설정)")]
     [Tooltip("장판 데미지 계수 (기본 데미지의 몇 %인가)")]

@@ -6,8 +6,6 @@ public class ChainLightningDataSO : WeaponDataSO
     [Header("Chain Lightning Specific Stats")]
     [Tooltip("첫 타겟 감지 사거리")]
     public float initialRange = 8f;
-    [Tooltip("투사체 속도")]
-    public float projectileSpeed = 15f;
 
     [Header("Chain Settings")]
     [Tooltip("최대 튕기는 횟수 (0이면 안 튕김)")]
@@ -24,5 +22,4 @@ public class ChainLightningDataSO : WeaponDataSO
     [Header("Setup")]
     [Tooltip("번개 투사체 프리팹 (DoDamage와 ChainLightningProjectile 스크립트 필요)")]
     public GameObject projectilePrefab;
-    public LayerMask enemyLayerMask;
 }

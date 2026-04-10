@@ -10,12 +10,8 @@ public class MeteorWeaponSO : WeaponDataSO
     public float targetUpdateRate = 0.5f; // 타겟 검색 주기
     public float warningDuration = 1f;
     public float volleyDelay = 0.3f; 
+    public GameObject MeteorPrefab;
     
     [Header("Damage Settings")]
     public float playerDamageScaling = 0.5f; // 플레이어 스탯 반영 비율
-
-    [Header("Setup")]
-    public GameObject MeteorPrefab;       // 메테오 프리팹
-    public GameObject magicCirclePrefab;
-    public LayerMask enemyLayerMask;      // 적 레이어
 }
