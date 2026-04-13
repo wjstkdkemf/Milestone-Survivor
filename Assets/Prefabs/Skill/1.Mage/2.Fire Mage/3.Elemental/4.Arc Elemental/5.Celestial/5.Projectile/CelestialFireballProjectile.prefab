@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4045507284854842012}
   - component: {fileID: -1501901058758695241}
   - component: {fileID: 2226643801509040657}
-  - component: {fileID: 1676340146581784900}
   - component: {fileID: 1415712307777737905}
   m_Layer: 0
   m_Name: CelestialFireballProjectile
@@ -182,38 +181,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.5, y: 1.5}
   m_EdgeRadius: 0
---- !u!114 &1676340146581784900
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2202201730951133944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 225b719ab7b85f14cb1a98316b0bc34e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 5
-  damagePlayer: 0
-  damageEnemy: 1
-  selfDestroy: 1
-  destroyAfterHit: 1
-  IsUsingObjetPooling: 1
-  lifeTime: 1
-  startWaitTime: 0.2
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 67133440
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  shieldLayer:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!114 &1415712307777737905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,3 +193,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ee908551b82d9143a75bfcb58c7de8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitRadius: 0.5
+  maxHits: 1
+  damage: 0

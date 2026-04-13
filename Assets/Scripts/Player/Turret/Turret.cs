@@ -14,15 +14,10 @@ public class Turret : AttackBase
     private float targetUpdateTimer;
     private Transform closestEnemyPosition;
 
-    // The base class's Awake() will automatically handle getting the PlayerStats instance.
-    // The `cooldown` field from AttackBase will be used for fire rate.
-    // The `baseDamage` field from AttackBase will be used for base bullet damage.
 
     protected override void Update()
     {
-        base.Update(); // Process cooldown timer from AttackBase
-
-        // Targeting logic remains the same
+        base.Update(); 
         targetUpdateTimer -= Time.deltaTime;
         if (targetUpdateTimer <= 0f)
         {

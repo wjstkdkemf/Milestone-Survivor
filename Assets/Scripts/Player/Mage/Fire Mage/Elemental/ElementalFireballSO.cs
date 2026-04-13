@@ -22,5 +22,4 @@ public class ElementalFireballSO : WeaponDataSO
     public GameObject fireballPrefab; // 날아가는 투사체 프리팹
     public GameObject trailPrefab;    // 바닥에 깔릴 장판 프리팹 (DoDamage 부착 필수)
     public GameObject lastFireBoomPrefab;
-    public LayerMask enemyLayerMask;
 }

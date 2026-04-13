@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 9035511306770232905}
   - component: {fileID: 81368178482250821}
   - component: {fileID: 3818055999219736079}
-  - component: {fileID: -8385617512907771293}
   - component: {fileID: 75390132348889614}
   - component: {fileID: 4973453583499332392}
   m_Layer: 0
@@ -155,38 +154,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.85258096, y: 2.0100052}
   m_EdgeRadius: 0
---- !u!114 &-8385617512907771293
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6122877895079379237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 225b719ab7b85f14cb1a98316b0bc34e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 5
-  damagePlayer: 0
-  damageEnemy: 1
-  selfDestroy: 0
-  destroyAfterHit: 0
-  IsUsingObjetPooling: 0
-  lifeTime: 3
-  startWaitTime: 0
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 67133440
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  shieldLayer:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!50 &75390132348889614
 Rigidbody2D:
   serializedVersion: 4
@@ -226,7 +193,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3ec72d88db518b419e71b51323e2f3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionRadius: 3
-  targetLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
+  lifetime: 1

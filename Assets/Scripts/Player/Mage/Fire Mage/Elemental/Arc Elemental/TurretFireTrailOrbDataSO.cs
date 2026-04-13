@@ -16,7 +16,4 @@ public class TurretFireTrailOrbDataSO : FireTrailOrbDataSO
     
     [Tooltip("미사일 데미지 배율 (오브 기본 데미지의 몇 %인가)")]
     public float projectileDamageScaling = 1.0f;
-
-    [Tooltip("적 탐지용 레이어")]
-    public LayerMask enemyLayerMask;
 }

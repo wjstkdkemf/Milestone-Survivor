@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CelestialFireballWeapon : WeaponBase
 {
-    // [런타임 데이터]
     private int bulletNumber;
     private float fireRate;
     private float range;
@@ -16,8 +15,6 @@ public class CelestialFireballWeapon : WeaponBase
     private float trailDuration;
     private float trailSpawnDistance;
 
-    private float currentBaseDamage;
-    private float currentPlayerScaling = 1.0f; // 기본값
     private int chains;
     private float chainRange;
 
@@ -26,9 +23,11 @@ public class CelestialFireballWeapon : WeaponBase
     private GameObject fireballPrefab;
     private GameObject trailPrefab;
     private GameObject LastFireBoomPrefab;
-    private LayerMask enemyLayerMask;
+
     private float cooldownTimer;
-    private PlayerStats playerStats;
+    private float volleyTimer;
+    private int pendingBullets = 0;
+    private Enemy currentTarget;
 
     public override void Initialize(WeaponDataSO data)
     {
@@ -38,7 +37,7 @@ public class CelestialFireballWeapon : WeaponBase
             fireRate = evoData.baseCooldown;
             range = evoData.range;
             projectileSpeed = evoData.projectileSpeed;
-            currentBaseDamage = evoData.baseDamage;
+            currentDamage = evoData.baseDamage;
 
             lastFireBoomSize = evoData.FireBoomSize;
             
@@ -53,103 +52,91 @@ public class CelestialFireballWeapon : WeaponBase
             fireballPrefab = evoData.fireballPrefab;
             trailPrefab = evoData.trailPrefab;
             LastFireBoomPrefab = evoData.lastFireBoomPrefab;
-            enemyLayerMask = evoData.enemyLayerMask;
         }
         else
         {
             Debug.LogError("잘못된 데이터! CelestialFireballDataSO가 필요합니다.");
         }
-
-        if (PlayerStats.Instance != null) playerStats = PlayerStats.Instance;
-        else playerStats = GetComponentInParent<PlayerStats>();
-
         cooldownTimer = 0f;
     }
 
     public override void OnUpdate()
     {
-        if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
-
-        if (cooldownTimer <= 0f)
+        if (pendingBullets <= 0)
         {
-            Transform target = FindClosestEnemy();
-            if (target != null)
+            if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
+
+            if (cooldownTimer <= 0f)
             {
-                StartCoroutine(FireVolley(target));
-                cooldownTimer = fireRate;
+                currentTarget = EnemySwarmSystem.Instance.GetClosestEnemy(transform.position, range);
+                if (currentTarget != null)
+                {
+                    pendingBullets = bulletNumber;
+                    volleyTimer = 0f;
+                }
+            }
+        }
+        else
+        {
+            volleyTimer -= Time.deltaTime;
+            if (volleyTimer <= 0f)
+            {
+                FireProjectile(currentTarget);
             }
         }
     }
 
-    IEnumerator FireVolley(Transform target)
+    void FireProjectile(Enemy target)
     {
-        for (int i = 0; i < bulletNumber; i++)
+        if (target == null || target.currentNormalState == Enemy.EnemyState.Dead)
         {
-            FireProjectile(target);
-            yield return new WaitForSeconds(0.1f); // 연사 딜레이
+            currentTarget = EnemySwarmSystem.Instance.GetClosestEnemy(transform.position, range);
+            if (currentTarget == null) 
+            {
+                pendingBullets = 0;
+                cooldownTimer = fireRate;
+                return;
+            }
+            target = currentTarget;
         }
-    }
 
-    void FireProjectile(Transform target)
-    {
-        // 투사체 풀링 생성
         GameObject fireball = ObjectPoolingManager.Instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
 
-        float directDamage = GetDamage();
-        float finalTrailDamage = directDamage * trailDamageScaling;
-        lastFireBoomDamage = GetFireBoomDamage();
-
-        // 2. 이동 및 장판 설정 (새로운 스크립트)
-        if (fireball.TryGetComponent<CelestialFireballProjectile>(out var evoScript))
+        if (fireball != null && fireball.TryGetComponent<CelestialFireballProjectile>(out var evoScript))
         {
-            ElementalFireballSO evoData = myData as ElementalFireballSO;
+            float directDamage = GetDamage();
+            float finalTrailDamage = directDamage * trailDamageScaling;
+            float boomDamage = GetFireBoomDamage();
 
-            // 투사체 셋업에 모든 정보를 넘겨줍니다.
             evoScript.Setup(
-                target, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
-                LastFireBoomPrefab, lastFireBoomDamage, lastFireBoomSize, chains, chainRange, enemyLayerMask
+                target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
+                LastFireBoomPrefab, boomDamage, lastFireBoomSize, chains, chainRange
             );
+            
+            evoScript.damage = directDamage; // SkillProjectileBase 직격 데미지
         }
+
+        pendingBullets--;
+        if (pendingBullets > 0) volleyTimer = 0.1f;
+        else cooldownTimer = fireRate;
     }
 
     // 데미지 계산식
     public float GetDamage()
     {
-        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return currentBaseDamage + (bonus * currentPlayerScaling);
+        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
+        return currentDamage + bonus;
     }
+
     public float GetFireBoomDamage()
     {
-        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return currentBaseDamage + (bonus * (currentPlayerScaling + 1.0f));
+        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
+        return currentDamage + (bonus * 2.0f); // 폭발 2배율 적용
     }
-
-    // 가장 가까운 적 찾기 (TurretWeapon 재사용)
-    private Transform FindClosestEnemy()
-    {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, range, enemyLayerMask);
-        Transform closest = null;
-        float closestDistSqr = Mathf.Infinity;
-
-        foreach (var hit in hitColliders)
-        {
-            if (hit.TryGetComponent<IDamageable>(out _))
-            {
-                float distSqr = (hit.transform.position - transform.position).sqrMagnitude;
-                if (distSqr < closestDistSqr)
-                {
-                    closestDistSqr = distSqr;
-                    closest = hit.transform;
-                }
-            }
-        }
-        return closest;
-    }
-
     public override void LevelUp()
     {
-        currentBaseDamage += 5f;
+        currentDamage += 5f;
         trailDamageScaling += 0.1f; // 레벨업 시 장판 데미지 비율도 증가
-        Debug.Log($"[Evo Fireball Level Up] 직격뎀: {currentBaseDamage}, 장판계수: {trailDamageScaling}");
+        Debug.Log($"[Evo Fireball Level Up] 직격뎀: {currentDamage}, 장판계수: {trailDamageScaling}");
     }
 }

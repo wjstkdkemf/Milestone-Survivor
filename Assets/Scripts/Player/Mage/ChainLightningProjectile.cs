@@ -3,9 +3,6 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.Rendering;
 
-// 이 스크립트는 DoDamage 스크립트와 함께 투사체 프리팹에 붙여주세요.
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(DoDamage))] 
 public class ChainLightningProjectile : SkillProjectileBase
 {
     private Enemy currentTarget;

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CelestialFireballProjectile : MonoBehaviour
+public class CelestialFireballProjectile : SkillProjectileBase
 {
-private Transform target;
+    private Transform target;
     private float speed;
     
     // 장판 관련 데이터
@@ -19,52 +19,57 @@ private Transform target;
     // 체인(튕기기) 관련 데이터
     private int remainingChains;
     private float chainRange;
-    private LayerMask enemyLayerMask;
-    private HashSet<GameObject> visitedTargets; // 이미 맞춘 적 제외용
+    private HashSet<Enemy> visitedTargets = new HashSet<Enemy>();
 
-    private Vector3 lastSpawnPosition; 
-    private DoDamage damageComponent;
-    private bool isBouncing = false; // 연쇄 중복 트리거 방지
+    private Vector3 lastSpawnPosition;
+    private int state = 0;
+    private float bounceTimer = 0f;
+
+    // 레이더 바구니
+    private List<int> searchResults = new List<int>(50);
 
     // Setup에 체인 관련 변수 3개(chains, cRange, layerMask)와 폭발 크기(boomSize) 추가
     public void Setup(Transform newTarget, float newSpeed, GameObject trail, float tDamage, float tDuration, float tSpawnDist, 
-                      GameObject FireBoomPrefab, float FireBoomDamage, float boomSize, int chains, float cRange, LayerMask layerMask)
+                      GameObject FireBoomPrefab, float FireBoomDamage, float boomSize, int chains, float cRange)
     {
         target = newTarget;
         speed = newSpeed;
+        hitRadius = 0.5f;
+        maxHits = 999;
+
         trailPrefab = trail;
         trailDamage = tDamage;
         trailDuration = tDuration;
-        lastFireBoom = FireBoomPrefab;
         spawnDistanceThreshold = tSpawnDist;
+        lastFireBoom = FireBoomPrefab;
         lastFireBoomDamage = FireBoomDamage;
         lastFireBoomSize = boomSize;
-        
+    
         remainingChains = chains;
         chainRange = cRange;
-        enemyLayerMask = layerMask;
-        visitedTargets = new HashSet<GameObject>();
+        
+        visitedTargets.Clear();
+        state = 0;
 
         lastSpawnPosition = transform.position;
 
-        if (target != null)
-            RotateTowardsTarget(target.position);
-    }
-
-    private void OnEnable()
-    {
-        damageComponent = GetComponent<DoDamage>();        
-        isBouncing = false;
+        if (target != null) RotateTowardsTarget(target.position);
     }
 
     void Update()
     {
-        // 튕기는 처리 중(대기 중)에는 이동 및 장판 생성을 멈춤
-        if (isBouncing) return;
+        if (state == 1)
+        {
+            bounceTimer -= Time.deltaTime;
+            if (bounceTimer <= 0f)
+            {
+                FindNextTargetAndResume();
+            }
+            return; // 대기 중에는 이동하지 않음
+        }
 
         Vector3 moveDirection = transform.right; 
-
-        if (target != null)
+        if (target != null && target.gameObject.activeInHierarchy)
         {
             moveDirection = (target.position - transform.position).normalized;
             RotateTowardsTarget(target.position);
@@ -81,11 +86,88 @@ private Transform target;
 
     void SpawnTrail()
     {
+        if (trailPrefab == null) return;
         GameObject trail = ObjectPoolingManager.Instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
-        if (trail.TryGetComponent<DoDamage>(out var doDamage))
+        
+        if (trail != null && trail.TryGetComponent<AuraZone>(out var trailSkill))
         {
-            doDamage.damage = trailDamage;           
-            doDamage.lifeTime = trailDuration;       
+            trailSkill.SetupAura(0.5f, trailDamage, 1.5f, false, 0f, trailDuration); 
+        }
+    }
+
+    public override void OnHit(Enemy hitEnemy)
+    {
+        if (state == 1 || visitedTargets.Contains(hitEnemy)) return;
+
+        visitedTargets.Add(hitEnemy);
+
+        if (lastFireBoom != null)
+        {
+            ObjectPoolingManager.Instance.spawnGameObject(lastFireBoom, transform.position, Quaternion.identity);
+        }
+
+        EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, lastFireBoomSize, searchResults);
+        for (int i = 0; i < searchResults.Count; i++)
+        {
+            int idx = searchResults[i];
+            if (idx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
+            
+            Enemy boomTarget = EnemySwarmSystem.Instance.activeEnemies[idx];
+            if (boomTarget == null || boomTarget.currentNormalState == Enemy.EnemyState.Dead) continue;
+
+            if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[idx])
+            {
+                boomTarget.TakeDamage(lastFireBoomDamage);
+                EnemySwarmSystem.Instance.nextHitTimes[idx] = Time.time + 0.1f;
+            }
+        }
+
+        remainingChains--;
+        if (remainingChains > 0)
+        {
+            state = 1;
+            bounceTimer = 0.5f;
+        }
+        else
+        {
+            ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
+        }
+    }
+    private void FindNextTargetAndResume()
+    {
+        EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, chainRange, searchResults);
+        
+        Enemy bestTarget = null;
+        float closestDistSqr = Mathf.Infinity;
+
+        for (int i = 0; i < searchResults.Count; i++)
+        {
+            int idx = searchResults[i];
+            if (idx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
+
+            Enemy e = EnemySwarmSystem.Instance.activeEnemies[idx];
+            
+            // 이미 맞춘 적이거나 죽은 적은 패스
+            if (e == null || e.currentNormalState == Enemy.EnemyState.Dead || visitedTargets.Contains(e)) continue;
+
+            float distSqr = (e.transform.position - transform.position).sqrMagnitude;
+            if (distSqr < closestDistSqr)
+            {
+                closestDistSqr = distSqr;
+                bestTarget = e;
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            target = bestTarget.transform;
+            RotateTowardsTarget(target.position);
+            lastSpawnPosition = transform.position; // 궤적 기준점 리셋
+            state = 0; // 다시 비행 시작!
+        }
+        else
+        {
+            ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject); // 주변에 적이 없으면 소멸
         }
     }
     
@@ -94,83 +176,5 @@ private Transform target;
         Vector3 direction = targetPos - transform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (isBouncing) return; // 이미 튕기는 연산 중이면 무시
-
-        if (damageComponent != null && damageComponent.TryCheakEnemy(collision))//&& collision.gameObject == target.gameObject
-        {
-            isBouncing = true;
-            visitedTargets.Add(collision.gameObject); // 맞춘 놈 명단에 추가
-
-            GameObject FireBoom = Instantiate(lastFireBoom, transform.position, Quaternion.identity);
-            //FireBoom.transform.localScale = Vector3.one * lastFireBoomSize;
-
-            if (FireBoom.TryGetComponent<DoDamage>(out var boomDamageComponent))
-            {
-                boomDamageComponent.damage = lastFireBoomDamage;
-            }
-
-            StartCoroutine(BounceSequence(transform.position));
-        }
-    }
-
-    private IEnumerator BounceSequence(Vector3 hitPosition)
-    {
-        // 핵심: 폭발 데미지가 들어가고 몬스터가 죽을 시간(물리 프레임)을 벌어줌
-        // 약간의 딜레이(예: 0.1초)를 주면 폭발로 죽을 놈들은 모두 삭제된 후입니다.
-        yield return new WaitForSeconds(0.5f);
-
-        remainingChains--;
-
-        // 남은 체인 횟수가 있다면
-        if (remainingChains > 0)
-        {
-            Transform nextTarget = FindNextTarget(hitPosition);
-
-            if (nextTarget != null)
-            {
-                // 타겟을 갱신하고 다시 날아감
-                target = nextTarget;
-                RotateTowardsTarget(target.position);
-                lastSpawnPosition = transform.position; // 장판 기준점 리셋
-                isBouncing = false; // 다시 Update의 이동 로직이 켜짐
-                yield break; 
-            }
-        }
-
-        // 남은 횟수가 없거나, 타겟을 못 찾았으면 투사체 파괴 (풀링 반환)
-        if (damageComponent.IsUsingObjetPooling)
-            ObjectPoolingManager.Instance.ReturnObjectToPool(this.gameObject);
-        else
-            Destroy(gameObject);
-    }
-
-    private Transform FindNextTarget(Vector3 center)
-    {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(center, chainRange, enemyLayerMask);
-        Transform closestTarget = null;
-        float closestDistSqr = Mathf.Infinity;
-
-        foreach (var col in colliders)
-        {
-            GameObject enemyObj = col.gameObject;
-            
-            // 이미 방문했거나(방금 맞춘 타겟), 비활성화/죽은 적은 무시
-            if (visitedTargets.Contains(enemyObj) || !enemyObj.activeInHierarchy) continue;
-
-            if (col.TryGetComponent<IDamageable>(out _))
-            {
-                float distSqr = (col.transform.position - center).sqrMagnitude;
-                if (distSqr < closestDistSqr)
-                {
-                    closestDistSqr = distSqr;
-                    closestTarget = col.transform;
-                }
-            }
-        }
-        return closestTarget;
     }
 }

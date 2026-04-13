@@ -107,7 +107,12 @@ public class EnemySwarmSystem : MonoBehaviour
         }
 
         grid.Clear();
-        grid = new NativeParallelMultiHashMap<int, int>(count, Allocator.TempJob);
+        
+        if (grid.Capacity < activeEnemies.Count)
+        {
+            grid.Dispose();
+            grid = new NativeParallelMultiHashMap<int, int>(activeEnemies.Count * 2, Allocator.Persistent); 
+        }
 
         for (int i = 0; i < count; i++)
         {
@@ -141,6 +146,11 @@ public class EnemySwarmSystem : MonoBehaviour
     }
     public Enemy GetEnemyByIndex(int index)
     {
+        if (index < 0 || index >= activeEnemies.Count)
+        {
+            return null;
+        }
+
         return activeEnemies[index];
     }
     public int2 GetCell(float2 pos)
@@ -175,7 +185,7 @@ public class EnemySwarmSystem : MonoBehaviour
                 {
                     do
                     {
-                        if (enemyIndex >= activeEnemies.Count) continue;
+                        if (enemyIndex < 0 || enemyIndex >= activeEnemies.Count) continue;
 
                         Enemy enemy = activeEnemies[enemyIndex];
 
@@ -216,6 +226,8 @@ public class EnemySwarmSystem : MonoBehaviour
                 {
                     do
                     {
+                        if (enemyIndex < 0 || enemyIndex >= activeEnemies.Count) continue;
+
                         Enemy enemy = activeEnemies[enemyIndex];
 
                         if (enemy == null || enemy.currentNormalState == Enemy.EnemyState.Dead) continue;

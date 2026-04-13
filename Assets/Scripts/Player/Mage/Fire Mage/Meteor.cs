@@ -87,7 +87,6 @@ public class Meteor : SkillProjectileBase
                 EnemySwarmSystem.Instance.nextHitTimes[idx] = Time.time + 0.1f;
             }
         }
-        Debug.Log("폭발!");
 
         ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
     }

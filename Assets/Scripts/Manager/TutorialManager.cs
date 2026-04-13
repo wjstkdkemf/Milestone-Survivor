@@ -61,7 +61,6 @@ public class TutorialManager : MonoBehaviour
         {
             Instance = null;
         }
-        Debug.Log("트래킹용");
     }
     public void CheakTutorial()
     {

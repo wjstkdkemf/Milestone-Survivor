@@ -109,7 +109,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     {
         foreach (GameObject orb in spawnedOrbs)
         {
-            if (orb != null) ObjectPoolingManager.Instance.ReturnObjectToPool(orb);
+            if (orb != null) Destroy(orb);
         }
         spawnedOrbs.Clear();
     }

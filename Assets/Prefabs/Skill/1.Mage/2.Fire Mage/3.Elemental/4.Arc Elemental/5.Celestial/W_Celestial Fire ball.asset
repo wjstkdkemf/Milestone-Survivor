@@ -16,10 +16,12 @@ MonoBehaviour:
   upgradeData: {fileID: 11400000, guid: 2b408ae84ca028a44a2b8d801e5a4aa1, type: 2}
   baseDamage: 5
   baseCooldown: 3
+  hitRadius: 0.5
+  maxHits: 99
+  projectileSpeed: 12
   fusionWeaponData: []
   bulletNumber: 1
   range: 10
-  projectileSpeed: 12
   trailDamageScaling: 0.5
   trailDuration: 3
   trailSpawnDistance: 0.8
@@ -29,6 +31,3 @@ MonoBehaviour:
   fireballPrefab: {fileID: 2202201730951133944, guid: e28602c2abc565443a7936bfed7891f1, type: 3}
   trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
   lastFireBoomPrefab: {fileID: 6122877895079379237, guid: f7c2669d57d680049a9167789c95b257, type: 3}
-  enemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 67133440

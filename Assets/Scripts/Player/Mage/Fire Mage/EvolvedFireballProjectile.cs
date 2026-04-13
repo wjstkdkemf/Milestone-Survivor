@@ -1,7 +1,6 @@
 using UnityEngine;
 
-// 날아가는 투사체에 부착 (Rigidbody2D, Collider2D, DoDamage와 함께 사용)
-public class EvolvedFireballProjectile : MonoBehaviour
+public class EvolvedFireballProjectile : SkillProjectileBase
 {
     private Transform target;
     private float speed;
@@ -13,32 +12,26 @@ public class EvolvedFireballProjectile : MonoBehaviour
     private float spawnDistanceThreshold;
 
     private Vector3 lastSpawnPosition; // 마지막으로 장판을 깐 위치
-    //private bool hasHit;
-    private DoDamage damageComponent;
-
-    // 무기에서 호출하여 데이터 초기화
-    public void Setup(Transform newTarget, float newSpeed, GameObject trail, float tDamage, float tDuration, float tSpawnDist)
+    public void SetupEvo(Transform newTarget, float newSpeed, GameObject trail, float directDmg, float tDamage, float tDuration, float tSpawnDist)
     {
         target = newTarget;
         speed = newSpeed;
+        damage = directDmg;
+        hitRadius = 0.5f; // 알바생(Job)이 쓸 투사체 직격 크기
+        maxHits = 1;      // 관통 불가
+
         trailPrefab = trail;
         trailDamage = tDamage;
         trailDuration = tDuration;
         spawnDistanceThreshold = tSpawnDist;
 
-        lastSpawnPosition = transform.position; // 시작점 초기화
+        lastSpawnPosition = transform.position;
 
-        // 타겟 방향 보정
         if (target != null)
         {
             RotateTowardsTarget(target.position);
         }
     }
-    private void OnEnable()
-    {
-        damageComponent = GetComponent<DoDamage>();        
-    }
-
     void Update()
     {
         Vector3 moveDirection = transform.right; // 기본 직진
@@ -54,20 +47,19 @@ public class EvolvedFireballProjectile : MonoBehaviour
         if (Vector3.Distance(transform.position, lastSpawnPosition) >= spawnDistanceThreshold)
         {
             SpawnTrail();
-            lastSpawnPosition = transform.position; // 기준점 갱신
+            lastSpawnPosition = transform.position; 
         }
     }
 
     void SpawnTrail()
     {
+        if (trailPrefab == null) return;
+
         GameObject trail = ObjectPoolingManager.Instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
 
-        if (trail == null) return;
-
-        if (trail.TryGetComponent<DoDamage>(out var doDamage))
+        if (trail != null && trail.TryGetComponent<AuraZone>(out var trailSkill))
         {
-            doDamage.damage = trailDamage;           // 계산된 장판 데미지 주입
-            doDamage.lifeTime = trailDuration;       // 지속 시간 주입
+            trailSkill.SetupAura(0.5f, trailDamage, 1.5f, false, 0f, trailDuration); 
         }
     }
     
@@ -76,5 +68,8 @@ public class EvolvedFireballProjectile : MonoBehaviour
         Vector3 direction = targetPos - transform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+    }
+    public override void OnHit(Enemy hitEnemy)
+    {
     }
 }

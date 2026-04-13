@@ -11,9 +11,7 @@ GameObject:
   - component: {fileID: 2427735592014166784}
   - component: {fileID: 1389983516031664742}
   - component: {fileID: 2146752558710800150}
-  - component: {fileID: 425809304595807850}
-  - component: {fileID: 8439886273045831116}
-  - component: {fileID: 703019328651793635}
+  - component: {fileID: -232052871350324927}
   m_Layer: 0
   m_Name: Firetrail
   m_TagString: Untagged
@@ -109,42 +107,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!58 &425809304595807850
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4297926786030371863}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.02120769, y: -0.11227975}
-  serializedVersion: 2
-  m_Radius: 0.096990995
---- !u!114 &8439886273045831116
+--- !u!114 &-232052871350324927
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -153,40 +116,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4297926786030371863}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 225b719ab7b85f14cb1a98316b0bc34e, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d60d61a235448e47b293e18a4461cb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 5
-  damagePlayer: 0
-  damageEnemy: 1
-  selfDestroy: 1
-  destroyAfterHit: 0
-  IsUsingObjetPooling: 1
-  lifeTime: 3
-  startWaitTime: 0
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 67133440
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  shieldLayer:
-    serializedVersion: 2
-    m_Bits: 0
---- !u!114 &703019328651793635
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4297926786030371863}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d755fc9b9eea0340aada51d6d001822, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damageComponent: {fileID: 0}
-  tickRate: 0.5
+  hitRadius: 0.5
+  maxHits: 1
+  damage: 0

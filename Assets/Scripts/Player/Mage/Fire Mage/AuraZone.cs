@@ -4,33 +4,53 @@ using System.Collections.Generic;
 
 public class AuraZone : SkillProjectileBase
 {
-private float tickRate;
+    private float tickRate;
     private bool applySlow;
     private float slowPercentage;
     
     private float damageTimer;
     private float slowRefreshTimer;
 
-    // 가비지 생성을 막기 위한 인덱스 바구니
+    private float lifeTimer = 0f;
+    private bool hasLifeTime = false;
+
     private List<int> enemiesInsideIndices = new List<int>(100);
 
-    // 💡 투사체의 Fire() 대신 오라에 맞는 셋업 함수를 만듭니다.
-    public void SetupAura(float rate, float dmg, float rad, bool doSlow, float slowPct)
+    public void SetupAura(float rate, float dmg, float rad, bool doSlow, float slowPct , float duration = 0f)
     {
-        this.damage = dmg;
-        this.hitRadius = rad;
-        this.maxHits = -1;
+        damage = dmg;
+        hitRadius = rad;
+        maxHits = -1;
 
-        this.tickRate = rate;
-        this.applySlow = doSlow;
-        this.slowPercentage = slowPct;
+        tickRate = rate;
+        applySlow = doSlow;
+        slowPercentage = slowPct;
 
-        this.damageTimer = 0f;
-        this.slowRefreshTimer = 0f;
+        damageTimer = 0f;
+        slowRefreshTimer = 0f;
+
+        if (duration > 0f)
+        {
+            lifeTimer = duration;
+            hasLifeTime = true;
+        }
+        else
+        {
+            hasLifeTime = false; //무한 지속
+        }
     }
 
     protected virtual void Update()
     {
+        if (hasLifeTime)
+        {
+            lifeTimer -= Time.deltaTime;
+            if (lifeTimer <= 0f)
+            {
+                ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
+                return;
+            }
+        }
         bool timeToDamage = (damageTimer -= Time.deltaTime) <= 0f;
         bool timeToSlow = applySlow && (slowRefreshTimer -= Time.deltaTime) <= 0f;
 
@@ -62,12 +82,10 @@ private float tickRate;
             }
         }
 
-        // 타이머 리셋
         if (timeToDamage) damageTimer = tickRate;
         if (timeToSlow) slowRefreshTimer = 0.1f; 
     }
 
-    // 오라는 Job System의 OnHit을 안 쓸 수도 있으므로 빈 함수로 오버라이드
     public override void OnHit(Enemy hitEnemy) { }
 
     private void OnDrawGizmosSelected()

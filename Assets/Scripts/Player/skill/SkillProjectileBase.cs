@@ -16,8 +16,8 @@ public abstract class SkillProjectileBase : MonoBehaviour
 
     protected virtual void OnDisable()
     {
-        if (SkillCollisionManager.Instance != null)
-            SkillCollisionManager.Instance.activeSkills.Remove(this);
+        //if (SkillCollisionManager.Instance != null)
+            //SkillCollisionManager.Instance.activeSkills.Remove(this);
     }
 
     public abstract void OnHit(Enemy hitEnemy);

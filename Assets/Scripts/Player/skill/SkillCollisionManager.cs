@@ -9,11 +9,12 @@ public class SkillCollisionManager : MonoBehaviour
 {
     public static SkillCollisionManager Instance;
 
-    public List<SkillProjectileBase> activeSkills = new List<SkillProjectileBase>(200);
+    public List<SkillProjectileBase> activeSkills = new List<SkillProjectileBase>(400);
 
     private NativeArray<float2> skillPositions;
     private NativeArray<float> skillRadii;
     private NativeArray<int> skillMaxHits; 
+    private float enemyRadius = 0.5f;
     
     private NativeParallelMultiHashMap<int, int> hitResults;
 
@@ -22,7 +23,10 @@ public class SkillCollisionManager : MonoBehaviour
         Instance = this; 
         hitResults = new NativeParallelMultiHashMap<int, int>(3000, Allocator.Persistent);
     }
-
+    private void Start()
+    {
+        enemyRadius = EnemySwarmSystem.Instance.enemyRadius;
+    }
     private void OnDestroy()
     {
         if (skillPositions.IsCreated) skillPositions.Dispose();
@@ -33,10 +37,19 @@ public class SkillCollisionManager : MonoBehaviour
 
     private void LateUpdate()
     {
+        for (int i = activeSkills.Count - 1; i >= 0; i--)
+        {
+            if (activeSkills[i] == null || !activeSkills[i].gameObject.activeInHierarchy)
+            {
+                activeSkills[i] = activeSkills[activeSkills.Count - 1];
+                activeSkills.RemoveAt(activeSkills.Count - 1);
+            }
+        }
+
         int skillCount = activeSkills.Count;
         if (skillCount == 0 || EnemySwarmSystem.Instance.positions.Length == 0) return;
 
-        if (!skillPositions.IsCreated || skillPositions.Length != skillCount)
+        if (!skillPositions.IsCreated || skillPositions.Length < skillCount)
         {
             if (skillPositions.IsCreated) skillPositions.Dispose();
             if (skillRadii.IsCreated) skillRadii.Dispose();
@@ -88,14 +101,26 @@ public class SkillCollisionManager : MonoBehaviour
              if (hitResults.TryGetFirstValue(i, out int enemyIndex, out var it))
             {
                 var skill = activeSkills[i];
+                if (skill == null || !skill.gameObject.activeInHierarchy) continue;
                  do
                  {
                      Enemy hitEnemy = EnemySwarmSystem.Instance.GetEnemyByIndex(enemyIndex);
                      if (hitEnemy != null && hitEnemy.currentNormalState != Enemy.EnemyState.Dead)
                      {
-                         hitEnemy.TakeDamage(skill.damage);
-                         skill.OnHit(hitEnemy);
-                         EnemySwarmSystem.Instance.nextHitTimes[enemyIndex] = Time.time + 0.1f;
+                        float distSqr = (hitEnemy.transform.position - skill.transform.position).sqrMagnitude;
+                        float allowedDist = skill.hitRadius + enemyRadius;
+
+                        if (distSqr <= (allowedDist * allowedDist) + 0.1f)
+                        {
+                            hitEnemy.TakeDamage(skill.damage);
+                            skill.OnHit(hitEnemy);
+                            EnemySwarmSystem.Instance.nextHitTimes[enemyIndex] = Time.time + 0.1f;
+
+                            if (!skill.gameObject.activeInHierarchy) 
+                            {
+                                break; 
+                            }
+                        }
                      }
                  } while (hitResults.TryGetNextValue(out enemyIndex, ref it));
              }
