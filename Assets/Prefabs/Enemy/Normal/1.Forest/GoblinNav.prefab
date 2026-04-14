@@ -326,6 +326,7 @@ MonoBehaviour:
   rarity: 0
   CantBeKnocked: 0
   stopMoving: 0
+  useSwarmMovement: 0
   maxhealth: 10
   damage: 15
   speed: 2.5
@@ -348,11 +349,11 @@ MonoBehaviour:
   respawnRadius: 15
   minimumMoveDistance: 0.5
   maxStuckCount: 2
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 8192
-  separationRadius: 0.5
-  separationForce: 2
+  separationWeight: 2.5
+  targetWeight: 1
+  maxForce: 10
+  neighborRadius: 1.2
+  currentCell: {x: 0, y: 0}
   runFrames:
   - {fileID: -1634370698, guid: 9ef650650707b00499c2c2f9a785a78a, type: 3}
   - {fileID: 696946025, guid: 9ef650650707b00499c2c2f9a785a78a, type: 3}

@@ -12,14 +12,17 @@ public abstract class NavEnemy : Enemy
     protected override void OnEnable()
     {
         base.OnEnable();
-        
+
+        useSwarmMovement = false;
+
         if (agent == null) agent = GetComponent<NavMeshAgent>();
-        
+
+        agent.enabled = true; 
         agent.updateRotation = false;
         agent.updateUpAxis = false;
         agent.updatePosition = false;
-
-        agent.enabled = true; 
+        agent.speed = speed;
+        agent.stoppingDistance = attackRange;
     }
 
     public override void OnDisable()
@@ -27,49 +30,75 @@ public abstract class NavEnemy : Enemy
         base.OnDisable();
         if (agent != null && agent.enabled) agent.enabled = false;
     }
-
-    protected override void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
+    public override void ManualUpdate()
     {
-        if (knockBackTime > 0 && !CantBeKnocked) return;
+        if (currentNormalState == EnemyState.Dead || player == null || stopMoving) return;
+
+        UpdateFlash();
+
+        knockBackTime -= Time.deltaTime;
+        coolDownTimer -= Time.deltaTime;
+
+        float distanceSqrToPlayer = (player.position - transform.position).sqrMagnitude;
+        DetermineState(distanceSqrToPlayer);
+    
+         Vector3 delta = player.position - transform.position;
+         UpdateFacingDirection(delta);
+         
+         if (knockBackTime <= 0)
+         {
+             HandleNavMovement();
+         }
+         else if (!CantBeKnocked)
+         {
+             ApplyKnockbackEffect(delta);
+         }
+    
+         HandleAction(delta);
+     }
+    protected virtual void HandleNavMovement()
+    {
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
 
         switch (currentNormalState)
         {
             case EnemyState.Chasing:
-                if (agent.isActiveAndEnabled && agent.isOnNavMesh)
-                {
-                    agent.SetDestination(player.position);
-
-                    transform.position += (Vector3)agent.velocity * Time.deltaTime;
-                }
+                agent.isStopped = false;
+                agent.SetDestination(player.position);
                 break;
 
             case EnemyState.Attacking:
-                if (agent.isActiveAndEnabled && agent.isOnNavMesh)
-                {
-                    agent.ResetPath();
-                }
-                
-                if (coolDownTimer <= 0)
-                {
-                    Attack();
-                    coolDownTimer = coolDown;
-                }
                 break;
-                
             case EnemyState.Idle:
-                 if (agent.isActiveAndEnabled && agent.isOnNavMesh) agent.ResetPath();
-                 break;
+                agent.isStopped = true;
+                break;
+        }
+        if (agent.velocity.sqrMagnitude > 0.01f)
+        {
+            transform.position += agent.velocity * Time.deltaTime;
         }
 
-        if (agent.isActiveAndEnabled)
+        // Agent 위치를 오브젝트 위치와 동기화 (updatePosition = false일 때 필수)
+        agent.nextPosition = transform.position;
+    }
+    private void ApplyKnockbackEffect(Vector3 delta)
+    {
+        if (agent != null && agent.isActiveAndEnabled) agent.isStopped = true;
+        
+        float finalKnockBack = knockBackForce * (1 + (PlayerStats.Instance != null ? PlayerStats.Instance.KnockBackBonus : 0));
+        Vector3 knockbackDir = -delta.normalized;
+        transform.position += knockbackDir * finalKnockBack * Time.deltaTime;
+        
+        if (agent != null) agent.nextPosition = transform.position;
+    }
+    protected override void HandleAction(Vector3 delta)
+    {
+        if(currentNormalState == EnemyState.Attacking && coolDownTimer <= 0)
         {
-            if (Vector3.Distance(transform.position, agent.nextPosition) > 1.0f)
-            {
-                agent.nextPosition = transform.position;
-            }
+            Attack();
+            coolDownTimer = coolDown;
         }
     }
-
     protected override void RepositionEnemy()
     {
         Vector2 randomPoint = Random.insideUnitCircle.normalized * respawnRadius;

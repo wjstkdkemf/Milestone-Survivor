@@ -183,7 +183,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2797327662496399954}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 225b719ab7b85f14cb1a98316b0bc34e, type: 3}
   m_Name: 
@@ -215,7 +215,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2797327662496399954}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -300,12 +300,12 @@ MonoBehaviour:
   rarity: 0
   CantBeKnocked: 0
   stopMoving: 0
+  useSwarmMovement: 1
   maxhealth: 80
   damage: 5
   speed: 2.5
   knockBackForce: 4
   coolDown: 3
-  range: 5
   attackRange: 2
   escapeRange: 1
   canRun: 0
@@ -323,6 +323,11 @@ MonoBehaviour:
   respawnRadius: 15
   minimumMoveDistance: 0.5
   maxStuckCount: 2
+  separationWeight: 2.5
+  targetWeight: 1
+  maxForce: 10
+  neighborRadius: 1.2
+  currentCell: {x: 0, y: 0}
   chargeType: 1
   chargeRange: 5
   chargePrepTime: 1

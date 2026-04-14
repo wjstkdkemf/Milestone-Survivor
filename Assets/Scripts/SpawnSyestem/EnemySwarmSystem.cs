@@ -101,7 +101,10 @@ public class EnemySwarmSystem : MonoBehaviour
             positions[i] = pos.xy;
             
             // 넉백 중이거나 공격 중이면 움직이지 않도록 설정
-            bool isChasing = e.currentNormalState == Enemy.EnemyState.Chasing && !e.stopMoving && e.GetKnockBackTime() <= 0;
+            bool isChasing = e.currentNormalState == Enemy.EnemyState.Chasing && 
+                                                    !e.stopMoving && 
+                                                    e.GetKnockBackTime() <= 0 &&
+                                                    e.useSwarmMovement;
             canMove[i] = isChasing;
             speeds[i] = e.GetSpeed(); // Enemy의 현재 속도
         }

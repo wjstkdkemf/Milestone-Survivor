@@ -15,7 +15,7 @@ public class ChargerEnemy : Enemy
     public float recoveryTime = 1.5f;     // 돌진 후 멍때리는 시간
 
     [Header("Visuals")]
-    public LineRenderer chargeIndicator;  // 돌진 경로 표시용 (LineRenderer 컴포넌트 필요)
+    public LineRenderer chargeIndicator;  // 돌진 경로 표시용
     public Color warningColor = Color.red;
 
     private bool isChargingAction = false; // 현재 돌진 패턴 중인가?
@@ -24,38 +24,30 @@ public class ChargerEnemy : Enemy
     {
         if (chargeIndicator == null)
         {
-            // 1. 내 몸에 붙어있는지 확인
             chargeIndicator = GetComponent<LineRenderer>();
 
-            // 2. 없다면 자식 오브젝트들 중에서 확인 (보통 이펙트는 자식으로 둡니다)
             if (chargeIndicator == null)
             {
                 chargeIndicator = GetComponentInChildren<LineRenderer>();
             }
         }
 
-        // 찾았으면 초기엔 꺼둠
         if (chargeIndicator != null)
         {
             chargeIndicator.enabled = false;
-            // 2D 게임에서 라인이 잘 보이게 설정 (선택사항)
             chargeIndicator.sortingOrder = 10; 
-            chargeIndicator.useWorldSpace = true; // 이동 시 라인이 따라오지 않고 고정되게 하려면 true 추천
+            chargeIndicator.useWorldSpace = true;
         }
     }
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-    }
+
     public override void OnDisable()
     {
         base.OnDisable();
         if (chargeIndicator != null)
         {
             chargeIndicator.enabled = false;
-            // 2D 게임에서 라인이 잘 보이게 설정 (선택사항)
             chargeIndicator.sortingOrder = 10; 
-            chargeIndicator.useWorldSpace = true; // 이동 시 라인이 따라오지 않고 고정되게 하려면 true 추천
+            chargeIndicator.useWorldSpace = true;
         }
         isChargingAction = false;
         stopMoving = false;
@@ -63,34 +55,35 @@ public class ChargerEnemy : Enemy
 
     public override void ManualUpdate()
     {
-        // 부모의 기본 Update 로직 (피격, 넉백 등) 실행
-        // 단, 돌진 중일 때는 부모의 이동 로직을 막아야 하므로 조건부 실행
-        if (isChargingAction) 
+        if (isChargingAction && !useSwarmMovement) 
         {
             // 돌진 중에는 쿨타임 감소 등 기본 로직만 수행하거나, 아예 독자적으로 돕니다.
             return; 
         }
 
-        base.ManualUpdate(); // 평소에는 NavMesh로 추적
+        base.ManualUpdate(); 
     }
 
-    // 부모의 DetermineState를 오버라이드하여 '돌진' 조건을 추가
-    protected override void DetermineState(float distanceToPlayer)
+    protected override void DetermineState(float distanceSqrToPlayer)
     {
-        base.DetermineState(distanceToPlayer);
-
         if (isChargingAction) return;
 
-        if (distanceToPlayer <= chargeRange /* && coolDownTimer <= 0 */) // 쿨타임 변수 접근 권한 확인 필요
+
+        if (distanceSqrToPlayer <= chargeRange * chargeRange && coolDownTimer <= 0)
         {
             StartCoroutine(ChargeRoutine());
+        }
+        else
+        {
+            base.DetermineState(distanceSqrToPlayer);
         }
     }
 
     private IEnumerator ChargeRoutine()
     {
         isChargingAction = true;
-        stopMoving = true; // NavMesh 이동 정지
+        useSwarmMovement = false;
+        stopMoving = true; // 이동 정지
         
         if (player != null)
         {
@@ -127,10 +120,10 @@ public class ChargerEnemy : Enemy
             DamageAlongPath(transform.position, chargeTargetPos);
 
             transform.position = chargeTargetPos;
-            
+            /*
             NavMeshAgent agent = GetComponent<NavMeshAgent>();
             if (agent != null && agent.enabled) agent.Warp(chargeTargetPos);
-            
+            */
             //CheckAreaDamage(transform.position, 2.0f);
         }
         else if (chargeType == ChargeType.Rush)
@@ -151,9 +144,11 @@ public class ChargerEnemy : Enemy
 
         yield return new WaitForSeconds(recoveryTime);
 
+        
         isChargingAction = false;
         stopMoving = false;
         // coolDownTimer = coolDown; 
+        useSwarmMovement = true;
     }
 
     private void DamageAlongPath(Vector3 start, Vector3 end)

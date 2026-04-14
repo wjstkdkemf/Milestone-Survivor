@@ -14,6 +14,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected bool I_frame = false;
     public bool CantBeKnocked = false;
     public bool stopMoving = false; 
+    public bool useSwarmMovement = true;
 
     [Header("Stats")]
     [SerializeField] protected float maxhealth;
@@ -72,6 +73,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         { EnemyRarity.Normal, 1 }, { EnemyRarity.Magic, 100 }, { EnemyRarity.Rare, 200 }, { EnemyRarity.Boss, 500 }
     };
     protected float distanceCheckTimer = 0f;
+    protected float flashTimer = 0f;
     protected int stuckCount = 0;
     private Vector3 lastPosition = Vector3.zero;
     public float separationWeight = 2.5f;
@@ -212,6 +214,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         knockBackTime -= Time.deltaTime;
         coolDownTimer -= Time.deltaTime;
 
+        UpdateFlash();
+
         Vector3 delta = player.position - transform.position;
         UpdateFacingDirection(delta);
         CheckStatusEffects();
@@ -343,7 +347,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             }
         }
 
-        if (flashMaterial != null && !boss) Flash();
+        if (flashMaterial != null && !boss)
+        {
+            spriteRenderer.color = Color.red;
+            flashTimer = duration;
+        }
 
         health -= amount;
 
@@ -371,18 +379,16 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             Destroy(gameObject);
     }
 
-    public void Flash()
+    protected virtual void UpdateFlash()
     {
-        if (flashRoutine != null) StopCoroutine(flashRoutine);
-        flashRoutine = StartCoroutine(FlashRoutine());
-    }
-
-    public IEnumerator FlashRoutine()
-    {
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(duration);
-        spriteRenderer.color = currentStateColor;
-        flashRoutine = null;
+        if (flashTimer > 0)
+        {
+            flashTimer -= Time.deltaTime;
+            if (flashTimer <= 0)
+            {
+                spriteRenderer.color = currentStateColor;
+            }
+        }
     }
 
     public virtual void ApplySlow(float slowPercent, float duration)

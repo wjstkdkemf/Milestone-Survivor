@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class GoblinArcherScript : Enemy
+public class GoblinArcherScript : NavEnemy
 {
     [SerializeField] private float minMaintainDistance = 4.0f; // 이 거리보다 가까우면 도망감
     [SerializeField] private float changeDirectionInterval = 2.0f; // 방향 전환 주기
@@ -25,13 +25,10 @@ public class GoblinArcherScript : Enemy
     }
     public override void ManualUpdate()
     {
-        // 방향 전환 타이머
         strafeTimer -= Time.deltaTime;
         if (strafeTimer <= 0)
         {
-            // 랜덤하게 방향 전환 (50% 확률)
             strafeDir = Random.value > 0.5f ? 1 : -1;
-            // 다음 전환 시간 랜덤 설정 (1초 ~ 설정값)
             strafeTimer = Random.Range(1.0f, changeDirectionInterval);
         }
         base.ManualUpdate(); // 부모의 상태 결정 및 쿨타임 로직 실행
@@ -48,81 +45,70 @@ public class GoblinArcherScript : Enemy
         if(animator != null)
             animator.SetTrigger("Attack");
 
+        SpawnArrow();
+    }
+    public void SpawnArrow()
+    {
         GameObject arrow = ObjectPoolingManager.Instance.spawnGameObject(arrowPrefab, firePoint.position, Quaternion.identity);
-        
-        if(arrow == null)
-            return;
+        if (arrow == null) return;
 
         EnemyProjectile arrowScript = arrow.GetComponent<EnemyProjectile>();
-           
-
         if (arrowScript != null)
         {
             arrowScript.Setup(player, arrowSpeed, damage);
         }
         else
         {
-            Rigidbody2D rb = arrow.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                Vector2 direction = (player.position - firePoint.position).normalized;
-                rb.velocity = direction * arrowSpeed;
-                
-                // 회전도 맞춰줌
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                arrow.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            }
-        }
-
-        Debug.Log(gameObject.name + " fires an arrow with " + this.damage + " damage.");
-    }
-    protected override void HandleMovement(float distanceToPlayer, Vector3 delta)
-    {
-        // 넉백 중이거나 행동 불가 상태면 부모 로직 따름
-        if ((knockBackTime > 0 && !CantBeKnocked) || currentNormalState == EnemyState.Dead) 
-        {
-            base.HandleMovement(distanceToPlayer, delta);
-            return;
-        }
-
-        // 공격 사거리 안에 들어왔을 때
-        if (distanceToPlayer <= attackRange * attackRange)
-        {
-            Vector3 finalMoveDir = Vector3.zero;
-            Vector3 dirToPlayer = delta.normalized; // 나 -> 플레이어 방향
-
-            // 거리 조절
-            if (distanceToPlayer < minMaintainDistance * minMaintainDistance)
-            {
-                // 플레이어 반대 방향으로 도망
-                finalMoveDir -= dirToPlayer; 
-            }
-            // 좌우 무빙
-            // 플레이어 방향의 수직 벡터 구하기 (-y, x) = 2D에서의 수직
-            Vector3 perpendicularDir = new Vector3(-dirToPlayer.y, dirToPlayer.x, 0);
+            Vector2 direction = (player.position - firePoint.position).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            arrow.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
             
-            // 수직 방향 * 랜덤 방향(좌/우)
-            finalMoveDir += perpendicularDir * strafeDir;
+            Rigidbody2D rb = arrow.GetComponent<Rigidbody2D>();
+            if (rb != null) rb.velocity = direction * arrowSpeed;
+        }
+    }
+    protected override void HandleNavMovement()
+    {
+        if (agent == null || !agent.isActiveAndEnabled || !agent.isOnNavMesh) return;
 
-            // 정규화 후 속도 적용
-            finalMoveDir.Normalize();
+        agent.stoppingDistance = 0;
 
-            // 실제 이동 적용
-            transform.position += finalMoveDir * speed * Time.deltaTime;
+        float distSqr = (player.position - transform.position).sqrMagnitude;
+        Vector3 dirToPlayer = (player.position - transform.position).normalized;
 
-            // 이동 중에도 플레이어를 바라보게 함
-            UpdateFacingDirection(delta);
+        agent.isStopped = false;
 
-            // 공격 쿨타임 체크 및 공격
-            if (coolDownTimer <= 0)
-            {
-                Attack();
-                coolDownTimer = coolDown;
-            }
+        // 상태별 이동 로직
+        if (distSqr < minMaintainDistance * minMaintainDistance)
+        {
+            Vector3 fleePos = transform.position - dirToPlayer * 3f;
+            MoveToNavPos(fleePos);
+        }
+        else if (distSqr <= attackRange * attackRange)
+        {
+            Vector3 perpendicularDir = new Vector3(-dirToPlayer.y, dirToPlayer.x, 0);
+            Vector3 strafePos = transform.position + perpendicularDir * strafeDir * 2f;
+            
+            MoveToNavPos(strafePos);
         }
         else
         {
-            base.HandleMovement(distanceToPlayer, delta);
+            agent.SetDestination(player.position);
+            //base.HandleNavMovement();
+        }
+
+        if (agent.velocity.sqrMagnitude > 0.01f)
+        {
+            transform.position += agent.velocity * Time.deltaTime;
+        }
+        agent.nextPosition = transform.position;
+    }
+    private void MoveToNavPos(Vector3 targetPos)
+    {
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(targetPos, out hit, 2.0f, NavMesh.AllAreas))
+        {
+            agent.SetDestination(hit.position);
         }
     }
 }

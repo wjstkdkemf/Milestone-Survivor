@@ -309,12 +309,12 @@ MonoBehaviour:
   rarity: 0
   CantBeKnocked: 0
   stopMoving: 0
+  useSwarmMovement: 0
   maxhealth: 10
   damage: 25
   speed: 2.5
   knockBackForce: 4
   coolDown: 3
-  range: 100
   attackRange: 5
   escapeRange: 0
   canRun: 0
@@ -332,11 +332,11 @@ MonoBehaviour:
   respawnRadius: 15
   minimumMoveDistance: 0.5
   maxStuckCount: 2
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 8192
-  separationRadius: 0.5
-  separationForce: 2
+  separationWeight: 2.5
+  targetWeight: 1
+  maxForce: 10
+  neighborRadius: 1.2
+  currentCell: {x: 0, y: 0}
   minMaintainDistance: 4
   changeDirectionInterval: 2
   arrowPrefab: {fileID: 1742303142779913472, guid: 1c7edc60cf244f347aa6890198e53183, type: 3}
