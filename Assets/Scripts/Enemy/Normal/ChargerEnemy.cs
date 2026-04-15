@@ -12,7 +12,7 @@ public class ChargerEnemy : Enemy
     public float chargePrepTime = 1.0f;   // 돌진 준비 시간 (위험 표시 시간)
     public float chargeSpeed = 20.0f;     // 실제 돌진 속도 (Rush 타입용)
     public float chargeDuration = 0.5f;   // 돌진 지속 시간 (Rush 타입용)
-    public float recoveryTime = 1.5f;     // 돌진 후 멍때리는 시간
+    public float recoveryTime = 0.5f;     // 돌진 후 멍때리는 시간
 
     [Header("Visuals")]
     public LineRenderer chargeIndicator;  // 돌진 경로 표시용
@@ -91,11 +91,13 @@ public class ChargerEnemy : Enemy
             Vector3 dir = (player.position - transform.position).normalized;
             float distance = (chargeType == ChargeType.Rush) ? (chargeSpeed * chargeDuration) : chargeRange;
             chargeTargetPos = transform.position + (dir * distance);
+            float enemyRadius = 0.5f; 
+            float safeOffset = 0.1f;
             
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, LayerMask.GetMask("Wall"));
+            RaycastHit2D hit = Physics2D.CircleCast(transform.position, enemyRadius, dir, distance, LayerMask.GetMask("Wall"));
             if (hit.collider != null)
             {
-                chargeTargetPos = hit.point;
+                chargeTargetPos = hit.point - ((Vector2)dir * (enemyRadius + safeOffset));
             }
 
             if (chargeIndicator != null)

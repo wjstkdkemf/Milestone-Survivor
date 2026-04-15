@@ -94,13 +94,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2553923481963697037}
   - component: {fileID: 1425400384524857441}
-  - component: {fileID: -3998681517518056756}
   - component: {fileID: 5619459716242629193}
-  - component: {fileID: 8454368606132760189}
-  - component: {fileID: -639571069223099428}
   - component: {fileID: 3761190193143665214}
-  - component: {fileID: 843382777391683508}
-  - component: {fileID: -5200829157856161667}
   m_Layer: 13
   m_Name: Goblin
   m_TagString: Enemy
@@ -176,33 +171,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!50 &-3998681517518056756
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2797327662496399954}
-  m_BodyType: 1
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 0.0001
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
 --- !u!114 &5619459716242629193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,6 +187,7 @@ MonoBehaviour:
   rarity: 0
   CantBeKnocked: 0
   stopMoving: 0
+  useSwarmMovement: 1
   maxhealth: 10
   damage: 15
   speed: 2.5
@@ -241,11 +210,11 @@ MonoBehaviour:
   respawnRadius: 15
   minimumMoveDistance: 0.5
   maxStuckCount: 2
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 8192
-  separationRadius: 0.5
-  separationForce: 2
+  separationWeight: 2.5
+  targetWeight: 1
+  maxForce: 10
+  neighborRadius: 1.2
+  currentCell: {x: 0, y: 0}
   runFrames:
   - {fileID: -1634370698, guid: 9ef650650707b00499c2c2f9a785a78a, type: 3}
   - {fileID: 696946025, guid: 9ef650650707b00499c2c2f9a785a78a, type: 3}
@@ -265,73 +234,6 @@ MonoBehaviour:
   - {fileID: 561724876, guid: 837ce8c86e87b07439a25965ba35e84f, type: 3}
   - {fileID: -719961902, guid: 837ce8c86e87b07439a25965ba35e84f, type: 3}
   frameRate: 0.15
---- !u!114 &8454368606132760189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2797327662496399954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 225b719ab7b85f14cb1a98316b0bc34e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 5
-  damagePlayer: 1
-  damageEnemy: 0
-  selfDestroy: 0
-  destroyAfterHit: 1
-  IsUsingObjetPooling: 0
-  lifeTime: 3
-  startWaitTime: 0.2
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  shieldLayer:
-    serializedVersion: 2
-    m_Bits: 0
---- !u!58 &-639571069223099428
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2797327662496399954}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.3
 --- !u!114 &3761190193143665214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,37 +253,3 @@ MonoBehaviour:
     dropChance: 46.5
   - itemPrefab: {fileID: 5304167622817196155, guid: baa2abad777726e4a90efd52cd35920f, type: 3}
     dropChance: 0.2
---- !u!195 &843382777391683508
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2797327662496399954}
-  m_Enabled: 0
-  m_AgentTypeID: 0
-  m_Radius: 0.1
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 3.125
-  m_BaseOffset: 1.5625
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 0
---- !u!114 &-5200829157856161667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2797327662496399954}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ae2f39ccd1ab124aa89b81cf72527ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

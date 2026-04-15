@@ -3,30 +3,60 @@ using UnityEngine;
 // 모든 적 투사체는 이 클래스를 상속받아야 합니다.
 public abstract class EnemyProjectile : MonoBehaviour
 {
-    protected float damage;
+    public float damage;
     protected float speed;
     protected Transform target;
-    protected bool hasHit;
-
-    protected DoDamage damageComponent;
-
-    public abstract void Setup(Transform target, float speed, float damage);
-    protected virtual void Awake()
+    protected bool isActived;
+    
+    private float lifeTimer;
+    public virtual void Setup(Transform target, float speed, float damage, float lifeTime = 5f)
     {
-        damageComponent = GetComponent<DoDamage>();
+        this.target = target;
+        this.speed = speed;
+        this.damage = damage;
+        this.lifeTimer = lifeTime;
+        this.isActived = true;
     }
     private void OnEnable()
     {
-        hasHit = false;
+        isActived = true;
+
+        if (EnemyProjectileManager.Instance != null)
+        {
+            EnemyProjectileManager.Instance.RegisterProjectile(this);
+        }
     }
+    protected virtual void Update()
+    {
+        if (!isActived) return;
+
+        lifeTimer -= Time.deltaTime;
+        if (lifeTimer <= 0)
+        {
+            SelfDestroy();
+            return;
+        }
+
+        Move(); 
+    }
+    protected abstract void Move();
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (hasHit) return;
+        if (!isActived) return;
 
-        if (damageComponent != null && damageComponent.TryApplyDamage(collision))
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Wall"))
         {
-            hasHit = true; 
-            //HandleSelfDestruction();
+            SelfDestroy();
+        }
+    }
+
+    public void SelfDestroy()
+    {
+        isActived = false;
+        if (ObjectPoolingManager.Instance != null && gameObject.activeInHierarchy)
+        {
+            ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
         }
     }
 }

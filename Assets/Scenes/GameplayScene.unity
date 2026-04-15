@@ -25208,6 +25208,7 @@ GameObject:
   - component: {fileID: 549850754}
   - component: {fileID: 549850755}
   - component: {fileID: 549850756}
+  - component: {fileID: 549850757}
   m_Layer: 0
   m_Name: GameManger
   m_TagString: Untagged
@@ -25486,6 +25487,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeSkills: []
+--- !u!114 &549850757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549850734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02b972a58e91a474f9ab542f50fe2f87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeProjectiles: []
+  playerHitRadius: 0.3
 --- !u!1 &551090219
 GameObject:
   m_ObjectHideFlags: 0
