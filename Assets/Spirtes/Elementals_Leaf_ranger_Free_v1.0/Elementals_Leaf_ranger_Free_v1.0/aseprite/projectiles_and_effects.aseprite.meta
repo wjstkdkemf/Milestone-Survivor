@@ -8,6 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -1304,13 +1305,18 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: -363727035
+    uuid:
+      value0: 2725360281
+      value1: 0
+      value2: 0
+      value3: 0
+    guid: -1569607015
     name: projectiles_and_effects
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: projectiles_and_effects_Frame_0
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -1319,7 +1325,7 @@ ScriptedImporter:
         width: 32
         height: 3
       spriteId: 4ed4dc51c2229b243a590265bd1be644
-    - name: projectiles_and_effects_Frame_1
+    - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
@@ -1328,7 +1334,7 @@ ScriptedImporter:
         width: 27
         height: 11
       spriteId: 84cd5a5c682416e44badad7dd169f1db
-    - name: projectiles_and_effects_Frame_2
+    - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
@@ -1337,7 +1343,7 @@ ScriptedImporter:
         width: 27
         height: 8
       spriteId: 1720d2b4534584b4a90719dbe0a845cf
-    - name: projectiles_and_effects_Frame_3
+    - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
@@ -1346,7 +1352,7 @@ ScriptedImporter:
         width: 28
         height: 7
       spriteId: 267f36a8d81dc324dae19d9f2d7cca3b
-    - name: projectiles_and_effects_Frame_4
+    - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
       cellRect:
@@ -1355,7 +1361,7 @@ ScriptedImporter:
         width: 28
         height: 7
       spriteId: 554010ecee65b0540a1f16ccb9647acb
-    - name: projectiles_and_effects_Frame_5
+    - name: Frame_5
       frameIndex: 5
       additiveSortOrder: 0
       cellRect:
@@ -1364,7 +1370,7 @@ ScriptedImporter:
         width: 28
         height: 7
       spriteId: c46fee7d86855ff4ba95237fc4959f58
-    - name: projectiles_and_effects_Frame_6
+    - name: Frame_6
       frameIndex: 6
       additiveSortOrder: 0
       cellRect:
@@ -1373,7 +1379,7 @@ ScriptedImporter:
         width: 28
         height: 7
       spriteId: 14198c8d249e96e4d98fa67f35cd58df
-    - name: projectiles_and_effects_Frame_7
+    - name: Frame_7
       frameIndex: 7
       additiveSortOrder: 0
       cellRect:
@@ -1382,7 +1388,7 @@ ScriptedImporter:
         width: 27
         height: 11
       spriteId: a8ec230c4162b2e44bc83fd30c0c4fe6
-    - name: projectiles_and_effects_Frame_8
+    - name: Frame_8
       frameIndex: 8
       additiveSortOrder: 0
       cellRect:
@@ -1391,7 +1397,7 @@ ScriptedImporter:
         width: 40
         height: 14
       spriteId: 3dcc61ed4f1080049b308a9e5d796fca
-    - name: projectiles_and_effects_Frame_9
+    - name: Frame_9
       frameIndex: 9
       additiveSortOrder: 0
       cellRect:
@@ -1400,7 +1406,7 @@ ScriptedImporter:
         width: 57
         height: 35
       spriteId: 05cd32ee0e2b4d041ad84183bd3a67f9
-    - name: projectiles_and_effects_Frame_10
+    - name: Frame_10
       frameIndex: 10
       additiveSortOrder: 0
       cellRect:
@@ -1409,7 +1415,7 @@ ScriptedImporter:
         width: 74
         height: 38
       spriteId: bf17d23df6576ae4aa9640bb19702f0b
-    - name: projectiles_and_effects_Frame_11
+    - name: Frame_11
       frameIndex: 11
       additiveSortOrder: 0
       cellRect:
@@ -1418,7 +1424,7 @@ ScriptedImporter:
         width: 77
         height: 38
       spriteId: 01e04197302d7614db7709fd1d35424d
-    - name: projectiles_and_effects_Frame_12
+    - name: Frame_12
       frameIndex: 12
       additiveSortOrder: 0
       cellRect:
@@ -1427,7 +1433,7 @@ ScriptedImporter:
         width: 79
         height: 40
       spriteId: 89650441d9c0bda459aed8a1dc143ffe
-    - name: projectiles_and_effects_Frame_13
+    - name: Frame_13
       frameIndex: 13
       additiveSortOrder: 0
       cellRect:
@@ -1436,7 +1442,7 @@ ScriptedImporter:
         width: 79
         height: 40
       spriteId: a5af3dde7affcf74da114ba3a5021654
-    - name: projectiles_and_effects_Frame_14
+    - name: Frame_14
       frameIndex: 14
       additiveSortOrder: 0
       cellRect:
@@ -1445,7 +1451,7 @@ ScriptedImporter:
         width: 79
         height: 40
       spriteId: 4125e8ca1fe59bb4987d96b67f5f879f
-    - name: projectiles_and_effects_Frame_15
+    - name: Frame_15
       frameIndex: 15
       additiveSortOrder: 0
       cellRect:
@@ -1454,7 +1460,7 @@ ScriptedImporter:
         width: 27
         height: 11
       spriteId: c76ccf25c8c89d646a3fad282f6d89ee
-    - name: projectiles_and_effects_Frame_16
+    - name: Frame_16
       frameIndex: 16
       additiveSortOrder: 0
       cellRect:
@@ -1463,7 +1469,7 @@ ScriptedImporter:
         width: 37
         height: 10
       spriteId: b27c3f48ec5f25244b4d4d392f474cfd
-    - name: projectiles_and_effects_Frame_17
+    - name: Frame_17
       frameIndex: 17
       additiveSortOrder: 0
       cellRect:
@@ -1472,7 +1478,7 @@ ScriptedImporter:
         width: 42
         height: 22
       spriteId: d4d2e680a774c9144b91fbeb372e994f
-    - name: projectiles_and_effects_Frame_18
+    - name: Frame_18
       frameIndex: 18
       additiveSortOrder: 0
       cellRect:
@@ -1481,7 +1487,7 @@ ScriptedImporter:
         width: 57
         height: 38
       spriteId: 9032a3c9a57e7b94cbbd6d03d8cb0ee4
-    - name: projectiles_and_effects_Frame_19
+    - name: Frame_19
       frameIndex: 19
       additiveSortOrder: 0
       cellRect:
@@ -1490,7 +1496,7 @@ ScriptedImporter:
         width: 57
         height: 46
       spriteId: a692ab3ca028f8e4bb1af9aaa64f5b81
-    - name: projectiles_and_effects_Frame_20
+    - name: Frame_20
       frameIndex: 20
       additiveSortOrder: 0
       cellRect:
@@ -1499,7 +1505,7 @@ ScriptedImporter:
         width: 61
         height: 54
       spriteId: 62b389e3293f1894086354ec457e600e
-    - name: projectiles_and_effects_Frame_21
+    - name: Frame_21
       frameIndex: 21
       additiveSortOrder: 0
       cellRect:
@@ -1508,7 +1514,7 @@ ScriptedImporter:
         width: 64
         height: 62
       spriteId: 09e5e5138e0d44241acc66dd38f6ca13
-    - name: projectiles_and_effects_Frame_22
+    - name: Frame_22
       frameIndex: 22
       additiveSortOrder: 0
       cellRect:
@@ -1517,7 +1523,7 @@ ScriptedImporter:
         width: 42
         height: 22
       spriteId: 5c735868b73eecf46b17a4867306b6ce
-    - name: projectiles_and_effects_Frame_23
+    - name: Frame_23
       frameIndex: 23
       additiveSortOrder: 0
       cellRect:
@@ -1526,7 +1532,7 @@ ScriptedImporter:
         width: 27
         height: 27
       spriteId: c34956945bdd91643ba8e95d750b8399
-    - name: projectiles_and_effects_Frame_24
+    - name: Frame_24
       frameIndex: 24
       additiveSortOrder: 0
       cellRect:
@@ -1535,7 +1541,7 @@ ScriptedImporter:
         width: 17
         height: 24
       spriteId: 871a41d97dff57343b407c009ccdb751
-    - name: projectiles_and_effects_Frame_25
+    - name: Frame_25
       frameIndex: 25
       additiveSortOrder: 0
       cellRect:
@@ -1544,7 +1550,7 @@ ScriptedImporter:
         width: 26
         height: 15
       spriteId: 149f9fef683341e40ad6dc48b4b9f7d9
-    - name: projectiles_and_effects_Frame_26
+    - name: Frame_26
       frameIndex: 26
       additiveSortOrder: 0
       cellRect:
@@ -1553,7 +1559,7 @@ ScriptedImporter:
         width: 22
         height: 21
       spriteId: c85bbd0fa5c819f4d81914ee2f71dca4
-    - name: projectiles_and_effects_Frame_27
+    - name: Frame_27
       frameIndex: 27
       additiveSortOrder: 0
       cellRect:
@@ -1562,7 +1568,7 @@ ScriptedImporter:
         width: 26
         height: 19
       spriteId: cd4c587142be6d242b48cf1b1ea21e93
-    - name: projectiles_and_effects_Frame_28
+    - name: Frame_28
       frameIndex: 28
       additiveSortOrder: 0
       cellRect:
@@ -1571,7 +1577,7 @@ ScriptedImporter:
         width: 25
         height: 21
       spriteId: c0610f3f3ed4329499dfa8560b6b4a48
-    - name: projectiles_and_effects_Frame_29
+    - name: Frame_29
       frameIndex: 29
       additiveSortOrder: 0
       cellRect:
@@ -1580,7 +1586,7 @@ ScriptedImporter:
         width: 25
         height: 21
       spriteId: b697e910edd63be489512188f8452e5f
-    - name: projectiles_and_effects_Frame_30
+    - name: Frame_30
       frameIndex: 30
       additiveSortOrder: 0
       cellRect:
@@ -1589,7 +1595,7 @@ ScriptedImporter:
         width: 17
         height: 24
       spriteId: 71a0af61e1bc5b845b5d09fc3e4b7f10
-    - name: projectiles_and_effects_Frame_31
+    - name: Frame_31
       frameIndex: 31
       additiveSortOrder: 0
       cellRect:
@@ -1598,7 +1604,7 @@ ScriptedImporter:
         width: 28
         height: 15
       spriteId: 9819ee3c4454fec4eb41636ae9e4c783
-    - name: projectiles_and_effects_Frame_32
+    - name: Frame_32
       frameIndex: 32
       additiveSortOrder: 0
       cellRect:
@@ -1607,7 +1613,7 @@ ScriptedImporter:
         width: 26
         height: 21
       spriteId: 7f4fb84bd9f70d94399d7886d1562354
-    - name: projectiles_and_effects_Frame_33
+    - name: Frame_33
       frameIndex: 33
       additiveSortOrder: 0
       cellRect:
@@ -1616,7 +1622,7 @@ ScriptedImporter:
         width: 34
         height: 19
       spriteId: 17dcb4d26623fcc4b90fd04b07db2c4c
-    - name: projectiles_and_effects_Frame_34
+    - name: Frame_34
       frameIndex: 34
       additiveSortOrder: 0
       cellRect:
@@ -1625,7 +1631,7 @@ ScriptedImporter:
         width: 50
         height: 34
       spriteId: c586cb548419f524fbc27437efb955c7
-    - name: projectiles_and_effects_Frame_35
+    - name: Frame_35
       frameIndex: 35
       additiveSortOrder: 0
       cellRect:
@@ -1634,7 +1640,7 @@ ScriptedImporter:
         width: 50
         height: 34
       spriteId: e425421fe9764ad42bd0ab5874a93486
-    - name: projectiles_and_effects_Frame_36
+    - name: Frame_36
       frameIndex: 36
       additiveSortOrder: 0
       cellRect:
@@ -1643,7 +1649,7 @@ ScriptedImporter:
         width: 50
         height: 34
       spriteId: 520f80e8d477219409566dc01a4822a4
-    - name: projectiles_and_effects_Frame_37
+    - name: Frame_37
       frameIndex: 37
       additiveSortOrder: 0
       cellRect:
@@ -1652,7 +1658,7 @@ ScriptedImporter:
         width: 50
         height: 34
       spriteId: 01ea926e58f284244ac3618497ddb3e0
-    - name: projectiles_and_effects_Frame_38
+    - name: Frame_38
       frameIndex: 38
       additiveSortOrder: 0
       cellRect:
@@ -1661,7 +1667,7 @@ ScriptedImporter:
         width: 47
         height: 74
       spriteId: 48373e1e2d15aee42a2e37c17304eea0
-    - name: projectiles_and_effects_Frame_39
+    - name: Frame_39
       frameIndex: 39
       additiveSortOrder: 0
       cellRect:
@@ -1670,7 +1676,7 @@ ScriptedImporter:
         width: 68
         height: 122
       spriteId: 7ecf4b244deedd8419e423aed32f3f56
-    - name: projectiles_and_effects_Frame_40
+    - name: Frame_40
       frameIndex: 40
       additiveSortOrder: 0
       cellRect:
@@ -1679,7 +1685,7 @@ ScriptedImporter:
         width: 66
         height: 120
       spriteId: 1fffa10834e75e147acb3f091cb83882
-    - name: projectiles_and_effects_Frame_41
+    - name: Frame_41
       frameIndex: 41
       additiveSortOrder: 0
       cellRect:
@@ -1688,7 +1694,7 @@ ScriptedImporter:
         width: 67
         height: 119
       spriteId: 5592136266989c64e97ec9ed5e3f1762
-    - name: projectiles_and_effects_Frame_42
+    - name: Frame_42
       frameIndex: 42
       additiveSortOrder: 0
       cellRect:
@@ -1697,7 +1703,7 @@ ScriptedImporter:
         width: 85
         height: 118
       spriteId: 09a08076753d956449d2637ffc4a0534
-    - name: projectiles_and_effects_Frame_43
+    - name: Frame_43
       frameIndex: 43
       additiveSortOrder: 0
       cellRect:
@@ -1706,7 +1712,7 @@ ScriptedImporter:
         width: 84
         height: 122
       spriteId: 8db0ed69a22547240b0aa91220ffa26a
-    - name: projectiles_and_effects_Frame_44
+    - name: Frame_44
       frameIndex: 44
       additiveSortOrder: 0
       cellRect:
@@ -1715,7 +1721,7 @@ ScriptedImporter:
         width: 70
         height: 122
       spriteId: 69f15d197fab3cf408bb806ac165f858
-    - name: projectiles_and_effects_Frame_45
+    - name: Frame_45
       frameIndex: 45
       additiveSortOrder: 0
       cellRect:
@@ -1724,7 +1730,7 @@ ScriptedImporter:
         width: 79
         height: 120
       spriteId: f98559c37a998a54db89d00b8ad250c7
-    - name: projectiles_and_effects_Frame_46
+    - name: Frame_46
       frameIndex: 46
       additiveSortOrder: 0
       cellRect:
@@ -1733,7 +1739,7 @@ ScriptedImporter:
         width: 72
         height: 120
       spriteId: f62095fa827748348ad376fa9382124c
-    - name: projectiles_and_effects_Frame_47
+    - name: Frame_47
       frameIndex: 47
       additiveSortOrder: 0
       cellRect:
@@ -1742,7 +1748,7 @@ ScriptedImporter:
         width: 68
         height: 53
       spriteId: d8f32597f2bfd0e4886481483491ae45
-    - name: projectiles_and_effects_Frame_48
+    - name: Frame_48
       frameIndex: 48
       additiveSortOrder: 0
       cellRect:
@@ -1751,7 +1757,7 @@ ScriptedImporter:
         width: 68
         height: 13
       spriteId: 0906802c9c2aa574a903ad8268c21505
-    - name: projectiles_and_effects_Frame_49
+    - name: Frame_49
       frameIndex: 49
       additiveSortOrder: 0
       cellRect:
@@ -1760,7 +1766,7 @@ ScriptedImporter:
         width: 61
         height: 19
       spriteId: f0ac715ed8e834e4b9601a9d2c862ff2
-    - name: projectiles_and_effects_Frame_50
+    - name: Frame_50
       frameIndex: 50
       additiveSortOrder: 0
       cellRect:
@@ -1769,7 +1775,7 @@ ScriptedImporter:
         width: 43
         height: 12
       spriteId: e05c89dbda9759049ad346c8ed891adb
-    - name: projectiles_and_effects_Frame_51
+    - name: Frame_51
       frameIndex: 51
       additiveSortOrder: 0
       cellRect:
@@ -1778,7 +1784,7 @@ ScriptedImporter:
         width: 14
         height: 9
       spriteId: 05551f67a75962943950fa9ee4be12ea
-    - name: projectiles_and_effects_Frame_52
+    - name: Frame_52
       frameIndex: 52
       additiveSortOrder: 0
       cellRect:
@@ -1787,7 +1793,7 @@ ScriptedImporter:
         width: 7
         height: 7
       spriteId: af2ee8ae971fcac43ac23d7f4c11f299
-    - name: projectiles_and_effects_Frame_53
+    - name: Frame_53
       frameIndex: 53
       additiveSortOrder: 0
       cellRect:
@@ -1796,7 +1802,7 @@ ScriptedImporter:
         width: 8
         height: 3
       spriteId: 2dffce0fae602fc45b9ef82b8d175e82
-    - name: projectiles_and_effects_Frame_54
+    - name: Frame_54
       frameIndex: 54
       additiveSortOrder: 0
       cellRect:
@@ -1805,7 +1811,7 @@ ScriptedImporter:
         width: 5
         height: 1
       spriteId: 845a2dcb7b1b04a4eae00e9ad26df8ce
-    - name: projectiles_and_effects_Frame_56
+    - name: Frame_56
       frameIndex: 56
       additiveSortOrder: 0
       cellRect:
@@ -1814,7 +1820,7 @@ ScriptedImporter:
         width: 256
         height: 15
       spriteId: 5fbfa26c6785b0447808f8017ec0f8a5
-    - name: projectiles_and_effects_Frame_57
+    - name: Frame_57
       frameIndex: 57
       additiveSortOrder: 0
       cellRect:
@@ -1823,7 +1829,7 @@ ScriptedImporter:
         width: 256
         height: 4
       spriteId: 48cc38d4199091a47a58a49b33b30f38
-    - name: projectiles_and_effects_Frame_58
+    - name: Frame_58
       frameIndex: 58
       additiveSortOrder: 0
       cellRect:
@@ -1832,7 +1838,7 @@ ScriptedImporter:
         width: 256
         height: 1
       spriteId: 7b59e0bdf78d81e4d9feb6d08562f8b8
-    - name: projectiles_and_effects_Frame_59
+    - name: Frame_59
       frameIndex: 59
       additiveSortOrder: 0
       cellRect:
@@ -1848,3 +1854,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 256, y: 128}
+  previousTextureSize: {x: 512, y: 1024}

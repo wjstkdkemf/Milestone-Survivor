@@ -8,6 +8,7 @@ ScriptedImporter:
   assetBundleName: 
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 62a9f0aa5b59740cfbadc7e5f9823bb0, type: 3}
+  importerVersion: 2
   textureImporterSettings:
     alphaSource: 1
     mipMapMode: 0
@@ -404,13 +405,18 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: 1078250993
+    uuid:
+      value0: 2588351221
+      value1: 0
+      value2: 0
+      value3: 0
+    guid: -1706616075
     name: projectile_and_trap
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: projectile_and_trap_Frame_0
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
@@ -419,7 +425,7 @@ ScriptedImporter:
         width: 15
         height: 2
       spriteId: f464468938f7869439ab9575da70ccea
-    - name: projectile_and_trap_Frame_1
+    - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
@@ -428,7 +434,7 @@ ScriptedImporter:
         width: 11
         height: 6
       spriteId: 30b033834692b4f42af63a3340c84262
-    - name: projectile_and_trap_Frame_2
+    - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
@@ -437,7 +443,7 @@ ScriptedImporter:
         width: 11
         height: 5
       spriteId: 07d7b9cdb60bd144dbcd733f5f4d5c2a
-    - name: projectile_and_trap_Frame_3
+    - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
@@ -446,7 +452,7 @@ ScriptedImporter:
         width: 11
         height: 3
       spriteId: 2fb6aa45db9bfe040afc792a22667bcb
-    - name: projectile_and_trap_Frame_4
+    - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
       cellRect:
@@ -455,7 +461,7 @@ ScriptedImporter:
         width: 11
         height: 3
       spriteId: 3cadf0c368f31494fbf321cc7fc276a1
-    - name: projectile_and_trap_Frame_5
+    - name: Frame_5
       frameIndex: 5
       additiveSortOrder: 0
       cellRect:
@@ -464,7 +470,7 @@ ScriptedImporter:
         width: 11
         height: 2
       spriteId: 5e71d6ae92835464d8d0de6df7d7cd93
-    - name: projectile_and_trap_Frame_6
+    - name: Frame_6
       frameIndex: 6
       additiveSortOrder: 0
       cellRect:
@@ -473,7 +479,7 @@ ScriptedImporter:
         width: 10
         height: 9
       spriteId: 4cf43968d88c43a4bb1c8b541f039fb4
-    - name: projectile_and_trap_Frame_7
+    - name: Frame_7
       frameIndex: 7
       additiveSortOrder: 0
       cellRect:
@@ -482,7 +488,7 @@ ScriptedImporter:
         width: 4
         height: 10
       spriteId: 6cbc097477cd9504084a002a3e593264
-    - name: projectile_and_trap_Frame_8
+    - name: Frame_8
       frameIndex: 8
       additiveSortOrder: 0
       cellRect:
@@ -491,7 +497,7 @@ ScriptedImporter:
         width: 4
         height: 10
       spriteId: 86287baee42ddb5479b685c5af1fcd3f
-    - name: projectile_and_trap_Frame_9
+    - name: Frame_9
       frameIndex: 9
       additiveSortOrder: 0
       cellRect:
@@ -500,7 +506,7 @@ ScriptedImporter:
         width: 2
         height: 10
       spriteId: c9ebe27ad384d2d448d3ca304c034178
-    - name: projectile_and_trap_Frame_10
+    - name: Frame_10
       frameIndex: 10
       additiveSortOrder: 0
       cellRect:
@@ -509,7 +515,7 @@ ScriptedImporter:
         width: 2
         height: 10
       spriteId: 4fa402ddbab659647bdc9c0bb70664e8
-    - name: projectile_and_trap_Frame_11
+    - name: Frame_11
       frameIndex: 11
       additiveSortOrder: 0
       cellRect:
@@ -518,7 +524,7 @@ ScriptedImporter:
         width: 41
         height: 7
       spriteId: c938ddb4a7b646c47a910deffaa47c51
-    - name: projectile_and_trap_Frame_12
+    - name: Frame_12
       frameIndex: 12
       additiveSortOrder: 0
       cellRect:
@@ -527,7 +533,7 @@ ScriptedImporter:
         width: 71
         height: 20
       spriteId: 7fd9923c2c18732459d8932d0ff6f8a6
-    - name: projectile_and_trap_Frame_13
+    - name: Frame_13
       frameIndex: 13
       additiveSortOrder: 0
       cellRect:
@@ -543,3 +549,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 80, y: 32}
+  previousTextureSize: {x: 128, y: 64}
