@@ -31,6 +31,7 @@ public class QuestManager : MonoBehaviour
     public List<QuestDataSO> questDatabase; // 게임 내 모든 퀘스트 SO 리스트를 드래그 앤 드롭
 
     [Header("Current Progress Slots")]
+    public string currentRegionID = "Village"; // 현재 지역 ID (반복 퀘스트 할당용)
     public QuestProgressData currentMainQuest;
     public List<QuestProgressData> currentSubQuests = new List<QuestProgressData>();
 
@@ -44,10 +45,15 @@ public class QuestManager : MonoBehaviour
             saveFilePath = Path.Combine(Application.persistentDataPath, "quest_progress.json");
             DontDestroyOnLoad(gameObject);
             LoadQuestData();
+
+            if (currentMainQuest == null || string.IsNullOrEmpty(currentMainQuest.questID))
+            {
+                Debug.Log("초기 메인 퀘스트 할당 시도: Main_Test");
+                AssignMainQuest("Main_Test");
+            }
         }
         else Destroy(gameObject);
     }
-
     private void OnEnable()
     {
         GlobalEventManager.OnEnemyKilled += HandleEnemyKilled;
@@ -60,17 +66,22 @@ public class QuestManager : MonoBehaviour
         GlobalEventManager.OnEncounterCleared -= HandleEncounterCleared;
     }
 
-public void AssignRandomSubQuests(string regionID)
+    /// <summary>
+    /// 현재 지역의 서브 퀘스트를 최대 개수(2개)까지 채웁니다.
+    /// </summary>
+    public void FillSubQuests()
     {
-        currentSubQuests.Clear();
+        int needed = 2 - currentSubQuests.Count;
+        if (needed <= 0) return;
 
         var pool = questDatabase.Where(q => 
-            q.regionID == regionID && 
+            q.regionID == currentRegionID && 
             !q.isMainQuest && 
-            !GameProgressManager.Instance.IsUnlocked($"Cleared_{q.questID}")
+            !GameProgressManager.Instance.IsUnlocked(q.questID) &&
+            currentSubQuests.All(sq => sq.questID != q.questID) // 이미 진행 중인 퀘스트 제외
         ).ToList();
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < needed; i++)
         {
             if (pool.Count == 0) break;
 
@@ -101,12 +112,18 @@ public void AssignRandomSubQuests(string regionID)
                 currentSubQuests.Add(newQuest);
                 pool.Remove(selected); // 중복 당첨 방지
                 
-                // selected.rarity 값에 따라 여기서 UI 연출
-                Debug.Log($"[{selected.rarity}] 등급 퀘스트 당첨: {selected.questName}");
+                Debug.Log($"[{selected.rarity}] 등급 퀘스트 할당: {selected.questName}");
             }
         }
 
         SaveQuestData();
+    }
+
+    public void AssignRandomSubQuests(string regionID)
+    {
+        currentRegionID = regionID;
+        currentSubQuests.Clear();
+        FillSubQuests();
     }
 
     public void AssignMainQuest(string questID)
@@ -117,6 +134,10 @@ public void AssignRandomSubQuests(string regionID)
             currentMainQuest = new QuestProgressData { questID = questID, isCompleted = false };
             currentMainQuest.InitializeCounts(data.conditions.Count);
             SaveQuestData();
+        }
+        else
+        {
+            Debug.LogError($"퀘스트 데이터 '{questID}'를 찾을 수 없습니다. DB를 확인하세요.");
         }
     }
 
@@ -192,7 +213,7 @@ public void AssignRandomSubQuests(string regionID)
         QuestDataSO data = GetQuestSO(quest.questID);
         if (data == null) return;
 
-        Debug.Log($"💰 보상 획득: {data.rewardGold} G");
+        //Debug.Log($"💰 보상 획득: {data.rewardGold} G");
 
         GameProgressManager.Instance.Unlock($"Cleared_{data.questID}");
         if (!string.IsNullOrEmpty(data.unlockProgressID))

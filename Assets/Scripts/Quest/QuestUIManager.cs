@@ -9,27 +9,30 @@ public class QuestUIManager : MonoBehaviour
 
     private void Start()
     {
-        // 게임 시작 시 UI를 최신화합니다.
         RefreshAllQuestUI();
     }
 
-    // 💡 이 함수가 핵심입니다! 데이터와 UI를 연결해 줍니다.
     public void RefreshAllQuestUI()
     {
-        // 1. 메인 퀘스트 데이터 연결
+        // 서브 퀘스트가 비어있으면 자동으로 채우기 시도
+        if (QuestManager.Instance.currentSubQuests.Count < subQuestSlots.Count)
+        {
+            QuestManager.Instance.FillSubQuests();
+        }
+
         var mainData = QuestManager.Instance.currentMainQuest;
         if (mainData != null)
         {
             var so = QuestManager.Instance.GetQuestSO(mainData.questID);
             mainQuestSlot.gameObject.SetActive(true);
-            mainQuestSlot.SetupSlot(mainData, so, true); // 여기서 SetupSlot 호출!
+            Debug.Log(mainData.questID);
+            mainQuestSlot.SetupSlot(mainData, so, true);
         }
         else
         {
             mainQuestSlot.gameObject.SetActive(false);
         }
 
-        // 2. 서브 퀘스트 데이터 연결
         var subDataList = QuestManager.Instance.currentSubQuests;
         for (int i = 0; i < subQuestSlots.Count; i++)
         {
@@ -37,7 +40,7 @@ public class QuestUIManager : MonoBehaviour
             {
                 var so = QuestManager.Instance.GetQuestSO(subDataList[i].questID);
                 subQuestSlots[i].gameObject.SetActive(true);
-                subQuestSlots[i].SetupSlot(subDataList[i], so, false); // 여기서 SetupSlot 호출!
+                subQuestSlots[i].SetupSlot(subDataList[i], so, false);
             }
             else
             {
