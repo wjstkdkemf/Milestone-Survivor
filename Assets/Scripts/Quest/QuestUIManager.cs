@@ -7,10 +7,10 @@ public class QuestUIManager : MonoBehaviour
     public QuestSlotUI mainQuestSlot;        // 메인 퀘스트 슬롯 (1개)
     public List<QuestSlotUI> subQuestSlots;  // 서브 퀘스트 슬롯들 (2개)
 
-    private void Start()
+    /*private void Start()
     {
-        RefreshAllQuestUI();
-    }
+        //RefreshAllQuestUI();
+    }*/
 
     public void RefreshAllQuestUI()
     {

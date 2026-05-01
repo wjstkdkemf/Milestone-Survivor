@@ -7,7 +7,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 {
     public enum EnemyState { Idle, Escape, Chasing, Attacking, Fleeing, Stunned, Dead }
     public enum AnimState { Run, Attack, Die }
-    
+
+    public string enemyID;
     public EnemyState currentNormalState = EnemyState.Idle;
     public EnemyRarity rarity;
     protected bool facingRight = true;
@@ -31,6 +32,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public GameObject DamageText;
     public Transform player;
     public PlayerHealth playerHealth;
+    private LootDrop lootDrop;
     
     protected float coolDownTimer;
     protected float knockBackTime = 0f;
@@ -89,6 +91,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         GameObject gameObject = GameManager.Instance.Player;
         player = gameObject.transform.Find("CenterPosition").transform;
         playerHealth = gameObject.GetComponent<PlayerHealth>();
+
+        lootDrop = GetComponent<LootDrop>();
+
 
         if (boss)
         {
@@ -370,7 +375,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         //}
         GameManager.Instance.NumberOfKills++;
 
-        LootDrop lootDrop = GetComponent<LootDrop>();
+        GlobalEventManager.OnEnemyKilled?.Invoke(enemyID);
+
         if (lootDrop != null) lootDrop.DropLoot();
 
         if (!DontUseObjectPooling)

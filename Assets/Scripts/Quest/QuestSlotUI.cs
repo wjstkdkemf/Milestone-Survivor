@@ -11,6 +11,7 @@ public class QuestSlotUI : MonoBehaviour
     public TextMeshProUGUI descriptionText;
     public TextMeshProUGUI questTypeText; // "메인 퀘스트" or "반복 퀘스트"
     public TextMeshProUGUI progressText;  // "10 / 50"
+    public bool Ingame = false;
 
     public Button actionButton;           // 수락 / 보상받기 버튼
     public TextMeshProUGUI buttonText;
@@ -37,13 +38,32 @@ public class QuestSlotUI : MonoBehaviour
     {
         uiManager = GetComponentInParent<QuestUIManager>();
     }
+    private void OnEnable()
+    {
+        if(currentProgress != null && currentData != null)
+            UpdateDisplay();
+    }
+    private void UpdateDisplay()
+    {
+        titleText.text = currentData.questName;
+        if(descriptionText != null)
+            descriptionText.text = currentData.description;
+        
+        if(currentData.conditions.Count > 0)
+        {
+            progressText.text = $"{currentProgress.currentCounts[0]} / {currentData.conditions[0].targetAmount}";
+        }
 
+        UpdateButtonState();
+        DrawRewards(currentData.rewards);
+    }
     public void SetupSlot(QuestProgressData progress, QuestDataSO data, bool isMain)
     {
         currentProgress = progress;
         currentData = data;
         titleText.text = data.questName;
-        descriptionText.text = data.description;
+        if(descriptionText != null)
+            descriptionText.text = data.description;
         //questTypeText.text = isMain ? "<color=#FFD700>메인 퀘스트</color>" : "<color=#ADD8E6>지역 반복 퀘스트</color>";
 
         // 진행도 텍스트 (다중 조건 중 첫 번째 조건만 대표로 띄우는 예시)
@@ -85,6 +105,9 @@ public class QuestSlotUI : MonoBehaviour
 
     private void UpdateButtonState()
     {
+        
+        if(actionButton == null)
+            return;
         // 버튼에 달려있던 기존 함수들 싹 지우기 (버그 방지)
         actionButton.onClick.RemoveAllListeners();
 
@@ -144,6 +167,8 @@ public class QuestSlotUI : MonoBehaviour
     }
     private void DrawRewards(List<QuestReward> rewards)
     {
+        if(Ingame)
+            return;
         // 1. 기존에 켜져 있던 보상 UI들을 싹 다 끕니다. (오브젝트 풀링 방식)
         foreach (var row in spawnedRewardRows)
         {

@@ -15,8 +15,6 @@ public class PlayerSkillHUD : MonoBehaviour
 
     public void RefreshWeaponIcons()
     {
-        Debug.Log("호출 체크");
-
         foreach (GameObject iconObj in spawnedIcons)
         {
             if (iconObj != null)

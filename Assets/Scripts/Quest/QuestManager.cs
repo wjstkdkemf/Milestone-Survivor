@@ -44,13 +44,7 @@ public class QuestManager : MonoBehaviour
             Instance = this;
             saveFilePath = Path.Combine(Application.persistentDataPath, "quest_progress.json");
             DontDestroyOnLoad(gameObject);
-            LoadQuestData();
-
-            if (currentMainQuest == null || string.IsNullOrEmpty(currentMainQuest.questID))
-            {
-                Debug.Log("초기 메인 퀘스트 할당 시도: Main_Test");
-                AssignMainQuest("Main_Test");
-            }
+            //LoadQuestData();
         }
         else Destroy(gameObject);
     }
@@ -161,6 +155,8 @@ public class QuestManager : MonoBehaviour
     {
         if (quest == null || quest.isCompleted) return;
 
+        Debug.Log("호출 체크");
+
         QuestDataSO data = GetQuestSO(quest.questID);
         if (data == null) return;
 
@@ -246,6 +242,12 @@ public class QuestManager : MonoBehaviour
             
             currentMainQuest = data.mainQuest;
             currentSubQuests = data.activeSubQuests;
+        }
+
+        if (currentMainQuest == null || string.IsNullOrEmpty(currentMainQuest.questID))
+        {
+            Debug.Log("초기 메인 퀘스트 할당 시도: Main_Test");
+            AssignMainQuest("Main_Test");
         }
     }
 

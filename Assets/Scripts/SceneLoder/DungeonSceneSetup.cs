@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class DungeonSceneSetup : MonoBehaviour, ISceneInitializer
 {
+    public QuestUIManager questUIManager;
     public IEnumerator Initialize()
     {
         Debug.Log("던전 씬 초기화 시작...");
@@ -21,6 +22,9 @@ public class DungeonSceneSetup : MonoBehaviour, ISceneInitializer
         GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerHealth>().InitializeForNewScene();
 
         Resources.UnloadUnusedAssets();
+
+        questUIManager.RefreshAllQuestUI();
+
 
         yield return new WaitForSeconds(0.5f); // 연출용 대기
     }

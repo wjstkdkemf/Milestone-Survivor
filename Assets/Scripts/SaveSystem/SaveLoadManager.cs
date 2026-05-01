@@ -58,6 +58,7 @@ public class SaveLoadManager : MonoBehaviour
         PlayerPrefs.Save();
 
         GameProgressManager.Instance.SaveProgress();
+        QuestManager.Instance.SaveQuestData();
 
         Debug.Log($"<color=green>[SaveLoadManager]</color> Game Saved to Slot {slotNumber}.");
     }
@@ -65,6 +66,7 @@ public class SaveLoadManager : MonoBehaviour
     public void LoadGame(int slotNumber)
     {
         GameSaveData saveData = GetSaveSlotData(slotNumber);
+        Debug.Log("체크");
 
         if (saveData != null)
         {
@@ -79,6 +81,7 @@ public class SaveLoadManager : MonoBehaviour
 
             PowerUpManager.Instance.LoadData(saveData.powerUpData);
             PlayerStats.Instance.LoadData(saveData.playerStatsData);
+            QuestManager.Instance.LoadQuestData();
             IsLoadingFromFile = true; // Set the flag
             Debug.Log($"<color=green>[SaveLoadManager]</color> Game Loaded from Slot {slotNumber}.");
         }

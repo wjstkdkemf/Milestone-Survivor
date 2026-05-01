@@ -71,6 +71,7 @@ public class LoadingManager : MonoBehaviour
             if (op.progress >= 0.9f) op.allowSceneActivation = true;
             yield return null;
         }
+        yield return new WaitForEndOfFrame();
         yield return null;
 
         // 4. 씬별 초기화 실행

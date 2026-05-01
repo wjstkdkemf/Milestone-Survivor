@@ -4,6 +4,7 @@ using InventorySystem;
 public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
 {
     public AudioClip MainBGM;
+    public QuestUIManager questUIManager;
     public IEnumerator Initialize()
     {
         string prevScene = LoadingManager.Instance.PreviousSceneName;
@@ -44,6 +45,8 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
         InventoryController.instance.init();
 
         Resources.UnloadUnusedAssets();
+
+        questUIManager.RefreshAllQuestUI();
         if(!GameProgressManager.Instance.IsUnlocked("Tutorial"))
         {
             if (TutorialManager.Instance != null)
@@ -70,6 +73,8 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
 
         InventoryController.instance.init();
         LoadScreenManager.Instance.ConfirmSelectionSave();
+        questUIManager.RefreshAllQuestUI();
+
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
     }
 }
