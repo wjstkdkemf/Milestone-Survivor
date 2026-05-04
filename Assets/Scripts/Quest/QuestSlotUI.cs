@@ -17,17 +17,19 @@ public class QuestSlotUI : MonoBehaviour
     public TextMeshProUGUI buttonText;
 
     [Header("Rarity Effects")]
-    public Image backgroundImage;         // 카드 배경 또는 테두리
+    //public Image backgroundImage;         // 카드 배경 또는 테두리
+    [SerializeField] private Image border;
+    private Coroutine highlightRoutine;
     public GameObject legendarySparkleEffect; // 전설 전용 파티클
 
     [Header("Reward Effects")]
     public GameObject rewardEffectObject; // 보상 연출용 오브젝트
     public float effectDuration = 2.0f;   // 연출 지속 시간
     [Header("Reward UI Settings")]
-    public Transform rewardContainer;     // 보상들이 쌓일 부모 오브젝트 (Vertical Layout Group 부착 필수)
+    public Transform rewardContainer;     // 보상들이 쌓일 부모 오브젝트
     public RewardRowUI rewardRowPrefab;   // 아까 만든 보상 한 줄 프리팹
 
-    // 생성된 보상 UI들을 담아둘 리스트 (재사용 최적화용)
+    // 생성된 보상 UI들을 담아둘 리스트
     private List<RewardRowUI> spawnedRewardRows = new List<RewardRowUI>();
 
     private QuestProgressData currentProgress;
@@ -102,27 +104,65 @@ public class QuestSlotUI : MonoBehaviour
         }
         */
     }
+    void StartHighlight()
+    {
+        if (highlightRoutine != null) return;
+        highlightRoutine = StartCoroutine(HighlightRoutine());
+    }
+
+    void StopHighlight()
+    {
+        if (highlightRoutine != null)
+        {
+            StopCoroutine(highlightRoutine);
+            highlightRoutine = null;
+        }
+        if(border != null)
+            border.color = Color.white;
+    }
+    IEnumerator HighlightRoutine()
+    {
+        Color baseColor = Color.white;
+        Color glowColor = new Color(1f, 0.85f, 0.2f);
+
+        float t = 0f;
+
+        while (true)
+        {
+            t += Time.deltaTime * 2f;
+
+            float lerp = (Mathf.Sin(t) + 1f) * 0.5f;
+
+            border.color = Color.Lerp(baseColor, glowColor, lerp);
+
+            yield return null;
+        }
+    }
 
     private void UpdateButtonState()
     {
         
         if(actionButton == null)
             return;
-        // 버튼에 달려있던 기존 함수들 싹 지우기 (버그 방지)
+        // 버튼에 달려있던 기존 함수들 싹 지우기
         actionButton.onClick.RemoveAllListeners();
 
-        if (currentProgress.isCompleted)
+        bool isCompleted = currentProgress.isCompleted;
+        bool isClaimed = currentProgress.isClaimed;
+
+        if (isCompleted && !isClaimed && !Ingame)
         {
-            // 완료 상태: '보상 받기' 활성화
-            //buttonText.text = "보상 받기";
+            // 🔥 보상 받기 가능 상태
+            progressText.text = "보상 받기";
             actionButton.interactable = true;
             actionButton.onClick.AddListener(OnClickClaimReward);
+
+            StartHighlight(); // 반짝 시작
         }
         else
         {
-            // 진행 중 상태: 버튼 비활성화 (또는 '포기하기' 로직 연결)
-            //buttonText.text = "진행 중";
             actionButton.interactable = false;
+            StopHighlight(); // 반짝 중지
         }
     }
 
@@ -135,15 +175,17 @@ public class QuestSlotUI : MonoBehaviour
     {
         actionButton.interactable = false;
 
+        StopHighlight();
+
+        currentProgress.isClaimed = true;
+
+        QuestManager.Instance.ClaimReward(currentProgress);
+
         // 보상 연출 시작
         if (rewardEffectObject != null)
         {
             rewardEffectObject.SetActive(true);
         }
-
-        // 매니저에게 보상 지급 요청
-        QuestManager.Instance.ClaimReward(currentProgress);
-
         // 연출 시간만큼 대기
         yield return new WaitForSeconds(effectDuration);
 
@@ -152,7 +194,7 @@ public class QuestSlotUI : MonoBehaviour
             rewardEffectObject.SetActive(false);
         }
 
-        // 새 퀘스트 자동 할당 시도 (서브 퀘스트인 경우)
+        // 새 퀘스트 자동 할당 시도
         QuestManager.Instance.FillSubQuests();
 
         // UI 갱신
@@ -169,18 +211,18 @@ public class QuestSlotUI : MonoBehaviour
     {
         if(Ingame)
             return;
-        // 1. 기존에 켜져 있던 보상 UI들을 싹 다 끕니다. (오브젝트 풀링 방식)
+        // 기존에 켜져 있던 보상 UI들을 싹 다 끕니다.
         foreach (var row in spawnedRewardRows)
         {
             row.gameObject.SetActive(false);
         }
 
-        // 2. 필요한 만큼 보상 UI를 켜거나 새로 만듭니다.
+        // 필요한 만큼 보상 UI를 켜거나 새로 만듭니다.
         for (int i = 0; i < rewards.Count; i++)
         {
             RewardRowUI rowUI;
 
-            // 이미 만들어둔 UI가 있으면 재사용 (Instantiate 최소화)
+            // 이미 만들어둔 UI가 있으면 재사용
             if (i < spawnedRewardRows.Count)
             {
                 rowUI = spawnedRewardRows[i];

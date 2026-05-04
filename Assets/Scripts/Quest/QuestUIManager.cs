@@ -25,7 +25,6 @@ public class QuestUIManager : MonoBehaviour
         {
             var so = QuestManager.Instance.GetQuestSO(mainData.questID);
             mainQuestSlot.gameObject.SetActive(true);
-            Debug.Log(mainData.questID);
             mainQuestSlot.SetupSlot(mainData, so, true);
         }
         else

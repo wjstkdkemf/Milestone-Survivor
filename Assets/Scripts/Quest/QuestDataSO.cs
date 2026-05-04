@@ -20,7 +20,7 @@ public class QuestReward
     
     [Header("Details")]
     public int amount;          // 골드나 경험치량
-    public string itemName;     // 아이템일 경우 이름
+    public LootTable lootTable;     // 아이템일 경우 아이템 드랍 테이블.
 }
 
 [CreateAssetMenu(fileName = "New Quest Data", menuName = "System/Quest Data")]

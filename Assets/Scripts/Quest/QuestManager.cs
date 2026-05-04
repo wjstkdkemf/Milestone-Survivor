@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.IO;
+using InventorySystem;
 
 [System.Serializable]
 public class QuestProgressData
@@ -9,6 +10,7 @@ public class QuestProgressData
     public string questID;
     public List<int> currentCounts; // 다중 조건의 현재 진행도를 순서대로 저장
     public bool isCompleted;
+    public bool isClaimed;
 
     public void InitializeCounts(int conditionCount)
     {
@@ -73,7 +75,7 @@ public class QuestManager : MonoBehaviour
             !q.isMainQuest && 
             !GameProgressManager.Instance.IsUnlocked(q.questID) &&
             currentSubQuests.All(sq => sq.questID != q.questID) // 이미 진행 중인 퀘스트 제외
-        ).ToList();
+            ).ToList();
 
         for (int i = 0; i < needed; i++)
         {
@@ -209,9 +211,21 @@ public class QuestManager : MonoBehaviour
         QuestDataSO data = GetQuestSO(quest.questID);
         if (data == null) return;
 
+        foreach(QuestReward reward in data.rewards)
+        {
+            if(reward.rewardType == RewardType.Gold)
+            {
+                PlayerStats.Instance.AddCoin(reward.amount);
+            }
+            else if(reward.rewardType == RewardType.Item)
+            {
+                ItemObject itemObject = reward.lootTable.QuestDrop().itemPrefab.GetComponent<ItemObject>();
+                InventoryController.instance.AddItem("Inventory", itemObject.itemData.itemName, 1);
+            }
+        }
         //Debug.Log($"💰 보상 획득: {data.rewardGold} G");
 
-        GameProgressManager.Instance.Unlock($"Cleared_{data.questID}");
+        //GameProgressManager.Instance.Unlock($"Cleared_{data.questID}");
         if (!string.IsNullOrEmpty(data.unlockProgressID))
         {
             GameProgressManager.Instance.Unlock(data.unlockProgressID);

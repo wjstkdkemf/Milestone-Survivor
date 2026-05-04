@@ -10,6 +10,7 @@ public class LootTableItem
 
 public class LootTable : MonoBehaviour
 {
+    public string LootTableID;
     public List<LootTableItem> lootItems = new List<LootTableItem>();
 
     public void DropSingleItem()
@@ -38,5 +39,32 @@ public class LootTable : MonoBehaviour
                 return; 
             }
         }
+    }
+    public LootTableItem QuestDrop()
+    {
+        float totalWeight = 0f;
+        foreach (var item in lootItems)
+        {
+            totalWeight += item.dropChance;
+        }
+
+        if (totalWeight <= 0) return null;
+
+        float randomValue = Random.Range(0f, totalWeight);
+        float cumulativeWeight = 0f;
+
+        foreach (var item in lootItems)
+        {
+            cumulativeWeight += item.dropChance;
+            if (randomValue <= cumulativeWeight)
+            {
+                if (item != null)
+                {
+                    return item;
+                }
+                return null; 
+            }
+        }
+        return null;
     }
 }

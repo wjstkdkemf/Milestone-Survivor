@@ -8,7 +8,7 @@ public class ItemObject : MonoBehaviour
     public float moveSpeed = 8f;
     private bool isCollecting = false;
 
-private void OnEnable()
+    private void OnEnable()
     {
         isCollecting = false; // 상태 초기화
 
