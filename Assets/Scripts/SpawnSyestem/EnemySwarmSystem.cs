@@ -246,6 +246,12 @@ public class EnemySwarmSystem : MonoBehaviour
             }
         }
     }
+    public void ReleaseNativeBuffers()
+    {
+        if (positions.IsCreated) positions.Dispose();
+        if (speeds.IsCreated) speeds.Dispose();
+        if (canMove.IsCreated) canMove.Dispose();
+    }
 
     [BurstCompile]
     private struct SwarmMoveJob : IJobParallelForTransform
@@ -305,7 +311,10 @@ public class EnemySwarmSystem : MonoBehaviour
                 }
             }
 
-            float2 targetDir = math.normalize(targetPos - myPos);
+            float2 toTarget = targetPos - myPos;
+            float distSq = math.lengthsq(toTarget);
+            float2 targetDir = distSq > 0.0001f ? toTarget * math.rsqrt(distSq) : float2.zero;
+
             float2 velocity = targetDir * speeds[index];
 
             float2 move = (velocity + collisionPush) * deltaTime;

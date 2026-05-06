@@ -21,7 +21,15 @@ public class RewardRowUI : MonoBehaviour
                 //PlayerStats.Instance.AddCoin(reward.amount);
                 break;
             case RewardType.Item:
-                rewardText.text = reward.lootTable.LootTableID; // "초보자의 검" 등
+                if (reward.lootTable != null)
+                {
+                    rewardText.text = reward.lootTable.LootTableID;
+                }
+                else
+                {
+                    rewardText.text = "데이터 누락됨";
+                    Debug.LogError("보상 아이템 데이터가 없습니다!");
+                }
                 break;
         }
 

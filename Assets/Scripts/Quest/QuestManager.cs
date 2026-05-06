@@ -34,6 +34,7 @@ public class QuestManager : MonoBehaviour
 
     [Header("Current Progress Slots")]
     public string currentRegionID = "Village"; // 현재 지역 ID (반복 퀘스트 할당용)
+    private string recentlyClaimedQuestID = ""; // 똑같은 퀘스트가 연속으로 등장하지 않도록 조정.
     public QuestProgressData currentMainQuest;
     public List<QuestProgressData> currentSubQuests = new List<QuestProgressData>();
 
@@ -74,6 +75,7 @@ public class QuestManager : MonoBehaviour
             q.regionID == currentRegionID && 
             !q.isMainQuest && 
             !GameProgressManager.Instance.IsUnlocked(q.questID) &&
+            q.questID != recentlyClaimedQuestID &&
             currentSubQuests.All(sq => sq.questID != q.questID) // 이미 진행 중인 퀘스트 제외
             ).ToList();
 
@@ -111,6 +113,8 @@ public class QuestManager : MonoBehaviour
                 Debug.Log($"[{selected.rarity}] 등급 퀘스트 할당: {selected.questName}");
             }
         }
+
+        recentlyClaimedQuestID = "";
 
         SaveQuestData();
     }
@@ -219,8 +223,11 @@ public class QuestManager : MonoBehaviour
             }
             else if(reward.rewardType == RewardType.Item)
             {
-                ItemObject itemObject = reward.lootTable.QuestDrop().itemPrefab.GetComponent<ItemObject>();
-                InventoryController.instance.AddItem("Inventory", itemObject.itemData.itemName, 1);
+                if(reward.lootTable != null)
+                {
+                    ItemObject itemObject = reward.lootTable.QuestDrop().itemPrefab.GetComponent<ItemObject>();
+                    InventoryController.instance.AddItem("Inventory", itemObject.itemData.itemName, reward.amount);
+                }
             }
         }
         //Debug.Log($"💰 보상 획득: {data.rewardGold} G");
@@ -230,6 +237,7 @@ public class QuestManager : MonoBehaviour
         {
             GameProgressManager.Instance.Unlock(data.unlockProgressID);
         }
+        recentlyClaimedQuestID = quest.questID;
 
         if (quest == currentMainQuest) currentMainQuest = null;
         else currentSubQuests.Remove(quest);

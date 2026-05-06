@@ -69,9 +69,13 @@ public class QuestSlotUI : MonoBehaviour
         //questTypeText.text = isMain ? "<color=#FFD700>메인 퀘스트</color>" : "<color=#ADD8E6>지역 반복 퀘스트</color>";
 
         // 진행도 텍스트 (다중 조건 중 첫 번째 조건만 대표로 띄우는 예시)
-        if (data.conditions.Count > 0)
+        if (currentData.conditions.Count > 0 && currentProgress.currentCounts.Count > 0)
         {
-            progressText.text = $"{progress.currentCounts[0]} / {data.conditions[0].targetAmount}";
+            progressText.text = $"{currentProgress.currentCounts[0]} / {currentData.conditions[0].targetAmount}";
+        }
+        else
+        {
+            progressText.text = ""; // 조건이 없는 퀘스트라면 텍스트를 비워줍니다.
         }
 
         ApplyRarityEffect(data.rarity);
@@ -152,7 +156,7 @@ public class QuestSlotUI : MonoBehaviour
 
         if (isCompleted && !isClaimed && !Ingame)
         {
-            // 🔥 보상 받기 가능 상태
+            // 보상 받기 가능 상태
             progressText.text = "보상 받기";
             actionButton.interactable = true;
             actionButton.onClick.AddListener(OnClickClaimReward);
