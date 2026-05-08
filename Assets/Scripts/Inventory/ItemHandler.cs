@@ -20,7 +20,7 @@ public class ItemHandler : MonoBehaviour
         if (data != null)
         {
             // PlayerStats의 골드를 아이템 가격만큼 증가시킵니다.
-            PlayerStats.Instance.AddCoin(data.price);
+            PlayerStats.Instance.AddGold(data.price);
         }
         else
         {

@@ -1,7 +1,7 @@
 [System.Serializable]
 public class PlayerStatsData
 {
-    public int goldAmount;
+    public long goldAmount;
     public int stageCleared;
     public int characterID;
     public int level;

@@ -14,7 +14,7 @@ public class ItemEnchanter : MonoBehaviour
 
     [Tooltip("The UI button for enchanting.")]
     public Button enchantButton;
-    public TMP_Text MyGoldText;
+    //public TMP_Text MyGoldText;
     public TextMeshProUGUI enchantText;
 
     // 강화 레벨별 비용 (Key: 현재 레벨, Value: 다음 레벨로 가기 위한 비용)
@@ -47,22 +47,6 @@ public class ItemEnchanter : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        PlayerStats.OnGoldChanged += HandleGoldChanged;
-        UpdateGold();
-    }
-
-    private void OnDisable()
-    {
-        PlayerStats.OnGoldChanged -= HandleGoldChanged;
-    }
-
-    private void HandleGoldChanged(int newGoldAmount)
-    {
-        UpdateGold();
-    }
-
     private void Start()
     {
         if (enchantButton != null)
@@ -79,14 +63,6 @@ public class ItemEnchanter : MonoBehaviour
     {
         currentItem = item;
         UpdateEnchantButton();
-    }
-    private void UpdateGold()
-    {
-        if(MyGoldText != null)
-        {
-            string GoldText_Format = PlayerStats.Instance.Format(PlayerStats.Instance.GoldAmount);
-            MyGoldText.text = $"{GoldText_Format}";
-        } 
     }
 
     /// <summary>
@@ -133,8 +109,6 @@ public class ItemEnchanter : MonoBehaviour
             // This grade is not in the cost dictionary
             enchantButton.interactable = false;
         }
-
-        UpdateGold();
     }
 
     /// <summary>
@@ -155,12 +129,9 @@ public class ItemEnchanter : MonoBehaviour
         {
             if (enhancementCosts.TryGetValue(currentLevel, out int cost))
             {
-                if (PlayerStats.Instance.GoldAmount >= cost)
+                if (PlayerStats.Instance.TrySpendGold(cost))
                 {
-                    // Deduct gold
-                    PlayerStats.Instance.GoldAmount -= cost;
 
-                    // Increase enhancement level
                     currentItem.SetEnhancementLevel(currentLevel + 1);
 
                     // Re-apply equipment effects if the item is equipped

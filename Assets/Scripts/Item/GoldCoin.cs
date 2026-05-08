@@ -69,7 +69,7 @@ public class GoldCoin : MonoBehaviour
         // Grant coin and destroy
         if (PlayerStats.Instance != null)
         {
-            PlayerStats.Instance.AddCoin(GoldValue);
+            PlayerStats.Instance.AddGold(GoldValue);
         }
         Destroy(gameObject);
     }

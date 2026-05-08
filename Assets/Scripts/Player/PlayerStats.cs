@@ -1,5 +1,6 @@
 using System.IO;
 using System.Collections.Generic;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,27 +11,50 @@ public class PlayerStats : MonoBehaviour
 {
     public static PlayerStats Instance;
     public GameObject Player;
-    private int maxGold = 1000000;
-    private int _goldAmount;
-    public static event System.Action<int> OnGoldChanged;
-    public int GoldAmount
+    private long maxGold = 1000000;
+    [SerializeField]private long goldAmount;
+    public long GoldAmount => goldAmount;
+    public event Action<long> OnGoldChanged;
+    public void AddGold(long amount)
     {
-        get => _goldAmount;
-        set
-        {
-            // 들어온 값(value)이 maxGold보다 크면 maxGold로 고정, 
-            // 0보다 작으면 0으로 고정 (음수 방지)
-            _goldAmount = (int)Mathf.Clamp(value, 0, maxGold);
-            
-            // 값이 변했으니 UI 업데이트 알림
-            OnGoldChanged?.Invoke(GoldAmount); 
-            
-            // (선택사항) 만약 최대치에 도달했다면 로그 출력
-            if (_goldAmount >= maxGold)
-            {
-                Debug.Log("골드가 최대치에 도달했습니다!");
-            }
-        }
+        if (amount <= 0)
+            return;
+
+        goldAmount += amount;
+        OnGoldChanged?.Invoke(goldAmount);
+    }
+
+    public bool TrySpendGold(long cost)
+    {
+        if (cost <= 0)
+            return true;
+
+        if (goldAmount < cost)
+            return false;
+
+        goldAmount -= cost;
+        OnGoldChanged?.Invoke(goldAmount);
+        return true;
+    }
+
+    public void SetGold(long value)
+    {
+        goldAmount = (long)Mathf.Max(0, value);
+        OnGoldChanged?.Invoke(goldAmount);
+    }
+
+    public string Format_Gold(long value)
+    {
+        if (value >= 1_000_000_000)
+            return $"{value / 1_000_000_000f:0.##}B";
+
+        if (value >= 1_000_000)
+            return $"{value / 1_000_000f:0.##}M";
+
+        if (value >= 1_000)
+            return $"{value / 1_000f:0.##}K";
+
+        return value.ToString();
     }
     public int StageCleared;
     public int CharacterID;
@@ -195,7 +219,7 @@ public class PlayerStats : MonoBehaviour
         if (data == null)
         {
             // Load default values for a new game
-            GoldAmount = 0;
+            SetGold(0);
             StageCleared = 0;
             CharacterID = 0;
             level = 1;
@@ -206,7 +230,7 @@ public class PlayerStats : MonoBehaviour
         else
         {
             // Load values from data
-            GoldAmount = data.goldAmount;
+            SetGold(data.goldAmount);
             StageCleared = data.stageCleared;
             CharacterID = data.characterID;
             level = data.level;
@@ -287,12 +311,6 @@ public class PlayerStats : MonoBehaviour
             }
         }
     }
-
-    public void AddCoin(int Amount)
-    {
-        GoldAmount += Amount;
-    }
-
     public void LevelUpLess10()
     {
         if (level < 100)

@@ -58,7 +58,6 @@ public class PowerUpManager : MonoBehaviour
         InitializeButtonPool();
 
         UpdateTierView();
-        UpdateGoldUI();
     }
 
     void InitializeButtonPool()
@@ -162,19 +161,17 @@ public class PowerUpManager : MonoBehaviour
             return;
         }
 
-        float cost = powerUp.costPerLevel[powerUp.CurrentLevel];
-        if (playerStats.GoldAmount < cost)
+        long cost = powerUp.costPerLevel[powerUp.CurrentLevel];
+        if (!playerStats.TrySpendGold(cost))
         {
             Debug.Log("Not enough gold!");
             return;
         }
 
-        playerStats.GoldAmount -= Mathf.RoundToInt(cost);
         powerUp.CurrentLevel++;
 
         currentSelectedButton.UpdateUI();
         UpdateDetailPanel(powerUp);
-        UpdateGoldUI();
         LoadScreenManager.Instance.ConfirmSelectionSave();
 
         CheckLockStatus(); 
@@ -188,19 +185,18 @@ public class PowerUpManager : MonoBehaviour
             {
                 if (powerUp.CurrentLevel > 0)
                 {
-                    float amount = 0;
+                    long amount = 0;
                     for (int i = 0; i < powerUp.CurrentLevel; i++)
                     {
                         amount += powerUp.costPerLevel[i];
                     }
-                    PlayerStats.Instance.GoldAmount += Mathf.RoundToInt(amount);
+                    PlayerStats.Instance.AddGold(amount);
                     
                     powerUp.CurrentLevel = 0;
                 }
             }
         }
 
-        UpdateGoldUI();
         
         foreach (var btn in buttonPool)
         {
@@ -252,18 +248,8 @@ public class PowerUpManager : MonoBehaviour
             costText.text = "MAX";
             BuyButtons.SetActive(false);
         }
-        UpdateGoldUI();
     }
 
-    public void UpdateGoldUI()
-    {
-        if (MyGoldText != null && playerStats != null)
-        {
-            MyGoldText.text = playerStats.Format(playerStats.GoldAmount);
-        }
-    }
-
-    // --- Save / Load ---
 
     public PowerUpSaveData GetSaveData()
     {
@@ -306,6 +292,5 @@ public class PowerUpManager : MonoBehaviour
         }
 
         UpdateTierView();
-        UpdateGoldUI();
     }
 }

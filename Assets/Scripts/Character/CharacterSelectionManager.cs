@@ -91,9 +91,8 @@ public class CharacterSelectionManager : MonoBehaviour
     }
     public void Purchase()
     {
-        if (PlayerStats.Instance.GoldAmount >= characterSelectionButton.characterInfo.costPerLevel )
+        if (PlayerStats.Instance.TrySpendGold(characterSelectionButton.characterInfo.costPerLevel))
         {
-            PlayerStats.Instance.GoldAmount -= characterSelectionButton.characterInfo.costPerLevel;
             characterSelectionButton.characterInfo.purchased = true;
             characterSelectionButton.CardIcon.color = Color.white;
             BuyButtons.SetActive(false);
@@ -178,7 +177,8 @@ public class CharacterSelectionManager : MonoBehaviour
         foreach(var character in characterList)
         {
             if (character.purchased == true)
-                PlayerStats.Instance.GoldAmount += character.costPerLevel;
+                PlayerStats.Instance.AddGold(character.costPerLevel);
+
             character.purchased = false;
         }
         characterList[0].purchased = true;

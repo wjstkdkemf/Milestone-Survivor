@@ -22,7 +22,7 @@ public class TrashHandler : MonoBehaviour
         //    PlayerStats의 골드를 아이템 가격만큼 증가시킵니다.
         //    PlayerStats.Instance.AddCoin(data.price);
         int slotIndex = item.GetPosition();
-        PlayerStats.Instance.AddCoin(item.GetPrice());
+        PlayerStats.Instance.AddGold(item.GetPrice());
 
         
         //}

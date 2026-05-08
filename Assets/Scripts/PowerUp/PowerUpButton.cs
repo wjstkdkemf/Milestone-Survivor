@@ -15,6 +15,7 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private Graphic cardGraphic; 
     public AudioSource hoverSound;
     public Texture2D customCursor;
+    public GameObject[] LevelUpPlusObjects;
 
     [Header("Settings")]
     public PowerUpScriptableObject powerUp;
@@ -53,7 +54,24 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if (powerUp == null) return;
 
         powerUpNameText.text = powerUp.powerUpName;
-        powerUpPointText.text = powerUp.CurrentLevel.ToString();
+        int currentLevel = Mathf.Clamp(powerUp.CurrentLevel, 0, LevelUpPlusObjects.Length);
+        SetAllPlusInactive();
+
+        for (int i = 0; i < LevelUpPlusObjects.Length; i++)
+        {
+            if (LevelUpPlusObjects[i] == null)
+                continue;
+
+            LevelUpPlusObjects[i].SetActive(i < currentLevel);
+        }
+    }
+    private void SetAllPlusInactive()
+    {
+        for (int i = 0; i < LevelUpPlusObjects.Length; i++)
+        {
+            if (LevelUpPlusObjects[i] != null)
+                LevelUpPlusObjects[i].SetActive(false);
+        }
     }
 
     public void ResetUI()

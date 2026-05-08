@@ -219,7 +219,7 @@ public class QuestManager : MonoBehaviour
         {
             if(reward.rewardType == RewardType.Gold)
             {
-                PlayerStats.Instance.AddCoin(reward.amount);
+                PlayerStats.Instance.AddGold(reward.amount);
             }
             else if(reward.rewardType == RewardType.Item)
             {

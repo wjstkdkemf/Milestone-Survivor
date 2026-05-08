@@ -24,8 +24,6 @@ public class DungeonSceneSetup : MonoBehaviour, ISceneInitializer
         Resources.UnloadUnusedAssets();
 
         questUIManager.RefreshAllQuestUI();
-
-
         yield return new WaitForSeconds(0.5f); // 연출용 대기
     }
 }

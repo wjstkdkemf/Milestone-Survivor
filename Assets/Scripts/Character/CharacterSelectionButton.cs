@@ -72,9 +72,8 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
 
     public void Purchase()
     {
-        if (characterInfo.costPerLevel >= PlayerStats.Instance.GoldAmount)
+        if (PlayerStats.Instance.TrySpendGold(characterInfo.costPerLevel))
         {
-            PlayerStats.Instance.GoldAmount -= characterInfo.costPerLevel;
             characterInfo.purchased = true;
         }
     }

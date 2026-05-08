@@ -65,6 +65,6 @@ public class ItemObject : MonoBehaviour
     }
     private void DropGold()
     {
-        PlayerStats.Instance.AddCoin(itemData.price);
+        PlayerStats.Instance.AddGold(itemData.price);
     }
 }
