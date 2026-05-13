@@ -266,17 +266,9 @@ public class PowerUpManager : MonoBehaviour
 
     public void LoadData(PowerUpSaveData data)
     {
-        if (data == null)
-        {
-            foreach (var tier in powerUpTiers)
-            {
-                foreach (var powerUp in tier.tierPowerUps)
-                {
-                    powerUp.CurrentLevel = 0;
-                }
-            }
-        }
-        else
+        ResetAllPowerUpLevels();
+
+        if (data != null)
         {
             var powerUpLevels = data.ToDictionary();
             foreach (var tier in powerUpTiers)
@@ -285,12 +277,23 @@ public class PowerUpManager : MonoBehaviour
                 {
                     if (powerUpLevels.ContainsKey(powerUp.powerUpType))
                     {
-                        powerUp.CurrentLevel = powerUpLevels[powerUp.powerUpType];
+                        powerUp.CurrentLevel = Mathf.Clamp(powerUpLevels[powerUp.powerUpType], 0, powerUp.upgradeValues.Length);
                     }
                 }
             }
         }
 
         UpdateTierView();
+    }
+
+    private void ResetAllPowerUpLevels()
+    {
+        foreach (var tier in powerUpTiers)
+        {
+            foreach (var powerUp in tier.tierPowerUps)
+            {
+                powerUp.CurrentLevel = 0;
+            }
+        }
     }
 }

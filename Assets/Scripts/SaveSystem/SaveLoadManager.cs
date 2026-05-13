@@ -35,10 +35,8 @@ public class SaveLoadManager : MonoBehaviour
 
     public void SaveGame(int slotNumber)
     {
-        // Check for the essential managers. InventoryManager is no longer needed.
-        if (InventorySystem.InventoryController.instance == null || PowerUpManager.Instance == null || PlayerStats.Instance == null)
+        if (!CanSaveGame())
         {
-            Debug.LogError("A manager is missing. Cannot save game.");
             return;
         }
 
@@ -49,6 +47,7 @@ public class SaveLoadManager : MonoBehaviour
 
         // Create the main save data object.
         GameSaveData saveData = new GameSaveData(invJson, powData, statsData);
+        SaveDataMigrator.PrepareForSave(saveData);
         Debug.Log("Loading Inventory JSON: " + saveData.inventoryJson);
         
         // Serialize to JSON and save to PlayerPrefs.
@@ -65,6 +64,11 @@ public class SaveLoadManager : MonoBehaviour
 
     public void LoadGame(int slotNumber)
     {
+        if (!CanLoadGame())
+        {
+            return;
+        }
+
         GameSaveData saveData = GetSaveSlotData(slotNumber);
         Debug.Log("체크");
 
@@ -97,10 +101,81 @@ public class SaveLoadManager : MonoBehaviour
     {
         // Clear data in all managers for a fresh start.
         if (InventorySystem.InventoryController.instance != null) InventorySystem.InventoryController.instance.ClearAllInventories();
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.ClearStoredInventory();
+            InventoryManager.Instance.DeleteSavedInventoryFile("Current.json");
+        }
         if (PowerUpManager.Instance != null) PowerUpManager.Instance.LoadData(null); // Will load defaults
         if (PlayerStats.Instance != null) PlayerStats.Instance.LoadData(null); // Will load defaults
+        if (GameProgressManager.Instance != null) GameProgressManager.Instance.ResetProgress();
+        if (QuestManager.Instance != null) QuestManager.Instance.ResetQuestDataForNewGame();
+        if (TeleportManager.Instance != null) TeleportManager.Instance.ResetDataForNewGame();
+
+        itemsToTransfer = null;
         IsLoadingFromFile = false; // Reset the flag
         Debug.Log("<color=yellow>[SaveLoadManager]</color> All data has been reset for a new game.");
+    }
+
+    private bool CanSaveGame()
+    {
+        bool canSave = true;
+
+        if (InventorySystem.InventoryController.instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot save: InventoryController is missing.");
+            canSave = false;
+        }
+        if (PowerUpManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot save: PowerUpManager is missing.");
+            canSave = false;
+        }
+        if (PlayerStats.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot save: PlayerStats is missing.");
+            canSave = false;
+        }
+        if (GameProgressManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot save: GameProgressManager is missing.");
+            canSave = false;
+        }
+        if (QuestManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot save: QuestManager is missing.");
+            canSave = false;
+        }
+
+        return canSave;
+    }
+
+    private bool CanLoadGame()
+    {
+        bool canLoad = true;
+
+        if (InventorySystem.InventoryController.instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot load: InventoryController is missing.");
+            canLoad = false;
+        }
+        if (PowerUpManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot load: PowerUpManager is missing.");
+            canLoad = false;
+        }
+        if (PlayerStats.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot load: PlayerStats is missing.");
+            canLoad = false;
+        }
+        if (QuestManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot load: QuestManager is missing.");
+            canLoad = false;
+        }
+
+        return canLoad;
     }
 
     public GameSaveData GetSaveSlotData(int slotNumber)
@@ -111,12 +186,28 @@ public class SaveLoadManager : MonoBehaviour
         {
             string jsonData = PlayerPrefs.GetString(saveKey);
             if (string.IsNullOrEmpty(jsonData)) return null;
-            return JsonUtility.FromJson<GameSaveData>(jsonData);
+
+            if (SaveDataMigrator.TryReadGameSave(jsonData, out GameSaveData saveData))
+            {
+                return saveData;
+            }
+
+            BackupInvalidSaveData(saveKey, jsonData);
+            return null;
         }
         else
         {
             return null;
         }
+    }
+
+    private void BackupInvalidSaveData(string saveKey, string jsonData)
+    {
+        string backupKey = saveKey + "_InvalidBackup";
+        PlayerPrefs.SetString(backupKey, jsonData);
+        PlayerPrefs.DeleteKey(saveKey);
+        PlayerPrefs.Save();
+        Debug.LogWarning($"[SaveLoadManager] Invalid save data was moved to '{backupKey}'.");
     }
 
     public void DeleteSaveData(int slotNumber)

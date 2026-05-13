@@ -60,6 +60,13 @@ public class InventoryManager : MonoBehaviour
         Debug.LogWarning("[InventoryManager] itemCounts cleared.");
         Debug.Log(new System.Diagnostics.StackTrace().ToString());
     }
+
+    public void ClearStoredInventory()
+    {
+        itemCounts.Clear();
+        Debug.Log("[InventoryManager] Stored inventory cleared.");
+    }
+
     public void InsertGame(int gameName = 100)
     {
         if (gameName == 100)
@@ -168,5 +175,14 @@ public class InventoryManager : MonoBehaviour
             // 저장 파일이 없으면 모든 인벤토리를 깨끗하게 비웁니다.
             InventoryController.instance.ClearAllInventories();
         }
+    }
+
+    public void DeleteSavedInventoryFile(string fileName)
+    {
+        string path = GetFullPath(fileName);
+        if (!File.Exists(path)) return;
+
+        File.Delete(path);
+        Debug.Log($"[InventoryManager] Deleted saved inventory file: {path}");
     }
 }

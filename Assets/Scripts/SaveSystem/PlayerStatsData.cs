@@ -8,6 +8,16 @@ public class PlayerStatsData
     public int currentXP;
     public float requiredXP;
 
+    public PlayerStatsData()
+    {
+        goldAmount = 0;
+        stageCleared = 0;
+        characterID = 0;
+        level = 1;
+        currentXP = 0;
+        requiredXP = 50;
+    }
+
     // Constructor to make it easy to create from PlayerStats
     public PlayerStatsData(PlayerStats stats)
     {

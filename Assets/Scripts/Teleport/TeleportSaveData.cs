@@ -7,6 +7,9 @@ using UnityEngine;
 [System.Serializable]
 public class TeleportSaveData : ISerializationCallbackReceiver
 {
+    public int saveVersion;
+    public string appVersion;
+
     // Key: TeleportData의 "pointID" (string)
     // Value: 잠금 해제 여부 (bool)
     public Dictionary<string, bool> unlockedPoints;

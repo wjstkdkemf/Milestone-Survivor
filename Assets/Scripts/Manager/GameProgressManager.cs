@@ -8,6 +8,7 @@ using System.Linq;
 public class GameProgressManager : MonoBehaviour
 {
     public static GameProgressManager Instance { get; private set; }
+    private const int CurrentProgressSaveVersion = 1;
 
     // 고유 ID를 저장하는 HashSet. "Boss_Forest_Defeated" "ACH_001" 등
     // List<T>보다 IsUnlocked() 체크가 훨씬 빠릅니다.
@@ -80,7 +81,7 @@ public class GameProgressManager : MonoBehaviour
     {
         // HashSet은 JsonUtility로 직접 저장이 안되므로 List로 변환
         List<string> progressList = unlockedProgress.ToList();
-        string json = JsonUtility.ToJson(new Serialization<string>(progressList));
+        string json = JsonUtility.ToJson(new Serialization<string>(progressList, CurrentProgressSaveVersion, Application.version));
         File.WriteAllText(savePath, json);
         Debug.Log("게임 진행도 저장 완료: " + savePath);
     }
@@ -91,7 +92,25 @@ public class GameProgressManager : MonoBehaviour
         if (File.Exists(savePath))
         {
             string json = File.ReadAllText(savePath);
-            var data = JsonUtility.FromJson<Serialization<string>>(json);
+            Serialization<string> data = null;
+
+            try
+            {
+                data = JsonUtility.FromJson<Serialization<string>>(json);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"[GameProgressManager] Failed to parse progress save data: {exception.Message}");
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("[GameProgressManager] Progress save data is invalid. Starting with empty progress.");
+                unlockedProgress.Clear();
+                return;
+            }
+
+            RepairProgressSaveData(data);
 
             // List를 다시 HashSet으로 변환하여 로드
             unlockedProgress = new HashSet<string>(data.items);
@@ -102,6 +121,25 @@ public class GameProgressManager : MonoBehaviour
             Debug.Log("저장된 진행도 파일이 없습니다. 새 게임입니다.");
         }
     }
+
+    private void RepairProgressSaveData(Serialization<string> data)
+    {
+        if (data.saveVersion <= 0)
+        {
+            data.saveVersion = 1;
+            data.appVersion = string.IsNullOrEmpty(data.appVersion) ? "Legacy" : data.appVersion;
+        }
+
+        if (data.saveVersion > CurrentProgressSaveVersion)
+        {
+            Debug.LogWarning($"[GameProgressManager] Progress save version {data.saveVersion} is newer than supported version {CurrentProgressSaveVersion}. Loading with best effort.");
+        }
+
+        if (data.items == null)
+        {
+            data.items = new List<string>();
+        }
+    }
 }
 
 // JsonUtility가 List는 변환하지만 Dictionary/HashSet은 직접 변환하지 못해, 감싸주는 클래스입니다.
@@ -109,6 +147,21 @@ public class GameProgressManager : MonoBehaviour
 [Serializable]
 public class Serialization<T>
 {
+    public int saveVersion;
+    public string appVersion;
     public List<T> items;
+
+    public Serialization()
+    {
+        items = new List<T>();
+    }
+
     public Serialization(List<T> items) => this.items = items;
+
+    public Serialization(List<T> items, int saveVersion, string appVersion)
+    {
+        this.items = items;
+        this.saveVersion = saveVersion;
+        this.appVersion = appVersion;
+    }
 }

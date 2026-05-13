@@ -21,6 +21,8 @@ public class QuestProgressData
 [System.Serializable]
 public class QuestSaveData
 {
+    public int saveVersion;
+    public string appVersion;
     public QuestProgressData mainQuest;
     public List<QuestProgressData> activeSubQuests = new List<QuestProgressData>();
 }
@@ -28,6 +30,7 @@ public class QuestSaveData
 public class QuestManager : MonoBehaviour
 {
     public static QuestManager Instance;
+    private const int CurrentQuestSaveVersion = 1;
 
     [Header("Database")]
     public List<QuestDataSO> questDatabase; // 게임 내 모든 퀘스트 SO 리스트를 드래그 앤 드롭
@@ -247,6 +250,8 @@ public class QuestManager : MonoBehaviour
     public void SaveQuestData()
     {
         QuestSaveData data = new QuestSaveData {
+            saveVersion = CurrentQuestSaveVersion,
+            appVersion = Application.version,
             mainQuest = currentMainQuest,
             activeSubQuests = currentSubQuests
         };
@@ -260,10 +265,30 @@ public class QuestManager : MonoBehaviour
         if (File.Exists(saveFilePath))
         {
             string json = File.ReadAllText(saveFilePath);
-            QuestSaveData data = JsonUtility.FromJson<QuestSaveData>(json);
+            QuestSaveData data = null;
+
+            try
+            {
+                data = JsonUtility.FromJson<QuestSaveData>(json);
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogError($"[QuestManager] Failed to parse quest save data: {exception.Message}");
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("[QuestManager] Quest save data is invalid. Starting with default quest data.");
+                currentMainQuest = null;
+                currentSubQuests = new List<QuestProgressData>();
+            }
+            else
+            {
+                RepairQuestSaveData(data);
             
-            currentMainQuest = data.mainQuest;
-            currentSubQuests = data.activeSubQuests;
+                currentMainQuest = data.mainQuest;
+                currentSubQuests = data.activeSubQuests;
+            }
         }
 
         if (currentMainQuest == null || string.IsNullOrEmpty(currentMainQuest.questID))
@@ -271,6 +296,41 @@ public class QuestManager : MonoBehaviour
             Debug.Log("초기 메인 퀘스트 할당 시도: Main_Test");
             AssignMainQuest("Main_Test");
         }
+    }
+
+    private void RepairQuestSaveData(QuestSaveData data)
+    {
+        if (data.saveVersion <= 0)
+        {
+            data.saveVersion = 1;
+            data.appVersion = string.IsNullOrEmpty(data.appVersion) ? "Legacy" : data.appVersion;
+        }
+
+        if (data.saveVersion > CurrentQuestSaveVersion)
+        {
+            Debug.LogWarning($"[QuestManager] Quest save version {data.saveVersion} is newer than supported version {CurrentQuestSaveVersion}. Loading with best effort.");
+        }
+
+        if (data.activeSubQuests == null)
+        {
+            data.activeSubQuests = new List<QuestProgressData>();
+        }
+    }
+
+    public void ResetQuestDataForNewGame()
+    {
+        recentlyClaimedQuestID = "";
+        currentRegionID = "Village";
+        currentMainQuest = null;
+        currentSubQuests = new List<QuestProgressData>();
+
+        if (File.Exists(saveFilePath))
+        {
+            File.Delete(saveFilePath);
+        }
+
+        AssignMainQuest("Main_Test");
+        Debug.Log("[QuestManager] Quest data reset for new game.");
     }
 
     public QuestDataSO GetQuestSO(string id)

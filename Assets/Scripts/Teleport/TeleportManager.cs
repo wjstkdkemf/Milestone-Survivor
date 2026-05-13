@@ -7,6 +7,7 @@ using System.IO;
 public class TeleportManager : MonoBehaviour
 {
     public static TeleportManager Instance;
+    private const int CurrentTeleportSaveVersion = 1;
     public string startPointName = "StartPoint";
     public string startMapName = "StartMap";
 
@@ -24,6 +25,7 @@ public class TeleportManager : MonoBehaviour
         {
             Instance = this;
             teleportPoints = new List<TeleportPoint>();
+            saveData = new TeleportSaveData();
             saveFilePath = Path.Combine(Application.persistentDataPath, "teleport.json");
             //LoadData();
             DontDestroyOnLoad(gameObject);
@@ -126,6 +128,10 @@ public class TeleportManager : MonoBehaviour
 
     public void SaveTeleportData(TeleportSaveData data)
     {
+        if (data == null) data = new TeleportSaveData();
+
+        data.saveVersion = CurrentTeleportSaveVersion;
+        data.appVersion = Application.version;
         string json = JsonUtility.ToJson(data);
         File.WriteAllText(saveFilePath, json);
         Debug.Log("텔레포트 데이터 저장 완료.");
@@ -137,7 +143,24 @@ public class TeleportManager : MonoBehaviour
         if (File.Exists(saveFilePath))
         {
             string json = File.ReadAllText(saveFilePath);
-            TeleportSaveData data = JsonUtility.FromJson<TeleportSaveData>(json);
+            TeleportSaveData data = null;
+
+            try
+            {
+                data = JsonUtility.FromJson<TeleportSaveData>(json);
+            }
+            catch (System.Exception exception)
+            {
+                Debug.LogError($"[TeleportManager] Failed to parse teleport save data: {exception.Message}");
+            }
+
+            if (data == null)
+            {
+                Debug.LogWarning("[TeleportManager] Teleport save data is invalid. Creating new data.");
+                return new TeleportSaveData();
+            }
+
+            RepairTeleportSaveData(data);
             Debug.Log("텔레포트 데이터 로드 완료.");
             return data;
         }
@@ -156,5 +179,37 @@ public class TeleportManager : MonoBehaviour
     public void LoadData()
     {
         saveData = LoadTeleportData();
+    }
+
+    private void RepairTeleportSaveData(TeleportSaveData data)
+    {
+        if (data.saveVersion <= 0)
+        {
+            data.saveVersion = 1;
+            data.appVersion = string.IsNullOrEmpty(data.appVersion) ? "Legacy" : data.appVersion;
+        }
+
+        if (data.saveVersion > CurrentTeleportSaveVersion)
+        {
+            Debug.LogWarning($"[TeleportManager] Teleport save version {data.saveVersion} is newer than supported version {CurrentTeleportSaveVersion}. Loading with best effort.");
+        }
+
+        if (data.unlockedPoints == null)
+        {
+            data.unlockedPoints = new Dictionary<string, bool>();
+        }
+    }
+
+    public void ResetDataForNewGame()
+    {
+        saveData = new TeleportSaveData();
+
+        if (File.Exists(saveFilePath))
+        {
+            File.Delete(saveFilePath);
+        }
+
+        SaveData();
+        Debug.Log("[TeleportManager] Teleport data reset for new game.");
     }
 }

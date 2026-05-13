@@ -7,7 +7,7 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
     public QuestUIManager questUIManager;
     public IEnumerator Initialize()
     {
-        string prevScene = LoadingManager.Instance.PreviousSceneName;
+        string prevScene = LoadingManager.Instance != null ? LoadingManager.Instance.PreviousSceneName : "";
         Debug.Log($"마을 씬 초기화 시작 (이전 씬: {prevScene})");
 
         // 공통 초기화 (어디서 왔든 무조건 해야 하는 것)
@@ -30,7 +30,14 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
             // 그 외 (상점 등에서 왔을 때)
             Debug.Log("일반 복귀 초기화 수행");
         }
-        AudioManager.Instance.PlayBGM(MainBGM);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBGM(MainBGM);
+        }
+        else
+        {
+            Debug.LogWarning("[VillageSceneSetup] AudioManager is missing. BGM will not play.");
+        }
 
         yield return null;
     }
@@ -40,13 +47,18 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
     {
         Debug.Log(">>> 타이틀 화면에서 진입: 저장된 데이터 로드 중...");
 
+        if (!AreTitleManagersReady())
+        {
+            yield break;
+        }
+
         TeleportManager.Instance.LoadData();
         GameProgressManager.Instance.LoadProgress();
         InventoryController.instance.init();
 
         Resources.UnloadUnusedAssets();
 
-        questUIManager.RefreshAllQuestUI();
+        if (questUIManager != null) questUIManager.RefreshAllQuestUI();
         if(!GameProgressManager.Instance.IsUnlocked("Tutorial"))
         {
             if (TutorialManager.Instance != null)
@@ -60,7 +72,7 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
         }
         else
         {
-            TutorialManager.Instance.CheakTutorial();
+            if (TutorialManager.Instance != null) TutorialManager.Instance.CheakTutorial();
         }
 
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
@@ -71,10 +83,48 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
     {
         Debug.Log(">>> 던전에서 복귀: 전리품 정산 및 자동 저장 중...");
 
+        if (InventoryController.instance == null)
+        {
+            Debug.LogError("[VillageSceneSetup] InventoryController is missing. Cannot initialize dungeon return.");
+            yield break;
+        }
+
         InventoryController.instance.init();
-        LoadScreenManager.Instance.ConfirmSelectionSave();
-        questUIManager.RefreshAllQuestUI();
+
+        if (LoadScreenManager.Instance != null)
+        {
+            LoadScreenManager.Instance.ConfirmSelectionSave();
+        }
+        else
+        {
+            Debug.LogWarning("[VillageSceneSetup] LoadScreenManager is missing. Auto-save skipped.");
+        }
+
+        if (questUIManager != null) questUIManager.RefreshAllQuestUI();
 
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
+    }
+
+    private bool AreTitleManagersReady()
+    {
+        bool isReady = true;
+
+        if (TeleportManager.Instance == null)
+        {
+            Debug.LogError("[VillageSceneSetup] TeleportManager is missing.");
+            isReady = false;
+        }
+        if (GameProgressManager.Instance == null)
+        {
+            Debug.LogError("[VillageSceneSetup] GameProgressManager is missing.");
+            isReady = false;
+        }
+        if (InventoryController.instance == null)
+        {
+            Debug.LogError("[VillageSceneSetup] InventoryController is missing.");
+            isReady = false;
+        }
+
+        return isReady;
     }
 }
