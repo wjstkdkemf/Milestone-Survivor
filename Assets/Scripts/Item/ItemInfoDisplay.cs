@@ -10,7 +10,7 @@ public class ItemInfoDisplay : MonoBehaviour
 {
     [Tooltip("아이템 정보를 표시할 UI Text 컴포넌트")]
     //public TMPro.TextMeshProUGUI infoText; // TextMeshPro를 사용한다면 public TMPro.TextMeshProUGUI infoText; 로 변경
-    public LocalizeStringEvent infoTextEvent;
+    public LocalizeStringEvent[] infoTextEvent;
 
     //public Sprite itemSprite;
     public Image itemImage;
@@ -26,13 +26,26 @@ public class ItemInfoDisplay : MonoBehaviour
 
     void UpdateWithDefaultValues()
     {
-        // "---" 라는 텍스트를 {0}에, 0을 {1}, {2}에 전달
-        infoTextEvent.StringReference.Arguments = new object[] {
+        infoTextEvent[0].StringReference.Arguments = new object[] {
             "---", // {0}
-            0,     // {1}
-            0      // {2}
         };
-        infoTextEvent.RefreshString();
+        infoTextEvent[1].StringReference.Arguments = new object[] 
+        {
+            "일반",         // -> {0} (아이템 등급)
+        };
+        infoTextEvent[2].StringReference.Arguments = new object[] 
+        {
+            "아이템 설명이 없습니다.",         // -> {0} (아이템 설명)
+        };
+
+        Refresh();
+    }
+    void Refresh()
+    {
+        foreach(var eve in infoTextEvent)
+        {
+            eve.RefreshString();
+        }
     }
 
     void OnEnable()
@@ -84,11 +97,17 @@ public class ItemInfoDisplay : MonoBehaviour
             translatedItemName = item.GetItemType(); // 실패 시 Key 이름이라도 표시
         }
 
-        infoTextEvent.StringReference.Arguments = new object[] 
+        infoTextEvent[0].StringReference.Arguments = new object[] 
         {
             translatedItemName,         // -> {0} (아이템 이름)
-            item.GetAmount(),           // -> {1} (수량)
-            item.GetEnhancementLevel()  // -> {2} (강화 레벨)
+        };
+        infoTextEvent[1].StringReference.Arguments = new object[] 
+        {
+            item.GetGrade(),         // -> {0} (아이템 등급)
+        };
+        infoTextEvent[2].StringReference.Arguments = new object[] 
+        {
+            item.GetDescription(),         // -> {0} (아이템 설명)
         };
 
         if (ItemEnchanter.Instance != null)
@@ -96,7 +115,7 @@ public class ItemInfoDisplay : MonoBehaviour
             ItemEnchanter.Instance.SetItem(item);
         }
 
-        infoTextEvent.RefreshString();
+        Refresh();
         // if (infoText != null)
         // {
         //     // 아이템 정보를 Text UI에 표시

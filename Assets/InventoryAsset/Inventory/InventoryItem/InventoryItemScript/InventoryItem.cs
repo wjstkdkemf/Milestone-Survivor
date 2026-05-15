@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+using System.Collections.Generic;
 namespace InventorySystem
 {
     //Author: Jaxon Schauer
@@ -18,6 +18,7 @@ namespace InventorySystem
         private Sprite itemImage;//Holds image of item
         private ItemGrade grade;
         private int maxStackAmount;
+        private string description;
         private bool draggable;
         private bool pressable;
         private bool changeable;
@@ -31,9 +32,11 @@ namespace InventorySystem
         private string inventory;
         private string previousInventory;
         private int enhancementLevel;
+        private List<StatModifier> statModifiers;
         public InventoryItem(ItemData data)
         {
             this.test = data.itemType;
+            this.description = data.description;
             this.amount = 1;
             this.itemName = data.itemName;
             this.itemImage = data.icon;
@@ -55,6 +58,7 @@ namespace InventorySystem
                 EquipmentData equi = data as EquipmentData;
 
                 this.itemType = equi.equipmentType;
+                this.statModifiers = equi.statModifiers;
             }
         }
         public InventoryItem(InventoryItem other, int amount = 1)
@@ -89,6 +93,10 @@ namespace InventorySystem
             amount = 0;
             this.isNull = isNull;
         }
+        public List<StatModifier> GetStatModifiers()
+        {
+            return statModifiers;
+        }
         public void SetIsNull(bool isNull)
         {
             this.isNull = isNull;
@@ -96,6 +104,10 @@ namespace InventorySystem
         public bool GetIsNull()
         {
             return isNull;
+        }
+        public string GetDescription()
+        {
+            return description;
         }
         public string GetItemType()
         {

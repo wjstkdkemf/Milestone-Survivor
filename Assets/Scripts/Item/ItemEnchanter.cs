@@ -4,6 +4,7 @@ using InventorySystem;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 
 public class ItemEnchanter : MonoBehaviour
 {
@@ -15,7 +16,9 @@ public class ItemEnchanter : MonoBehaviour
     [Tooltip("The UI button for enchanting.")]
     public Button enchantButton;
     //public TMP_Text MyGoldText;
-    public TextMeshProUGUI enchantText;
+    public TextMeshProUGUI enchantCostText;
+    [SerializeField]private ItemStatContainer[] BeforeAfterStatPrefab;
+    private bool IsMax = false;
 
     // 강화 레벨별 비용 (Key: 현재 레벨, Value: 다음 레벨로 가기 위한 비용)
     private readonly Dictionary<ItemGrade, Dictionary<int, int>> enhancementCostsByGrade = new Dictionary<ItemGrade, Dictionary<int, int>>
@@ -56,18 +59,14 @@ public class ItemEnchanter : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Sets the item to be enchanted.
-    /// </summary>
     public void SetItem(InventoryItem item)
     {
         currentItem = item;
+        IsMax = false;
         UpdateEnchantButton();
+        UpdateItemInfoDisplay();
     }
 
-    /// <summary>
-    /// Updates the enchant button's state based on the current item and player's gold.
-    /// </summary>
     private void UpdateEnchantButton()
     {
         if (enchantButton == null) return;
@@ -75,7 +74,7 @@ public class ItemEnchanter : MonoBehaviour
         if (currentItem == null || currentItem.GetIsNull())
         {
             enchantButton.interactable = false;
-            enchantText.text = "";
+            enchantCostText.text = "";
             return;
         }
 
@@ -83,37 +82,47 @@ public class ItemEnchanter : MonoBehaviour
         {
             if (enhancementCosts.TryGetValue(currentItem.GetEnhancementLevel(), out int cost))
             {
-                if (enchantText != null)
+                if (enchantCostText != null)
                 {
-                    enchantText.text = cost.ToString();
+                    enchantCostText.text = cost.ToString();
                 }
-                // Player has enough gold AND the item is not max level
                 enchantButton.interactable = PlayerStats.Instance.GoldAmount >= cost;
             }
             else
             {
-                if (enchantText != null)
+                if (enchantCostText != null)
                 {
-                    enchantText.text = "";
+                    enchantCostText.text = "";
                 }
-                // This is the max level, or level is not in the cost dictionary
+                IsMax = true;
                 enchantButton.interactable = false;
             }
         }
         else
         {
-            if (enchantText != null)
+            if (enchantCostText != null)
             {
-                enchantText.text = "";
+                enchantCostText.text = "";
             }
-            // This grade is not in the cost dictionary
             enchantButton.interactable = false;
         }
     }
-
-    /// <summary>
-    /// Called by the enchant button's OnClick event.
-    /// </summary>
+    private void UpdateItemInfoDisplay()
+    {
+        if (currentItem == null || currentItem.GetIsNull())
+        {
+            return;
+        }
+        foreach(var con in BeforeAfterStatPrefab)
+        {
+            con.ResetData();
+        }
+        int i = 0;
+        foreach (var item in currentItem.GetStatModifiers())
+        {
+            BeforeAfterStatPrefab[i].SetStatImage(item, currentItem.GetEnhancementLevel(),IsMax);
+        }
+    }
     public void EnchantSelectedItem()
     {
         if (currentItem == null || currentItem.GetIsNull())

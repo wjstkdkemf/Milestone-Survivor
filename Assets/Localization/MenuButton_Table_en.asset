@@ -16,8 +16,7 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 4f8b1a81bbf7e2645885931b8a0c20e9, type: 2}
   m_Metadata:
-    m_Items:
-    - rid: 3562453135996485666
+    m_Items: []
   m_TableData:
   - m_Id: 180504109056
     m_Localized: Graphics
@@ -59,11 +58,10 @@ MonoBehaviour:
     m_Localized: "Encahnt\t"
     m_Metadata:
       m_Items: []
-  - m_Id: 35249448951808
-    m_Localized: 'Item Name: {0}\nAmount: {1}\nEnh. Level: {2}'
+  - m_Id: 66715062657753088
+    m_Localized: '{0}'
     m_Metadata:
-      m_Items:
-      - rid: 3562453135996485666
+      m_Items: []
   - m_Id: 48564843793489920
     m_Localized: KeySetting
     m_Metadata:
@@ -72,10 +70,14 @@ MonoBehaviour:
     m_Localized: Setting
     m_Metadata:
       m_Items: []
+  - m_Id: 66715152860454912
+    m_Localized: '{0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 66715154617868288
+    m_Localized: '{0}'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
-    RefIds:
-    - rid: 3562453135996485666
-      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_Entries: 0020e2260f200000
+    RefIds: []
