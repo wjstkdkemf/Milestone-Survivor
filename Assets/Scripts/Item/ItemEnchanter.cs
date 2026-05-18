@@ -109,18 +109,27 @@ public class ItemEnchanter : MonoBehaviour
     }
     private void UpdateItemInfoDisplay()
     {
+        ReSetStatPrefab();
         if (currentItem == null || currentItem.GetIsNull())
         {
             return;
         }
+        int i = 0;
+
+        if(currentItem.GetStatModifiers() != null)
+        {
+            foreach (var item in currentItem.GetStatModifiers())
+            {
+                BeforeAfterStatPrefab[i].SetStatImage(item, currentItem.GetEnhancementLevel(),IsMax);
+                i++;
+            }
+        }
+    }
+    private void ReSetStatPrefab()
+    {
         foreach(var con in BeforeAfterStatPrefab)
         {
             con.ResetData();
-        }
-        int i = 0;
-        foreach (var item in currentItem.GetStatModifiers())
-        {
-            BeforeAfterStatPrefab[i].SetStatImage(item, currentItem.GetEnhancementLevel(),IsMax);
         }
     }
     public void EnchantSelectedItem()

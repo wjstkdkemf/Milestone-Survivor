@@ -57,8 +57,20 @@ namespace InventorySystem
             {
                 EquipmentData equi = data as EquipmentData;
 
-                this.itemType = equi.equipmentType;
-                this.statModifiers = equi.statModifiers;
+                if (equi != null)
+                {
+                    this.itemType = equi.equipmentType;
+                    this.statModifiers = equi.statModifiers != null ? new List<StatModifier>(equi.statModifiers) : new List<StatModifier>();
+                }
+                else
+                {
+                    Debug.LogWarning($"[InventoryItem] Item '{data.itemName}' is marked as Equipment but is not EquipmentData.");
+                    this.statModifiers = new List<StatModifier>();
+                }
+            }
+            else
+            {
+                this.statModifiers = new List<StatModifier>();
             }
         }
         public InventoryItem(InventoryItem other, int amount = 1)
@@ -73,6 +85,8 @@ namespace InventorySystem
             this.itemImage = other.itemImage;
 
             this.maxStackAmount = other.maxStackAmount;
+            this.grade = other.grade;
+            this.description = other.description;
             this.draggable = other.draggable;
             this.pressable = other.pressable;
             this.itemEvent = other.itemEvent;
@@ -85,6 +99,9 @@ namespace InventorySystem
             this.previousInventory = other.previousInventory;
             this.itemType = other.itemType;
             this.enhancementLevel = other.enhancementLevel;
+            this.price = other.price;
+            this.test = other.test;
+            this.statModifiers = other.statModifiers != null ? new List<StatModifier>(other.statModifiers) : new List<StatModifier>();
             this.changeable = other.changeable; // Added this line
         }
 
@@ -95,7 +112,7 @@ namespace InventorySystem
         }
         public List<StatModifier> GetStatModifiers()
         {
-            return statModifiers;
+            return statModifiers ?? new List<StatModifier>();
         }
         public void SetIsNull(bool isNull)
         {

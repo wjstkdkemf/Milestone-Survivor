@@ -16,6 +16,8 @@ public class ItemStatContainer : MonoBehaviour
     
     public void SetStatImage(StatModifier stat, int Level , bool IsMax = false)
     {
+        gameObject.SetActive(true);
+
         if(IsMax)
         {
             enchantStat.text = stat.statName;
@@ -26,13 +28,17 @@ public class ItemStatContainer : MonoBehaviour
             enchantStat.text = stat.statName;
             enchantBefore.text = (stat.value * Level).ToString();
             enchantAfter.text = (stat.value * (Level + 1)).ToString();
-            Cursor.SetActive(true);
+
+            if(Cursor != null)
+                Cursor.SetActive(true);
         }
     }
     public void ResetData()
     {
-        this.gameObject.SetActive(false);
-        Cursor.SetActive(false);
+        gameObject.SetActive(false);
+
+        if(Cursor != null)
+            Cursor.SetActive(false);
 
         enchantStat.text = "";
         enchantBefore.text = "";
