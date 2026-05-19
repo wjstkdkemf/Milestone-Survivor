@@ -6,6 +6,8 @@ using UnityEngine.Localization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
+using UnityEditor.Search;
 
 
 public class ItemInfoDisplay : MonoBehaviour
@@ -37,6 +39,7 @@ public class ItemInfoDisplay : MonoBehaviour
         {
             "설명이 없습니다.",         // -> {0} 
         };
+
 
         Refresh();
     }
@@ -71,7 +74,7 @@ public class ItemInfoDisplay : MonoBehaviour
             {
                 ItemEnchanter.Instance.SetItem(null);
             }
-            return; // ?�수 종료
+            return;
         }
 
         itemImage.sprite = item.GetItemImage();
@@ -112,6 +115,7 @@ public class ItemInfoDisplay : MonoBehaviour
 
         Refresh();
     }
+
 
     /*private string BuildDescriptionText(InventoryItem item)
     {

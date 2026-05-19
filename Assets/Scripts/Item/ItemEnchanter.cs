@@ -18,6 +18,8 @@ public class ItemEnchanter : MonoBehaviour
     //public TMP_Text MyGoldText;
     public TextMeshProUGUI enchantCostText;
     [SerializeField]private ItemStatContainer[] BeforeAfterStatPrefab;
+    [SerializeField]private ItemLevelContainer BeforeAfterLevelPrefab;
+
     private bool IsMax = false;
 
     // 강화 레벨별 비용 (Key: 현재 레벨, Value: 다음 레벨로 가기 위한 비용)
@@ -57,6 +59,8 @@ public class ItemEnchanter : MonoBehaviour
             enchantButton.onClick.AddListener(EnchantSelectedItem);
             enchantButton.interactable = false; // Initially disable the button
         }
+        ReSetStatPrefab();
+        ResetLevelPrefab();
     }
 
     public void SetItem(InventoryItem item)
@@ -110,10 +114,12 @@ public class ItemEnchanter : MonoBehaviour
     private void UpdateItemInfoDisplay()
     {
         ReSetStatPrefab();
+        ResetLevelPrefab();
         if (currentItem == null || currentItem.GetIsNull())
         {
             return;
         }
+        BeforeAfterLevelPrefab.SetLevelImage(currentItem.GetEnhancementLevel(),IsMax);
         int i = 0;
 
         if(currentItem.GetStatModifiers() != null)
@@ -131,6 +137,10 @@ public class ItemEnchanter : MonoBehaviour
         {
             con.ResetData();
         }
+    }
+    private void ResetLevelPrefab()
+    {
+        BeforeAfterLevelPrefab.ResetData();
     }
     public void EnchantSelectedItem()
     {

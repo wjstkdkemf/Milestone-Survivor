@@ -17,17 +17,17 @@ public class ItemStatContainer : MonoBehaviour
     public void SetStatImage(StatModifier stat, int Level , bool IsMax = false)
     {
         gameObject.SetActive(true);
-
+        int RealLevel = Level + 1;
         if(IsMax)
         {
             enchantStat.text = stat.statName;
-            enchantBefore.text = (stat.value * Level).ToString();
+            enchantBefore.text = (stat.value * RealLevel).ToString();
         }
         else
         {
             enchantStat.text = stat.statName;
-            enchantBefore.text = (stat.value * Level).ToString();
-            enchantAfter.text = (stat.value * (Level + 1)).ToString();
+            enchantBefore.text = (stat.value * RealLevel).ToString();
+            enchantAfter.text = (stat.value * (RealLevel + 1)).ToString();
 
             if(Cursor != null)
                 Cursor.SetActive(true);

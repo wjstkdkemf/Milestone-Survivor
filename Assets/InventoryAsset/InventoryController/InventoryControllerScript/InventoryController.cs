@@ -159,7 +159,9 @@ namespace InventorySystem
                 CopyEquippedItemsToInventory(HotBarInventoryName, ClearInventoryName);
                 ReapplyAllEquipmentEffects();
                 ReapplyAllEquipmentSkills();
-                UpgradeManager.Instance.playerWeaponController.ToggleCombatMode(false);
+
+                if(UpgradeManager.Instance.playerWeaponController != null)
+                    UpgradeManager.Instance.playerWeaponController.ToggleCombatMode(false);
             }
         }
 
@@ -201,6 +203,8 @@ namespace InventorySystem
         /// Loads inventory states from a JSON string.
         /// </summary>
         /// <param name="jsonData">The JSON data to load from.</param>
+        
+        /*
         public void LoadFromData(string jsonData)
         {
             if (string.IsNullOrEmpty(jsonData))
@@ -248,6 +252,115 @@ namespace InventorySystem
                 }
             }
             Debug.Log("<color=green>[InventoryController]</color> Successfully loaded inventories from data.");
+        }
+        */
+        public void LoadFromData(string jsonData)
+        {
+            if (string.IsNullOrEmpty(jsonData))
+            {
+                Debug.LogWarning("Empty inventory save data.");
+                ClearAllInventories();
+                return;
+            }
+
+            if (!TryParseInventoryData(jsonData, out InventoryData itemData))
+            {
+                Debug.LogError("Inventory save data is corrupted. Keeping current inventory.");
+                return;
+            }
+
+            if (!TryBuildValidatedLoadPlan(itemData, out Dictionary<string, List<ItemSaveData>> loadPlan))
+            {
+                Debug.LogError("Inventory save data is invalid. Keeping current inventory.");
+                return;
+            }
+
+            ClearAllInventories();
+            ApplyLoadPlan(loadPlan);
+        }
+        private bool TryParseInventoryData(string jsonData, out InventoryData itemData)
+        {
+            itemData = null;
+
+            try
+            {
+                itemData = JsonUtility.FromJson<InventoryData>(jsonData);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[InventoryController] Failed to parse inventory save data: {e.Message}");
+                return false;
+            }
+
+            if (itemData == null || itemData.inventories == null)
+            {
+                Debug.LogError("[InventoryController] Inventory save data is missing inventories.");
+                return false;
+            }
+
+            return true;
+        }
+        private bool TryBuildValidatedLoadPlan(InventoryData itemData, out Dictionary<string, List<ItemSaveData>> loadPlan)
+        {
+            loadPlan = new Dictionary<string, List<ItemSaveData>>();
+
+            foreach (var savedInventory in itemData.inventories)
+            {
+                if (savedInventory == null || string.IsNullOrEmpty(savedInventory.inventoryName))
+                {
+                    continue;
+                }
+
+                if (!inventoryManager.ContainsKey(savedInventory.inventoryName))
+                {
+                    Debug.LogWarning($"Unknown inventory '{savedInventory.inventoryName}'. Skipping.");
+                    continue;
+                }
+
+                if (savedInventory.items == null)
+                {
+                    loadPlan[savedInventory.inventoryName] = new List<ItemSaveData>();
+                    continue;
+                }
+
+                HashSet<int> usedPositions = new HashSet<int>();
+                List<ItemSaveData> validItems = new List<ItemSaveData>();
+                Inventory targetInventory = inventoryManager[savedInventory.inventoryName];
+
+                foreach (ItemSaveData item in savedInventory.items)
+                {
+                    if (item == null) continue;
+                    if (string.IsNullOrEmpty(item.name)) continue;
+                    if (!itemManager.ContainsKey(item.name)) continue;
+                    if (item.amount <= 0) continue;
+                    if (item.position < 0 || item.position >= targetInventory.GetList().Count) continue;
+                    if (!usedPositions.Add(item.position)) continue;
+
+                    validItems.Add(item);
+                }
+
+                loadPlan[savedInventory.inventoryName] = validItems;
+            }
+
+            return true;
+        }
+        private void ApplyLoadPlan(Dictionary<string, List<ItemSaveData>> loadPlan)
+        {
+            ClearAllInventories();
+
+            foreach (var pair in loadPlan)
+            {
+                string invName = pair.Key;
+
+                foreach (ItemSaveData item in pair.Value)
+                {
+                    InventoryItem copyItem = itemManager[item.name];
+                    InventoryItem newItem = new InventoryItem(copyItem, item.amount);
+                    newItem.SetEnhancementLevel(item.enhancementLevel);
+
+                    AddItemPos(invName, newItem, item.position);
+                }
+            }
         }
 
         #endregion

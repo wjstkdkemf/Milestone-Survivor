@@ -270,7 +270,7 @@ namespace InventorySystem
         /// <summary>
         /// Adds itemstypes into <see cref="itemPositions"/> and tracks their positions for quick add/remove and count functions.
         /// </summary>
-        public void AddItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
+        /*public void AddItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
         {
             string empty = "Empty";
             if (!item.GetIsNull())
@@ -326,6 +326,42 @@ namespace InventorySystem
             }
 
         }
+        
+        */
+        public void AddItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
+        {
+            if (item == null) return;
+            if (!IsValidPosition(pos)) return;
+
+            if (!item.GetIsNull())
+            {
+                InventoryItem newItem = new InventoryItem(item, item.GetAmount());
+                newItem.SetPosition(pos);
+                newItem.SetInventory(inventoryName);
+
+                InventoryItem oldItem = inventoryList[pos];
+                if (oldItem != null && !oldItem.GetIsNull())
+                {
+                    RemovePosition(oldItem.GetItemType(), pos);
+                }
+
+                RemovePosition(EmptyKey, pos);
+                AddPosition(newItem.GetItemType(), pos);
+
+                inventoryList[pos] = newItem;
+                InventoryUIManagerInstance.UpdateSlot(pos);
+
+                if (invokeEnterExit && enterDict != null && enterDict.ContainsKey(pos) && itemAction[pos])
+                {
+                    newItem.Selected();
+                    enterDict[pos].Invoke(newItem);
+                }
+            }
+            else
+            {
+                AddPosition(EmptyKey, pos);
+            }
+        }
 
         /// <summary>
         /// Takes as input a position, remove the item from the given inventory position.
@@ -362,10 +398,42 @@ namespace InventorySystem
                 }
             }
         }
-
+        #region ADD REMOVE HELPER
         /// <summary>
         /// Removes items in a specified position, given the item as input
         /// </summary>
+        private const string EmptyKey = "Empty";
+
+        private void AddPosition(string key, int pos)
+        {
+            if (!itemPositions.TryGetValue(key, out var positions))
+            {
+                positions = new List<int>();
+                itemPositions[key] = positions;
+            }
+
+            if (!positions.Contains(pos))
+            {
+                positions.Add(pos);
+            }
+        }
+
+        private void RemovePosition(string key, int pos)
+        {
+            if (!itemPositions.TryGetValue(key, out var positions))
+            {
+                Debug.LogWarning($"[Inventory] Tried to remove position {pos} from missing key '{key}'. Rebuilding positions.");
+                RebuildItemPositions();
+                return;
+            }
+
+            positions.Remove(pos);
+
+            if (positions.Count == 0 && key != EmptyKey)
+            {
+                itemPositions.Remove(key);
+            }
+        } 
         public void RemoveItemInPosition(InventoryItem item, int amount)
         {
             int pos = item.GetPosition();
@@ -393,8 +461,13 @@ namespace InventorySystem
         {
             if(!itemPositions.ContainsKey(itemType))
             {
-                Debug.Log("No items of type " + itemType + " in " + inventoryName);
-                return;
+                RebuildItemPositions();
+
+                if (!itemPositions.ContainsKey(itemType))
+                {
+                    Debug.Log("No items of type " + itemType + " in " + inventoryName);
+                    return;
+                }
             }
             List<int> positions = itemPositions[itemType];
             List<int> delpos = new List<int>();
@@ -419,6 +492,26 @@ namespace InventorySystem
         }
         public void RemoveItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
         {
+            if (item == null || item.GetIsNull()) return;
+            if (!IsValidPosition(pos)) return;
+
+            RemovePosition(item.GetItemType(), pos);
+            AddPosition(EmptyKey, pos);
+
+            InventoryItem filler = new InventoryItem(true);
+            filler.SetPosition(pos);
+            filler.SetInventory(inventoryName);
+            inventoryList[pos] = filler;
+
+            if (invokeEnterExit && exitDict != null && exitDict.ContainsKey(pos))
+            {
+                exitDict[pos].Invoke(inventoryList[pos]);
+            }
+
+            InventoryUIManagerInstance.UpdateSlot(pos);
+        }
+        /*public void RemoveItemHelper(InventoryItem item, int pos, bool invokeEnterExit = true)
+        {
             // 아이템이 비어있으면(null item) 아무것도 하지 않고 즉시 리턴하여 오류를 방지합니다.
             if (item.GetIsNull())
             {
@@ -442,7 +535,7 @@ namespace InventorySystem
             }
             InventoryUIManagerInstance.UpdateSlot(pos);
 
-        }
+        }*/
         /// <summary>
         /// Handles item when it needs to be erased from inventory
         /// </summary>
@@ -466,6 +559,33 @@ namespace InventorySystem
             InventoryUIManagerInstance.UpdateSlot(pos);
 
         }
+        private bool IsValidPosition(int pos)
+        {
+            return inventoryList != null && pos >= 0 && pos < inventoryList.Count;
+        }
+
+        public void RebuildItemPositions()
+        {
+            itemPositions.Clear();
+
+            for (int i = 0; i < inventoryList.Count; i++)
+            {
+                InventoryItem item = inventoryList[i];
+
+                if (item == null || item.GetIsNull() || string.IsNullOrEmpty(item.GetItemType()))
+                {
+                    AddPosition(EmptyKey, i);
+                    continue;
+                }
+
+                item.SetPosition(i);
+                item.SetInventory(inventoryName);
+                AddPosition(item.GetItemType(), i);
+            }
+
+            Debug.Log($"[Inventory] Rebuilt itemPositions for '{inventoryName}'.");
+        }
+        #endregion
 
         /// <summary>
         /// returns the count of a input item
