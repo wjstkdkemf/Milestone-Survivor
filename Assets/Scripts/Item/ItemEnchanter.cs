@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using System;
+using System.Collections;
 
 public class ItemEnchanter : MonoBehaviour
 {
@@ -19,10 +21,27 @@ public class ItemEnchanter : MonoBehaviour
     public TextMeshProUGUI enchantCostText;
     [SerializeField]private ItemStatContainer[] BeforeAfterStatPrefab;
     [SerializeField]private ItemLevelContainer BeforeAfterLevelPrefab;
+    [SerializeField]private ItemUIEffectManager itemUIEffectManager;
 
+    private bool isEnchanting;
     private bool IsMax = false;
 
     // 강화 레벨별 비용 (Key: 현재 레벨, Value: 다음 레벨로 가기 위한 비용)
+    [System.Serializable]
+    public class EnhancementRule
+    {
+        public int cost;
+        [Range(0f, 1f)] public float successChance;
+    }
+    private readonly Dictionary<ItemGrade, Dictionary<int, EnhancementRule>> enhancementRulesByGrade = new Dictionary<ItemGrade, Dictionary<int, EnhancementRule>>
+    {
+        {ItemGrade.Common, new Dictionary<int, EnhancementRule>{
+        {0, new EnhancementRule { cost = 10, successChance = 0.95f }},
+        {1, new EnhancementRule { cost = 20, successChance = 0.85f }},
+        {2, new EnhancementRule { cost = 30, successChance = 0.70f }},
+        {3, new EnhancementRule { cost = 40, successChance = 0.55f }},
+        {4, new EnhancementRule { cost = 50, successChance = 0.40f }},}}
+    };
     private readonly Dictionary<ItemGrade, Dictionary<int, int>> enhancementCostsByGrade = new Dictionary<ItemGrade, Dictionary<int, int>>
     {
         { ItemGrade.Common, new Dictionary<int, int> { {0, 10}, {1, 20}, {2, 30}, {3, 40}, {4, 50} } },
@@ -144,6 +163,82 @@ public class ItemEnchanter : MonoBehaviour
     }
     public void EnchantSelectedItem()
     {
+        if (!isEnchanting)
+        {
+            StartCoroutine(EnchantRoutine());
+        }
+    }
+    private IEnumerator EnchantRoutine()
+    {
+        if (currentItem == null || currentItem.GetIsNull()) yield break;
+
+        int currentLevel = currentItem.GetEnhancementLevel();
+        ItemGrade grade = currentItem.GetGrade();
+
+        if (!TryGetEnhancementRule(grade, currentLevel, out EnhancementRule rule))
+        {
+            Debug.Log("[ItemEnchanter] Max level or no rule.");
+            yield break;
+        }
+
+        if (!PlayerStats.Instance.TrySpendGold(rule.cost))
+        {
+            Debug.LogWarning("[ItemEnchanter] Not enough gold.");
+            yield break;
+        }
+
+        isEnchanting = true;
+        enchantButton.interactable = false;
+
+        itemUIEffectManager?.OnEnhanceTry();
+
+        yield return new WaitForSecondsRealtime(0.35f);
+
+        bool success = UnityEngine.Random.value <= rule.successChance;
+
+        if (success)
+        {
+            currentItem.SetEnhancementLevel(currentLevel + 1);
+            HandleEnchantSync(currentItem);
+
+            itemUIEffectManager?.OnEnhanceSuccess();
+            Debug.Log($"'{currentItem.GetItemType()}' enhanced to +{currentItem.GetEnhancementLevel()}.");
+        }
+        else
+        {
+            itemUIEffectManager?.OnEnhanceFailure();
+            Debug.Log($"'{currentItem.GetItemType()}' enhancement failed.");
+        }
+
+        LoadScreenManager.Instance.ConfirmSelectionSave();
+        InventoryEventSystem.RaiseSlotClicked(currentItem, currentItem.GetInventory());
+
+        UpdateItemInfoDisplay();
+        UpdateEnchantButton();
+
+        isEnchanting = false;
+    }
+    private bool TryGetEnhancementRule(ItemGrade grade,int currentLevel, out EnhancementRule rule)
+    {
+        rule = null;
+
+        if (!enhancementRulesByGrade.TryGetValue(grade, out var rulesByLevel))
+        {
+            Debug.LogWarning($"[ItemEnchanter] No enhancement rules for grade: {grade}");
+            return false;
+        }
+
+        if (!rulesByLevel.TryGetValue(currentLevel, out rule))
+        {
+            Debug.Log($"[ItemEnchanter] No enhancement rule for {grade} +{currentLevel}. Item may be max level.");
+            return false;
+        }
+
+        return true;
+    }
+    /*
+    public void EnchantSelectedItem()
+    {
         if (currentItem == null || currentItem.GetIsNull())
         {
             Debug.LogWarning("[ItemEnchanter] No item selected to enchant.");
@@ -172,7 +267,7 @@ public class ItemEnchanter : MonoBehaviour
                             EquipmentEffectManager.Instance.Unequip(data, currentItem);
                             EquipmentEffectManager.Instance.Equip(data, currentItem);
                         }
-                    }*/
+                    }//
                     HandleEnchantSync(currentItem);
 
                     Debug.Log($"'{currentItem.GetItemType()}' successfully enchanted to +{currentItem.GetEnhancementLevel()}!");
@@ -197,6 +292,8 @@ public class ItemEnchanter : MonoBehaviour
             Debug.Log($"[ItemEnchanter] Enhancement cost for grade '{currentGrade}' is not defined.");
         }
     }
+    */
+
     /// <summary>
     /// 강화 후 장착 상태에 따라 스탯을 갱신하고 데이터를 동기화합니다.
     /// </summary>
