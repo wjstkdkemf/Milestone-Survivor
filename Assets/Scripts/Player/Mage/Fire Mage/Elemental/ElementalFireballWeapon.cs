@@ -47,6 +47,8 @@ public class ElementalFireballWeapon : WeaponBase
             fireballPrefab = evoData.fireballPrefab;
             trailPrefab = evoData.trailPrefab;
             LastFireBoomPrefab = evoData.lastFireBoomPrefab;
+
+            this.WeaponID = evoData.WeaponId;
         }
         else
         {
@@ -106,9 +108,9 @@ public class ElementalFireballWeapon : WeaponBase
             float boomDamage = GetFireBoomDamage();
             
             evoScript.Setup(target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
-                            LastFireBoomPrefab, boomDamage, lastFireBoomSize);
+                            LastFireBoomPrefab, boomDamage, lastFireBoomSize , WeaponID);
             
-            evoScript.damage = directDamage; // 직격 딜 세팅
+            evoScript.damage = (long)directDamage; // 직격 딜 세팅
         }
 
         pendingBullets--;

@@ -10,12 +10,13 @@ public class TurretBullet : SkillProjectileBase
     Vector3 direction;
     [SerializeField] private bool IsActived = true;
     private float lifeTimer;
-    public void Fire(Vector3 targetPos, float finalSpeed, float lifeTime = 3.0f)
+    public void Fire(Vector3 targetPos, float finalSpeed, string weaponID ,float lifeTime = 3.0f)
     {
         speed = finalSpeed;
         maxLifeTime = lifeTime;
         direction = (targetPos - transform.position).normalized;
         IsActived = true;
+        this.WeaponID = weaponID;
 
         lifeTimer = maxLifeTime;
     }
@@ -47,6 +48,7 @@ public class TurretBullet : SkillProjectileBase
         if (!IsActived) return; 
         
         IsActived = false;
+        
         
         // 이펙트가 있다면 여기서 생성
         // ObjectPoolingManager.Instance.spawnGameObject(hitEffectPrefab, transform.position, ...);

@@ -23,6 +23,8 @@ public class AuraWeapon : WeaponBase
             applySlow = auraData.applySlow;
             slowPercentage = auraData.slowPercentage;
 
+            this.WeaponID = auraData.WeaponId;
+
             if (auraData.auraPrefab != null)
             {
                 auraInstance = Instantiate(auraData.auraPrefab, transform.position, Quaternion.identity, transform);
@@ -30,7 +32,7 @@ public class AuraWeapon : WeaponBase
                 auraScript = auraInstance.GetComponent<AuraZone>();
                 if (auraScript != null)
                 {
-                    auraScript.SetupAura(currentTickRate, GetDamage(), currentRadius, applySlow, slowPercentage);
+                    auraScript.SetupAura(currentTickRate, GetDamage(), currentRadius, applySlow, slowPercentage , this.WeaponID);
                 }
 
                 UpdateAuraSize();
@@ -52,9 +54,9 @@ public class AuraWeapon : WeaponBase
     }
 
     // 데미지 계산식
-    public float GetDamage()
+    public long GetDamage()
     {
-        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
+        long bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
         return currentDamage + bonus;
     }
 
@@ -69,12 +71,12 @@ public class AuraWeapon : WeaponBase
     // 레벨업 시 범위와 데미지 증가
     public override void LevelUp()
     {
-        currentDamage += 2f;
+        currentDamage += 2;
         currentRadius += 1.5f;
 
         if (auraScript != null)
         {
-            auraScript.SetupAura(currentTickRate, GetDamage(), currentRadius, applySlow, slowPercentage);
+            auraScript.SetupAura(currentTickRate, GetDamage(), currentRadius, applySlow, slowPercentage , WeaponID);
         }
         UpdateAuraSize();
     }

@@ -26428,6 +26428,7 @@ GameObject:
   - component: {fileID: 549850755}
   - component: {fileID: 549850756}
   - component: {fileID: 549850757}
+  - component: {fileID: 549850758}
   m_Layer: 0
   m_Name: GameManger
   m_TagString: Untagged
@@ -26720,6 +26721,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   activeProjectiles: []
   playerHitRadius: 0.3
+--- !u!114 &549850758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549850734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cd36faefdf0d824582aa55f2c7b0c0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &550008729
 GameObject:
   m_ObjectHideFlags: 0
@@ -97570,7 +97583,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 486208df6a0522b4e88eb9e157034842, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  infoTextEvent: {fileID: 1917058492}
+  infoTextEvent:
+  - {fileID: 0}
   itemImage: {fileID: 1055229520}
   targetSlotType: Inventory
 --- !u!114 &1917058490

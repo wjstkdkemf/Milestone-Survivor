@@ -12,13 +12,15 @@ public class EvolvedFireballProjectile : SkillProjectileBase
     private float spawnDistanceThreshold;
 
     private Vector3 lastSpawnPosition; // 마지막으로 장판을 깐 위치
-    public void SetupEvo(Transform newTarget, float newSpeed, GameObject trail, float directDmg, float tDamage, float tDuration, float tSpawnDist)
+    public void SetupEvo(Transform newTarget, float newSpeed, GameObject trail, long directDmg, float tDamage, float tDuration, float tSpawnDist , string weaponID)
     {
         target = newTarget;
         speed = newSpeed;
         damage = directDmg;
         hitRadius = 0.5f; // 알바생(Job)이 쓸 투사체 직격 크기
         maxHits = 1;      // 관통 불가
+
+        this.WeaponID = weaponID;
 
         trailPrefab = trail;
         trailDamage = tDamage;
@@ -59,7 +61,7 @@ public class EvolvedFireballProjectile : SkillProjectileBase
 
         if (trail != null && trail.TryGetComponent<AuraZone>(out var trailSkill))
         {
-            trailSkill.SetupAura(0.5f, trailDamage, 1.5f, false, 0f, trailDuration); 
+            trailSkill.SetupAura(0.5f, (long)trailDamage, 1.5f, false, 0f, WeaponID , trailDuration); 
         }
     }
     

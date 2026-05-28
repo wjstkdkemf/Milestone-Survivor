@@ -29,6 +29,8 @@ public class ChainLightningWeapon : WeaponBase
             currentBaseDamage = lightningData.baseDamage;
             currentScaling = lightningData.playerDamageScaling;
 
+            this.WeaponID = lightningData.WeaponId;
+
             projectilePrefab = lightningData.projectilePrefab;
         }
         else
@@ -76,15 +78,15 @@ public class ChainLightningWeapon : WeaponBase
 
         if (lightningObj != null && lightningObj.TryGetComponent<ChainLightningProjectile>(out var chainSkill))
         {
-            float finalDamage = GetDamage();
-            chainSkill.Fire(target, finalDamage, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction);
+            long finalDamage = GetDamage();
+            chainSkill.Fire(target, finalDamage, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction , WeaponID);
         }
     }
     
-    public float GetDamage()
+    public long GetDamage()
     {
         float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return currentBaseDamage + (bonus * currentScaling);
+        return (long)(currentBaseDamage + (bonus * currentScaling));
     }
 
     public override void LevelUp()

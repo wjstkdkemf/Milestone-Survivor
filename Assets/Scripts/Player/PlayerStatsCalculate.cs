@@ -194,7 +194,7 @@ public class PlayerStatsCalculate : MonoBehaviour
 
             int equipEncount = (int)EquipmentEffectManager.Instance.GetStatBonus("Encount");
             // 최종 스탯 계산
-            PlayerStats.Instance.DamageBonus = (baseDamage + powerUpDamage + realTimeDamage + levelDamage) * (1 + equiDamageRation) + equipDamage;
+            PlayerStats.Instance.DamageBonus = (long)((baseDamage + powerUpDamage + realTimeDamage + levelDamage) * (1 + equiDamageRation) + equipDamage);
             PlayerStats.Instance.SpeedBonus = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed;
             PlayerStats.Instance.HealthRegeneration = baseHealthRegen + powerUpHealthRegen + realTimeHealthRegen + equipHealthRegen + levelHealthRegen;
             PlayerStats.Instance.experienceBonus = powerUpExperienceBonus + realTimeExperienceBonus + equipExpBonus ;

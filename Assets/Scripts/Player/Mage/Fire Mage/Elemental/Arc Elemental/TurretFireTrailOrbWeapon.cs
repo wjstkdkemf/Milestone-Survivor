@@ -20,6 +20,8 @@ public class TurretFireTrailOrbWeapon : FireTrailOrbWeapon
             fireRange = turretData.fireRange;
             projectileDamageScaling = turretData.projectileDamageScaling;
             projectileSpeed = turretData.projectileSpeed;
+
+            this.WeaponID = turretData.WeaponId;
         }
 
         UpdateTurretInfoForExistingOrbs();
@@ -32,7 +34,7 @@ public class TurretFireTrailOrbWeapon : FireTrailOrbWeapon
         if (orb.TryGetComponent<TurretFireTrailOrb>(out var turretOrbScript))
         {
             float finalProjectileDamage = GetDamage() * projectileDamageScaling;
-            turretOrbScript.SetTurretInfo(projectilePrefab, fireRate, fireRange, finalProjectileDamage, projectileSpeed);
+            turretOrbScript.SetTurretInfo(projectilePrefab, fireRate, fireRange, finalProjectileDamage, projectileSpeed , WeaponID);
         }
     }
 
@@ -43,7 +45,7 @@ public class TurretFireTrailOrbWeapon : FireTrailOrbWeapon
         {
             if (orbObj != null && orbObj.TryGetComponent<TurretFireTrailOrb>(out var turretOrbScript))
             {
-                turretOrbScript.SetTurretInfo(projectilePrefab, fireRate, fireRange, finalProjectileDamage , projectileSpeed);
+                turretOrbScript.SetTurretInfo(projectilePrefab, fireRate, fireRange, finalProjectileDamage , projectileSpeed , WeaponID);
             }
         }
     }

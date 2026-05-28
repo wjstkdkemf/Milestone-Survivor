@@ -221,7 +221,7 @@ public class UpgradeManager : MonoBehaviour
                 break;
 
             case UpgradeScriptableObject.UpgradeType.Stat_Might:
-                if (stats != null) stats.DamageBonus += value;
+                if (stats != null) stats.DamageBonus += (long)value;
                 break;
 
             case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed:

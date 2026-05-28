@@ -33,6 +33,7 @@ public class TurretWeapon : WeaponBase
             currentRange = turretData.range;
             currentScaling = turretData.playerDamageScaling;
             currentDamage = turretData.baseDamage;
+            this.WeaponID = turretData.WeaponId;
             
             bulletPrefab = turretData.bulletPrefab;
             targetUpdateRate = turretData.targetUpdateRate;
@@ -104,13 +105,13 @@ public class TurretWeapon : WeaponBase
             
             if (bullet != null && bullet.TryGetComponent<TurretBullet>(out var bulletSkill))
             {
-                bulletSkill.damage = damage;//GetDamage()
+                bulletSkill.damage = (long)damage;//GetDamage()
                 bulletSkill.hitRadius = currentHitRadius;
                 bulletSkill.maxHits = currentMaxHits;
                 bulletSkill.speed = currentProjectileSpeed;
                 
                 // 총알 발사!
-                bulletSkill.Fire(closestEnemyPosition.position, currentProjectileSpeed);
+                bulletSkill.Fire(closestEnemyPosition.position, currentProjectileSpeed, WeaponID);
             }
         }
     }
@@ -125,7 +126,7 @@ public class TurretWeapon : WeaponBase
     public override void LevelUp()
     {
         currentBulletNumber++; 
-        currentDamage += 2f;
+        currentDamage += 2;
         
         Debug.Log($"[Turret Level Up] 총알: {currentBulletNumber}, 데미지: {currentDamage}");
     }

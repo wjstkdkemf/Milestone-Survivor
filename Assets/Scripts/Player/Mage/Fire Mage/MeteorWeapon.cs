@@ -150,6 +150,6 @@ public class MeteorWeapon : WeaponBase
     public override void LevelUp()
     {
         currentMeteorNumber++;
-        currentDamage += 2f;
+        currentDamage += 2;
     }
 }

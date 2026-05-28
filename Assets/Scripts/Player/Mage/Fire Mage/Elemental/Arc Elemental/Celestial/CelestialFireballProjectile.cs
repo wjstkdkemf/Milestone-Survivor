@@ -30,12 +30,14 @@ public class CelestialFireballProjectile : SkillProjectileBase
 
     // Setup에 체인 관련 변수 3개(chains, cRange, layerMask)와 폭발 크기(boomSize) 추가
     public void Setup(Transform newTarget, float newSpeed, GameObject trail, float tDamage, float tDuration, float tSpawnDist, 
-                      GameObject FireBoomPrefab, float FireBoomDamage, float boomSize, int chains, float cRange)
+                      GameObject FireBoomPrefab, float FireBoomDamage, float boomSize, int chains, float cRange , string WeaponID)
     {
         target = newTarget;
         speed = newSpeed;
         hitRadius = 0.5f;
         maxHits = 999;
+
+        this.WeaponID = WeaponID;
 
         trailPrefab = trail;
         trailDamage = tDamage;
@@ -91,7 +93,7 @@ public class CelestialFireballProjectile : SkillProjectileBase
         
         if (trail != null && trail.TryGetComponent<AuraZone>(out var trailSkill))
         {
-            trailSkill.SetupAura(0.5f, trailDamage, 1.5f, false, 0f, trailDuration); 
+            trailSkill.SetupAura(0.5f, (long)trailDamage, 1.5f, false, 0f, WeaponID ,trailDuration); 
         }
     }
 

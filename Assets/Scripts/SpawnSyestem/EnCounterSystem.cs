@@ -131,6 +131,10 @@ public class EnCounterSystem : MonoBehaviour
         {
             InventoryIcon.SetActive(false);
         }
+        if(RunStatisticsManager.Instance != null)
+        {
+            RunStatisticsManager.Instance.AddEncounter();
+        }
 
         string SceneName = currentMap.SceneName;
         List<Wave> SceneWave = new List<Wave>(currentMap.waves);
@@ -162,6 +166,11 @@ public class EnCounterSystem : MonoBehaviour
 
     public void ClearEncount()
     {
+        if(RunStatisticsManager.Instance != null)
+        {
+            RunStatisticsManager.Instance.AddClearedEncounter();
+        }
+
         if (CurEncounter >= maxEncounter)
         {
             if (GameOver.Instance != null) GameOver.Instance.GameEnded(true);

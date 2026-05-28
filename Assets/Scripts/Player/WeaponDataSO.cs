@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
+
 
 [CreateAssetMenu(fileName = "NewWeapon", menuName = "Weapon Data")]
 public class WeaponDataSO : ScriptableObject
@@ -9,6 +11,10 @@ public class WeaponDataSO : ScriptableObject
     //public string weaponName; // 무기 이름 (예: "마늘")
     //public Sprite icon;       // 무기 아이콘
     //public string description; // 설명
+    [SerializeField] private string weaponId;
+    public string WeaponId => weaponId;
+    [SerializeField] private LocalizedString weaponName;
+    [SerializeField] private LocalizedString weaponDescription;
 
     [Header("필수 연결")]
     // 실제 무기 로직이 들어있는 프리팹 (WeaponBase가 붙어있는 프리팹)
@@ -16,7 +22,7 @@ public class WeaponDataSO : ScriptableObject
     public UpgradeScriptableObject upgradeData;
 
     [Header("밸런스 데이터 (선택사항)")]
-    public float baseDamage;
+    public long baseDamage;
     public float baseCooldown;
     [Header("Job System 물리 데이터 (핵심)")]
     public float hitRadius = 0.5f;  // 충돌 반경

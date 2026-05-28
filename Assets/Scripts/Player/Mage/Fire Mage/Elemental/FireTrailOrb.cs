@@ -14,12 +14,14 @@ public class FireTrailOrb : Orb
     private bool isFirstSpawn = true;
 
     // 무기(Weapon)에서 호출하여 장판 관련 정보 주입
-    public void SetTrailInfo(GameObject prefab, float distThreshold, float duration, float damage)
+    public void SetTrailInfo(GameObject prefab, float distThreshold, float duration, float damage , string WeaponID)
     {
         trailPrefab = prefab;
         spawnDistanceThreshold = distThreshold;
         trailDuration = duration;
         trailDamage = damage;
+
+        this.WeaponID = WeaponID;
 
         lastSpawnPosition = transform.position; 
         isFirstSpawn = true; // 스폰 시 초기화
@@ -48,7 +50,7 @@ public class FireTrailOrb : Orb
 
         if (trail != null && trail.TryGetComponent<AuraZone>(out var trailSkill))
         {
-            trailSkill.SetupAura(0.5f, trailDamage, 1.5f, false, 0f, trailDuration); 
+            trailSkill.SetupAura(0.5f, (long)trailDamage, 1.5f, false, 0f, WeaponID ,trailDuration); 
         }
     }
 }

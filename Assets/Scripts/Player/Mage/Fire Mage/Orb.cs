@@ -10,11 +10,13 @@ public class Orb : SkillProjectileBase
     private float trueHitRadius;
     private List<int> enemiesInsideIndices = new List<int>(50);
 
-    public void SetInfo(float _baseDamage, float _hitRadius, float _chanceDoubleDamage)
+    public void SetInfo(float _baseDamage, float _hitRadius, float _chanceDoubleDamage , string WeaponID)
     {
-        damage = _baseDamage;
+        damage = (long)_baseDamage;
         hitRadius = 0f;
         maxHits = -1; 
+        
+        this.WeaponID = WeaponID;
 
         chanceDoubleDamage = _chanceDoubleDamage;
         trueHitRadius = _hitRadius;

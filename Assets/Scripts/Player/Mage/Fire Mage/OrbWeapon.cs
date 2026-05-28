@@ -28,6 +28,8 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
 
             currentHitRadius = orbData.hitRadius;
 
+            this.WeaponID = orbData.WeaponId;
+
             orbPrefab = orbData.orbProjectilePrefab;
         }
         else
@@ -85,7 +87,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     {
         if (orb.TryGetComponent<Orb>(out var orbScript))
         {
-            orbScript.SetInfo(GetDamage(), currentHitRadius, 0);
+            orbScript.SetInfo(GetDamage(), currentHitRadius, 0 , WeaponID);
         }
     }
     void OrbitOrbs()
@@ -133,7 +135,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     
     public virtual void UpgradeDamage(float amount)
     {
-        currentDamage += amount;
+        currentDamage += (long)amount;
         SpawnOrbs(); // 데미지 갱신을 위해 재소환 (혹은 기존 orb들에 접근해서 수치만 변경)
     }
     public override void LevelUp()

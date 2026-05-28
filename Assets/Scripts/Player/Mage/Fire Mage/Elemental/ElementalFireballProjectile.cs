@@ -22,7 +22,7 @@ public class ElementalFireballProjectile : SkillProjectileBase
 
     // 무기에서 호출하여 데이터 초기화
     public void Setup(Transform newTarget, float newSpeed, GameObject trail, float tDamage, float tDuration, float tSpawnDist, 
-                      GameObject boomPrefab, float boomDamage, float boomSize)
+                      GameObject boomPrefab, float boomDamage, float boomSize , string WeaponID)
     {
         target = newTarget;
         speed = newSpeed;
@@ -38,7 +38,9 @@ public class ElementalFireballProjectile : SkillProjectileBase
         fireBoomDamage = boomDamage;
         fireBoomSize = boomSize;
 
-        lastSpawnPosition = transform.position; 
+        lastSpawnPosition = transform.position;
+
+        this.WeaponID = WeaponID;
 
         if (target != null) RotateTowardsTarget(target.position);
     }
@@ -67,7 +69,7 @@ public class ElementalFireballProjectile : SkillProjectileBase
         // 🚨 장판 프리팹은 반드시 Collider 없이 AuraSkill(혹은 ZoneDamageArea)이 붙어있어야 합니다!
         if (trail != null && trail.TryGetComponent<AuraZone>(out var trailSkill))
         {
-            trailSkill.SetupAura(0.5f, trailDamage, 1.5f, false, 0f, trailDuration); 
+            trailSkill.SetupAura(0.5f, (long)trailDamage, 1.5f, false, 0f, WeaponID ,trailDuration); 
         }
     }
     public override void OnHit(Enemy hitEnemy)

@@ -63,6 +63,6 @@ public class GoldHUD : MonoBehaviour
         if (goldText == null || playerStats == null)
             return;
 
-        goldText.text = playerStats.Format(gold);
+        goldText.text = NumberFormatter.Format(gold);
     }
 }

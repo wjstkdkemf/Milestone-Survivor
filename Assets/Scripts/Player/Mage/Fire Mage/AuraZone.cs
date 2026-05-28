@@ -7,7 +7,6 @@ public class AuraZone : SkillProjectileBase
     private float tickRate;
     private bool applySlow;
     private float slowPercentage;
-    
     private float damageTimer;
     private float slowRefreshTimer;
 
@@ -16,7 +15,7 @@ public class AuraZone : SkillProjectileBase
 
     private List<int> enemiesInsideIndices = new List<int>(100);
 
-    public void SetupAura(float rate, float dmg, float rad, bool doSlow, float slowPct , float duration = 0f)
+    public void SetupAura(float rate, long dmg, float rad, bool doSlow, float slowPct , string WeaponID, float duration = 0f)
     {
         damage = dmg;
         hitRadius = rad;
@@ -28,6 +27,8 @@ public class AuraZone : SkillProjectileBase
 
         damageTimer = 0f;
         slowRefreshTimer = 0f;
+
+        this.WeaponID = WeaponID;
 
         if (duration > 0f)
         {

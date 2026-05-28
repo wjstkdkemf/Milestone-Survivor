@@ -52,6 +52,8 @@ public class CelestialFireballWeapon : WeaponBase
             fireballPrefab = evoData.fireballPrefab;
             trailPrefab = evoData.trailPrefab;
             LastFireBoomPrefab = evoData.lastFireBoomPrefab;
+
+            this.WeaponID = evoData.WeaponId;
         }
         else
         {
@@ -110,10 +112,10 @@ public class CelestialFireballWeapon : WeaponBase
 
             evoScript.Setup(
                 target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
-                LastFireBoomPrefab, boomDamage, lastFireBoomSize, chains, chainRange
+                LastFireBoomPrefab, boomDamage, lastFireBoomSize, chains, chainRange , WeaponID
             );
             
-            evoScript.damage = directDamage; // SkillProjectileBase 직격 데미지
+            evoScript.damage = (long)directDamage; // SkillProjectileBase 직격 데미지
         }
 
         pendingBullets--;
@@ -135,7 +137,7 @@ public class CelestialFireballWeapon : WeaponBase
     }
     public override void LevelUp()
     {
-        currentDamage += 5f;
+        currentDamage += 5;
         trailDamageScaling += 0.1f; // 레벨업 시 장판 데미지 비율도 증가
         Debug.Log($"[Evo Fireball Level Up] 직격뎀: {currentDamage}, 장판계수: {trailDamageScaling}");
     }

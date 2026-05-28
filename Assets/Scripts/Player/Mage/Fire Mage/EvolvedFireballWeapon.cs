@@ -37,6 +37,8 @@ public class EvolvedFireballWeapon : WeaponBase
 
             fireballPrefab = evoData.fireballPrefab;
             trailPrefab = evoData.trailPrefab;
+
+            this.WeaponID = evoData.WeaponId;
         }
         else
         {
@@ -94,7 +96,7 @@ public class EvolvedFireballWeapon : WeaponBase
             float directDamage = GetDamage();
             float finalTrailDamage = directDamage * trailDamageScaling;
             
-            evoScript.SetupEvo(target.transform, projectileSpeed, trailPrefab, directDamage, finalTrailDamage, trailDuration, trailSpawnDistance);
+            evoScript.SetupEvo(target.transform, projectileSpeed, trailPrefab, (long)directDamage, finalTrailDamage, trailDuration, trailSpawnDistance , WeaponID);
         }
 
         pendingBullets--;
@@ -118,7 +120,7 @@ public class EvolvedFireballWeapon : WeaponBase
 
     public override void LevelUp()
     {
-        currentDamage += 5f;
+        currentDamage += 5;
         trailDamageScaling += 0.1f; 
     }
 }

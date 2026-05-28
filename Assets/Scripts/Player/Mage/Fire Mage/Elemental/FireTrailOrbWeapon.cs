@@ -19,6 +19,8 @@ public class FireTrailOrbWeapon : OrbWeapon
             spawnInterval = fireData.spawnInterval;
             trailDuration = fireData.trailDuration;
             trailDamageScaling = fireData.trailDamageScaling;
+
+            this.WeaponID = fireData.WeaponId;
         }
         
         UpdateTrailInfoForExistingOrbs();
@@ -31,7 +33,7 @@ public class FireTrailOrbWeapon : OrbWeapon
         if (orb.TryGetComponent<FireTrailOrb>(out var fireOrbScript))
         {
             float finalTrailDamage = GetDamage() * trailDamageScaling;
-            fireOrbScript.SetTrailInfo(trailPrefab, spawnInterval, trailDuration, finalTrailDamage);
+            fireOrbScript.SetTrailInfo(trailPrefab, spawnInterval, trailDuration, finalTrailDamage , WeaponID);
         }
     }
 
@@ -42,7 +44,7 @@ public class FireTrailOrbWeapon : OrbWeapon
         {
             if (orbObj != null && orbObj.TryGetComponent<FireTrailOrb>(out var fireOrbScript))
             {
-                fireOrbScript.SetTrailInfo(trailPrefab, spawnInterval, trailDuration, finalTrailDamage);
+                fireOrbScript.SetTrailInfo(trailPrefab, spawnInterval, trailDuration, finalTrailDamage , WeaponID);
             }
         }
     }

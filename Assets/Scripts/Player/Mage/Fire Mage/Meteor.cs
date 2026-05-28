@@ -20,7 +20,7 @@ public class Meteor : SkillProjectileBase
 
     public void Fire(Vector3 targetPos, float meteorDamage, float expRadius)
     {
-        this.damage = meteorDamage;
+        this.damage = (long)meteorDamage;
         this.impactRadius = expRadius;
         
         this.hitRadius = 0f; 

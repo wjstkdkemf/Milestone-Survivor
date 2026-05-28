@@ -3,7 +3,8 @@ using UnityEngine;
 public abstract class WeaponBase : MonoBehaviour
 {
     public WeaponDataSO myData;
-    protected float currentDamage;
+    protected string WeaponID;
+    protected long currentDamage;
     protected float currentCooldown;
     protected float currentHitRadius;
     protected int currentMaxHits;

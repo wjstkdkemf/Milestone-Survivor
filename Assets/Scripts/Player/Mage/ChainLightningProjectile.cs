@@ -15,7 +15,7 @@ public class ChainLightningProjectile : SkillProjectileBase
     private bool isActived = false;
 
     // 무기 스크립트에서 호출하여 정보 초기화
-    public void Fire(Enemy initialTarget, float startDamage, float projSpeed, int chains, float range, float reduction)
+    public void Fire(Enemy initialTarget, long startDamage, float projSpeed, int chains, float range, float reduction , string weaponID)
     {
         currentTarget = initialTarget;
         damage = startDamage;
@@ -23,6 +23,7 @@ public class ChainLightningProjectile : SkillProjectileBase
         remainingChains = chains;
         chainRange = range;
         damageReduction = reduction;
+        this.WeaponID = weaponID;
         
         hitRadius = 0.5f; // 투사체 크기
         maxHits = 1;      // 1프레임당 1마리만 때림 (튕기기 위함)
@@ -37,7 +38,7 @@ public class ChainLightningProjectile : SkillProjectileBase
     {
         if (!isActived) return;
 
-        // 🚨 타겟이 내게 오기 전에 다른 공격에 맞아 죽었다면?
+        // 타겟이 내게 오기 전에 다른 공격에 맞아 죽었다면?
         if (currentTarget == null || currentTarget.currentNormalState == Enemy.EnemyState.Dead)
         {
             FindNextTarget(); // 멈추지 않고 주변의 다른 놈으로 즉시 궤도 수정!
@@ -67,9 +68,10 @@ public class ChainLightningProjectile : SkillProjectileBase
     public override void OnHit(Enemy hitEnemy)
     {
         visitedTargets.Add(hitEnemy);
+        RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
 
         remainingChains--;
-        damage *= (1f - damageReduction);
+        damage = (long)(damage * (1 - damageReduction));
 
         if (remainingChains > 0)
         {

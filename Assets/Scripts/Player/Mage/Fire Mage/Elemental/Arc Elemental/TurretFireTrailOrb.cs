@@ -11,13 +11,15 @@ public class TurretFireTrailOrb : FireTrailOrb
     private float fireTimer;
 
     // 무기 관리자에서 호출하여 터렛 관련 정보를 주입
-    public void SetTurretInfo(GameObject prefab, float rate, float range, float pDamage, float pSpeed)
+    public void SetTurretInfo(GameObject prefab, float rate, float range, float pDamage, float pSpeed , string WeaponID)
     {
         projectilePrefab = prefab;
         fireRate = rate;
         fireRange = range;
         projectileDamage = pDamage;
         projectileSpeed = pSpeed;
+
+        this.WeaponID = WeaponID;
 
         fireTimer = 0f;
     }
@@ -47,8 +49,8 @@ public class TurretFireTrailOrb : FireTrailOrb
             
             // TODO: 사장님의 투사체 스크립트에 맞게 초기화 함수를 호출하세요.
             // 예: bulletSkill.Fire(direction, projectileDamage, projectileSpeed);
-            bulletSkill.Fire(target.transform.position, projectileSpeed);
-            bulletSkill.damage = projectileDamage;
+            bulletSkill.Fire(target.transform.position, projectileSpeed , WeaponID);
+            bulletSkill.damage = (long)projectileDamage;
             /*
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             bullet.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
