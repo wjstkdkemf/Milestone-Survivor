@@ -130,4 +130,23 @@ public class TurretWeapon : WeaponBase
         
         Debug.Log($"[Turret Level Up] 총알: {currentBulletNumber}, 데미지: {currentDamage}");
     }
+
+    public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
+    {
+        UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "투사체 수",
+            currentBulletNumber.ToString(),
+            (currentBulletNumber + 1).ToString()
+        ));
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "피해량",
+            currentDamage.ToString(),
+            (currentDamage + 2).ToString()
+        ));
+
+        return preview;
+    }
 }

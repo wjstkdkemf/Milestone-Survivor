@@ -12,6 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac7e9f83c93e78b4baf918e216076b9f, type: 3}
   m_Name: W_Meteor Data
   m_EditorClassIdentifier: 
+  weaponId: 2_Meteor
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 4975883650434929251, guid: 3e62fd68600714644a5003da26b1d9b2, type: 3}
   upgradeData: {fileID: 11400000, guid: 9e190c724f5271947a7134d85564e176, type: 2}
   baseDamage: 3
@@ -28,3 +47,6 @@ MonoBehaviour:
   volleyDelay: 0.3
   MeteorPrefab: {fileID: 5900696834571491212, guid: c260634eeb81b1844b3c56ce2715437f, type: 3}
   playerDamageScaling: 0.5
+  references:
+    version: 2
+    RefIds: []

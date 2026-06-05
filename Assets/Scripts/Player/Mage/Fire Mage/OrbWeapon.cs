@@ -145,6 +145,31 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         currentDamage++;
         SpawnOrbs();
     }
+
+    public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
+    {
+        UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "오브 수",
+            currentOrbCount.ToString(),
+            (currentOrbCount + 1).ToString()
+        ));
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "피해량",
+            currentDamage.ToString(),
+            (currentDamage + 1).ToString()
+        ));
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "회전 범위",
+            currentRadius.ToString("0.##"),
+            currentRadius.ToString("0.##")
+        ));
+
+        return preview;
+    }
     public float GetDamage()
     {
         float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;

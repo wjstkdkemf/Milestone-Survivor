@@ -12,6 +12,9 @@ public class UpgradeScriptableObject : ScriptableObject
     public string Title;
     [TextArea] public string Description; // TextArea를 쓰면 인스펙터에서 줄바꿈 가능
 
+    [Header("Grade")]
+    public UpgradeGrade Grade;
+
     [Header("Level System")]
     public int Points;     // 현재 레벨 (0부터 시작)
     public int MaxPoints;  // 최대 레벨 (만렙)
@@ -36,6 +39,36 @@ public class UpgradeScriptableObject : ScriptableObject
     // [핵심 3] 스탯을 얼마나 올려줄지 (예: 체력 +10, 속도 +5)
     public float statValue; 
 
+    public UpgradeLevelInfo GetLevelInfoOrNull()
+    {
+        if (UpgradesList == null || UpgradesList.Count == 0)
+            return null;
+
+        int index = Mathf.Clamp(Points, 0, UpgradesList.Count - 1);
+
+        return UpgradesList[index];
+    }
+
+    public string GetCurrentShortDescription()
+    {
+        UpgradeLevelInfo info = GetLevelInfoOrNull();
+
+        if (info == null || string.IsNullOrEmpty(info.ShortDescription))
+            return Title;
+
+        return info.ShortDescription;
+    }
+
+    public string GetCurrentDescription()
+    {
+        UpgradeLevelInfo info = GetLevelInfoOrNull();
+
+        if (info == null || string.IsNullOrEmpty(info.Description))
+            return Description;
+
+        return info.Description;
+    }
+
     // 깔끔해진 Enum (구체적인 무기 이름은 다 삭제!)
     public enum UpgradeType
     {
@@ -59,7 +92,15 @@ public class UpgradeScriptableObject : ScriptableObject
 [System.Serializable]
 public class UpgradeLevelInfo 
 {
-    public Sprite Icon;       // 레벨별 아이콘이 다르다면 사용
+    public string ShortDescription;       // 레벨별 아이콘이 다르다면 사용
     public string Description; // "데미지 +5 증가" 같은 레벨별 텍스트
     // public float Value; // <- 이 값은 위쪽 statValue나 Weapon 자체 레벨업 로직으로 대체 가능하므로 삭제 고려
+}
+public enum UpgradeGrade
+{
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary
 }

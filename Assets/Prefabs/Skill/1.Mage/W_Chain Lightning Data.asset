@@ -12,18 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011a3dd9c90c3bf4ca75c4402ded635e, type: 3}
   m_Name: W_Chain Lightning Data
   m_EditorClassIdentifier: 
+  weaponId: 1_Chain
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 2995233843411917948, guid: f7ce913e9889ce742bdd73482fd21ed6, type: 3}
   upgradeData: {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
-  baseDamage: 5
+  baseDamage: 10
   baseCooldown: 3
+  hitRadius: 0.5
+  maxHits: 1
+  projectileSpeed: 15
   fusionWeaponData: []
   initialRange: 8
-  projectileSpeed: 15
   chainCount: 2
   chainRange: 5
   damageReductionPerBounce: 0.9
   playerDamageScaling: 0.3
   projectilePrefab: {fileID: 4297926786030371863, guid: 2a17131053d0a0043bf42c0c6dd3941c, type: 3}
-  enemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 67133440
+  references:
+    version: 2
+    RefIds: []

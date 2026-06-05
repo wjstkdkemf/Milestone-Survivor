@@ -12,6 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5289c325deea0d8418bfa58a87a6f9ea, type: 3}
   m_Name: W_Evolved Fireball Data
   m_EditorClassIdentifier: 
+  weaponId: 2_Evolved
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 5754844922066117109, guid: 8852084d23a88564994b8bc9cbe19cd0, type: 3}
   upgradeData: {fileID: 11400000, guid: 059fbf23ff1d8224eb2e7c36e996725b, type: 2}
   baseDamage: 5
@@ -27,3 +46,6 @@ MonoBehaviour:
   trailSpawnDistance: 0.8
   fireballPrefab: {fileID: 2202201730951133944, guid: feeb30991914426498de2d9ea07f15fc, type: 3}
   trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
+  references:
+    version: 2
+    RefIds: []

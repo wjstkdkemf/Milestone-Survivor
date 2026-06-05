@@ -15,10 +15,21 @@ MonoBehaviour:
   Icon: {fileID: -1259408508766424310, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
   Title: +Shoot one more Projectile
   Description: 
+  Grade: 3
   Points: 3
   MaxPoints: 5
-  UpgradesList: []
-  Chance: 70
+  UpgradesList:
+  - ShortDescription: 
+    Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 0"
+  - ShortDescription: 
+    Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 1"
+  - ShortDescription: 
+    Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 2"
+  - ShortDescription: 
+    Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 3"
+  - ShortDescription: 
+    Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 4"
+  Chance: 20
   InitialChance: 20
   linkedWeaponData: {fileID: 11400000, guid: 33e5ad923a914314eb30fb0c7d6edbe3, type: 2}
   upgradeType: 0

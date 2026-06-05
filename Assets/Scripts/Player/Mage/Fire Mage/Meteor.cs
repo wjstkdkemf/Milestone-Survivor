@@ -18,7 +18,11 @@ public class Meteor : SkillProjectileBase
     private float timer = 0f;
     private List<int> enemiesHitIndices = new List<int>(100);
 
-    public void Fire(Vector3 targetPos, float meteorDamage, float expRadius)
+    protected override void OnEnable()
+    {
+    }
+
+    public void Fire(Vector3 targetPos, float meteorDamage, float expRadius , string WeaponID)
     {
         this.damage = (long)meteorDamage;
         this.impactRadius = expRadius;
@@ -27,7 +31,7 @@ public class Meteor : SkillProjectileBase
         this.maxHits = 0;    
 
         this.targetPosition = targetPos;
-        
+        this.WeaponID = WeaponID;
         transform.position = targetPosition + new Vector3(0, 15f, 0);
 
         if (magicCirclePrefab != null)
@@ -83,6 +87,8 @@ public class Meteor : SkillProjectileBase
 
             if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[idx])
             {
+                RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
+                Debug.Log(damage);
                 target.TakeDamage(damage);
                 EnemySwarmSystem.Instance.nextHitTimes[idx] = Time.time + 0.1f;
             }
@@ -91,7 +97,9 @@ public class Meteor : SkillProjectileBase
         ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
     }
 
-    public override void OnHit(Enemy hitEnemy) { }
+    public override void OnHit(Enemy hitEnemy)
+    {
+    }
 
     private void OnDrawGizmosSelected()
     {

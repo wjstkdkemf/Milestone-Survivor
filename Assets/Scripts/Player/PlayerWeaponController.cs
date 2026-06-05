@@ -30,6 +30,7 @@ public class PlayerWeaponController : MonoBehaviour
             // 초기화 및 리스트 추가
             newWeapon.Initialize(data);
             newWeapon.myData = data;
+            newWeapon.CurrentLevel = 1;
             activeWeapons.Add(newWeapon);
 
             if (playerHUD != null)
@@ -56,6 +57,7 @@ public class PlayerWeaponController : MonoBehaviour
             // 초기화 및 리스트 추가
             newWeapon.Initialize(data);
             newWeapon.myData = data;
+            newWeapon.CurrentLevel = 1;
             WeaponsFromEquipment.Add(newWeapon);
 
             if (playerHUD != null)
@@ -128,8 +130,9 @@ public class PlayerWeaponController : MonoBehaviour
     {
         foreach (var weapon in activeWeapons)
         {
-            if(weapon.myData == data)
+            if(weapon != null && weapon.myData == data)
             {
+                weapon.CurrentLevel++;
                 weapon.LevelUp();
                 return true;
             }
@@ -190,5 +193,82 @@ public class PlayerWeaponController : MonoBehaviour
             playerHUD.RefreshWeaponIcons();
         }
         WeaponsFromEquipment.Clear();
+    }
+
+    public WeaponBase GetWeaponById(string weaponId)
+    {
+        TryGetWeaponById(weaponId, out WeaponBase weapon);
+        return weapon;
+    }
+
+    public WeaponBase GetWeapon(WeaponDataSO data)
+    {
+        TryGetWeapon(data, out WeaponBase weapon);
+        return weapon;
+    }
+
+    public bool TryGetWeapon(WeaponDataSO data, out WeaponBase weapon, bool includeEquipmentWeapons = false)
+    {
+        weapon = null;
+
+        if (data == null)
+            return false;
+
+        for (int i = activeWeapons.Count - 1; i >= 0; i--)
+        {
+            if (activeWeapons[i] != null && activeWeapons[i].myData == data)
+            {
+                weapon = activeWeapons[i];
+                return true;
+            }
+        }
+
+        if (includeEquipmentWeapons)
+        {
+            for (int i = WeaponsFromEquipment.Count - 1; i >= 0; i--)
+            {
+                if (WeaponsFromEquipment[i] != null && WeaponsFromEquipment[i].myData == data)
+                {
+                    weapon = WeaponsFromEquipment[i];
+                    return true;
+                }
+            }
+        }
+
+        if (!string.IsNullOrEmpty(data.WeaponId))
+            return TryGetWeaponById(data.WeaponId, out weapon, includeEquipmentWeapons);
+
+        return false;
+    }
+
+    public bool TryGetWeaponById(string weaponId, out WeaponBase weapon, bool includeEquipmentWeapons = false)
+    {
+        weapon = null;
+
+        if (string.IsNullOrEmpty(weaponId))
+            return false;
+
+        for (int i = activeWeapons.Count - 1; i >= 0; i--)
+        {
+            if (activeWeapons[i] != null && activeWeapons[i].WeaponID == weaponId)
+            {
+                weapon = activeWeapons[i];
+                return true;
+            }
+        }
+
+        if (includeEquipmentWeapons)
+        {
+            for (int i = WeaponsFromEquipment.Count - 1; i >= 0; i--)
+            {
+                if (WeaponsFromEquipment[i] != null && WeaponsFromEquipment[i].WeaponID == weaponId)
+                {
+                    weapon = WeaponsFromEquipment[i];
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -78,6 +78,7 @@ public class AuraZone : SkillProjectileBase
                 if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[enemyIdx])
                 {
                     target.TakeDamage(damage);
+                    RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
                     EnemySwarmSystem.Instance.nextHitTimes[enemyIdx] = Time.time + 0.1f; 
                 }
             }
@@ -87,7 +88,9 @@ public class AuraZone : SkillProjectileBase
         if (timeToSlow) slowRefreshTimer = 0.1f; 
     }
 
-    public override void OnHit(Enemy hitEnemy) { }
+    public override void OnHit(Enemy hitEnemy)
+    {
+    }
 
     private void OnDrawGizmosSelected()
     {

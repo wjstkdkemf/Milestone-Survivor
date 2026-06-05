@@ -12,10 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9780251f70a508c48a7b66d109c0a089, type: 3}
   m_Name: W_Fire Trail Orb
   m_EditorClassIdentifier: 
+  weaponId: 3_Orb
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 2875843379106286365, guid: a3c2e050776cfde4f99b892503b61805, type: 3}
   upgradeData: {fileID: 11400000, guid: 401aa8ade2484c74e8d2c0d803ddb9c1, type: 2}
   baseDamage: 5
   baseCooldown: 0
+  hitRadius: 0.5
+  maxHits: 1
+  projectileSpeed: 5
   fusionWeaponData: []
   orbCount: 1
   radius: 4
@@ -25,3 +47,6 @@ MonoBehaviour:
   spawnInterval: 0.2
   trailDuration: 2
   trailDamageScaling: 0.5
+  references:
+    version: 2
+    RefIds: []

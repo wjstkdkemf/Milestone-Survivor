@@ -80,4 +80,23 @@ public class AuraWeapon : WeaponBase
         }
         UpdateAuraSize();
     }
+
+    public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
+    {
+        UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "피해량",
+            currentDamage.ToString(),
+            (currentDamage + 2).ToString()
+        ));
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "범위",
+            currentRadius.ToString("0.##"),
+            (currentRadius + 1.5f).ToString("0.##")
+        ));
+
+        return preview;
+    }
 }

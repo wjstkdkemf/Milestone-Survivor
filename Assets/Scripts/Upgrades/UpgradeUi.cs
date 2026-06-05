@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class UpgradeUi : MonoBehaviour
+public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public UpgradeScriptableObject Upgrade;
 
@@ -14,38 +15,40 @@ public class UpgradeUi : MonoBehaviour
     [SerializeField] private string UpgradeName;
     [SerializeField] private TMP_Text UpgradeLevel;
     public List<GameObject> UpgradePointsList;
-    // Start is called before the first frame update
 
+    [SerializeField] private GameObject hoverBorder;
+    [SerializeField] private GameObject selectedBorder;
+    private bool isSelected;
+    public UpgradeDescriptionPanel descriptionPanel;
+    [SerializeField] private PlayerWeaponController playerWeaponController;
 
-    // Update is called once per frame
-    void FixedUpdate()
+    public void SetInfo(
+        UpgradeScriptableObject info,
+        UpgradeDescriptionPanel panel,
+        PlayerWeaponController weaponController = null
+    )
     {
-
-    }
-
-
-    public void SetInfo(UpgradeScriptableObject info)
-    {
-        // foreach (GameObject go in UpgradePointsList)
-        // {
-        //     go.transform.GetChild(0).gameObject.SetActive(false);
-        // }
-Upgrade = info;
-
-        // 1. 기본 정보 표시
-        if (Title != null) Title.text = Upgrade.Title;
-        if (Icon != null) Icon.sprite = Upgrade.Icon;
+        Upgrade = info;
+        descriptionPanel = panel;
+        if (weaponController != null)
+            playerWeaponController = weaponController;
+        else if (playerWeaponController == null && UpgradeManager.Instance != null)
+            playerWeaponController = UpgradeManager.Instance.playerWeaponController;
         
-        // 2. 설명 표시
-        // (팁: 만약 레벨별로 설명을 다르게 하고 싶다면 리스트에서 가져오게 수정 가능)
-        if (Description != null) Description.text = Upgrade.Description;
+        if (Title != null)
+            Title.text = Upgrade.Title;
 
-        // 3. 레벨 표시 (현재 레벨 + 1 = "다음 레벨"을 보여줌)
-        if (UpgradeLevel != null) 
-        {
+        if (Icon != null)
+            Icon.sprite = Upgrade.Icon;
+
+        if (Description != null)
+            Description.text = Upgrade.Description;
+
+        if (UpgradeLevel != null)
             UpgradeLevel.text = "Lv." + (Upgrade.Points + 1).ToString();
-        }
 
+        if (hoverBorder != null)
+            hoverBorder.SetActive(false);
     }
     public void UpgradeFunction()
     {
@@ -54,6 +57,30 @@ Upgrade = info;
             UpgradeManager.Instance.OnUpgradeSelected(Upgrade);
         }
 
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!isSelected && hoverBorder != null)
+            hoverBorder.SetActive(true);
+
+        WeaponBase weapon = null;
+
+        if (Upgrade != null && Upgrade.linkedWeaponData != null && playerWeaponController != null)
+        {
+            playerWeaponController.TryGetWeapon(Upgrade.linkedWeaponData, out weapon);
+        }
+
+        if(descriptionPanel != null)
+            descriptionPanel.Show(Upgrade, weapon);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (hoverBorder != null)
+            hoverBorder.SetActive(false);
+
+        if (!isSelected && descriptionPanel != null)
+            descriptionPanel.Hide();
     }
 
     // void ClearEncount()

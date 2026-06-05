@@ -12,6 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64cadf1c7f59ba746868fc34d419ffa8, type: 3}
   m_Name: W_Orb Data
   m_EditorClassIdentifier: 
+  weaponId: 2_Orb
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 3484386132901314815, guid: d111642d707dca5439bdae7002edd1ba, type: 3}
   upgradeData: {fileID: 11400000, guid: cf3fceedde3442540af6cf25771cf2ac, type: 2}
   baseDamage: 5
@@ -24,3 +43,6 @@ MonoBehaviour:
   radius: 3
   rotationSpeed: 100
   orbProjectilePrefab: {fileID: 8800286586871075592, guid: ae5fe4db9addab84482b7864e1dae7ff, type: 3}
+  references:
+    version: 2
+    RefIds: []

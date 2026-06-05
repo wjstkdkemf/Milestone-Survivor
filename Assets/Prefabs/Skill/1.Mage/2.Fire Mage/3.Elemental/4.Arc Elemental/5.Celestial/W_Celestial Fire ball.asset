@@ -12,6 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e71aee57c18350439c8fc19ba690931, type: 3}
   m_Name: W_Celestial Fire ball
   m_EditorClassIdentifier: 
+  weaponId: 5_Celestial
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 1052515358152804445, guid: 91926b039fe7b4a48b1f9daa220fb8e6, type: 3}
   upgradeData: {fileID: 11400000, guid: 2b408ae84ca028a44a2b8d801e5a4aa1, type: 2}
   baseDamage: 5
@@ -31,3 +50,6 @@ MonoBehaviour:
   fireballPrefab: {fileID: 2202201730951133944, guid: e28602c2abc565443a7936bfed7891f1, type: 3}
   trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
   lastFireBoomPrefab: {fileID: 6122877895079379237, guid: f7c2669d57d680049a9167789c95b257, type: 3}
+  references:
+    version: 2
+    RefIds: []

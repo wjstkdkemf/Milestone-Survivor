@@ -78,6 +78,7 @@ public class ElementalFireballProjectile : SkillProjectileBase
         {
             ObjectPoolingManager.Instance.spawnGameObject(lastFireBoom, transform.position, Quaternion.identity);
         }
+        RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
 
         EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, fireBoomSize, enemiesHitIndices);
 

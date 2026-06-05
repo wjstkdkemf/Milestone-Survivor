@@ -12,6 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e34eabbecf79fb4e8ec5f3c2e10edbc, type: 3}
   m_Name: W_Turret Fire Trail Orb
   m_EditorClassIdentifier: 
+  weaponId: 4_Orb
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 8133142474223884936, guid: 4996d044a893ceb4fa2aff921997f44d, type: 3}
   upgradeData: {fileID: 11400000, guid: 4de550dfb1b50ec46b910e84a14066ed, type: 2}
   baseDamage: 5
@@ -34,3 +53,6 @@ MonoBehaviour:
   fireRate: 1.5
   fireRange: 8
   projectileDamageScaling: 1
+  references:
+    version: 2
+    RefIds: []

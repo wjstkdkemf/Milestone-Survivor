@@ -1,17 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class RunStatisticsManager : MonoBehaviour
 {
     public static RunStatisticsManager Instance { get; private set; }
 
-    private Dictionary<string, WeaponDamageRecord> weaponDamageRecords = new();
+    [SerializeField]private Dictionary<string, WeaponDamageRecord> weaponDamageRecords = new();
+
+    [Header("Debug View")]
+    [SerializeField] private List<WeaponDamageRecordDebugView> weaponDamageDebugList = new();
+
 
     [SerializeField]private int EncounterCount;
     [SerializeField]private int ClearedEncounterCount;
     [SerializeField]private int KillCount;
     [SerializeField]private long EarnedGold;
+
+    [Serializable]
+    public class WeaponDamageRecordDebugView
+    {
+        public string weaponId;
+        public long totalDamage;
+        public long highestSingleHit;
+        public int hitCount;
+    }
 
     private void Awake()
     {
@@ -73,6 +87,8 @@ public class RunStatisticsManager : MonoBehaviour
         }
 
         record.AddDamage(damage);
+
+        RefreshDebugList();
     }
 
     public RunResultData CreateResultData()
@@ -108,6 +124,23 @@ public class RunStatisticsManager : MonoBehaviour
             //HighestSingleHitWeaponName = bestSingleHitWeapon?.WeaponName ?? "-",
             HighestSingleHitDamage = bestSingleHitWeapon?.HighestSingleHit ?? 0
         };
+    }
+    private void RefreshDebugList()
+    {
+        weaponDamageDebugList.Clear();
+
+        foreach (var pair in weaponDamageRecords)
+        {
+            WeaponDamageRecord record = pair.Value;
+
+            weaponDamageDebugList.Add(new WeaponDamageRecordDebugView
+            {
+                weaponId = record.WeaponId,
+                totalDamage = record.TotalDamage,
+                highestSingleHit = record.HighestSingleHit,
+                hitCount = record.HitCount
+            });
+        }
     }
 }
 

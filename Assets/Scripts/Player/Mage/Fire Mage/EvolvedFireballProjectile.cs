@@ -73,5 +73,6 @@ public class EvolvedFireballProjectile : SkillProjectileBase
     }
     public override void OnHit(Enemy hitEnemy)
     {
+        RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
     }
 }

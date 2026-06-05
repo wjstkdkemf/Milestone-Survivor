@@ -12,10 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 164a633abf62bf44ebc19fd9353ed083, type: 3}
   m_Name: W_Barrier Data
   m_EditorClassIdentifier: 
+  weaponId: 0_Barrier
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 5967004975636487340, guid: 88813ef3b0e696b4f9fffc84a9f010e4, type: 3}
   upgradeData: {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
   baseDamage: 0
   baseCooldown: 0
+  hitRadius: 0.5
+  maxHits: 1
+  projectileSpeed: 5
   fusionWeaponData: []
   chargeTime: 5
   knockbackRadius: 3
@@ -28,3 +50,6 @@ MonoBehaviour:
   projectileLayerMask:
     serializedVersion: 2
     m_Bits: 134217728
+  references:
+    version: 2
+    RefIds: []

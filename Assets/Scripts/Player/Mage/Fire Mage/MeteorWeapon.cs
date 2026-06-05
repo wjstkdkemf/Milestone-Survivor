@@ -26,6 +26,8 @@ public class MeteorWeapon : WeaponBase
     {
         if (data is MeteorWeaponSO MeteorData)
         {
+            base.Initialize(data);
+            
             currentMeteorNumber = MeteorData.MeteorNumber;
             currentCooldownTime = MeteorData.baseCooldown;
             warningDuration = MeteorData.warningDuration;
@@ -34,6 +36,8 @@ public class MeteorWeapon : WeaponBase
             densityCheckRadius = MeteorData.densityCheckRadius;
             currentDamage = MeteorData.baseDamage;
             MeteorPrefab = MeteorData.MeteorPrefab;
+
+            this.WeaponID = data.WeaponId;
             
             cooldownTimer = 0f; 
         }
@@ -131,7 +135,7 @@ public class MeteorWeapon : WeaponBase
         if (meteorObj != null && meteorObj.TryGetComponent<Meteor>(out var meteorSkill))
         {
             float finalDamage = currentDamage + (PlayerStats.Instance != null ? PlayerStats.Instance.DamageBonus : 0);
-            meteorSkill.Fire(target, finalDamage, currentHitRadius);
+            meteorSkill.Fire(target, finalDamage, currentHitRadius , WeaponID);
             meteorSkill.warningDuration = this.warningDuration;
         }
 
@@ -151,5 +155,30 @@ public class MeteorWeapon : WeaponBase
     {
         currentMeteorNumber++;
         currentDamage += 2;
+    }
+
+    public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
+    {
+        UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "낙하 수",
+            currentMeteorNumber.ToString(),
+            (currentMeteorNumber + 1).ToString()
+        ));
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "피해량",
+            currentDamage.ToString(),
+            (currentDamage + 2).ToString()
+        ));
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "폭발 범위",
+            currentHitRadius.ToString("0.##"),
+            currentHitRadius.ToString("0.##")
+        ));
+
+        return preview;
     }
 }

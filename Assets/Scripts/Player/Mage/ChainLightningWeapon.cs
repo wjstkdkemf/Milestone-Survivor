@@ -86,7 +86,8 @@ public class ChainLightningWeapon : WeaponBase
     public long GetDamage()
     {
         float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return (long)(currentBaseDamage + (bonus * currentScaling));
+        float before = currentBaseDamage + (bonus * currentScaling);
+        return (long)before;
     }
 
     public override void LevelUp()
@@ -95,5 +96,24 @@ public class ChainLightningWeapon : WeaponBase
         if (currentChainCount < 5) 
             currentChainCount++;
         Debug.Log($"[Chain Lightning Level Up] 데미지: {currentBaseDamage}, 체인 횟수: {currentChainCount}");
+    }
+
+    public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
+    {
+        UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "피해량",
+            currentBaseDamage.ToString("0.##"),
+            (currentBaseDamage + 3f).ToString("0.##")
+        ));
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            "연쇄 횟수",
+            currentChainCount.ToString(),
+            Mathf.Min(currentChainCount + 1, 5).ToString()
+        ));
+
+        return preview;
     }
 }

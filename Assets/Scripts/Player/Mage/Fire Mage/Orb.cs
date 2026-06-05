@@ -5,7 +5,6 @@ using UnityEngine;
 public class Orb : SkillProjectileBase
 {
     private float chanceDoubleDamage;
-
     private float hitCooldown = 0.5f; 
     private float trueHitRadius;
     private List<int> enemiesInsideIndices = new List<int>(50);
@@ -51,6 +50,7 @@ public class Orb : SkillProjectileBase
 
     public override void OnHit(Enemy hitEnemy)
     {
+        RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
     }
 
 }

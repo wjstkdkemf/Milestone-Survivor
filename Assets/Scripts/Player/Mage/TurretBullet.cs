@@ -47,6 +47,7 @@ public class TurretBullet : SkillProjectileBase
         // 총알은 자폭(Object Pool 반환)과 이펙트 생성만 하면 됩니다.
         if (!IsActived) return; 
         
+        RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
         IsActived = false;
         
         

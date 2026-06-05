@@ -12,14 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c54719c71f7c7a4fb13154ed1cd1cc7, type: 3}
   m_Name: W_ElementalFireball
   m_EditorClassIdentifier: 
+  weaponId: 3_Elemental
+  weaponName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  weaponDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   weaponPrefab: {fileID: 5389952263870589663, guid: caf68ea2ef3ce23438d320ba1074aa5d, type: 3}
   upgradeData: {fileID: 11400000, guid: e77e5ccc08f0ec54d904c763c9d85b77, type: 2}
   baseDamage: 5
   baseCooldown: 2
+  hitRadius: 0.5
+  maxHits: 1
+  projectileSpeed: 12
   fusionWeaponData: []
   bulletNumber: 1
   range: 10
-  projectileSpeed: 12
   trailDamageScaling: 0.5
   trailDuration: 3
   trailSpawnDistance: 0.8
@@ -27,6 +48,6 @@ MonoBehaviour:
   fireballPrefab: {fileID: 2202201730951133944, guid: 3dd7645e2d56bab44aab990f9a738500, type: 3}
   trailPrefab: {fileID: 4297926786030371863, guid: 306745b03dbb03143a0f821496154eb1, type: 3}
   lastFireBoomPrefab: {fileID: 6122877895079379237, guid: f7c2669d57d680049a9167789c95b257, type: 3}
-  enemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 67133440
+  references:
+    version: 2
+    RefIds: []
