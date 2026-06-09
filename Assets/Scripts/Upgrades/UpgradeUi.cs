@@ -4,6 +4,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -22,6 +24,16 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public UpgradeDescriptionPanel descriptionPanel;
     [SerializeField] private PlayerWeaponController playerWeaponController;
 
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+    }
+
     public void SetInfo(
         UpgradeScriptableObject info,
         UpgradeDescriptionPanel panel,
@@ -35,20 +47,16 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         else if (playerWeaponController == null && UpgradeManager.Instance != null)
             playerWeaponController = UpgradeManager.Instance.playerWeaponController;
         
-        if (Title != null)
-            Title.text = Upgrade.Title;
-
         if (Icon != null)
             Icon.sprite = Upgrade.Icon;
-
-        if (Description != null)
-            Description.text = Upgrade.Description;
 
         if (UpgradeLevel != null)
             UpgradeLevel.text = "Lv." + (Upgrade.Points + 1).ToString();
 
         if (hoverBorder != null)
             hoverBorder.SetActive(false);
+
+        RefreshLocalizedText();
     }
     public void UpgradeFunction()
     {
@@ -81,6 +89,23 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         if (!isSelected && descriptionPanel != null)
             descriptionPanel.Hide();
+    }
+
+    private void HandleLocaleChanged(Locale locale)
+    {
+        RefreshLocalizedText();
+    }
+
+    private void RefreshLocalizedText()
+    {
+        if (Upgrade == null)
+            return;
+
+        if (Title != null)
+            Title.text = Upgrade.GetLocalizedTitle();
+
+        if (Description != null)
+            Description.text = Upgrade.GetCurrentDescription();
     }
 
     // void ClearEncount()

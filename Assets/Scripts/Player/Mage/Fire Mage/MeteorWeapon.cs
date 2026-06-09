@@ -162,19 +162,19 @@ public class MeteorWeapon : WeaponBase
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "낙하 수",
+            "upgrade.stat.amount",
             currentMeteorNumber.ToString(),
             (currentMeteorNumber + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "피해량",
+            "upgrade.stat.damage",
             currentDamage.ToString(),
             (currentDamage + 2).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "폭발 범위",
+            "upgrade.stat.explosion_area",
             currentHitRadius.ToString("0.##"),
             currentHitRadius.ToString("0.##")
         ));

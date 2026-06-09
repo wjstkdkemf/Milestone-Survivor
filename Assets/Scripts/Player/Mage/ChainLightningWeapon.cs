@@ -103,13 +103,13 @@ public class ChainLightningWeapon : WeaponBase
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "피해량",
+            "upgrade.stat.damage",
             currentBaseDamage.ToString("0.##"),
             (currentBaseDamage + 3f).ToString("0.##")
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "연쇄 횟수",
+            "upgrade.stat.chain_count",
             currentChainCount.ToString(),
             Mathf.Min(currentChainCount + 1, 5).ToString()
         ));

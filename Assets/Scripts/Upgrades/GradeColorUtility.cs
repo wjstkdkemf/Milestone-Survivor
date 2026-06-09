@@ -28,26 +28,17 @@ public static class GradeColorUtility
 
     public static string GetDisplayName(UpgradeGrade grade)
     {
-        switch (grade)
+        string key = grade switch
         {
-            case UpgradeGrade.Common:
-                return "일반";
+            UpgradeGrade.Common => "upgrade.grade.common",
+            UpgradeGrade.Uncommon => "upgrade.grade.uncommon",
+            UpgradeGrade.Rare => "upgrade.grade.rare",
+            UpgradeGrade.Epic => "upgrade.grade.epic",
+            UpgradeGrade.Legendary => "upgrade.grade.legendary",
+            _ => string.Empty
+        };
 
-            case UpgradeGrade.Uncommon:
-                return "고급";
-
-            case UpgradeGrade.Rare:
-                return "희귀";
-
-            case UpgradeGrade.Epic:
-                return "영웅";
-
-            case UpgradeGrade.Legendary:
-                return "전설";
-
-            default:
-                return "-";
-        }
+        return UpgradeLocalization.Get(key, "-");
     }
     public static string GetHexColor(UpgradeGrade grade)
 {

@@ -30,16 +30,18 @@ public abstract class WeaponBase : MonoBehaviour
         UpgradePreviewData preview = new UpgradePreviewData();
 
         preview.ShortDescription = upgrade != null ? upgrade.GetCurrentShortDescription() : "";
-        preview.Description = upgrade != null ? upgrade.GetCurrentDescription() : "강화 후 효과를 확인합니다.";
+        preview.Description = upgrade != null ? upgrade.GetCurrentDescription() : string.Empty;
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "상태",
-            "장착됨",
-            "강화"
+            "upgrade.stat.status",
+            "upgrade.value.equipped",
+            "upgrade.value.upgrade",
+            true,
+            true
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "레벨",
+            "upgrade.stat.level",
             $"Lv.{CurrentLevel}",
             $"Lv.{CurrentLevel + 1}"
         ));

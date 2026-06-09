@@ -49,12 +49,24 @@ public static class UpgradePreviewFactory
         WeaponDataSO weaponData = upgrade.linkedWeaponData;
         UpgradePreviewData preview = CreateBasePreview(upgrade);
 
-        preview.Lines.Add(new UpgradePreviewLine("상태", "-", "신규 장착"));
-        preview.Lines.Add(new UpgradePreviewLine("피해량", "-", weaponData.baseDamage.ToString()));
-        preview.Lines.Add(new UpgradePreviewLine("쿨타임", "-", weaponData.baseCooldown.ToString("0.##")));
-        preview.Lines.Add(new UpgradePreviewLine("범위", "-", weaponData.hitRadius.ToString("0.##")));
-        preview.Lines.Add(new UpgradePreviewLine("최대 타격", "-", FormatMaxHits(weaponData.maxHits)));
-        preview.Lines.Add(new UpgradePreviewLine("투사체 속도", "-", weaponData.projectileSpeed.ToString("0.##")));
+        preview.Lines.Add(new UpgradePreviewLine(
+            "upgrade.stat.status",
+            "upgrade.value.none",
+            "upgrade.value.new",
+            true,
+            true
+        ));
+        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.damage", "-", weaponData.baseDamage.ToString()));
+        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.cooldown", "-", weaponData.baseCooldown.ToString("0.##")));
+        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.area", "-", weaponData.hitRadius.ToString("0.##")));
+        preview.Lines.Add(new UpgradePreviewLine(
+            "upgrade.stat.max_hits",
+            "-",
+            FormatMaxHits(weaponData.maxHits),
+            false,
+            weaponData.maxHits < 0
+        ));
+        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.projectile_speed", "-", weaponData.projectileSpeed.ToString("0.##")));
 
         return preview;
     }
@@ -66,19 +78,19 @@ public static class UpgradePreviewFactory
         switch (upgrade.upgradeType)
         {
             case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed:
-                AddStatLine(preview, "이동 속도", playerStats != null ? playerStats.SpeedBonus : 0f, upgrade.statValue);
+                AddStatLine(preview, "upgrade.stat.move_speed", playerStats != null ? playerStats.SpeedBonus : 0f, upgrade.statValue);
                 break;
             case UpgradeScriptableObject.UpgradeType.Stat_Might:
-                AddStatLine(preview, "공격력", playerStats != null ? playerStats.DamageBonus : 0f, upgrade.statValue);
+                AddStatLine(preview, "upgrade.stat.damage", playerStats != null ? playerStats.DamageBonus : 0f, upgrade.statValue);
                 break;
             case UpgradeScriptableObject.UpgradeType.Stat_Cooldown:
-                AddStatLine(preview, "쿨타임 감소", playerStats != null ? playerStats.cooldownReduction : 0f, upgrade.statValue);
+                AddStatLine(preview, "upgrade.stat.cooldown_reduction", playerStats != null ? playerStats.cooldownReduction : 0f, upgrade.statValue);
                 break;
             case UpgradeScriptableObject.UpgradeType.Stat_Growth:
-                AddStatLine(preview, "경험치 보너스", playerStats != null ? playerStats.experienceBonus : 0f, upgrade.statValue);
+                AddStatLine(preview, "upgrade.stat.growth", playerStats != null ? playerStats.experienceBonus : 0f, upgrade.statValue);
                 break;
             default:
-                preview.Lines.Add(new UpgradePreviewLine("효과", "-", FormatSigned(upgrade.statValue)));
+                preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.effect", "-", FormatSigned(upgrade.statValue)));
                 break;
         }
 
@@ -110,22 +122,32 @@ public static class UpgradePreviewFactory
 
     private static string FormatMaxHits(int maxHits)
     {
-        return maxHits < 0 ? "무제한" : maxHits.ToString();
+        return maxHits < 0 ? "upgrade.value.unlimited" : maxHits.ToString();
     }
 }
 
 [System.Serializable]
 public class UpgradePreviewLine
 {
-    public string StatName;
+    public string StatNameKey;
     public string CurrentValue;
     public string NextValue;
+    public bool LocalizeCurrentValue;
+    public bool LocalizeNextValue;
 
-    public UpgradePreviewLine(string statName, string currentValue, string nextValue)
+    public UpgradePreviewLine(
+        string statNameKey,
+        string currentValue,
+        string nextValue,
+        bool localizeCurrentValue = false,
+        bool localizeNextValue = false
+    )
     {
-        StatName = statName;
+        StatNameKey = statNameKey;
         CurrentValue = currentValue;
         NextValue = nextValue;
+        LocalizeCurrentValue = localizeCurrentValue;
+        LocalizeNextValue = localizeNextValue;
     }
 }
 

@@ -151,19 +151,19 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "오브 수",
+            "upgrade.stat.orb_count",
             currentOrbCount.ToString(),
             (currentOrbCount + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "피해량",
+            "upgrade.stat.damage",
             currentDamage.ToString(),
             (currentDamage + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "회전 범위",
+            "upgrade.stat.orbit_area",
             currentRadius.ToString("0.##"),
             currentRadius.ToString("0.##")
         ));

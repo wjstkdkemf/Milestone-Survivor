@@ -2,6 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class UpgradeDescriptionPanel : MonoBehaviour
 {
@@ -16,16 +18,31 @@ public class UpgradeDescriptionPanel : MonoBehaviour
     [SerializeField] private UpgradePreviewLineUI previewLinePrefab;
 
     private readonly List<UpgradePreviewLineUI> previewLineUIs = new();
+    private UpgradeScriptableObject currentUpgrade;
+    private WeaponBase currentWeapon;
 
     private void Awake()
     {
         Hide();
     }
 
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+    }
+
     public void Show(UpgradeScriptableObject upgrade, WeaponBase weapon)
     {
         if (upgrade == null)
             return;
+
+        currentUpgrade = upgrade;
+        currentWeapon = weapon;
 
         if (root != null)
             root.SetActive(true);
@@ -74,10 +91,6 @@ public class UpgradeDescriptionPanel : MonoBehaviour
             root.SetActive(false);
     }
 
-    private string GetNextEffectText(UpgradeScriptableObject upgrade)
-    {
-        return "다음 레벨 효과를 표시";
-    }
     public void RefreshPreviewLines(List<UpgradePreviewLine> lines)
     {
         ClearPreviewLines();
@@ -111,14 +124,20 @@ public class UpgradeDescriptionPanel : MonoBehaviour
         bool isMaxLevel = upgrade.MaxPoints > 0 && upgrade.Points >= upgrade.MaxPoints - 1;
 
         string nextLevelText = isMaxLevel
-            ? "MAX"
+            ? UpgradeLocalization.Get("upgrade.value.max", "MAX")
             : $"Lv.{currentLevel + 1}";
 
         return new UpgradePreviewLine(
-            "레벨",
+            "upgrade.stat.level",
             $"Lv.{currentLevel}",
             nextLevelText
         );
+    }
+
+    private void HandleLocaleChanged(Locale locale)
+    {
+        if (currentUpgrade != null && root != null && root.activeSelf)
+            Show(currentUpgrade, currentWeapon);
     }
 
     private void ForceRebuildLayout()

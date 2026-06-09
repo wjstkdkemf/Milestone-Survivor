@@ -11,6 +11,9 @@ public class UpgradeScriptableObject : ScriptableObject
     public Sprite Icon;
     public string Title;
     [TextArea] public string Description; // TextArea를 쓰면 인스펙터에서 줄바꿈 가능
+    [Header("Localization (Optional)")]
+    public string TitleLocalizationKey;
+    public string DescriptionLocalizationKey;
 
     [Header("Grade")]
     public UpgradeGrade Grade;
@@ -53,20 +56,44 @@ public class UpgradeScriptableObject : ScriptableObject
     {
         UpgradeLevelInfo info = GetLevelInfoOrNull();
 
-        if (info == null || string.IsNullOrEmpty(info.ShortDescription))
-            return Title;
+        if (info == null ||
+            (string.IsNullOrEmpty(info.ShortDescriptionLocalizationKey) &&
+             string.IsNullOrEmpty(info.ShortDescription)))
+        {
+            return GetLocalizedTitle();
+        }
 
-        return info.ShortDescription;
+        return UpgradeLocalization.Get(
+            info.ShortDescriptionLocalizationKey,
+            info.ShortDescription
+        );
     }
 
     public string GetCurrentDescription()
     {
         UpgradeLevelInfo info = GetLevelInfoOrNull();
 
-        if (info == null || string.IsNullOrEmpty(info.Description))
-            return Description;
+        if (info == null ||
+            (string.IsNullOrEmpty(info.DescriptionLocalizationKey) &&
+             string.IsNullOrEmpty(info.Description)))
+        {
+            return GetLocalizedDescription();
+        }
 
-        return info.Description;
+        return UpgradeLocalization.Get(
+            info.DescriptionLocalizationKey,
+            info.Description
+        );
+    }
+
+    public string GetLocalizedTitle()
+    {
+        return UpgradeLocalization.Get(TitleLocalizationKey, Title);
+    }
+
+    public string GetLocalizedDescription()
+    {
+        return UpgradeLocalization.Get(DescriptionLocalizationKey, Description);
     }
 
     // 깔끔해진 Enum (구체적인 무기 이름은 다 삭제!)
@@ -94,6 +121,8 @@ public class UpgradeLevelInfo
 {
     public string ShortDescription;       // 레벨별 아이콘이 다르다면 사용
     public string Description; // "데미지 +5 증가" 같은 레벨별 텍스트
+    public string ShortDescriptionLocalizationKey;
+    public string DescriptionLocalizationKey;
     // public float Value; // <- 이 값은 위쪽 statValue나 Weapon 자체 레벨업 로직으로 대체 가능하므로 삭제 고려
 }
 public enum UpgradeGrade

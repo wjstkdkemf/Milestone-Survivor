@@ -15,20 +15,32 @@ MonoBehaviour:
   Icon: {fileID: -1259408508766424310, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
   Title: +Shoot one more Projectile
   Description: 
+  TitleLocalizationKey: skill.title.extra_projectile
+  DescriptionLocalizationKey: skill.Description.extra_projectile
   Grade: 3
   Points: 3
   MaxPoints: 5
   UpgradesList:
   - ShortDescription: 
     Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 0"
+    ShortDescriptionLocalizationKey: 
+    DescriptionLocalizationKey: 
   - ShortDescription: 
     Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 1"
+    ShortDescriptionLocalizationKey: 
+    DescriptionLocalizationKey: 
   - ShortDescription: 
     Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 2"
+    ShortDescriptionLocalizationKey: 
+    DescriptionLocalizationKey: 
   - ShortDescription: 
     Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 3"
+    ShortDescriptionLocalizationKey: 
+    DescriptionLocalizationKey: 
   - ShortDescription: 
     Description: "\uCCB4\uD06C\uB9AC\uC2A4\uD2B8 4"
+    ShortDescriptionLocalizationKey: 
+    DescriptionLocalizationKey: 
   Chance: 20
   InitialChance: 20
   linkedWeaponData: {fileID: 11400000, guid: 33e5ad923a914314eb30fb0c7d6edbe3, type: 2}

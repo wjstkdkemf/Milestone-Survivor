@@ -86,13 +86,13 @@ public class AuraWeapon : WeaponBase
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "피해량",
+            "upgrade.stat.damage",
             currentDamage.ToString(),
             (currentDamage + 2).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "범위",
+            "upgrade.stat.area",
             currentRadius.ToString("0.##"),
             (currentRadius + 1.5f).ToString("0.##")
         ));

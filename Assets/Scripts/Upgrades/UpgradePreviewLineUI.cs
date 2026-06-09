@@ -38,7 +38,15 @@ public class UpgradePreviewLineUI : MonoBehaviour
             return;
         }
 
-        SetInfo(line.StatName, line.CurrentValue, line.NextValue);
+        string statName = UpgradeLocalization.Get(line.StatNameKey, line.StatNameKey);
+        string currentValue = line.LocalizeCurrentValue
+            ? UpgradeLocalization.Get(line.CurrentValue, line.CurrentValue)
+            : line.CurrentValue;
+        string nextValue = line.LocalizeNextValue
+            ? UpgradeLocalization.Get(line.NextValue, line.NextValue)
+            : line.NextValue;
+
+        SetInfo(statName, currentValue, nextValue);
     }
 
     private void ApplyDefaultColor()

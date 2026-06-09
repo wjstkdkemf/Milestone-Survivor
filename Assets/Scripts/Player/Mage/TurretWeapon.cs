@@ -136,13 +136,13 @@ public class TurretWeapon : WeaponBase
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "투사체 수",
+            "upgrade.stat.amount",
             currentBulletNumber.ToString(),
             (currentBulletNumber + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
-            "피해량",
+            "upgrade.stat.damage",
             currentDamage.ToString(),
             (currentDamage + 2).ToString()
         ));
