@@ -30,11 +30,26 @@ public class AudioManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            ApplySavedAudioSettings();
             InitializeSFXPool();
         }
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void ApplySavedAudioSettings()
+    {
+        if (bgmMixerGroup != null && bgmMixerGroup.audioMixer != null)
+        {
+            AudioSettings.ApplySavedVolumes(bgmMixerGroup.audioMixer);
+        }
+
+        if (bgmSource != null)
+        {
+            bgmSource.playOnAwake = false;
+            bgmSource.outputAudioMixerGroup = bgmMixerGroup;
         }
     }
 

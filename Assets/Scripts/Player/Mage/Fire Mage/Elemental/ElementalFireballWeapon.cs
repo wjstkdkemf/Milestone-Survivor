@@ -16,7 +16,6 @@ public class ElementalFireballWeapon : WeaponBase
     private float trailDuration;
     private float trailSpawnDistance;
 
-    private float currentBaseDamage;
 
     // [내부 변수]
     private GameObject fireballPrefab;
@@ -35,7 +34,7 @@ public class ElementalFireballWeapon : WeaponBase
             fireRate = evoData.baseCooldown;
             range = evoData.range;
             projectileSpeed = evoData.projectileSpeed;
-            currentBaseDamage = evoData.baseDamage;
+            currentDamage = evoData.baseDamage;
 
             lastFireBoomSize = evoData.FireBoomSize;
             
@@ -132,8 +131,8 @@ public class ElementalFireballWeapon : WeaponBase
 
     public override void LevelUp()
     {
-        currentBaseDamage += 5f;
+        currentDamage += 5;
         trailDamageScaling += 0.1f; // 레벨업 시 장판 데미지 비율도 증가
-        Debug.Log($"[Evo Fireball Level Up] 직격뎀: {currentBaseDamage}, 장판계수: {trailDamageScaling}");
+        Debug.Log($"[Evo Fireball Level Up] 직격뎀: {currentDamage}, 장판계수: {trailDamageScaling}");
     }
 }

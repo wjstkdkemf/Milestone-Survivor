@@ -54,6 +54,7 @@ public class UpgradeManager : MonoBehaviour
         // SyncChancesFromPersistentData(); 
         
         // UI 초기화
+        UpgradeUiSlots.Clear();
         SetUpgradePanelState(false);
     }
     public void SetUpgradeUICount()
