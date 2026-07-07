@@ -13,6 +13,7 @@ public class WeaponVisualController : MonoBehaviour
     public float orbitSpeed = 120f;
 
     private int facingSign = 1;
+    private Vector3 baseLocalPosition;
     private Transform target;
     private Vector2 aimDirection = Vector2.right;
 
@@ -24,6 +25,11 @@ public class WeaponVisualController : MonoBehaviour
     public void SetTarget(Transform newTarget)
     {
         target = newTarget;
+    }
+
+    public void SetBaseLocalPosition(Vector3 position)
+    {
+        baseLocalPosition = position;
     }
 
     private void LateUpdate()
@@ -49,7 +55,7 @@ public class WeaponVisualController : MonoBehaviour
         float angle = Time.time * orbitSpeed * Mathf.Deg2Rad;
         Vector3 offset = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * orbitRadius;
 
-        weaponVisual.localPosition = offset;
+        weaponVisual.localPosition = baseLocalPosition + offset;
         //weaponVisual.localRotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg);//진짜 빙글거리는건 스킬에서 처리할 예정. 물론 추후 수정가능성 있음.
     }
 

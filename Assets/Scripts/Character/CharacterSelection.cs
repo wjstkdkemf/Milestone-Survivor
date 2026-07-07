@@ -10,7 +10,6 @@ public class CharacterSelection : MonoBehaviour
     //public Sprite[] characterIcons;
     public Image characterIconImage;
     [SerializeField]private SpriteRenderer weaponSprite;
-    [SerializeField]private Transform weaponPosition;
     [SerializeField]private WeaponVisualController weaponVisual;
     private PlayerStats playerStats;
 
@@ -58,10 +57,9 @@ public class CharacterSelection : MonoBehaviour
             UpgradeManager.Instance.ResetRunData(characterDatas.StartingDeck); // 업글레이드 매니저 초기화.
             UpgradeManager.Instance.OnUpgradeSelected(characterDatas.startingWeapon);
         }
-        if(weaponPosition != null)
+        if(weaponVisual != null)
         {
-            weaponPosition.localPosition = characterData[selectedCharacter].weaponLocalPosition;
-
+            weaponVisual.SetBaseLocalPosition(characterData[selectedCharacter].weaponLocalPosition);
             weaponSprite.sprite = characterData[selectedCharacter].WeaponSprite;
         }
         if(weaponVisual != null)
