@@ -38,6 +38,8 @@ public class EvolvedFireballWeapon : WeaponBase
             fireballPrefab = evoData.fireballPrefab;
             trailPrefab = evoData.trailPrefab;
 
+            attackMotion = evoData.attackMotion;
+
             this.WeaponID = evoData.WeaponId;
         }
         else

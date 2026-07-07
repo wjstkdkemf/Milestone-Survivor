@@ -37,6 +37,8 @@ public class MeteorWeapon : WeaponBase
             currentDamage = MeteorData.baseDamage;
             MeteorPrefab = MeteorData.MeteorPrefab;
 
+            attackMotion = MeteorData.attackMotion;
+
             this.WeaponID = data.WeaponId;
             
             cooldownTimer = 0f; 

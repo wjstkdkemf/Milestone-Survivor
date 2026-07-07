@@ -28,6 +28,8 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
 
             currentHitRadius = orbData.hitRadius;
 
+            attackMotion = orbData.attackMotion;
+
             this.WeaponID = orbData.WeaponId;
 
             orbPrefab = orbData.orbProjectilePrefab;

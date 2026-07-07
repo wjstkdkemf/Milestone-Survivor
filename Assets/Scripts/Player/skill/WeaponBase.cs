@@ -10,11 +10,15 @@ public abstract class WeaponBase : MonoBehaviour
     protected float currentHitRadius;
     protected int currentMaxHits;
     protected float currentProjectileSpeed;
+    [SerializeField] protected WeaponMotionData attackMotion;
+    protected WeaponAnimationController weaponAnimator;
     public virtual void Initialize(WeaponDataSO data)
     {   
         currentHitRadius = data.hitRadius;
         currentMaxHits = data.maxHits;
         currentProjectileSpeed = data.projectileSpeed;
+
+        weaponAnimator =  GetComponentInParent<WeaponAnimationController>();
     }
 
     // 플레이어의 Update에서 매 프레임 호출해줄 함수
@@ -47,5 +51,10 @@ public abstract class WeaponBase : MonoBehaviour
         ));
 
         return preview;
+    }
+    protected void PlayAttackMotion(Vector2 direction)
+    {
+        if (weaponAnimator != null && attackMotion != null)
+            weaponAnimator.PlayMotion(attackMotion, direction);
     }
 }

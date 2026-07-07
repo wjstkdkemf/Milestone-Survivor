@@ -45,6 +45,8 @@ public class SpreadingFlameWeapon : WeaponBase
         flameEffectPrefab = flameData.flameEffectPrefab;
         cooldownTimer = 0f;
 
+        attackMotion = flameData.attackMotion;
+
         SetupRangeIndicator();
     }
 

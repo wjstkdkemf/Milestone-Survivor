@@ -31,4 +31,9 @@ public class CharacterScriptableObject : ScriptableObject
 
     public int costPerLevel; // Base cost per level
     public bool purchased;
+
+    [Header("무기 이미지 정보")]
+    public Vector3 weaponLocalPosition;
+    public Sprite WeaponSprite;
+    public WeaponVisualMode WeaponVisualMode;
 }

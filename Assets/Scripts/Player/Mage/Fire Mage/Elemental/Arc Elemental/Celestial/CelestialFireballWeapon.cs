@@ -52,6 +52,7 @@ public class CelestialFireballWeapon : WeaponBase
             fireballPrefab = evoData.fireballPrefab;
             trailPrefab = evoData.trailPrefab;
             LastFireBoomPrefab = evoData.lastFireBoomPrefab;
+            attackMotion = evoData.attackMotion;
 
             this.WeaponID = evoData.WeaponId;
         }

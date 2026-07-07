@@ -29,6 +29,8 @@ public class ChainLightningWeapon : WeaponBase
             currentBaseDamage = lightningData.baseDamage;
             currentScaling = lightningData.playerDamageScaling;
 
+            attackMotion = lightningData.attackMotion;
+
             this.WeaponID = lightningData.WeaponId;
 
             projectilePrefab = lightningData.projectilePrefab;

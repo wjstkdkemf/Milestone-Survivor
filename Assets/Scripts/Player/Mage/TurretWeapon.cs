@@ -34,6 +34,8 @@ public class TurretWeapon : WeaponBase
             currentScaling = turretData.playerDamageScaling;
             currentDamage = turretData.baseDamage;
             this.WeaponID = turretData.WeaponId;
+
+            attackMotion = turretData.attackMotion;
             
             bulletPrefab = turretData.bulletPrefab;
             targetUpdateRate = turretData.targetUpdateRate;

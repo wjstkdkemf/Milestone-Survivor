@@ -23,7 +23,7 @@ public class Player_Controller : MonoBehaviour
     [SerializeField] private bool haveAnimation;
     private Slider slider;
     private Material originalMaterial;
-    private Animator animator;
+    [SerializeField]private Animator PlayerAnimator;
     public float DashCoolTimeRation = 1;
     public bool StopMoving = false;
 
@@ -33,16 +33,21 @@ public class Player_Controller : MonoBehaviour
     public float bumpResistance = 5.0f;
     private Collider2D[] nearbyEnemies = new Collider2D[100];
 
+    private int facingSign = 1;
+    [SerializeField] private Transform bodyVisual;
+    private WeaponVisualController waponVisualController;
+
     private void Awake()
     {    
         state = State.Normal;
+        waponVisualController = GetComponentInChildren<WeaponVisualController>();
     }
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         Trail = GetComponentInChildren<TrailRenderer>();
-        animator = transform.GetChild(0)?.GetComponent<Animator>();
+        //PlayerAnimator = transform.GetChild(0)?.GetComponent<PlayerAnimator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         slider = GameObject.FindGameObjectWithTag("DashCoolTimeSlider")?.GetComponent<Slider>();
@@ -82,12 +87,12 @@ public class Player_Controller : MonoBehaviour
                 
                 if (Input.GetKey(KeyCode.A))
                 {
-                    transform.localScale = new Vector3(-1, 1, 1); 
+                    SetFacing(-1);
                     moveX = -1f;
                 }
                 if (Input.GetKey(KeyCode.D))
                 {
-                    transform.localScale = new Vector3(1, 1, 1); 
+                    SetFacing(1);
                     moveX = +1f;
                 }
 
@@ -95,12 +100,14 @@ public class Player_Controller : MonoBehaviour
                 
                 if (moveX != 0 || moveY != 0)
                 {
-                    if(haveAnimation) animator.SetBool("Moving", true);
+                    if(haveAnimation) PlayerAnimator.SetBool("Moving", true);
                     lastMoveDir = moveDir;
+
+                    waponVisualController.SetAimDirection(moveDir);
                 }
                 else 
                 {
-                    if(haveAnimation) animator.SetBool("Moving",false); 
+                    if(haveAnimation) PlayerAnimator.SetBool("Moving",false); 
                 }
 
                 if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftShift)) && dashCoolDown <= 0)
@@ -193,5 +200,16 @@ public class Player_Controller : MonoBehaviour
                 }
                 break;
         }
+    }
+    private void SetFacing(int sign)
+    {
+        if (facingSign == sign) return;
+
+        facingSign = sign;
+
+        bodyVisual.localScale = new Vector3(sign, 1f, 1f);
+
+        if (waponVisualController != null)
+            waponVisualController.SetFacing(sign);
     }
 }

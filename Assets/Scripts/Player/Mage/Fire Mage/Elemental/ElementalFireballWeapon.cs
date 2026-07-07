@@ -47,6 +47,8 @@ public class ElementalFireballWeapon : WeaponBase
             trailPrefab = evoData.trailPrefab;
             LastFireBoomPrefab = evoData.lastFireBoomPrefab;
 
+            attackMotion = evoData.attackMotion;
+
             this.WeaponID = evoData.WeaponId;
         }
         else
