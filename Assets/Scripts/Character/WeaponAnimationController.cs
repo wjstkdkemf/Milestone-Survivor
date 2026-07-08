@@ -4,40 +4,45 @@ using UnityEngine;
 
 public class WeaponAnimationController : MonoBehaviour
 {
-    [SerializeField] private Transform weaponVisual;
+    [SerializeField] private Transform motionPivot;
 
     private Coroutine motionCoroutine;
+    private int currentPriority = int.MinValue;
+    private WeaponMotionData weaponMotionData;
 
-    private Vector3 idleLocalPosition;
-    private Quaternion idleLocalRotation;
-    private Vector3 idleLocalScale;
+    private float sameMotionIgnoreThreshold = 0.6f;
+    private float currentNormalizedTime = 1.0f;
+    private static readonly Vector3 IdlePosition = Vector3.zero;
+    private static readonly Quaternion IdleRotation = Quaternion.identity;
+    private static readonly Vector3 IdleScale = Vector3.one;
 
-    private void Awake()
+    public void PlayMotion(WeaponMotionData motion)
     {
-        idleLocalPosition = weaponVisual.localPosition;
-        idleLocalRotation = weaponVisual.localRotation;
-        idleLocalScale = weaponVisual.localScale;
-    }
+        if (weaponMotionData == motion && currentNormalizedTime < sameMotionIgnoreThreshold) return; // 너무 이른 재발동은 시각 모션 생략
+        if (motion == null || motionPivot == null) return;
+        if (!CanPlay(motion))
+            return;
 
-    public void PlayMotion(WeaponMotionData motion, Vector2 direction)
-    {
         if (motionCoroutine != null)
             StopCoroutine(motionCoroutine);
 
-        motionCoroutine = StartCoroutine(PlayMotionRoutine(motion, direction));
+        weaponMotionData = motion;
+        currentNormalizedTime = 0f;
+        currentPriority = motion.priority;
+        motionCoroutine = StartCoroutine(PlayMotionRoutine(motion));
     }
 
-    private IEnumerator PlayMotionRoutine(WeaponMotionData motion, Vector2 direction)
+    private IEnumerator PlayMotionRoutine(WeaponMotionData motion)
     {
-        Vector3 startPos = weaponVisual.localPosition;
-        Quaternion startRot = weaponVisual.localRotation;
-        Vector3 startScale = weaponVisual.localScale;
+        Vector3 startPos = motionPivot.localPosition;
+        Quaternion startRot = motionPivot.localRotation;
+        Vector3 startScale = motionPivot.localScale;
 
         Vector3 motionStartPos = EvaluatePosition(motion, 0f);
         Quaternion motionStartRot = EvaluateRotation(motion, 0f);
         Vector3 motionStartScale = EvaluateScale(motion, 0f);
 
-        float blendTime = motion.blendInTime;
+        float blendTime = Mathf.Max(0.001f, motion.blendInTime);
         float blendTimer = 0f;
 
         while (blendTimer < blendTime)
@@ -45,73 +50,100 @@ public class WeaponAnimationController : MonoBehaviour
             blendTimer += Time.deltaTime;
             float t = Mathf.Clamp01(blendTimer / blendTime);
 
-            weaponVisual.localPosition = Vector3.Lerp(startPos, motionStartPos, t);
-            weaponVisual.localRotation = Quaternion.Slerp(startRot, motionStartRot, t);
-            weaponVisual.localScale = Vector3.Lerp(startScale, motionStartScale, t);
+            motionPivot.localPosition = Vector3.Lerp(startPos, motionStartPos, t);
+            motionPivot.localRotation = Quaternion.Slerp(startRot, motionStartRot, t);
+            motionPivot.localScale = Vector3.Lerp(startScale, motionStartScale, t);
 
             yield return null;
         }
 
         float timer = 0f;
+        float duration = Mathf.Max(0.001f, motion.duration);
 
-        while (timer < motion.duration)
+        while (timer < duration)
         {
             timer += Time.deltaTime;
-            float normalizedTime = Mathf.Clamp01(timer / motion.duration);
+            float normalizedTime = Mathf.Clamp01(timer / duration);
+            currentNormalizedTime = normalizedTime;
 
-            weaponVisual.localPosition = EvaluatePosition(motion, normalizedTime);
-            weaponVisual.localRotation = EvaluateRotation(motion, normalizedTime);
-            weaponVisual.localScale = EvaluateScale(motion, normalizedTime);
+            motionPivot.localPosition = EvaluatePosition(motion, normalizedTime);
+            motionPivot.localRotation = EvaluateRotation(motion, normalizedTime);
+            motionPivot.localScale = EvaluateScale(motion, normalizedTime);
 
             yield return null;
         }
-
-        motionCoroutine = StartCoroutine(ReturnToIdleRoutine(0.1f));
+        weaponMotionData = null;
+        motionCoroutine = StartCoroutine(ReturnToIdleRoutine(motion.blendOutTime));
     }
 
     private IEnumerator ReturnToIdleRoutine(float duration)
     {
-        Vector3 startPos = weaponVisual.localPosition;
-        Quaternion startRot = weaponVisual.localRotation;
-        Vector3 startScale = weaponVisual.localScale;
+        Vector3 startPos = motionPivot.localPosition;
+        Quaternion startRot = motionPivot.localRotation;
+        Vector3 startScale = motionPivot.localScale;
 
         float timer = 0f;
+        duration = Mathf.Max(0.001f, duration);
 
         while (timer < duration)
         {
             timer += Time.deltaTime;
             float t = Mathf.Clamp01(timer / duration);
 
-            weaponVisual.localPosition = Vector3.Lerp(startPos, idleLocalPosition, t);
-            weaponVisual.localRotation = Quaternion.Slerp(startRot, idleLocalRotation, t);
-            weaponVisual.localScale = Vector3.Lerp(startScale, idleLocalScale, t);
+            float eased = EaseOutCubic(t);
+
+            motionPivot.localPosition = Vector3.Lerp(startPos, IdlePosition, eased);
+            motionPivot.localRotation = Quaternion.Slerp(startRot, IdleRotation, eased);
+            motionPivot.localScale = Vector3.Lerp(startScale, IdleScale, eased);
 
             yield return null;
         }
 
-        weaponVisual.localPosition = idleLocalPosition;
-        weaponVisual.localRotation = idleLocalRotation;
-        weaponVisual.localScale = idleLocalScale;
+        motionPivot.localPosition = IdlePosition;
+        motionPivot.localRotation = IdleRotation;
+        motionPivot.localScale = IdleScale;
+        
+        currentNormalizedTime = 1f;
+        motionCoroutine = null;
+        currentPriority = int.MinValue;
+    }
+    private bool CanPlay(WeaponMotionData next)
+    {
+        if (motionCoroutine == null) return true;
+        if (next.priority > currentPriority) return true;
+        if (next.priority == currentPriority && next.canInterrupt) return true;
+        return false;
+    }
+    private float EaseOutCubic(float t)
+    {
+        return 1f - Mathf.Pow(1f - t, 3f);
     }
 
     private Vector3 EvaluatePosition(WeaponMotionData motion, float t)
     {
         return new Vector3(
-            motion.positionX.Evaluate(t),
-            motion.positionY.Evaluate(t),
+            EvaluateCurve(motion.positionX, t, 0f),
+            EvaluateCurve(motion.positionY, t, 0f),
             0f
         );
     }
 
     private Quaternion EvaluateRotation(WeaponMotionData motion, float t)
     {
-        float z = motion.rotationZ.Evaluate(t);
+        float z = EvaluateCurve(motion.rotationZ, t, 0f);
+        z *= motion.rotationMultiplier;
         return Quaternion.Euler(0f, 0f, z);
     }
 
     private Vector3 EvaluateScale(WeaponMotionData motion, float t)
     {
-        float scale = motion.scale.Evaluate(t);
+        float scale = EvaluateCurve(motion.scale, t, 1f);
         return new Vector3(scale, scale, 1f);
+    }
+    private float EvaluateCurve(AnimationCurve curve, float t, float fallback)
+    {
+        return curve != null && curve.length > 0
+            ? curve.Evaluate(t)
+            : fallback;
     }
 }

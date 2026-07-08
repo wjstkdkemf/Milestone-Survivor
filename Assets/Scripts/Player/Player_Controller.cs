@@ -209,7 +209,7 @@ public class Player_Controller : MonoBehaviour
 
         bodyVisual.localScale = new Vector3(sign, 1f, 1f);
 
-        if (waponVisualController != null)
-            waponVisualController.SetFacing(sign);
+        //if (waponVisualController != null)
+            //waponVisualController.SetFacing(sign);
     }
 }

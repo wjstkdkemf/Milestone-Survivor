@@ -12,15 +12,10 @@ public class WeaponVisualController : MonoBehaviour
     public float orbitRadius = 0.7f;
     public float orbitSpeed = 120f;
 
-    private int facingSign = 1;
     private Vector3 baseLocalPosition;
     private Transform target;
     private Vector2 aimDirection = Vector2.right;
 
-    public void SetFacing(int sign)
-    {
-        facingSign = sign >= 0 ? 1 : -1;
-    }
 
     public void SetTarget(Transform newTarget)
     {
@@ -82,7 +77,7 @@ public class WeaponVisualController : MonoBehaviour
 
     private void UpdateFaceTarget()
     {
-        if (target == null)
+        if (target == null || player == null)
         {
             UpdateFaceDirection();
             return;

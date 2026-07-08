@@ -114,6 +114,7 @@ public class TurretWeapon : WeaponBase
                 
                 // 총알 발사!
                 bulletSkill.Fire(closestEnemyPosition.position, currentProjectileSpeed, WeaponID);
+                PlayAttackMotion();
             }
         }
     }

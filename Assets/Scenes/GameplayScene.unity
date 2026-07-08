@@ -26786,7 +26786,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d6f60f9124eb4cf449b12479a3437520, type: 2}
   characterIconImage: {fileID: 566233181}
   weaponSprite: {fileID: 1988026092}
-  weaponPosition: {fileID: 781381518}
   weaponVisual: {fileID: 1945292477}
 --- !u!114 &549850751
 MonoBehaviour:
@@ -77479,6 +77478,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1988026091}
+  - {fileID: 2089789319}
   m_Father: {fileID: 781381518}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -110750,7 +110750,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2089789319}
-  - component: {fileID: 2089789320}
   m_Layer: 6
   m_Name: WeaponHolder
   m_TagString: Untagged
@@ -110766,26 +110765,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2089789318}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.81, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.81000006, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6365943629430808430}
+  m_Father: {fileID: 1558848729}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2089789320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2089789318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c4114b6d352cb448b916fdde46dc1ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  weaponVisual: {fileID: 1558848729}
 --- !u!1 &2090473973
 GameObject:
   m_ObjectHideFlags: 0
@@ -113407,6 +113393,7 @@ GameObject:
   - component: {fileID: 184428573}
   - component: {fileID: 184428572}
   - component: {fileID: 184428574}
+  - component: {fileID: 8833277829782662841}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -113499,7 +113486,6 @@ Transform:
   m_Children:
   - {fileID: 7443072356809623853}
   - {fileID: 1065505971}
-  - {fileID: 2089789319}
   - {fileID: 1945292476}
   - {fileID: 107592695}
   - {fileID: 114768074}
@@ -116116,6 +116102,19 @@ MonoBehaviour:
   playerRadius: 0.5
   bumpResistance: 5
   bodyVisual: {fileID: 7443072356809623853}
+--- !u!114 &8833277829782662841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602106914985296012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c4114b6d352cb448b916fdde46dc1ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  motionPivot: {fileID: 1558848729}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

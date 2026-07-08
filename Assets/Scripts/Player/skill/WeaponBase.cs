@@ -52,9 +52,9 @@ public abstract class WeaponBase : MonoBehaviour
 
         return preview;
     }
-    protected void PlayAttackMotion(Vector2 direction)
+    protected void PlayAttackMotion()
     {
         if (weaponAnimator != null && attackMotion != null)
-            weaponAnimator.PlayMotion(attackMotion, direction);
+            weaponAnimator.PlayMotion(attackMotion);
     }
 }
