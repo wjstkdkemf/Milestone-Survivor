@@ -8,7 +8,8 @@ public class WeaponVisualController : MonoBehaviour
     [SerializeField] private Transform weaponVisual;
 
     public WeaponVisualMode mode;
-    public Vector3 rightFacingLocalPosition = new Vector3(0.6f, -0.2f, 0f);
+    [SerializeField] private Vector2 directionalOffset = new Vector2(0.6f, 0.6f);
+    [SerializeField] private float spriteRotationOffset = 0f;
     public float orbitRadius = 0.7f;
     public float orbitSpeed = 120f;
 
@@ -25,6 +26,14 @@ public class WeaponVisualController : MonoBehaviour
     public void SetBaseLocalPosition(Vector3 position)
     {
         baseLocalPosition = position;
+    }
+    public void SetDirectionalOffset(Vector2 offset)
+    {
+        directionalOffset = offset;
+    }
+    public void SetRotationOffset(float offset)
+    {
+        spriteRotationOffset = offset;
     }
 
     private void LateUpdate()
@@ -66,13 +75,7 @@ public class WeaponVisualController : MonoBehaviour
     }*/
     private void UpdateFaceDirection()
     {
-        Vector2 dir = aimDirection.normalized;
-
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
-
-        weaponVisual.localPosition = rotation * rightFacingLocalPosition;
-        weaponVisual.localRotation = rotation;
+        ApplyFacingPose(aimDirection);
     }
 
     private void UpdateFaceTarget()
@@ -84,11 +87,25 @@ public class WeaponVisualController : MonoBehaviour
         }
 
         Vector2 dir = target.position - player.position;
+        ApplyFacingPose(dir);
+    }
+    private void ApplyFacingPose(Vector2 dir)
+    {
+        if (dir.sqrMagnitude < 0.001f)
+            dir = Vector2.right;
+
+        dir.Normalize();
+
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-        weaponVisual.localPosition = dir.normalized * rightFacingLocalPosition.magnitude;
-        weaponVisual.localRotation = Quaternion.Euler(0f, 0f, angle);
+        Vector3 pos = baseLocalPosition;
+        pos.x += dir.x * directionalOffset.x;
+        pos.y += dir.y * directionalOffset.y;
+
+        weaponVisual.localPosition = pos;
+        weaponVisual.localRotation = Quaternion.Euler(0f, 0f, angle + spriteRotationOffset);
     }
+
     public void SetAimDirection(Vector2 direction)
     {
         if (direction.sqrMagnitude < 0.001f) return;

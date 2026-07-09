@@ -12,13 +12,16 @@ public abstract class WeaponBase : MonoBehaviour
     protected float currentProjectileSpeed;
     [SerializeField] protected WeaponMotionData attackMotion;
     protected WeaponAnimationController weaponAnimator;
+    protected WeaponVisualController weaponVisual;
+
     public virtual void Initialize(WeaponDataSO data)
     {   
         currentHitRadius = data.hitRadius;
         currentMaxHits = data.maxHits;
         currentProjectileSpeed = data.projectileSpeed;
 
-        weaponAnimator =  GetComponentInParent<WeaponAnimationController>();
+        weaponAnimator = GetComponentInParent<WeaponAnimationController>();
+        weaponVisual = GetComponentInParent<WeaponVisualController>();
     }
 
     // 플레이어의 Update에서 매 프레임 호출해줄 함수

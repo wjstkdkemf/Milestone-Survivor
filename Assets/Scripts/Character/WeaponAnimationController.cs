@@ -73,6 +73,7 @@ public class WeaponAnimationController : MonoBehaviour
             yield return null;
         }
         weaponMotionData = null;
+        currentPriority = int.MinValue;
         motionCoroutine = StartCoroutine(ReturnToIdleRoutine(motion.blendOutTime));
     }
 
@@ -105,7 +106,6 @@ public class WeaponAnimationController : MonoBehaviour
         
         currentNormalizedTime = 1f;
         motionCoroutine = null;
-        currentPriority = int.MinValue;
     }
     private bool CanPlay(WeaponMotionData next)
     {

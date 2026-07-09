@@ -60,6 +60,9 @@ public class CharacterSelection : MonoBehaviour
         if(weaponVisual != null)
         {
             weaponVisual.SetBaseLocalPosition(characterData[selectedCharacter].weaponLocalPosition);
+            weaponVisual.SetDirectionalOffset(characterData[selectedCharacter].weaponLocalDirection);
+            weaponVisual.SetRotationOffset(characterData[selectedCharacter].weaponRotationOffset);
+        
             weaponSprite.sprite = characterData[selectedCharacter].WeaponSprite;
         }
         if(weaponVisual != null)

@@ -34,6 +34,8 @@ public class CharacterScriptableObject : ScriptableObject
 
     [Header("무기 이미지 정보")]
     public Vector3 weaponLocalPosition;
+    public Vector2 weaponLocalDirection;
+    public float weaponRotationOffset;
     public Sprite WeaponSprite;
     public WeaponVisualMode WeaponVisualMode;
 }

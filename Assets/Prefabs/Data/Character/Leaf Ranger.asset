@@ -39,5 +39,7 @@ MonoBehaviour:
   costPerLevel: 0
   purchased: 1
   weaponLocalPosition: {x: 0, y: 4, z: 0}
+  weaponLocalDirection: {x: 0.6, y: 0.6}
+  weaponRotationOffset: 0
   WeaponSprite: {fileID: 8955490483851906880, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
-  WeaponVisualMode: 0
+  WeaponVisualMode: 1
