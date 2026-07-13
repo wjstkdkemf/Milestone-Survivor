@@ -6,12 +6,17 @@ using UnityEngine;
 public enum EquipmentType
 {
     Weapon, // 무기
+    Shield, // 방어구
     Helmet, // 투구
     Armor, // 갑옷
-    Gloves, // 장갑
+    Pants, // 바지
+    Belt, // 벨트
+    Glove, // 장갑
     Boots, // 신발
+    Cloak, // 코트
     Accessory, // 장신구
     Ring,
+    Necklace,
     None = 100,
 }
 

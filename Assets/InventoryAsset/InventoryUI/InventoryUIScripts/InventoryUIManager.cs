@@ -29,6 +29,11 @@ namespace InventorySystem
         [Tooltip("Number of columns for the inventory layout.")]
         [SerializeField]
         private int cols;
+        [Header("========[ Inventory CustomSize ]========")]
+        [SerializeField]
+        private bool IsCustom = false;
+        [SerializeField]
+        private List<int> slotIndices = new List<int>();
 
         [Tooltip("Prefab representing an individual item slot.")]
         [SerializeField]
@@ -37,6 +42,10 @@ namespace InventorySystem
         [Tooltip("Sets the slots image. Selected image is optional.")]
         [SerializeField]
         private slotImages SlotImage;
+
+        [Tooltip("Optional slot images by slot type. Examples: Weapon, Helmet, Armor, Boots, Ring1.")]
+        [SerializeField]
+        private List<SlotTypeImage> typedSlotImages = new List<SlotTypeImage>();
 
         [Tooltip("Size dimensions of each slot.")]
         [SerializeField]
@@ -244,18 +253,30 @@ namespace InventorySystem
             inventory.Init();
 
             SetSaveInventory();
-            inventory.Resize(rows * cols);
 
+            inventory.Resize(GetSlotCount());
+            
             InventoryUIReset();
 
             createSlots();
             SetSlotOrder();
             ConfigureSlotTypes(); // 슬롯 타입 설정 함수 호출 추가
+            ApplySlotImages();
             SetBackground();
             UpdateInventory();
             InitSlotEnterExitDict();
             BackgroundActivity();
             initializeTestItems();
+        }
+        private int GetSlotCount()
+        {
+            if (!IsCustom) return rows * cols;
+
+            int total = 0;
+            foreach (int count in slotIndices)
+                total += count;
+
+            return total;
         }
 
         /// <summary>
@@ -269,10 +290,25 @@ namespace InventorySystem
                 if (slots.Count > 0) slots[0].GetComponent<Slot>().slotType = "Weapon";
                 if (slots.Count > 1) slots[1].GetComponent<Slot>().slotType = "Helmet";
                 if (slots.Count > 2) slots[2].GetComponent<Slot>().slotType = "Armor";
-                if (slots.Count > 3) slots[3].GetComponent<Slot>().slotType = "Shoes";
-                if (slots.Count > 4) slots[4].GetComponent<Slot>().slotType = "Ring1";
-                if (slots.Count > 5) slots[5].GetComponent<Slot>().slotType = "Ring2";
-                if (slots.Count > 6) slots[6].GetComponent<Slot>().slotType = "Ring3";
+                if (slots.Count > 3) slots[3].GetComponent<Slot>().slotType = "Pants";
+                if (slots.Count > 4) slots[4].GetComponent<Slot>().slotType = "Boots";
+                if (slots.Count > 5) slots[5].GetComponent<Slot>().slotType = "Glove";
+                if (slots.Count > 6) slots[6].GetComponent<Slot>().slotType = "Belt";
+                if (slots.Count > 7) slots[7].GetComponent<Slot>().slotType = "Shield";
+                if (slots.Count > 8) slots[8].GetComponent<Slot>().slotType = "Cloak";
+                if (slots.Count > 9) slots[9].GetComponent<Slot>().slotType = "Ring1";
+                if (slots.Count > 10) slots[10].GetComponent<Slot>().slotType = "Ring2";
+                if (slots.Count > 11) slots[11].GetComponent<Slot>().slotType = "Ring3";
+                if (slots.Count > 12) slots[12].GetComponent<Slot>().slotType = "Necklace";
+            }
+        }
+
+        private void ApplySlotImages()
+        {
+            foreach (GameObject slotObject in slots)
+            {
+                Slot slotInstance = slotObject.GetComponent<Slot>();
+                slotObject.GetComponent<Image>().sprite = GetRegularSlotSprite(slotInstance.slotType);
             }
         }
 
@@ -337,12 +373,18 @@ namespace InventorySystem
             // Start from the top-left corner of the InventoryUI
             Vector2 startPlacementPos = rectTransform.right;
 
-            for (int curRow = 0; curRow < rows; curRow++)
+            int rowCount = IsCustom ? slotIndices.Count : rows;
+
+            for (int curRow = 0; curRow < rowCount; curRow++)
             {
-                for (int curCol = 0; curCol < cols; curCol++)
+                int rowSlotCount = IsCustom ? slotIndices[curRow] : cols;
+                int maxCols = IsCustom ? Mathf.Max(slotIndices.ToArray()) : cols;
+                float centerOffsetX = IsCustom ? (maxCols - rowSlotCount) * slotGap.x * 0.5f : 0f;
+
+                for (int curCol = 0; curCol < rowSlotCount; curCol++)
                 {
                     // Calculate the x and y position for each slot using the original slotGap and slotOffset values
-                    float placeMentPosX = startPlacementPos.x + (curCol * slotGap.x);
+                    float placeMentPosX = startPlacementPos.x + centerOffsetX  + (curCol * slotGap.x);
                     float placeMentPosY = startPlacementPos.y - (curRow * slotGap.y);
 
                     Vector2 placeMentPos = new Vector2(placeMentPosX, placeMentPosY);
@@ -370,6 +412,16 @@ namespace InventorySystem
         /// </summary>
         public void SetSlotOrder()
         {
+            if (IsCustom)
+            {
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    slots[i].GetComponent<Slot>().SetPosition(i);
+                    positionToSlotDict[i] = slots[i];
+                }
+                return;
+            }
+
             switch (slotStartPosition)
             {
                 case StartPositions.TopRight:
@@ -497,13 +549,14 @@ namespace InventorySystem
         {
             Slot slotInstance = slot.GetComponent<Slot>();
             UnHighlight(previouslyHighlighted);
-            if (SlotImage.selected == null)
+            Sprite selectedSprite = GetSelectedSlotSprite(slotInstance.slotType);
+            if (selectedSprite == null)
             {
                 slotInstance.GetSlotImage().color = Color.grey;
             }
             else
             {
-                slotInstance.GetComponent<Image>().sprite = SlotImage.selected;
+                slotInstance.GetComponent<Image>().sprite = selectedSprite;
             }
             previouslyHighlighted = slot;
 
@@ -517,17 +570,54 @@ namespace InventorySystem
             if (slot != null)
             {
                 Slot prevSlotInstance = slot.GetComponent<Slot>();
+                Sprite selectedSprite = GetSelectedSlotSprite(prevSlotInstance.slotType);
 
-                if (SlotImage.selected == null)
+                if (selectedSprite == null)
                 {
                     prevSlotInstance.GetSlotImage().color = prevSlotInstance.GetColor();
                 }
                 else
                 {
-                    slot.GetComponent<Image>().sprite = SlotImage.regular;
+                    slot.GetComponent<Image>().sprite = GetRegularSlotSprite(prevSlotInstance.slotType);
                 }
 
             }
+        }
+
+        private Sprite GetRegularSlotSprite(string slotType)
+        {
+            if (typedSlotImages == null)
+            {
+                return SlotImage.regular;
+            }
+
+            for (int i = 0; i < typedSlotImages.Count; i++)
+            {
+                if (typedSlotImages[i].slotType == slotType && typedSlotImages[i].regular != null)
+                {
+                    return typedSlotImages[i].regular;
+                }
+            }
+
+            return SlotImage.regular;
+        }
+
+        private Sprite GetSelectedSlotSprite(string slotType)
+        {
+            if (typedSlotImages == null)
+            {
+                return SlotImage.selected;
+            }
+
+            for (int i = 0; i < typedSlotImages.Count; i++)
+            {
+                if (typedSlotImages[i].slotType == slotType && typedSlotImages[i].selected != null)
+                {
+                    return typedSlotImages[i].selected;
+                }
+            }
+
+            return SlotImage.selected;
         }
 
         /// <summary>
@@ -799,6 +889,15 @@ namespace InventorySystem
             [Tooltip("Displays regular slot image.")]
             public Sprite regular;
             [Tooltip("OPTIONAL: Displays slot Image when selected.")]
+            public Sprite selected;
+        }
+
+        [System.Serializable]
+        private struct SlotTypeImage
+        {
+            [Tooltip("Must match Slot.slotType. Examples: Weapon, Helmet, Armor, Boots, Ring1, Ring2, Ring3.")]
+            public string slotType;
+            public Sprite regular;
             public Sprite selected;
         }
 
