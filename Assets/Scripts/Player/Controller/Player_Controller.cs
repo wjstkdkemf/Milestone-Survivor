@@ -36,11 +36,13 @@ public class Player_Controller : MonoBehaviour
     private int facingSign = 1;
     [SerializeField] private Transform bodyVisual;
     private WeaponVisualController waponVisualController;
+    private PlayerInputReader inputReader;
 
     private void Awake()
     {    
         state = State.Normal;
         waponVisualController = GetComponentInChildren<WeaponVisualController>();
+        inputReader = GetComponent<PlayerInputReader>();
     }
 
     private void Start()
@@ -72,6 +74,7 @@ public class Player_Controller : MonoBehaviour
 
     private void Update()
     {
+        if (inputReader == null) return;
         if(StopMoving) return;
 
         Trail.emitting = Dashing;
@@ -79,26 +82,20 @@ public class Player_Controller : MonoBehaviour
         switch (state)
         {
             case State.Normal:
-                float moveX = 0f;
-                float moveY = 0f;
-
-                if (Input.GetKey(KeyCode.W)) moveY = +1f;
-                if (Input.GetKey(KeyCode.S)) moveY = -1f;
+                Vector2 inputMove = inputReader.MoveDirection;
                 
-                if (Input.GetKey(KeyCode.A))
+                if (inputMove.x < 0)
                 {
                     SetFacing(-1);
-                    moveX = -1f;
                 }
-                if (Input.GetKey(KeyCode.D))
+                else if (inputMove.x > 0)
                 {
                     SetFacing(1);
-                    moveX = +1f;
                 }
 
-                moveDir = new Vector3(moveX, moveY).normalized;
+                moveDir = new Vector3(inputMove.x, inputMove.y, 0f).normalized;
                 
-                if (moveX != 0 || moveY != 0)
+                if (moveDir.x != 0 || moveDir.y != 0)
                 {
                     if(haveAnimation) PlayerAnimator.SetBool("Moving", true);
                     lastMoveDir = moveDir;
@@ -110,7 +107,7 @@ public class Player_Controller : MonoBehaviour
                     if(haveAnimation) PlayerAnimator.SetBool("Moving",false); 
                 }
 
-                if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftShift)) && dashCoolDown <= 0)
+                if (inputReader.DashPressed && dashCoolDown <= 0)
                 {
                     dashCoolDown = cooltime;
                     dashDir = lastMoveDir;

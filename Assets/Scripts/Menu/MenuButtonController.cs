@@ -6,17 +6,21 @@ public class MenuButtonController : MonoBehaviour
     public static MenuButtonController Instance { get; private set; }
     private List<GameObject> menuList = new List<GameObject>(); //Stack으로 활용
 	public PanelMessage warningPanel;
+    private PlayerInputReader playerInputReader;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
-
+    private void Start()
+    {
+        playerInputReader = FindObjectOfType<PlayerInputReader>();
+    }
     private void Update()
     {
         //if (Input.GetKeyDown(KeyCode.I)) ToggleMenu(inventoryPanel);
-        if (Input.GetKeyDown(KeyCode.Escape)) HandleEscapeKey();
+        if (playerInputReader != null && playerInputReader.CancelPressed) HandleEscapeKey();
     }
 
     public void OpenMenu(GameObject menuToOpen)

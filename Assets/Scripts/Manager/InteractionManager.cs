@@ -9,6 +9,7 @@ public class InteractionManager : MonoBehaviour
     public TMPro.TextMeshProUGUI promptText;// 메시지 내용 (선택사항)
 
     private Interactor currentInteractable; // 현재 상호작용 가능한 대상
+    private PlayerInputReader playerInputReader;
 
     private void Awake()
     {
@@ -18,11 +19,15 @@ public class InteractionManager : MonoBehaviour
         // 시작할 땐 UI 숨김
         promptCanvas.SetActive(false);
     }
+    private void Start()
+    {
+        playerInputReader = FindObjectOfType<PlayerInputReader>();
+    }
 
     private void Update()
     {
         // 상호작용 대상이 있고, E키를 눌렀을 때
-        if (currentInteractable != null && Input.GetKeyDown(KeyCode.E))
+        if (currentInteractable != null && playerInputReader != null && playerInputReader.InteractPressed)
         {
             currentInteractable.TriggerInteraction();
         }
