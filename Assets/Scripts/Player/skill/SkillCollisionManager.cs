@@ -13,8 +13,7 @@ public class SkillCollisionManager : MonoBehaviour
 
     private NativeArray<float2> skillPositions;
     private NativeArray<float> skillRadii;
-    private NativeArray<int> skillMaxHits; 
-    private float enemyRadius = 0.5f;
+    private NativeArray<int> skillMaxHits;
     
     private NativeParallelMultiHashMap<int, int> hitResults;
 
@@ -22,10 +21,6 @@ public class SkillCollisionManager : MonoBehaviour
     { 
         Instance = this; 
         hitResults = new NativeParallelMultiHashMap<int, int>(3000, Allocator.Persistent);
-    }
-    private void Start()
-    {
-        enemyRadius = EnemySwarmSystem.Instance.enemyRadius;
     }
     private void OnDestroy()
     {
@@ -89,6 +84,8 @@ public class SkillCollisionManager : MonoBehaviour
 
             nextHitTimes = EnemySwarmSystem.Instance.nextHitTimes,
             currentTime = Time.time,
+            enemyRadii = EnemySwarmSystem.Instance.enemyRadii,
+            maxEnemyRadius = EnemySwarmSystem.Instance.MaxEnemyRadius,
             
             hitResults = hitResults.AsParallelWriter() 
         };
@@ -108,7 +105,7 @@ public class SkillCollisionManager : MonoBehaviour
                      if (hitEnemy != null && hitEnemy.currentNormalState != Enemy.EnemyState.Dead)
                      {
                         float distSqr = (hitEnemy.transform.position - skill.transform.position).sqrMagnitude;
-                        float allowedDist = skill.hitRadius + enemyRadius;
+                        float allowedDist = skill.hitRadius + hitEnemy.CollisionRadius;
 
                         if (distSqr <= (allowedDist * allowedDist) + 0.1f)
                         {
@@ -136,6 +133,8 @@ public class SkillCollisionManager : MonoBehaviour
 
         [ReadOnly] public NativeArray<float2> enemyPositions;
         [ReadOnly] public NativeParallelMultiHashMap<int, int> enemyGrid;
+        [ReadOnly] public NativeArray<float> enemyRadii;
+        public float maxEnemyRadius;
 
         public float enemyRadius;
         public float cellSize;
@@ -156,6 +155,7 @@ public class SkillCollisionManager : MonoBehaviour
                 (int)math.floor(sPos.x / cellSize),
                 (int)math.floor(sPos.y / cellSize)
             );
+            //int cellRange = (int)math.ceil((sRad + maxEnemyRadius) / cellSize);
 
             for (int y = -1; y <= 1; y++)
             {
@@ -172,7 +172,7 @@ public class SkillCollisionManager : MonoBehaviour
 
                             float2 diff = sPos - enemyPositions[enemyIndex];
                             float sqrDist = math.lengthsq(diff);
-                            float combinedRadius = sRad + enemyRadius;
+                            float combinedRadius = sRad + enemyRadii[enemyIndex];
 
                             if (sqrDist < combinedRadius * combinedRadius)
                             {

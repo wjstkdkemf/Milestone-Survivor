@@ -760,6 +760,10 @@ namespace InventorySystem
         {
             this.saveInventory = saveable;
         }
+        public void SetName(string name)
+        {
+            inventoryName = name;
+        }
         public string GetName()
         {
             return inventoryName;

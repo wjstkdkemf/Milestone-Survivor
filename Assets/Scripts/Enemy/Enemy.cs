@@ -26,7 +26,12 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     [SerializeField] protected float coolDown = 3;
     [SerializeField] protected float attackRange = 2f;   
     [SerializeField] protected float escapeRange = 1f;   
-    [SerializeField] protected bool canRun = false;      
+    [SerializeField] protected bool canRun = false;
+    [Header("Collision")]
+    [SerializeField, Min(0.05f)]
+    private float collisionRadius = 0.5f;
+
+    public float CollisionRadius => collisionRadius;    
 
     [Header("References")]
     public GameObject DamageText;

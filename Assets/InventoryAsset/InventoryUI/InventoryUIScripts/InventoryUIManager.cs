@@ -181,6 +181,8 @@ namespace InventorySystem
 
         public void Awake()
         {
+            SyncInventoryName();
+
             rectTransform = GetComponent<RectTransform>();
             UpdateInventoryUI();
         }
@@ -983,10 +985,24 @@ namespace InventorySystem
             this.cols = cols;
             UpdateInventoryUI();
         }
+        private void SyncInventoryName()
+        {
+            if (inventory != null)
+            {
+                inventory.SetName(inventoryName);
+            }
+        }
+
+        private void OnValidate()
+        {
+            // 인스펙터 값이 변경될 때 호출됨
+            SyncInventoryName();
+        }
 
         public void SetInventoryName(string inventoryName)
         {
             this.inventoryName = inventoryName;
+            SyncInventoryName();
         }
 
         public string GetInventoryName()

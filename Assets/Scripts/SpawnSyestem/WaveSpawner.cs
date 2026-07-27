@@ -36,7 +36,7 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private int maxSpawnAttempts = 10;
     // 스폰 시 확인할 반경 (적 크기에 맞춰 조절)
     [SerializeField] private float spawnCheckRadius = 0.5f;
-    [SerializeField] private float circleRadius = 20f;//일괄 스폰용
+    [SerializeField] private float circleRadius = 60f;//일괄 스폰용
     [SerializeField] private bool is2DGame = true;
     private bool isMassiveSpawning = false;
     private List<Enemy> activeEnemiesList = new List<Enemy>();

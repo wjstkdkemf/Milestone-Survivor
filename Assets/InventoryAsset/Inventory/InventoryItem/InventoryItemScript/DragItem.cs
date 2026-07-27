@@ -119,7 +119,12 @@ namespace InventorySystem
         /// </summary>
         public void OnDrag(PointerEventData eventData)
         {
-            if (Draggable() || InventoryController.instance == null) return;
+            if (Draggable() ||
+                IsHotbarSlot(CurrentSlot) ||
+                InventoryController.instance == null)
+            {
+                return;
+            }
 
             // Get the canvas and its RectTransform
             Canvas canvas = InventoryController.instance.GetUI().GetComponent<Canvas>();
@@ -145,7 +150,7 @@ namespace InventorySystem
                 if (result.gameObject.CompareTag("Slot"))
                 {
                     Slot slot = result.gameObject.GetComponent<Slot>();
-                    if (slot.GetItem().GetIsNull() && slot.GetInventoryUI().GetInventory().CheckAcceptance(item.GetItemType()))
+                    if (!IsHotbarDrag(slot) && slot.GetItem().GetIsNull() && slot.GetInventoryUI().GetInventory().CheckAcceptance(item.GetItemType()))
                     {
                         slot.GetInventoryUI().Highlight(result.gameObject);
 
@@ -180,7 +185,7 @@ namespace InventorySystem
         /// </summary>
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (Draggable()) return;
+            if (Draggable() || IsHotbarSlot(CurrentSlot)) return;
 
             isDragging = true; // Start checking for scroll input
 
@@ -201,7 +206,7 @@ namespace InventorySystem
         /// </summary>
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (Draggable()) return;
+            if (Draggable() || IsHotbarSlot(CurrentSlot)) return;
 
             isDragging = false; // Stop checking for scroll input
 
@@ -232,6 +237,18 @@ namespace InventorySystem
                 HandleInvalidPlacement();
             }
         }
+        private bool IsHotbarSlot(Slot slot)
+        {
+            return slot != null &&
+                slot.GetInventoryUI().GetInventoryName()
+                    == InventoryController.HotBarInventoryName;
+        }
+
+        private bool IsHotbarDrag(Slot targetSlot)
+        {
+            return IsHotbarSlot(CurrentSlot) ||
+                IsHotbarSlot(targetSlot);
+        }
 
         /// <summary>
         /// Processes the slot result after dragging
@@ -240,6 +257,11 @@ namespace InventorySystem
         {
             if (InventoryController.instance == null) return;
             Slot slot = result.gameObject.GetComponent<Slot>();
+            if (IsHotbarDrag(slot))
+            {
+                HandleInvalidPlacement(true);
+                return;
+            }
             bool slotNull = slot.GetItem().GetIsNull();
             bool itemStackable = !slot.GetItem().GetIsNull() && (slot.GetItem().GetItemType() == item.GetItemType()) && (slot.GetItem().GetAmount() + item.GetAmount()) <= slot.GetItem().GetItemStackAmount();
             bool itemAcceptedInInventory = slot.GetInventoryUI().GetInventory().CheckAcceptance(item.GetItemType());

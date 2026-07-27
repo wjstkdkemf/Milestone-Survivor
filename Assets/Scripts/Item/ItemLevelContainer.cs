@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using InventorySystem;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine.Localization.SmartFormat.Utilities;
 
 

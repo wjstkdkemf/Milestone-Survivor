@@ -134,7 +134,8 @@ namespace InventorySystem
             OnSlotClickedForTutorial?.Invoke();
             InventoryEventSystem.RaiseSlotClicked(item, slotType);
             // 더블클릭 감지
-            if (eventData.clickCount == 2)
+            if (!Application.isMobilePlatform &&
+                eventData.clickCount == 2)
             {
                 if (InventoryController.instance == null) return;
 
@@ -152,7 +153,11 @@ namespace InventorySystem
                 {
                     InventoryController.instance.UnequipItemFromHotbar(currentItem);
                 }
-                else // 그 외 인벤토리 아이템은 장착
+                else if(currentItem.GetEquit())
+                {
+                    InventoryController.instance.UnequipItemFromInventory(currentItem);
+                }
+                else// 그 외 인벤토리 아이템은 장착
                 {
                     InventoryController.instance.EquipItem(currentItem, eventData.position);
                 }

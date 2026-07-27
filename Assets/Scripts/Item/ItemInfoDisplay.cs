@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
-using UnityEditor.Search;
 
 
 public class ItemInfoDisplay : MonoBehaviour

@@ -13,6 +13,16 @@ public class GraphicsSettings : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (Application.isMobilePlatform)
+        {
+            if (resolutionDropDown != null)
+                resolutionDropDown.gameObject.SetActive(false);
+
+            if (fullScreenToggle != null)
+                fullScreenToggle.gameObject.SetActive(false);
+
+            return;
+        }
         resolutions = Screen.resolutions;
 
         resolutionDropDown.ClearOptions();
@@ -52,6 +62,8 @@ public class GraphicsSettings : MonoBehaviour
 
     public void SetResolution(int resolutionIndex)
     {
+        if (Application.isMobilePlatform) return;
+
         Resolution resolution = resolutions[resolutionIndex];
 
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
@@ -67,6 +79,7 @@ public class GraphicsSettings : MonoBehaviour
 
     public void SetFullScreen(bool isFullScreen)
     {
+        if (Application.isMobilePlatform) return;
 
         Screen.fullScreen = isFullScreen;
 

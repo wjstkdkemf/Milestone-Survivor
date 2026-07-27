@@ -12,6 +12,11 @@ public class FirstTimeSetup : MonoBehaviour
     {
         AudioSettings.ApplySavedVolumes(Mixer);
 
+        if (Application.isMobilePlatform)
+        {
+            return;
+        }
+
         Resolution[] resolutions = Screen.resolutions;
         
         int defaultResolutionIndex = resolutions.Length - 1; 

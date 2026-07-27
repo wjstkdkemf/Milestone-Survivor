@@ -183,6 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e7c57aa49be51248b81205e712a8661, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyID: 
   currentNormalState: 0
   rarity: 0
   CantBeKnocked: 0
@@ -196,6 +197,7 @@ MonoBehaviour:
   attackRange: 1
   escapeRange: 0
   canRun: 0
+  collisionRadius: 0.5
   DamageText: {fileID: 5830339192291648505, guid: d445f4693e80cf94199c0e081bc6f4e6, type: 3}
   player: {fileID: 0}
   playerHealth: {fileID: 0}
@@ -206,8 +208,8 @@ MonoBehaviour:
   DontUseObjectPooling: 0
   boss: 0
   checkInterval: 2
-  maxDistance: 45
-  respawnRadius: 15
+  maxDistance: 120
+  respawnRadius: 70
   minimumMoveDistance: 0.5
   maxStuckCount: 2
   separationWeight: 2.5

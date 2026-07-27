@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using InventorySystem;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine.Localization.SmartFormat.Utilities;
 
 
@@ -13,12 +12,13 @@ public class ItemStatContainer : MonoBehaviour
     public TextMeshProUGUI enchantBefore;
     public TextMeshProUGUI enchantAfter;
     public GameObject Cursor;
-    
+    [SerializeField]private bool InGame = false;
+
     public void SetStatImage(StatModifier stat, int Level , bool IsMax = false)
     {
         gameObject.SetActive(true);
         int RealLevel = Level + 1;
-        if(IsMax)
+        if(IsMax || InGame)
         {
             enchantStat.text = stat.statName;
             enchantBefore.text = (stat.value * RealLevel).ToString();

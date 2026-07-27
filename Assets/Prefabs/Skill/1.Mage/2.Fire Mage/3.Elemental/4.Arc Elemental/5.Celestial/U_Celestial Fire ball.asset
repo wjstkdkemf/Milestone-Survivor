@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ced95ca00ea0fa4ab8b26e0666bf493, type: 3}
   m_Name: U_Celestial Fire ball
   m_EditorClassIdentifier: 
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 7e052ed181eae704a9974b170ac35dcf, type: 3}
   Title: CelestialFireball
   Description: 
   TitleLocalizationKey: skill.title.celestial_fireball
-  DescriptionLocalizationKey:
-  Points: 0
+  DescriptionLocalizationKey: 
+  Grade: 0
+  Points: 1
   MaxPoints: 5
   UpgradesList: []
-  Chance: 0
+  Chance: 34
   InitialChance: 34
   linkedWeaponData: {fileID: 11400000, guid: 2db11224769e11749a3c9ef71a8616e8, type: 2}
   upgradeType: 0

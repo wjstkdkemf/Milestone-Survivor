@@ -1118,11 +1118,24 @@ namespace InventorySystem
                     }
                     //새 아이템 효과 추가
                     InventoryItem newItem = new InventoryItem(itemToEquip);
-                    AddItemPos(targetInv.GetName(), newItem, targetSlot.GetPosition());
-                    EquipmentEffectManager.Instance.Equip(LoadEquipmentData(itemToEquip.GetItemType()), newItem);
+                    newItem.SetEquit(true);
 
+                    AddItemPos(
+                        targetInv.GetName(),
+                        newItem,
+                        targetSlot.GetPosition()
+                    );
+                    EquipmentEffectManager.Instance.Equip(LoadEquipmentData(itemToEquip.GetItemType()), newItem);
+                    // 원본 인벤토리 아이템을 장착 상태로 변경
+                    itemToEquip.SetEquit(true);
+
+                    // 원본 아이템이 있던 슬롯의 E 표시 갱신
+                    InventoryUIManager sourceUI =
+                        GetInventoryUIByName(itemToEquip.GetInventory());
+
+                    sourceUI?.UpdateSlot(itemToEquip.GetPosition());
                     // itemToEquip이 있던 인벤토리에서 장착한 아이템을 찾아 Equit = true로 설정
-                    string equippedItemSourceInv = itemToEquip.GetInventory();
+                    /*string equippedItemSourceInv = itemToEquip.GetInventory();
                     if (!string.IsNullOrEmpty(equippedItemSourceInv))
                     {
                         Inventory sourceInv = GetInventory(equippedItemSourceInv);
@@ -1145,6 +1158,8 @@ namespace InventorySystem
                             }
                         }
                     }
+                    */
+                    PlayerStatsCalculate.Instance?.UpdatePlayerStats();
                     
                     Debug.Log($"'{itemToEquip.GetItemType()}' 아이템을 '{targetSlot.slotType}' 슬롯에 장착했습니다.");
                     return; 
@@ -1152,53 +1167,117 @@ namespace InventorySystem
             }
             Debug.LogWarning($"'{itemToEquip.GetEquipmentType()}' 타입을 장착할 수 있는 '{slotType}' 슬롯이 'HotBar' 인벤토리에 없습니다.");
         }
-
-        public void UnequipItemFromHotbar(InventoryItem itemToUnequip)
+        public void UnequipItemFromInventory(InventoryItem sourceItem)
         {
-            if (itemToUnequip == null || itemToUnequip.GetIsNull()) return;
-            if(InGame && itemToUnequip.GetChangeable() == false)
+            if (sourceItem == null ||
+                sourceItem.GetIsNull() ||
+                !sourceItem.GetEquit())
             {
-                MenuButtonController.Instance.ScreenMessage("해제 불가능한 아이템입니다. : " + itemToUnequip.GetItemType());
                 return;
             }
 
-            // 1. HotBar에서 아이템 찾기 및 제거
-            Inventory hotbarInv = GetInventory(HotBarInventoryName);
-            if (hotbarInv == null) return;
-
-            int itemPositionInHotbar = itemToUnequip.GetPosition();
-
-            // 2. 장비 효과 해제
-            EquipmentEffectManager.Instance.Unequip(LoadEquipmentData(itemToUnequip.GetItemType()), itemToUnequip);
-
-            // 3. HotBar에서 아이템 제거
-            RemoveItemPos(HotBarInventoryName, itemPositionInHotbar, 1);
-            Debug.Log($"'{itemToUnequip.GetItemType()}' 아이템을 HotBar에서 장착 해제했습니다.");
-
-            // 4. Inventory 및 ClearInventory에서 해당 아이템을 찾아 'E' 표시 제거
-            string[] inventoriesToSearch = { InventoryName, ClearInventoryName };
-            foreach (string invName in inventoriesToSearch)
+            if (InGame && !sourceItem.GetChangeable())
             {
-                if (inventoryManager.ContainsKey(invName))
-                {
-                    Inventory inv = GetInventory(invName);
-                    InventoryItem itemInMainInv = inv.GetList().Find(item => item != null && !item.GetIsNull() && item.GetItemType() == itemToUnequip.GetItemType());
-
-                    if (itemInMainInv != null)
-                    {
-                        itemInMainInv.SetEquit(false);
-
-                        // 5. 해당 인벤토리 UI 업데이트
-                        InventoryUIManager uiManager = GetInventoryUIByName(invName);
-                        if (uiManager != null)
-                        {
-                            uiManager.UpdateSlot(itemInMainInv.GetPosition());
-                        }
-                        Debug.Log($"'{invName}' 인벤토리의 '{itemInMainInv.GetItemType()}' 아이템 장착 상태를 업데이트했습니다.");
-                        break; 
-                    }
-                }
+                MenuButtonController.Instance?.ScreenMessage(
+                    "해제 불가능한 아이템입니다. : " +
+                    sourceItem.GetItemType()
+                );
+                return;
             }
+
+            if (!inventoryManager.TryGetValue(
+                    HotBarInventoryName,
+                    out Inventory hotbarInv))
+            {
+                Debug.LogWarning("HotBar 인벤토리를 찾을 수 없습니다.");
+                return;
+            }
+
+            InventoryItem equippedItem = hotbarInv.GetList().Find(item =>
+                item != null &&
+                !item.GetIsNull() &&
+                item.GetItemType() == sourceItem.GetItemType() &&
+                item.GetEnhancementLevel() == sourceItem.GetEnhancementLevel()
+            );
+
+            if (equippedItem == null)
+            {
+                Debug.LogWarning(
+                    $"HotBar에서 '{sourceItem.GetItemType()}'을 찾지 못했습니다."
+                );
+                return;
+            }
+
+            EquipmentData equipmentData =
+                LoadEquipmentData(equippedItem.GetItemType());
+
+            if (equipmentData == null)
+                return;
+
+            EquipmentEffectManager.Instance.Unequip(
+                equipmentData,
+                equippedItem
+            );
+
+            RemoveItemPos(
+                HotBarInventoryName,
+                equippedItem.GetPosition(),
+                1
+            );
+
+            sourceItem.SetEquit(false);
+
+            InventoryUIManager uiManager =
+                GetInventoryUIByName(sourceItem.GetInventory());
+
+            uiManager?.UpdateSlot(sourceItem.GetPosition());
+            PlayerStatsCalculate.Instance?.UpdatePlayerStats();
+        }
+
+        public void UnequipItemFromHotbar(InventoryItem equippedItem)
+        {
+            if (equippedItem == null || equippedItem.GetIsNull())
+                return;
+
+            InventoryItem sourceItem = null;
+
+            string[] inventoriesToSearch =
+            {
+                InventoryName,
+                ClearInventoryName
+            };
+
+            foreach (string inventoryName in inventoriesToSearch)
+            {
+                if (!inventoryManager.TryGetValue(
+                        inventoryName,
+                        out Inventory inventory))
+                {
+                    continue;
+                }
+
+                sourceItem = inventory.GetList().Find(item =>
+                    item != null &&
+                    !item.GetIsNull() &&
+                    item.GetEquit() &&
+                    item.GetItemType() == equippedItem.GetItemType() &&
+                    item.GetEnhancementLevel() ==
+                        equippedItem.GetEnhancementLevel()
+                );
+
+                if (sourceItem != null)
+                    break;
+            }
+
+            if (sourceItem == null)
+            {
+                Debug.LogWarning(
+                    $"'{equippedItem.GetItemType()}'의 원본 아이템을 찾지 못했습니다."
+                );
+                return;
+            }
+
+            UnequipItemFromInventory(sourceItem);
         }
 
         /// <summary>
@@ -1280,8 +1359,12 @@ namespace InventorySystem
         public void ReapplyAllEquipmentSkills()
         {
             // 기존 효과 모두 초기화
-            if(GameObject.FindGameObjectWithTag("Village") != null || !UpgradeManager.Instance.playerWeaponController)
+            if (GameObject.FindGameObjectWithTag("Village") != null ||
+                UpgradeManager.Instance == null ||
+                UpgradeManager.Instance.playerWeaponController == null)
+            {
                 return;
+            }
 
             UpgradeManager.Instance.playerWeaponController.ClearEquipmentSkills();
 

@@ -19,6 +19,7 @@ MonoBehaviour:
   description: 
   Id: 2
   startingWeapon: {fileID: 0}
+  StartingDeck: []
   BaseHP: 100
   Damage: 0
   MovementSpeed: 4
@@ -27,7 +28,11 @@ MonoBehaviour:
   LuckBoost: 5
   CooldownReduction: 10
   DobleDamageChance: 0
-  XPBoost: 0
   statModifiers: []
   costPerLevel: 200
-  purchased: 1
+  purchased: 0
+  weaponLocalPosition: {x: 0, y: 0, z: 0}
+  weaponLocalDirection: {x: 0, y: 0}
+  weaponRotationOffset: 0
+  WeaponSprite: {fileID: 0}
+  WeaponVisualMode: 0

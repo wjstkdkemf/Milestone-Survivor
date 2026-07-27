@@ -16,6 +16,8 @@ public class EnemySwarmSystem : MonoBehaviour
     public NativeArray<float2> positions;
     private NativeArray<float> speeds;
     private NativeArray<bool> canMove; // Chasing 상태인지 여부
+    public NativeArray<float> enemyRadii;
+    public float MaxEnemyRadius { get; private set; }
     public NativeArray<float> nextHitTimes;
     public NativeParallelMultiHashMap<int, int> grid;
 
@@ -40,6 +42,7 @@ public class EnemySwarmSystem : MonoBehaviour
         if (positions.IsCreated) positions.Dispose();
         if (speeds.IsCreated) speeds.Dispose();
         if (canMove.IsCreated) canMove.Dispose();
+        if (enemyRadii.IsCreated) enemyRadii.Dispose();
         if (grid.IsCreated) grid.Dispose();
         if (nextHitTimes.IsCreated) nextHitTimes.Dispose();
     }
@@ -88,11 +91,15 @@ public class EnemySwarmSystem : MonoBehaviour
             if (positions.IsCreated) positions.Dispose();
             if (speeds.IsCreated) speeds.Dispose();
             if (canMove.IsCreated) canMove.Dispose();
+            if (enemyRadii.IsCreated) enemyRadii.Dispose();
 
             positions = new NativeArray<float2>(count, Allocator.Persistent);
             speeds = new NativeArray<float>(count, Allocator.Persistent);
             canMove = new NativeArray<bool>(count, Allocator.Persistent);
+            enemyRadii = new NativeArray<float>(count, Allocator.Persistent);
         }
+
+        MaxEnemyRadius = 0f;
 
         for (int i = 0; i < count; i++)
         {
@@ -107,6 +114,9 @@ public class EnemySwarmSystem : MonoBehaviour
                                                     e.useSwarmMovement;
             canMove[i] = isChasing;
             speeds[i] = e.GetSpeed(); // Enemy의 현재 속도
+            float radius = e.CollisionRadius;
+            enemyRadii[i] = radius;
+            MaxEnemyRadius = Mathf.Max(MaxEnemyRadius, radius);
         }
 
         grid.Clear();
@@ -138,6 +148,9 @@ public class EnemySwarmSystem : MonoBehaviour
             enemyRadius = enemyRadius,
             enemyRadiusSqr = enemyRadius * enemyRadius,
             cellSize = cellSize,
+
+            enemyRadii = enemyRadii,
+            maxEnemyRadius = MaxEnemyRadius,
 
             globalWallMap = InfiniteTilemapManager.Instance.globalWallMap
         };
@@ -262,12 +275,14 @@ public class EnemySwarmSystem : MonoBehaviour
 
         [ReadOnly] public NativeParallelMultiHashMap<int, int> grid;
         [ReadOnly] public NativeParallelHashMap<Vector2Int, byte> globalWallMap;
-
+        [ReadOnly] public NativeArray<float> enemyRadii;
         public float2 targetPos;
         public float deltaTime;
         public float enemyRadius; 
         public float enemyRadiusSqr;
         public float cellSize;
+        public float maxEnemyRadius;
+
 
         public void Execute(int index, TransformAccess transform)
         {
@@ -279,9 +294,13 @@ public class EnemySwarmSystem : MonoBehaviour
 
             int2 myCell = GetCell(myPos);
 
-            for (int y = -1; y <= 1; y++)
+            float myRadius = enemyRadii[index];
+
+            int cellRange = (int)math.ceil((myRadius + maxEnemyRadius) / cellSize);
+
+            for (int y = -cellRange; y <= cellRange; y++)
             {
-                for (int x = -1; x <= 1; x++)
+                for (int x = -cellRange; x <= cellRange; x++)
                 {
                     int2 neighbor = myCell + new int2(x, y);
                     int hash = Hash(neighbor);
@@ -298,10 +317,12 @@ public class EnemySwarmSystem : MonoBehaviour
                             float2 diff = myPos - positions[otherIndex];
                             float sqrDist = math.lengthsq(diff);
 
+                            float combinedRadius = myRadius + enemyRadii[otherIndex];
+
                             if (sqrDist < (enemyRadiusSqr * 4f) && sqrDist > 0.0001f)
                             {
                                 float dist = math.sqrt(sqrDist);
-                                float penetration = (enemyRadius * 2f) - dist;
+                                float penetration = combinedRadius - dist;
 
                                 collisionPush += (diff / dist) * penetration * 5f;
                             }
