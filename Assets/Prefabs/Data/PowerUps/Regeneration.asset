@@ -16,6 +16,24 @@ MonoBehaviour:
   IconSprite: {fileID: 3958262417687261516, guid: 542dc2dd09a3b1542a9918f1bd686678, type: 3}
   powerUpName: Regeneration
   description: ' Recover Health Overtime (per second)'
+  localizedPowerUpName:
+    m_TableReference:
+      m_TableCollectionName: GUID:b90f5f0f3a0d43d1a3c2f6ef5a1d7b81
+    m_TableEntryReference:
+      m_KeyId: 91000000000000010
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   costPerLevel:
   - 200
   - 300

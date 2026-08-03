@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Localization;
 
 [System.Serializable]
 public class LootTableItem
@@ -11,7 +12,21 @@ public class LootTableItem
 public class LootTable : MonoBehaviour
 {
     public string LootTableID;
+    [SerializeField] private LocalizedString localizedDisplayName;
     public List<LootTableItem> lootItems = new List<LootTableItem>();
+
+    public string GetLocalizedDisplayName()
+    {
+        if (localizedDisplayName != null && !localizedDisplayName.IsEmpty)
+        {
+            string localized = localizedDisplayName.GetLocalizedString();
+
+            if (!string.IsNullOrEmpty(localized))
+                return localized;
+        }
+
+        return LootTableID;
+    }
 
     public void DropSingleItem()
     {

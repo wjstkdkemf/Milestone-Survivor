@@ -45,6 +45,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LootTableID: "\uC2E4\uD5D8"
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:0f67588f9018fe44dba7b6f866a7bc66
+    m_TableEntryReference:
+      m_KeyId: 6046228480
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   lootItems:
   - itemPrefab: {fileID: 8306731627452137064, guid: c95989621830ab34e85f8d2429befb4d, type: 3}
     dropChance: 10
@@ -56,3 +65,6 @@ MonoBehaviour:
     dropChance: 10
   - itemPrefab: {fileID: 8306731627452137064, guid: 0c8af09ccc38e7a448b0509f5176fef1, type: 3}
     dropChance: 10
+  references:
+    version: 2
+    RefIds: []

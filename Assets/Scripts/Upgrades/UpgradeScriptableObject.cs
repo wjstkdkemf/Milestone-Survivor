@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UI;
 
 
@@ -12,6 +13,8 @@ public class UpgradeScriptableObject : ScriptableObject
     public string Title;
     [TextArea] public string Description; // TextArea를 쓰면 인스펙터에서 줄바꿈 가능
     [Header("Localization (Optional)")]
+    [SerializeField] private LocalizedString localizedTitle;
+    [SerializeField] private LocalizedString localizedDescription;
     public string TitleLocalizationKey;
     public string DescriptionLocalizationKey;
 
@@ -57,13 +60,15 @@ public class UpgradeScriptableObject : ScriptableObject
         UpgradeLevelInfo info = GetLevelInfoOrNull();
 
         if (info == null ||
-            (string.IsNullOrEmpty(info.ShortDescriptionLocalizationKey) &&
+            (IsLocalizedStringEmpty(info.localizedShortDescription) &&
+             string.IsNullOrEmpty(info.ShortDescriptionLocalizationKey) &&
              string.IsNullOrEmpty(info.ShortDescription)))
         {
             return GetLocalizedTitle();
         }
 
-        return UpgradeLocalization.Get(
+        return GetLocalizedString(
+            info.localizedShortDescription,
             info.ShortDescriptionLocalizationKey,
             info.ShortDescription
         );
@@ -74,13 +79,15 @@ public class UpgradeScriptableObject : ScriptableObject
         UpgradeLevelInfo info = GetLevelInfoOrNull();
 
         if (info == null ||
-            (string.IsNullOrEmpty(info.DescriptionLocalizationKey) &&
+            (IsLocalizedStringEmpty(info.localizedDescription) &&
+             string.IsNullOrEmpty(info.DescriptionLocalizationKey) &&
              string.IsNullOrEmpty(info.Description)))
         {
             return GetLocalizedDescription();
         }
 
-        return UpgradeLocalization.Get(
+        return GetLocalizedString(
+            info.localizedDescription,
             info.DescriptionLocalizationKey,
             info.Description
         );
@@ -88,12 +95,30 @@ public class UpgradeScriptableObject : ScriptableObject
 
     public string GetLocalizedTitle()
     {
-        return UpgradeLocalization.Get(TitleLocalizationKey, Title);
+        return GetLocalizedString(localizedTitle, TitleLocalizationKey, Title);
     }
 
     public string GetLocalizedDescription()
     {
-        return UpgradeLocalization.Get(DescriptionLocalizationKey, Description);
+        return GetLocalizedString(localizedDescription, DescriptionLocalizationKey, Description);
+    }
+
+    private static string GetLocalizedString(LocalizedString localizedString, string keyFallback, string fallback)
+    {
+        if (localizedString != null && !localizedString.IsEmpty)
+        {
+            string localized = localizedString.GetLocalizedString();
+
+            if (!string.IsNullOrEmpty(localized))
+                return localized;
+        }
+
+        return UpgradeLocalization.Get(keyFallback, fallback);
+    }
+
+    private static bool IsLocalizedStringEmpty(LocalizedString localizedString)
+    {
+        return localizedString == null || localizedString.IsEmpty;
     }
 
     // 깔끔해진 Enum (구체적인 무기 이름은 다 삭제!)
@@ -119,6 +144,8 @@ public class UpgradeScriptableObject : ScriptableObject
 [System.Serializable]
 public class UpgradeLevelInfo 
 {
+    public LocalizedString localizedShortDescription;
+    public LocalizedString localizedDescription;
     public string ShortDescription;       // 레벨별 아이콘이 다르다면 사용
     public string Description; // "데미지 +5 증가" 같은 레벨별 텍스트
     public string ShortDescriptionLocalizationKey;

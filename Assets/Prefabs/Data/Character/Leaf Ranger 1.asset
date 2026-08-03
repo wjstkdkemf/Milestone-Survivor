@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07740a62e96ed4e4e820b6ab3c8a5b90, type: 3}
+  m_Name: Leaf Ranger 1
+  m_EditorClassIdentifier: 
+  IconSprite: {fileID: 21300000, guid: 2d49550bdd87b34438120f54ad552b18, type: 3}
+  animatorController: {fileID: 9100000, guid: c7a10685558528940bdd712645901c55, type: 2}
+  CharacterPrefab: {fileID: 0}
+  CharacterName: Leaf Ranger
+  description: 
+  Id: 0
+  startingWeapon: {fileID: 11400000, guid: 6546b45659e4e354c8c26712486b4c69, type: 2}
+  StartingDeck:
+  - {fileID: 11400000, guid: 6546b45659e4e354c8c26712486b4c69, type: 2}
+  - {fileID: 11400000, guid: 2da50a5edc348de48bc4d5e21f2349e7, type: 2}
+  - {fileID: 11400000, guid: 6f27ff3e87d1f244ea48ca1940aaa0e8, type: 2}
+  - {fileID: 11400000, guid: a7596bb19f18c0a40aff25228bf7f51d, type: 2}
+  - {fileID: 11400000, guid: 3de82572370f9b746bb974258f8fd409, type: 2}
+  BaseHP: 1000
+  Damage: 0
+  MovementSpeed: 6
+  Armor: 0
+  HealthRegeneration: 0.1
+  LuckBoost: 10
+  CooldownReduction: 0
+  DobleDamageChance: 0
+  statModifiers:
+  - statName: Damage
+    value: 0.5
+  costPerLevel: 0
+  purchased: 1
+  weaponLocalPosition: {x: 0, y: 4, z: 0}
+  weaponLocalDirection: {x: 0.6, y: 0.6}
+  weaponRotationOffset: 0
+  WeaponSprite: {fileID: 8955490483851906880, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
+  WeaponVisualMode: 1

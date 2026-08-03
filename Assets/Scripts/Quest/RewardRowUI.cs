@@ -23,7 +23,7 @@ public class RewardRowUI : MonoBehaviour
             case RewardType.Item:
                 if (reward.lootTable != null)
                 {
-                    rewardText.text = reward.lootTable.LootTableID;
+                    rewardText.text = reward.lootTable.GetLocalizedDisplayName();
                 }
                 else
                 {

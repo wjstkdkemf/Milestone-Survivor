@@ -53,7 +53,7 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         if (powerUp == null) return;
 
-        powerUpNameText.text = powerUp.powerUpName;
+        powerUpNameText.text = powerUp.GetLocalizedName();
         int currentLevel = Mathf.Clamp(powerUp.CurrentLevel, 0, LevelUpPlusObjects.Length);
         SetAllPlusInactive();
 

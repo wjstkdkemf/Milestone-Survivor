@@ -382,10 +382,13 @@ namespace InventorySystem
         {
             if (!item.GetIsNull())
             {
-                Equitext.gameObject.SetActive(item.GetEquit());
-                if (item.GetEquit())
+                if(Equitext != null)
                 {
-                    Equitext.SetText("E");
+                    Equitext.gameObject.SetActive(item.GetEquit());
+                    if (item.GetEquit())
+                    {
+                        Equitext.SetText("E");
+                    }
                 }
             }
         }

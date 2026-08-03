@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro; // TextMeshPro 사용 권장
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class QuestSlotUI : MonoBehaviour
 {
@@ -28,6 +30,12 @@ public class QuestSlotUI : MonoBehaviour
     [Header("Reward UI Settings")]
     public Transform rewardContainer;     // 보상들이 쌓일 부모 오브젝트
     public RewardRowUI rewardRowPrefab;   // 아까 만든 보상 한 줄 프리팹
+    public TextMeshProUGUI RewardNormalString;
+    [SerializeField] private LocalizedString RewardString;
+
+
+    [Header("Localization")]
+    [SerializeField] private LocalizedString claimRewardString;
 
     // 생성된 보상 UI들을 담아둘 리스트
     private List<RewardRowUI> spawnedRewardRows = new List<RewardRowUI>();
@@ -42,14 +50,31 @@ public class QuestSlotUI : MonoBehaviour
     }
     private void OnEnable()
     {
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+
         if(currentProgress != null && currentData != null)
             UpdateDisplay();
     }
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+    }
+
+    private void HandleLocaleChanged(Locale locale)
+    {
+        if(currentProgress != null && currentData != null)
+            UpdateDisplay();
+    }
+
     private void UpdateDisplay()
     {
-        titleText.text = currentData.questName;
+        titleText.text = currentData.GetLocalizedQuestName();
         if(descriptionText != null)
-            descriptionText.text = currentData.description;
+            descriptionText.text = currentData.GetLocalizedDescription();
+
+        if(RewardNormalString != null)
+            RewardNormalString.text = RewardString.GetLocalizedString();
         
         if(currentData.conditions.Count > 0)
         {
@@ -63,9 +88,13 @@ public class QuestSlotUI : MonoBehaviour
     {
         currentProgress = progress;
         currentData = data;
-        titleText.text = data.questName;
+        titleText.text = data.GetLocalizedQuestName();
+
+        if(RewardNormalString != null)
+            RewardNormalString.text = RewardString.GetLocalizedString();
+
         if(descriptionText != null)
-            descriptionText.text = data.description;
+            descriptionText.text = data.GetLocalizedDescription();
         //questTypeText.text = isMain ? "<color=#FFD700>메인 퀘스트</color>" : "<color=#ADD8E6>지역 반복 퀘스트</color>";
 
         // 진행도 텍스트 (다중 조건 중 첫 번째 조건만 대표로 띄우는 예시)
@@ -157,7 +186,10 @@ public class QuestSlotUI : MonoBehaviour
         if (isCompleted && !isClaimed && !Ingame)
         {
             // 보상 받기 가능 상태
-            progressText.text = "보상 받기";
+            string claimRewardText = GetClaimRewardText();
+            progressText.text = claimRewardText;
+            if(buttonText != null)
+                buttonText.text = claimRewardText;
             actionButton.interactable = true;
             actionButton.onClick.AddListener(OnClickClaimReward);
 
@@ -240,5 +272,14 @@ public class QuestSlotUI : MonoBehaviour
             rowUI.gameObject.SetActive(true);
             rowUI.Setup(rewards[i]); // 데이터 주입!
         }
+    }
+
+    private string GetClaimRewardText()
+    {
+        return QuestLocalization.Get(
+            claimRewardString,
+            QuestLocalization.ClaimRewardKey,
+            "보상 받기"
+        );
     }
 }

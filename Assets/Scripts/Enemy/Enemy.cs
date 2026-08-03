@@ -16,6 +16,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public bool CantBeKnocked = false;
     public bool stopMoving = false; 
     public bool useSwarmMovement = true;
+    private bool repositionPending;
+    private int repositionRequestVersion;
+    private float nextRepositionRequestTime;
 
     [Header("Stats")]
     [SerializeField] protected float maxhealth;
@@ -31,7 +34,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     [SerializeField, Min(0.05f)]
     private float collisionRadius = 0.5f;
 
-    public float CollisionRadius => collisionRadius;    
+    public float CollisionRadius => collisionRadius;
+    public virtual bool RequiresNavMesh => false;
 
     [Header("References")]
     public GameObject DamageText;
@@ -66,7 +70,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     [Header("Reposition Settings")]
     [SerializeField] protected float checkInterval = 2.0f; 
     [SerializeField] protected float maxDistance = 30.0f;  
-    [SerializeField] protected float respawnRadius = 15.0f; 
     [SerializeField] protected float minimumMoveDistance = 0.5f; 
     [SerializeField] protected int maxStuckCount = 2; 
 
@@ -139,6 +142,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         lastPosition = transform.position;
         stuckCount = 0;
         distanceCheckTimer = Random.Range(0.0f, checkInterval);
+        InvalidateRepositionRequest();
+        nextRepositionRequestTime = 0f;
 
         ResetStatusEffects();
 
@@ -151,6 +156,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     public virtual void OnDisable()
     {
+        InvalidateRepositionRequest();
+
         if (health > 0) 
         {
             Debug.LogWarning($"[Enemy CSI] {gameObject.name} 비정상 종료! (Health: {health})");
@@ -172,46 +179,124 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public float GetKnockBackTime() { return knockBackTime; }
     public float GetSpeed() { return speed; }
 
-    protected virtual void RepositionEnemy()
+    protected void RequestReposition(RepositionReason reason)
     {
-        Vector2 randomPoint = Random.insideUnitCircle.normalized * respawnRadius;
-        transform.position = player.position + new Vector3(randomPoint.x, randomPoint.y, 0);
-        stuckCount = 0;
-        Debug.Log($"[{gameObject.name}] 화면 밖/길막으로 인해 플레이어 주변으로 재소환됨.");
+        if (repositionPending ||
+            Time.time < nextRepositionRequestTime)
+        {
+            return;
+        }
+
+        EnemyPlacementManager manager =
+            EnemyPlacementManager.Instance;
+
+        if (manager == null)
+        {
+            nextRepositionRequestTime =
+                Time.time + checkInterval;
+            return;
+        }
+
+        repositionPending = true;
+        repositionRequestVersion++;
+
+        manager.RequestReposition(
+            this,
+            reason,
+            repositionRequestVersion);
     }
 
-    private void HandleDistanceCheck(float distanceSqrToPlayer)
+    public virtual void ApplyReposition(Vector3 position)
+    {
+        transform.position = position;
+        FinishReposition(true);
+    }
+
+    public void FinishReposition(bool success)
+    {
+        repositionPending = false;
+
+        if (success)
+        {
+            lastPosition = transform.position;
+            stuckCount = 0;
+            distanceCheckTimer = checkInterval;
+            nextRepositionRequestTime = 0f;
+        }
+        else
+        {
+            nextRepositionRequestTime =
+                Time.time + checkInterval;
+        }
+    }
+
+    internal bool IsRepositionRequestCurrent(int version)
+    {
+        return repositionPending &&
+               repositionRequestVersion == version;
+    }
+
+    private void InvalidateRepositionRequest()
+    {
+        repositionPending = false;
+        repositionRequestVersion++;
+    }
+
+    protected void HandleDistanceCheck(float distanceSqrToPlayer)
     {
         distanceCheckTimer -= Time.deltaTime;
         if (distanceCheckTimer <= 0)
         {
-            if (distanceSqrToPlayer > maxDistanceSqr)
+            bool isTooFar =
+                distanceSqrToPlayer > maxDistanceSqr;
+
+            EnemyPlacementManager placementManager =
+                EnemyPlacementManager.Instance;
+
+            if (isTooFar && placementManager != null)
             {
-                RepositionEnemy();
+                isTooFar =
+                    placementManager.IsBeyondRecycleBounds(
+                        transform.position);
+            }
+
+            if (isTooFar)
+            {
+                RequestReposition(RepositionReason.TooFar);
             }
             else
             {
-                if (knockBackTime > 0 || stopMoving)
+                bool shouldExpectMovement =
+                    currentNormalState == EnemyState.Chasing &&
+                    knockBackTime <= 0f &&
+                    !stopMoving;
+
+                if (!shouldExpectMovement)
                 {
                     lastPosition = transform.position; 
                     stuckCount = 0;
                 }
-
-                float movedDistSqr = (transform.position - lastPosition).sqrMagnitude;
-
-                if (movedDistSqr < minimumMoveDistance * minimumMoveDistance)
-                {
-                    stuckCount++; 
-                    if (stuckCount >= maxStuckCount)
-                    {
-                        RepositionEnemy();
-                    }
-                }
                 else
                 {
-                    stuckCount = 0; 
+                    float movedDistSqr =
+                        (transform.position - lastPosition).sqrMagnitude;
+
+                    if (movedDistSqr <
+                        minimumMoveDistance * minimumMoveDistance)
+                    {
+                        stuckCount++;
+                        if (stuckCount >= maxStuckCount)
+                        {
+                            RequestReposition(RepositionReason.Stuck);
+                        }
+                    }
+                    else
+                    {
+                        stuckCount = 0;
+                    }
+
+                    lastPosition = transform.position;
                 }
-                lastPosition = transform.position;
             }
             distanceCheckTimer = checkInterval;
         }
@@ -466,3 +551,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 }
 [System.Serializable]
 public enum EnemyRarity { Normal, Magic, Rare, Boss }
+public enum RepositionReason
+{
+    TooFar,
+    Stuck,
+    OffNavMesh,
+    MapChanged
+}

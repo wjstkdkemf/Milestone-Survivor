@@ -15,6 +15,26 @@ MonoBehaviour:
   questID: Sub_Test_2
   questName: "\uC11C\uBE0C 2"
   description: "\uD14C\uC2A4\uD2B8 \uC911 3"
+  localizedQuestName:
+    m_TableReference:
+      m_TableCollectionName: GUID:65adb05e004389142a6ba36ec8ae103d
+    m_TableEntryReference:
+      m_KeyId: 1174143115264
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:65adb05e004389142a6ba36ec8ae103d
+    m_TableEntryReference:
+      m_KeyId: 1321216385024
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  questNameLocalizationKey: 
+  descriptionLocalizationKey: 
   regionID: Village
   isMainQuest: 0
   conditions:
@@ -27,5 +47,8 @@ MonoBehaviour:
   - rewardType: 0
     rewardIcon: {fileID: 5866580483785869697, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
     amount: 200
-    itemName: 
+    lootTable: {fileID: 0}
   unlockProgressID: 
+  references:
+    version: 2
+    RefIds: []

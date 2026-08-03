@@ -16,6 +16,24 @@ MonoBehaviour:
   IconSprite: {fileID: 1514181049279601983, guid: 31513a47eb57ab646b2c2d3a6fbe8ec9, type: 3}
   powerUpName: Move Speed
   description: 'Increase the character movement speed '
+  localizedPowerUpName:
+    m_TableReference:
+      m_TableCollectionName: GUID:b90f5f0f3a0d43d1a3c2f6ef5a1d7b81
+    m_TableEntryReference:
+      m_KeyId: 91000000000000009
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   costPerLevel:
   - 200
   - 400

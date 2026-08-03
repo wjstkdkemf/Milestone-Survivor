@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class PowerUpManager : MonoBehaviour
 {
@@ -56,8 +58,29 @@ public class PowerUpManager : MonoBehaviour
         playerStats = FindAnyObjectByType<PlayerStats>();
 
         InitializeButtonPool();
+        InitializeUpgradePanel();
 
         UpdateTierView();
+    }
+
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+    }
+
+    private void HandleLocaleChanged(Locale locale)
+    {
+        if (InGame) return;
+
+        UpdateTierView();
+
+        if (currentSelectedButton != null && panel != null && panel.activeSelf)
+            UpdateDetailPanel(currentSelectedButton.powerUp);
     }
 
     void InitializeButtonPool()
@@ -69,6 +92,14 @@ public class PowerUpManager : MonoBehaviour
         {
             Debug.LogWarning("PowerUpManager: ScrollView Content 안에 PowerUpButton이 하나도 없습니다!");
         }
+    }
+    void InitializeUpgradePanel()
+    {
+        nameText.text = "";
+        currentLevelText.text = "";
+        costText.text = "";
+        descriptionText.text = "";
+
     }
     
     public void OnClickLeftBtn()
@@ -96,7 +127,7 @@ public class PowerUpManager : MonoBehaviour
         PowerUpTier currentTier = powerUpTiers[currentTierIndex];
 
         if (tierTitleText != null)
-            tierTitleText.text = currentTier.tierName;
+            tierTitleText.text = currentTier.GetLocalizedTierName();
 
         int dataCount = currentTier.tierPowerUps.Count;
         
@@ -231,8 +262,8 @@ public class PowerUpManager : MonoBehaviour
     private void UpdateDetailPanel(PowerUpScriptableObject info)
     {
         panel.SetActive(true);
-        nameText.text = info.powerUpName;
-        descriptionText.text = info.description;
+        nameText.text = info.GetLocalizedName();
+        descriptionText.text = info.GetLocalizedDescription();
         currentLevelText.text = "+ " + info.CurrentLevel.ToString();
         PowerUpIcon.sprite = info.IconSprite;
 

@@ -1,13 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.AI;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class NavEnemy : Enemy
 {
     protected NavMeshAgent agent;
+    public override bool RequiresNavMesh => true;
 
     protected override void OnEnable()
     {
@@ -40,6 +37,16 @@ public abstract class NavEnemy : Enemy
         coolDownTimer -= Time.deltaTime;
 
         float distanceSqrToPlayer = (player.position - transform.position).sqrMagnitude;
+        HandleDistanceCheck(distanceSqrToPlayer);
+
+        if (agent == null ||
+            !agent.isActiveAndEnabled ||
+            !agent.isOnNavMesh)
+        {
+            RequestReposition(RepositionReason.OffNavMesh);
+            return;
+        }
+
         DetermineState(distanceSqrToPlayer);
     
          Vector3 delta = player.position - transform.position;
@@ -99,23 +106,28 @@ public abstract class NavEnemy : Enemy
             coolDownTimer = coolDown;
         }
     }
-    protected override void RepositionEnemy()
+    public override void ApplyReposition(Vector3 position)
     {
-        Vector2 randomPoint = Random.insideUnitCircle.normalized * respawnRadius;
-        Vector3 potentialPos = player.position + new Vector3(randomPoint.x, randomPoint.y, 0);
-
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(potentialPos, out hit, 3.0f, NavMesh.AllAreas))
+        if (agent == null ||
+            !agent.enabled ||
+            !agent.Warp(position))
         {
-            agent.Warp(hit.position);
-            transform.position = hit.position;
-            
-            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
-            {
-                agent.SetDestination(player.position);
-            }
+            FinishReposition(false);
+            return;
         }
+
+        transform.position = position;
+        agent.nextPosition = position;
+
+        if (player != null && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            agent.SetDestination(player.position);
+        }
+
+        FinishReposition(true);
     }
+
     public void OnNavMeshUpdated()
     {
         if (currentNormalState == EnemyState.Dead || stopMoving) return;
@@ -124,7 +136,7 @@ public abstract class NavEnemy : Enemy
         {
             if (!agent.isOnNavMesh)
             {
-                RepositionEnemy(); 
+                RequestReposition(RepositionReason.MapChanged);
             }
             else
             {

@@ -3,6 +3,8 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using UnityEngine.AddressableAssets;
+using Cinemachine;
+
 public class WaveSpawner : MonoBehaviour
 {
     public static WaveSpawner Instance;
@@ -36,10 +38,12 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private int maxSpawnAttempts = 10;
     // 스폰 시 확인할 반경 (적 크기에 맞춰 조절)
     [SerializeField] private float spawnCheckRadius = 0.5f;
-    [SerializeField] private float circleRadius = 60f;//일괄 스폰용
+    [SerializeField, Min(0f)] private float batPatternSpread = 3f;
     [SerializeField] private bool is2DGame = true;
+    [SerializeField] private CinemachineBrain cameraBrain;
     private bool isMassiveSpawning = false;
     private List<Enemy> activeEnemiesList = new List<Enemy>();
+    private EnemyPlacementManager placementManager;
 
     public void RegisterEnemy(Enemy enemy)
     {
@@ -79,7 +83,37 @@ public class WaveSpawner : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
+
+        EnsurePlacementManager();
+    }
+
+    private void EnsurePlacementManager()
+    {
+        if (placementManager == null)
+        {
+            placementManager =
+                EnemyPlacementManager.Instance;
+        }
+
+        if (placementManager == null)
+        {
+            placementManager =
+                GetComponent<EnemyPlacementManager>();
+        }
+
+        if (placementManager == null)
+        {
+            placementManager =
+                gameObject.AddComponent<EnemyPlacementManager>();
+        }
+
+        placementManager.Configure(
+            playerCamera,
+            wallLayerMask,
+            maxSpawnAttempts,
+            is2DGame);
     }
 
     void FixedUpdate()
@@ -88,6 +122,11 @@ public class WaveSpawner : MonoBehaviour
             //return;
         if(GameManager.Instance.Pause)
             return;
+
+        if (!IsCameraReady())
+        {
+            return;
+        }
 
         if (playerTransform == null)
         {
@@ -373,15 +412,15 @@ public class WaveSpawner : MonoBehaviour
     {
         if (WavesList[CurrentWave].Enemys.Count == 0) return false; // 스폰 실패
 
-        Vector3 spawnPosition;
-        //TryGet... 함수를 호출하고 실패 시 즉시 false 반환
-        if (!TryGetRandomSpawnPosition(out spawnPosition))
+        GameObject enemyToSpawn = GetRandomEnemy();
+        if(enemyToSpawn == null) return false; // 스폰할 적 없음 -> 스폰 실패
+
+        if (!TryGetRandomSpawnPosition(
+                enemyToSpawn,
+                out Vector3 spawnPosition))
         {
             return false; // 위치 찾기 실패 -> 스폰 실패
         }
-
-        GameObject enemyToSpawn = GetRandomEnemy();
-        if(enemyToSpawn == null) return false; // 스폰할 적 없음 -> 스폰 실패
 
         if (!WavesList[CurrentWave].DontUseObjectPooling)
         {
@@ -397,138 +436,173 @@ public class WaveSpawner : MonoBehaviour
     }
     public void SpawnBatPattern(int count)
     {
-        if (playerTransform == null) return;
+        int remainingCount =
+            Mathf.Max(0, count - SpawnedEnemys);
+        if (remainingCount == 0) return;
 
         GameObject enemyPrefab = GetRandomEnemy();
         if (enemyPrefab == null) return;
 
-        Vector3 center = playerTransform.position;
+        EnsurePlacementManager();
+        GetEnemyPlacementSettings(
+            enemyPrefab,
+            out float collisionRadius,
+            out bool requiresNavMesh);
 
-        float randomAngle = Random.Range(0f, 360f);
-        float angleRad = randomAngle * Mathf.Deg2Rad;
-        
-        float baseX = Mathf.Cos(angleRad) * circleRadius;
-        float baseY = Mathf.Sin(angleRad) * circleRadius;
-        
-        Vector3 groupCenterPos = center + new Vector3(baseX, baseY, 0);
-        for(int i = 0 ; i < count ; i++)
+        float spread = Mathf.Max(0f, batPatternSpread);
+        float groupRadius = collisionRadius + spread;
+
+        if (!placementManager.TryFindOutsideCameraPosition(
+                groupRadius,
+                false,
+                onlySideSpawn,
+                out Vector3 groupCenterPosition))
         {
-            Vector2 randomOffset = Random.insideUnitCircle * 3.0f;
-            Vector3 finalSpawnPos = groupCenterPos + new Vector3(randomOffset.x, randomOffset.y, 0);
+            return;
+        }
 
-            if (!WavesList[CurrentWave].DontUseObjectPooling)
+        List<Vector3> spawnPositions =
+            new List<Vector3>(remainingCount);
+
+        for (int i = 0; i < remainingCount; i++)
+        {
+            if (!placementManager
+                    .TryFindOutsideCameraPositionNear(
+                        groupCenterPosition,
+                        spread,
+                        collisionRadius,
+                        requiresNavMesh,
+                        out Vector3 spawnPosition))
             {
-                ObjectPoolingManager.Instance.spawnGameObject(enemyPrefab, finalSpawnPos, Quaternion.identity);
+                return;
             }
-            else
-            {
-                Instantiate(enemyPrefab, finalSpawnPos, Quaternion.identity);
-            }
+
+            spawnPositions.Add(spawnPosition);
+        }
+
+        foreach (Vector3 spawnPosition in spawnPositions)
+        {
+            SpawnPatternEnemy(enemyPrefab, spawnPosition);
             SpawnedEnemys++;
         }
     }
     public void SpawnCirclePattern(int count)
     {
-        if (playerTransform == null) return;
-
+        int remainingCount =
+            Mathf.Max(0, count - SpawnedEnemys);
+        if (remainingCount == 0) return;
 
         GameObject enemyPrefab = GetRandomEnemy();
         if (enemyPrefab == null) return;
 
-        Vector3 center = playerTransform.position;
-        float angleStep = 360f / count; // 몬스터 간의 각도 간격
+        EnsurePlacementManager();
+        GetEnemyPlacementSettings(
+            enemyPrefab,
+            out float collisionRadius,
+            out bool requiresNavMesh);
 
-        for (int i = 0; i < count; i++)
+        float angleStep = 360f / count;
+        int startIndex = SpawnedEnemys;
+
+        List<Vector3> spawnPositions =
+            new List<Vector3>(remainingCount);
+
+        for (int i = 0; i < remainingCount; i++)
         {
-            // 원형 좌표 계산 (삼각함수)
-            float angle = i * angleStep * Mathf.Deg2Rad; // 라디안 변환
-            float x = Mathf.Cos(angle) * circleRadius;
-            float y = Mathf.Sin(angle) * circleRadius;
-            
-            Vector3 spawnPos = center + new Vector3(x, y, 0);
+            float angleDegrees =
+                (startIndex + i) * angleStep;
 
-            // 유효한 위치인지 확인 (NavMesh 위인지, 벽 안인지)
-            UnityEngine.AI.NavMeshHit hit;
-            if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out hit, 2.0f, UnityEngine.AI.NavMesh.AllAreas))
+            if (!placementManager
+                    .TryFindOutsideCameraPositionAtAngle(
+                        angleDegrees,
+                        collisionRadius,
+                        requiresNavMesh,
+                        out Vector3 spawnPosition))
             {
-                spawnPos = hit.position; // NavMesh 위로 보정
-            }
-            else
-            {
-                continue; // 길을 못 찾으면 이번 몬스터는 스킵 (벽 속에 생성 방지)
-            }
-            // 몬스터 소환 (풀링 사용)
-            // 전용 몬스터 프리팹(enemyPrefab)을 그대로 소환만 하면 됩니다.
-            if (!WavesList[CurrentWave].DontUseObjectPooling)
-            {
-                ObjectPoolingManager.Instance.spawnGameObject(enemyPrefab, spawnPos, Quaternion.identity);
-            }
-            else
-            {
-                Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+                return;
             }
 
+            spawnPositions.Add(spawnPosition);
+        }
 
+        foreach (Vector3 spawnPosition in spawnPositions)
+        {
+            SpawnPatternEnemy(enemyPrefab, spawnPosition);
             SpawnedEnemys++;
         }
-        
-        Debug.Log($"포위망 생성 완료: {count}마리");
     }
 
-    bool TryGetRandomSpawnPosition(out Vector3 spawnPosition)
+    private void SpawnPatternEnemy(
+        GameObject enemyPrefab,
+        Vector3 spawnPosition)
     {
-        if (WavesList[CurrentWave].RandomPostions)
+        if (!WavesList[CurrentWave].DontUseObjectPooling)
         {
-            spawnPosition = Vector3.zero;
-
-            for (int i = 0; i < maxSpawnAttempts; i++)
-            {
-                float randomX, randomY;
-                int side = onlySideSpawn ? Random.Range(2, 4) : Random.Range(0, 4);
-
-                switch (side)
-                {
-                    case 0: randomX = Random.Range(0f, 1f); randomY = 1.2f; break;
-                    case 1: randomX = Random.Range(0f, 1f); randomY = -0.2f; break;
-                    case 2: randomX = -0.2f; randomY = Random.Range(0f, 1f); break;
-                    case 3: randomX = 1.2f; randomY = Random.Range(0f, 1f); break;
-                    default: randomX = 0f; randomY = 0f; break;
-                }
-
-                if (playerCamera == null) return false;
-
-                spawnPosition = playerCamera.ViewportToWorldPoint(new Vector3(randomX, randomY, 0f));
-                spawnPosition.z = 0f;
-
-                bool hitWall = false;
-                if (is2DGame)
-                {
-                    hitWall = Physics2D.OverlapCircle(spawnPosition, spawnCheckRadius, wallLayerMask) != null;
-                }
-                else
-                {
-                    hitWall = Physics.CheckSphere(spawnPosition, spawnCheckRadius, wallLayerMask);
-                }
-
-                if (!hitWall)
-                {
-                    return true;
-                }
-            }
-            return false;
+            ObjectPoolingManager.Instance.spawnGameObject(
+                enemyPrefab,
+                spawnPosition,
+                Quaternion.identity);
         }
         else
         {
-            // `spawningPotions`를 사용하는 경우는 항상 성공으로 간주
-            //int x = Random.Range(0, spawningPotions.Count);
-            if (spawningPotions != null && spawningPotions.Count > 0)
-            {
-                int x = Random.Range(0, spawningPotions.Count);
-                spawnPosition = spawningPotions[x].position;
-                return true;
-            }
-            spawnPosition = Vector3.zero;
-            return false;
+            Instantiate(
+                enemyPrefab,
+                spawnPosition,
+                Quaternion.identity);
+        }
+    }
+
+    bool TryGetRandomSpawnPosition(
+        GameObject enemyPrefab,
+        out Vector3 spawnPosition)
+    {
+        if (WavesList[CurrentWave].RandomPostions)
+        {
+            EnsurePlacementManager();
+
+            GetEnemyPlacementSettings(
+                enemyPrefab,
+                out float collisionRadius,
+                out bool requiresNavMesh);
+
+            return placementManager
+                .TryFindOutsideCameraPosition(
+                    collisionRadius,
+                    requiresNavMesh,
+                    onlySideSpawn,
+                    out spawnPosition);
+        }
+
+        if (spawningPotions != null &&
+            spawningPotions.Count > 0)
+        {
+            int index =
+                Random.Range(0, spawningPotions.Count);
+            spawnPosition =
+                spawningPotions[index].position;
+            return true;
+        }
+
+        spawnPosition = Vector3.zero;
+        return false;
+    }
+
+    private void GetEnemyPlacementSettings(
+        GameObject enemyPrefab,
+        out float collisionRadius,
+        out bool requiresNavMesh)
+    {
+        collisionRadius = spawnCheckRadius;
+        requiresNavMesh = false;
+
+        if (enemyPrefab != null &&
+            enemyPrefab.TryGetComponent(
+                out Enemy enemyTemplate))
+        {
+            collisionRadius =
+                enemyTemplate.CollisionRadius;
+            requiresNavMesh =
+                enemyTemplate.RequiresNavMesh;
         }
     }
     
@@ -585,6 +659,11 @@ public class WaveSpawner : MonoBehaviour
             if ((e.transform.position - pos).sqrMagnitude < sqr)
                 result.Add(e);
         }
+    }
+    private bool IsCameraReady()
+    {
+        return cameraBrain == null ||
+            !cameraBrain.IsBlending;
     }
 }
 

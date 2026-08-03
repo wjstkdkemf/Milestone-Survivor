@@ -15,6 +15,26 @@ MonoBehaviour:
   questID: Main_Test
   questName: "\uBA54\uC778 \uD018\uC2A4\uD2B8"
   description: "\uD14C\uC2A4\uD2B8 \uC911 1"
+  localizedQuestName:
+    m_TableReference:
+      m_TableCollectionName: GUID:65adb05e004389142a6ba36ec8ae103d
+    m_TableEntryReference:
+      m_KeyId: 136178704384
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:65adb05e004389142a6ba36ec8ae103d
+    m_TableEntryReference:
+      m_KeyId: 1317756084224
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  questNameLocalizationKey: 
+  descriptionLocalizationKey: 
   regionID: Village
   isMainQuest: 1
   conditions:
@@ -33,3 +53,6 @@ MonoBehaviour:
     amount: 1
     lootTable: {fileID: 8172630282274020310, guid: baa2abad777726e4a90efd52cd35920f, type: 3}
   unlockProgressID: 
+  references:
+    version: 2
+    RefIds: []
