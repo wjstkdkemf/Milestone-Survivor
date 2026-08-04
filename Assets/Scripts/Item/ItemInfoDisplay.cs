@@ -3,10 +3,10 @@ using UnityEngine.UI;
 using InventorySystem;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
+using UnityEngine.Localization.Settings;
 
 
 public class ItemInfoDisplay : MonoBehaviour
@@ -20,6 +20,7 @@ public class ItemInfoDisplay : MonoBehaviour
 
     public string targetSlotType = "Inventory";
     private LocalizedString localizedDefaultName;
+    private InventoryItem currentItem;
     void Awake()
     {
         UpdateWithDefaultValues();
@@ -32,11 +33,11 @@ public class ItemInfoDisplay : MonoBehaviour
         };
         infoTextEvent[1].StringReference.Arguments = new object[] 
         {
-            "일반",         // -> {0}
+            "---",         // -> {0}
         };
         infoTextEvent[2].StringReference.Arguments = new object[] 
         {
-            "설명이 없습니다.",         // -> {0} 
+            "---",         // -> {0} 
         };
 
 
@@ -53,20 +54,29 @@ public class ItemInfoDisplay : MonoBehaviour
     void OnEnable()
     {
         InventoryEventSystem.OnSlotClicked += HandleSlotClick;
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
     }
 
     void OnDisable()
     {
         InventoryEventSystem.OnSlotClicked -= HandleSlotClick;
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
     }
 
-    private async void HandleSlotClick(InventoryItem item, string slotType)
+    private void HandleLocaleChanged(UnityEngine.Localization.Locale locale)
+    {
+        if (currentItem != null && !currentItem.GetIsNull() && currentItem.GetAmount() > 0)
+            UpdateItemInfo(currentItem);
+    }
+
+    private void HandleSlotClick(InventoryItem item, string slotType)
     {
         //if (slotType != targetSlotType)
             //return;
         
         if (item == null || item.GetIsNull() || item.GetAmount() <= 0)
         {
+            currentItem = null;
             itemImage.sprite = null;
             UpdateWithDefaultValues();           
             if (ItemEnchanter.Instance != null)
@@ -76,27 +86,22 @@ public class ItemInfoDisplay : MonoBehaviour
             return;
         }
 
+        currentItem = item;
+        UpdateItemInfo(item);
+
+        if (ItemEnchanter.Instance != null)
+        {
+            ItemEnchanter.Instance.SetItem(item);
+        }
+    }
+
+    private void UpdateItemInfo(InventoryItem item)
+    {
         itemImage.sprite = item.GetItemImage();
-
-        LocalizedString localizedItemNameRef = new LocalizedString();
-        localizedItemNameRef.TableReference = "Item_Name_Table";      
-        localizedItemNameRef.TableEntryReference = item.GetItemType(); // "Item.Name.HealthPotion"
-
-        string translatedItemName = "Loading...";      
-        try
-        {
-            var loadHandle = localizedItemNameRef.GetLocalizedStringAsync();
-            translatedItemName = await loadHandle.Task;      
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"이름 번역 실패 (Key: {item.GetItemType()}): {e.Message}");
-            translatedItemName = item.GetItemType();
-        }
 
         infoTextEvent[0].StringReference.Arguments = new object[] 
         {
-            translatedItemName,
+            item.GetLocalizedName(),
         };
         infoTextEvent[1].StringReference.Arguments = new object[] 
         {
@@ -104,17 +109,11 @@ public class ItemInfoDisplay : MonoBehaviour
         };
         infoTextEvent[2].StringReference.Arguments = new object[] 
         {
-            item.GetDescription(),
+            item.GetLocalizedDescription(),
         };
-
-        if (ItemEnchanter.Instance != null)
-        {
-            ItemEnchanter.Instance.SetItem(item);
-        }
 
         Refresh();
     }
-
 
     /*private string BuildDescriptionText(InventoryItem item)
     {

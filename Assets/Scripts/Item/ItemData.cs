@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
 
 // 아이템 유형을 쉽게 구분하기 위한 열거형(enum)
 public enum ItemType
@@ -27,6 +28,8 @@ public class ItemData : ScriptableObject
     public string itemName; // 아이템 이름
     [TextArea]
     public string description; // 아이템 설명
+    [SerializeField] private LocalizedString localizedItemName;
+    [SerializeField] private LocalizedString localizedDescription;
     public Sprite icon; // 아이콘 이미지
 
     public ItemType itemType; // 아이템 유형
@@ -43,4 +46,27 @@ public class ItemData : ScriptableObject
     public GameObject RelatedGameObject; // 관련된 게임 오브젝트
     public InventorySystem.InventoryItemEvent itemAction; // 아이템 사용 시 발생하는 이벤트
     public int price; // 아이템 가격
+
+    public string GetLocalizedName()
+    {
+        return GetLocalizedString(localizedItemName, itemName);
+    }
+
+    public string GetLocalizedDescription()
+    {
+        return GetLocalizedString(localizedDescription, description);
+    }
+
+    private static string GetLocalizedString(LocalizedString localizedString, string fallback)
+    {
+        if (localizedString != null && !localizedString.IsEmpty)
+        {
+            string localized = localizedString.GetLocalizedString();
+
+            if (!string.IsNullOrEmpty(localized))
+                return localized;
+        }
+
+        return fallback;
+    }
 }

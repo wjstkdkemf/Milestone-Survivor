@@ -17,6 +17,12 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: e64c69bd9c2e8cf41bf3eac3b381500b
   m_SerializeEntries:
+  - m_GUID: 05d363d318d84263b05ebc944f2051a5
+    m_Address: Character_Table_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 492c8fc882b686f4791feb21760ba6e5
     m_Address: Loot_Table_en
     m_ReadOnly: 1
@@ -49,6 +55,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b7c01f5b3e1f4c2bb11fdd6d55170b27
     m_Address: PowerUp_Table_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c21c26f687e944b48bb1181db81f3190
+    m_Address: Item_Table_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

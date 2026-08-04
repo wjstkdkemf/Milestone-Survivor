@@ -25,15 +25,19 @@ public class PowerUpManager : MonoBehaviour
     private List<PowerUpButton> buttonPool = new List<PowerUpButton>();
 
     [Header("Details Panel UI")]
-    public GameObject panel;
-    public TMP_Text MyGoldText;
-    public TMP_Text nameText;
-    public TMP_Text currentLevelText;
-    public TMP_Text costText;
-    public TMP_Text descriptionText;
-    public GameObject BuyButtons;
-    public Image PowerUpIcon;
-    public PlayerStats playerStats;
+    [SerializeField]private GameObject panel;
+    [SerializeField]private TMP_Text MyGoldText;
+    [SerializeField]private TMP_Text nameText;
+    [SerializeField]private TMP_Text currentLevelText;
+    [SerializeField]private TMP_Text costText;
+    [SerializeField]private TMP_Text descriptionText;
+    [SerializeField]private TMP_Text Statname;
+    [SerializeField]private TMP_Text beforeStat;
+    [SerializeField]private TMP_Text afterStat;
+    [SerializeField]private GameObject BuyButtons;
+    [SerializeField]private Image PowerUpIcon;
+    [SerializeField]private GameObject statArrow;
+    [SerializeField]private PlayerStats playerStats;
 
     private PowerUpButton currentSelectedButton;
     public bool InGame;
@@ -95,11 +99,14 @@ public class PowerUpManager : MonoBehaviour
     }
     void InitializeUpgradePanel()
     {
-        nameText.text = "";
-        currentLevelText.text = "";
-        costText.text = "";
-        descriptionText.text = "";
-
+        nameText.text = "---";
+        currentLevelText.text = "--";
+        costText.text = "---";
+        descriptionText.text = "---";
+        Statname.text = "";
+        beforeStat.text = "";
+        afterStat.text = "";
+        statArrow.SetActive(false);
     }
     
     public void OnClickLeftBtn()
@@ -272,11 +279,18 @@ public class PowerUpManager : MonoBehaviour
         if (!isMaxLevel)
         {
             costText.text = info.costPerLevel[info.CurrentLevel].ToString();
+            //Statname.text = info.powerUpType.ToString();
+            beforeStat.text = info.upgradeValues[info.CurrentLevel].ToString();
+            afterStat.text = info.upgradeValues[info.CurrentLevel + 1].ToString();
+            statArrow.SetActive(true);
             BuyButtons.SetActive(true);
         }
         else
         {
             costText.text = "MAX";
+            //Statname.text = info.powerUpType.ToString();
+            beforeStat.text = info.upgradeValues[info.CurrentLevel].ToString();
+            statArrow.SetActive(false);
             BuyButtons.SetActive(false);
         }
     }

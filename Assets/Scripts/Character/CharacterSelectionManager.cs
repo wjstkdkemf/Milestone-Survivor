@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 public class CharacterSelectionManager : MonoBehaviour
 {
@@ -22,6 +24,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
     [SerializeField] private List<CharacterScriptableObject> characterList; // List of CharacterScriptableObjects
     private string saveFilePath;
+    private CharacterScriptableObject currentCharacterInfo;
 
     private void Awake()
     {
@@ -55,32 +58,97 @@ public class CharacterSelectionManager : MonoBehaviour
         Invoke("delayedStart", .5f);
         
     }
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+    }
+
+    private void HandleLocaleChanged(UnityEngine.Localization.Locale locale)
+    {
+        if (currentCharacterInfo != null && characterSelectionButton != null)
+            SetInfo(currentCharacterInfo, characterSelectionButton);
+    }
+
     void delayedStart()
     {
         characterButtons[0].Selected();
     }
     public void SetInfo(CharacterScriptableObject info,CharacterSelectionButton button)
     {
+        currentCharacterInfo = info;
         characterSelectionButton = button;
         panle.SetActive(true);
-        nameText.text = info.CharacterName;
-        //descriptionText.text = info.description;
+        nameText.text = info.GetLocalizedName();
+        if(descriptionText != null)
+            descriptionText.text = info.GetLocalizedDescription();
         //costText.text = info.costPerLevel.ToString();
         icon.sprite = info.IconSprite;
 
-        string playerStats = $"<b>Stats:</b>\n" +
-               $"Base HP: {info.BaseHP}\n" +
-               $"Damage: {info.Damage}\n" +
-               $"Movement Speed: {info.MovementSpeed}\n" +
-               $"Armor: {info.Armor}\n" +
-               $"Health Regeneration: {info.HealthRegeneration}\n" +
-               $"Luck Boost: {info.LuckBoost}%\n" +
-               $"Cooldown Reduction: {info.CooldownReduction}%\n" +
-               $"Double Damage Chance: {info.DobleDamageChance}%\n";
-
-        playerStatsText.text = playerStats;
+        playerStatsText.text = BuildBaseStatsText(info);
+        if(playerLevelUpStatsText != null)
+            playerLevelUpStatsText.text = BuildSpecialStatsText(info);
         //BuyButtons.SetActive(!info.purchased);
         ConfirmButton.SetActive(info.purchased);
+    }
+
+    private string BuildBaseStatsText(CharacterScriptableObject info)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine($"<b>{CharacterLocalization.Get("character.section.basic_stats", "Basic Stats")}</b>");
+        AppendStat(builder, nameof(CharacterScriptableObject.BaseHP), info.BaseHP);
+        AppendStat(builder, nameof(CharacterScriptableObject.Damage), info.Damage);
+        AppendStat(builder, nameof(CharacterScriptableObject.MovementSpeed), info.MovementSpeed);
+        AppendStat(builder, nameof(CharacterScriptableObject.Armor), info.Armor);
+        AppendStat(builder, nameof(CharacterScriptableObject.HealthRegeneration), info.HealthRegeneration);
+        AppendPercentStat(builder, nameof(CharacterScriptableObject.LuckBoost), info.LuckBoost);
+        AppendPercentStat(builder, nameof(CharacterScriptableObject.CooldownReduction), info.CooldownReduction);
+        AppendPercentStat(builder, nameof(CharacterScriptableObject.DobleDamageChance), info.DobleDamageChance);
+        return builder.ToString();
+    }
+
+    private string BuildSpecialStatsText(CharacterScriptableObject info)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine($"<b>{CharacterLocalization.Get("character.section.special_stats", "Special Stats")}</b>");
+
+        if (info.statModifiers == null || info.statModifiers.Count == 0)
+        {
+            builder.Append(CharacterLocalization.Get("character.stat.none", "None"));
+            return builder.ToString();
+        }
+
+        foreach (StatModifier modifier in info.statModifiers)
+        {
+            string statName = CharacterLocalization.GetStatModifierLabel(modifier.statName);
+            builder.AppendLine($"{statName}: {FormatSignedValue(modifier.value)}");
+        }
+
+        return builder.ToString();
+    }
+
+    private static void AppendStat(StringBuilder builder, string statKey, float value)
+    {
+        builder.AppendLine($"{CharacterLocalization.GetStatLabel(statKey)}: {FormatValue(value)}");
+    }
+
+    private static void AppendPercentStat(StringBuilder builder, string statKey, float value)
+    {
+        builder.AppendLine($"{CharacterLocalization.GetStatLabel(statKey)}: {FormatValue(value)}%");
+    }
+
+    private static string FormatValue(float value)
+    {
+        return value.ToString("0.##");
+    }
+
+    private static string FormatSignedValue(float value)
+    {
+        return value.ToString("+0.##;-0.##;0");
     }
     public void DeselectOtherButtons()
     {

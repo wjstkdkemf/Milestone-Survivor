@@ -33,8 +33,10 @@ namespace InventorySystem
         private string previousInventory;
         private int enhancementLevel;
         private List<StatModifier> statModifiers;
+        private ItemData sourceData;
         public InventoryItem(ItemData data)
         {
+            this.sourceData = data;
             this.test = data.itemType;
             this.description = data.description;
             this.amount = 1;
@@ -103,6 +105,7 @@ namespace InventorySystem
             this.test = other.test;
             this.statModifiers = other.statModifiers != null ? new List<StatModifier>(other.statModifiers) : new List<StatModifier>();
             this.changeable = other.changeable; // Added this line
+            this.sourceData = other.sourceData;
         }
 
         public InventoryItem(bool isNull)
@@ -125,6 +128,14 @@ namespace InventorySystem
         public string GetDescription()
         {
             return description;
+        }
+        public string GetLocalizedName()
+        {
+            return sourceData != null ? sourceData.GetLocalizedName() : itemName;
+        }
+        public string GetLocalizedDescription()
+        {
+            return sourceData != null ? sourceData.GetLocalizedDescription() : description;
         }
         public string GetItemType()
         {
