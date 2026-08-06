@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 
 public class TeleportUI : MonoBehaviour
@@ -12,6 +11,8 @@ public class TeleportUI : MonoBehaviour
 
     public Transform smallButtonContainer;
     public Transform bigButtonContainer;
+    public TeleportMapMaker teleportMapMaker;
+    public TeleportMapViewport teleportMapViewport;
 
     public GameObject player;
     public bool IsHome;
@@ -36,8 +37,7 @@ public class TeleportUI : MonoBehaviour
         foreach (Transform child in bigButtonContainer) Destroy(child.gameObject);
 
         // 데이터베이스에서 모든 '그룹'을 가져옴
-        List<TeleportZoneData> zoneGroups = TeleportManager.Instance.database.allZoneGroups;
-
+        List<TeleportZoneData> zoneGroups = TeleportManager.Instance.database.allZoneGroups; 
 
         foreach (TeleportZoneData group in zoneGroups)
         {
@@ -45,10 +45,12 @@ public class TeleportUI : MonoBehaviour
             GameObject buttonObj = Instantiate(teleportBigButtonPrefab, bigButtonContainer);
             buttonObj.name = group.zoneName;
             buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = group.zoneName; // 혹은 Text
+            if(group.zoneSpirte != null)
+                buttonObj.GetComponentInChildren<Image>().sprite = group.zoneSpirte;
 
             // (중요) 버튼 클릭 시 'PopulatePointList' 함수를 호출하도록 연결
             // 루프 안에서 리스너를 추가할 땐 변수를 복사해야 함
-            TeleportZoneData currentGroup = group; 
+            TeleportZoneData currentGroup = group;
             buttonObj.GetComponent<Button>().onClick.AddListener(() => 
             {
                 CreateTeleportButtons(currentGroup , buttonObj.GetComponent<Button>());
@@ -72,10 +74,22 @@ public class TeleportUI : MonoBehaviour
 
         // 기존 버튼 삭제
         ClearPointList();
+        SelectsmallButton = null;
+
+        if (teleportMapMaker != null)
+        {
+            teleportMapMaker.DrawMap(selectedGroup, OnTeleportButtonClick);
+        }
+
+        if (teleportMapViewport != null)
+        {
+            teleportMapViewport.ResetView();
+        }
+
         //SelectGroup = selectedGroup.zoneName;
 
-        // 선택된 그룹에 속한 '포인트 데이터' 목록을 가져옴
-        foreach (TeleportData pointData in selectedGroup.pointsInZone)
+        // 선택된 그룹에 속한 '포인트 데이터' 목록을 가져옴 기존 기능
+        /*foreach (TeleportData pointData in selectedGroup.pointsInZone)
         {
             GameObject buttonObj = Instantiate(teleportSmallButtonPrefab, smallButtonContainer);
             buttonObj.name = pointData.pointID;
@@ -97,6 +111,7 @@ public class TeleportUI : MonoBehaviour
                 });
             }
         }
+        */
     }
     private void ClearPointList()
     {
@@ -118,15 +133,18 @@ public class TeleportUI : MonoBehaviour
         }
         if (IsHome)
         {
-            TeleportManager.Instance.startMapName = teleportPoint.pointID;
+            TeleportManager.Instance.startMapName = teleportPoint.GetTargetMapID();
             TeleportManager.Instance.startPointName = teleportPoint.targetSpawnPointID;
+
+            if (teleportMapMaker != null)
+                teleportMapMaker.SelectNode(teleportPoint);
         }
         else if (player != null)
         {
             Teleporter teleporter = player.GetComponent<Teleporter>();
             if (teleporter != null)
             {
-                teleporter.TeleportTo(teleportPoint.pointID, teleportPoint.targetSpawnPointID);
+                teleporter.TeleportTo(teleportPoint.GetTargetMapID(), teleportPoint.targetSpawnPointID);
             }
             gameObject.SetActive(false); // Hide UI after teleporting
         }

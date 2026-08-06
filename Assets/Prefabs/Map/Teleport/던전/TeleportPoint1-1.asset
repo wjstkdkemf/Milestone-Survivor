@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d223033e473443548a2e82d0965150b4, type: 3}
   m_Name: TeleportPoint1-1
   m_EditorClassIdentifier: 
+  nodeID: "\uB358\uC804_1"
   pointID: "\uB358\uC804 1-1"
   displayName: "1\uCE35 \uC785\uAD6C"
   mapIcon: {fileID: -6488581928283971615, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   targetSpawnPointID: Dun_TeleportPoint1-1
   isUnlocked: 1
+  mapPosition: {x: 0, y: 0}
+  mapLabel: F1
+  connectedPoints:
+  - {fileID: 11400000, guid: b2e85dad61ed89c4c9407734ee675e48, type: 2}
+  nodeType: 0

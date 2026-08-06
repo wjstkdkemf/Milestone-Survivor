@@ -5,6 +5,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewTeleportData", menuName = "Teleport/Teleport Point Data")]
 public class TeleportData : ScriptableObject
 {
+    [Header("Map Node ID")]
+    public string nodeID;
+
     [Header("고유 ID")]
     public string pointID; // 예: "Forest_Start", "Cave_BossRoom"
 
@@ -18,4 +21,38 @@ public class TeleportData : ScriptableObject
 
     [Header("게임 진행 정보")]
     public bool isUnlocked; // 플레이어가 이 포인트를 활성화했는지
+
+    [Header("Map UI")]
+    public Vector2 mapPosition;
+    public string mapLabel;
+    public List<TeleportData> connectedPoints;
+    public TeleportNodeType nodeType;
+
+    public enum TeleportNodeType
+    {
+        Normal,
+        Entrance,
+        Center,
+        Reward,
+        Boss
+    }
+
+    public string GetNodeID()
+    {
+        if (!string.IsNullOrEmpty(nodeID))
+            return nodeID;
+
+        if (!string.IsNullOrEmpty(targetSpawnPointID))
+            return targetSpawnPointID;
+
+        if (!string.IsNullOrEmpty(displayName))
+            return displayName;
+
+        return name;
+    }
+
+    public string GetTargetMapID()
+    {
+        return pointID;
+    }
 }
