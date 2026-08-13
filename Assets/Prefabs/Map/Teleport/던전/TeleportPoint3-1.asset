@@ -14,9 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeID: "\uB358\uC804_3_1"
   pointID: "\uB358\uC804 3-1"
-  displayName: "3\uCE35 \uC785\uAD6C"
-  mapIcon: {fileID: -6488581928283971615, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   targetSpawnPointID: TeleportPoint3-1
+  displayName: "3\uCE35 \uC785\uAD6C"
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:f4524550c71f3dc4393ad090fae62dd9
+    m_TableEntryReference:
+      m_KeyId: 366731206656
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedMapLabel:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  mapIcon: {fileID: -6488581928283971615, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   isUnlocked: 1
   mapPosition: {x: 0, y: 200}
   mapLabel: F3-1
@@ -24,3 +42,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c5dacc50b4351724083a5a44cc69178b, type: 2}
   - {fileID: 11400000, guid: 79e9a53151740a440b138c8444018979, type: 2}
   nodeType: 0
+  previewImage: {fileID: 21300000, guid: 273e3255062716d4aa4c26b116c35d95, type: 3}
+  TeleportDes:
+    m_TableReference:
+      m_TableCollectionName: GUID:f4524550c71f3dc4393ad090fae62dd9
+    m_TableEntryReference:
+      m_KeyId: 364940238848
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []

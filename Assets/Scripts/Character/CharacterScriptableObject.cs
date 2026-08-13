@@ -12,8 +12,7 @@ public class CharacterScriptableObject : ScriptableObject
     public RuntimeAnimatorController animatorController; // [추천] 배열 대신 여기에 직접 넣으세요!
     public GameObject CharacterPrefab; // 모델링을 통째로 바꾼다면
     [Header("Info")]
-    public string CharacterName;
-    public string description;
+    public string CharacterName;//세이브 저장 분류용
     [SerializeField] private LocalizedString localizedCharacterName;
     [SerializeField] private LocalizedString localizedDescription;
     public int Id;
@@ -31,7 +30,7 @@ public class CharacterScriptableObject : ScriptableObject
     public float LuckBoost;
     public float CooldownReduction;
     public float DobleDamageChance;
-    public List<StatModifier> statModifiers;
+    public List<StatModifier> statModifiers;// 레벨업 보정치
 
     public int costPerLevel; // Base cost per level
     public bool purchased;
@@ -45,15 +44,15 @@ public class CharacterScriptableObject : ScriptableObject
 
     public string GetLocalizedName()
     {
-        return GetLocalizedString(localizedCharacterName, CharacterName);
+        return GetLocalizedString(localizedCharacterName);
     }
 
     public string GetLocalizedDescription()
     {
-        return GetLocalizedString(localizedDescription, description);
+        return GetLocalizedString(localizedDescription);
     }
 
-    private static string GetLocalizedString(LocalizedString localizedString, string fallback)
+    private static string GetLocalizedString(LocalizedString localizedString)
     {
         if (localizedString != null && !localizedString.IsEmpty)
         {
@@ -63,7 +62,7 @@ public class CharacterScriptableObject : ScriptableObject
                 return localized;
         }
 
-        return fallback;
+        return "";
     }
 }
 
@@ -104,6 +103,14 @@ public static class CharacterLocalization
                 return Get("character.stat.cooldown_reduction", "Cooldown Reduction");
             case nameof(CharacterScriptableObject.DobleDamageChance):
                 return Get("character.stat.double_damage_chance", "Double Damage Chance");
+            case "MaxHealth":
+                return Get("character.stat.base_hp", "Base HP");
+            case "ProjectileSpeed":
+                return Get("character.stat.projectile_speed", "Projectile Speed");
+            case "KnockBack":
+                return Get("character.stat.knockback", "Knockback");
+            case "XPBoost":
+                return Get("character.stat.growth", "Growth");
             default:
                 return GetStatModifierLabel(statName);
         }
@@ -130,6 +137,14 @@ public static class CharacterLocalization
             case "DobleDamageChance":
             case "DoubleDamageChance":
                 return Get("character.stat.double_damage_chance", "Double Damage Chance");
+            case "MaxHealth":
+                return Get("character.stat.base_hp", "Base HP");
+            case "ProjectileSpeed":
+                return Get("character.stat.projectile_speed", "Projectile Speed");
+            case "KnockBack":
+                return Get("character.stat.knockback", "Knockback");
+            case "XPBoost":
+                return Get("character.stat.growth", "Growth");
             default:
                 return statName;
         }

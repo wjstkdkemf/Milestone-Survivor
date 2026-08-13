@@ -14,12 +14,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeID: "\uB358\uC804_2"
   pointID: "\uB358\uC804 2-1"
-  displayName: "2\uCE35 \uC785\uAD6C"
-  mapIcon: {fileID: -6488581928283971615, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   targetSpawnPointID: TeleportPoint2-1
+  displayName: "2\uCE35 \uC785\uAD6C"
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:f4524550c71f3dc4393ad090fae62dd9
+    m_TableEntryReference:
+      m_KeyId: 286523531264
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedMapLabel:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  mapIcon: {fileID: -6488581928283971615, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   isUnlocked: 1
   mapPosition: {x: 0, y: 100}
   mapLabel: F2
   connectedPoints:
   - {fileID: 11400000, guid: 1b0a297d3b663044cab8ce93c08fbb71, type: 2}
   nodeType: 0
+  previewImage: {fileID: 21300000, guid: 2cfc5728f08c61943b62d706910b3c16, type: 3}
+  TeleportDes:
+    m_TableReference:
+      m_TableCollectionName: GUID:f4524550c71f3dc4393ad090fae62dd9
+    m_TableEntryReference:
+      m_KeyId: 283239391232
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []

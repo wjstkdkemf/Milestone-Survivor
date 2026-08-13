@@ -40,6 +40,8 @@ public class TeleportMapMaker : MonoBehaviour
     private TeleportData selectedPoint;
     private Action<TeleportData, Button> onNodeSelected;
 
+    [SerializeField] private TeleportPreviewMaker teleportPreviewMaker;
+
     private void Awake()
     {
         EnsureContainers();
@@ -49,6 +51,7 @@ public class TeleportMapMaker : MonoBehaviour
     {
         EnsureContainers();
         ClearMap();
+        ClearPreview();
         onNodeSelected = selectCallback;
 
         if (zoneData == null)
@@ -229,7 +232,7 @@ public class TeleportMapMaker : MonoBehaviour
 
         TextMeshProUGUI label = nodeObject.GetComponentInChildren<TextMeshProUGUI>();
         if (label != null)
-            label.text = string.IsNullOrEmpty(point.mapLabel) ? point.displayName : point.mapLabel;
+            label.text = point.GetMapLabel();
 
         Button button = nodeObject.GetComponent<Button>();
         if (button == null)
@@ -245,11 +248,24 @@ public class TeleportMapMaker : MonoBehaviour
             button.onClick.AddListener(() =>
             {
                 onNodeSelected?.Invoke(currentPoint, currentButton);
+                ShowPreview(currentPoint);
                 SelectNode(currentPoint);
             });
         }
 
         return button;
+    }
+
+    private void ShowPreview(TeleportData point)
+    {
+        if (teleportPreviewMaker != null)
+            teleportPreviewMaker.Draw(point);
+    }
+
+    private void ClearPreview()
+    {
+        if (teleportPreviewMaker != null)
+            teleportPreviewMaker.Clear();
     }
 
     private GameObject CreateFallbackNode(RectTransform parent)

@@ -1,8 +1,8 @@
-
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.UI;
 
 public class TeleportUI : MonoBehaviour
 {
@@ -16,121 +16,117 @@ public class TeleportUI : MonoBehaviour
 
     public GameObject player;
     public bool IsHome;
-    private string SelectGroup;
-    private List<TeleportPoint> teleportPoints;
-    [Header("버튼 색상")]
-    public Color normalColor = Color.white;    // 기본 상태 색상
-    public Color selectedColor = Color.grey; // "눌려있는" 상태의 색상
+
+    [Header("Button Colors")]
+    public Color normalColor = Color.white;
+    public Color selectedColor = Color.grey;
+
     private Button SelectbigButton;
     private Button SelectsmallButton;
+    private TeleportZoneData currentSelectedGroup;
 
-    void Start()
+    private void Start()
     {
-        teleportPoints = TeleportManager.Instance.GetTeleportPoints();
         CreateBigTeleportButton();
-        //CreateTeleportButtons();
-        //gameObject.SetActive(false); // Initially hidden
     }
-    void CreateBigTeleportButton()
-    {
-        // 기존 버튼 삭제
-        foreach (Transform child in bigButtonContainer) Destroy(child.gameObject);
 
-        // 데이터베이스에서 모든 '그룹'을 가져옴
-        List<TeleportZoneData> zoneGroups = TeleportManager.Instance.database.allZoneGroups; 
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged += HandleLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+    }
+
+    private void HandleLocaleChanged(Locale locale)
+    {
+        CreateBigTeleportButton();
+
+        if (currentSelectedGroup != null)
+            CreateTeleportButtons(currentSelectedGroup, FindBigButton(currentSelectedGroup));
+    }
+
+    private void CreateBigTeleportButton()
+    {
+        if (bigButtonContainer == null ||
+            teleportBigButtonPrefab == null ||
+            TeleportManager.Instance == null ||
+            TeleportManager.Instance.database == null)
+            return;
+
+        foreach (Transform child in bigButtonContainer)
+            Destroy(child.gameObject);
+
+        var zoneGroups = TeleportManager.Instance.database.allZoneGroups;
+        if (zoneGroups == null)
+            return;
 
         foreach (TeleportZoneData group in zoneGroups)
         {
-
             GameObject buttonObj = Instantiate(teleportBigButtonPrefab, bigButtonContainer);
             buttonObj.name = group.zoneName;
-            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = group.zoneName; // 혹은 Text
-            if(group.zoneSpirte != null)
-                buttonObj.GetComponentInChildren<Image>().sprite = group.zoneSpirte;
 
-            // (중요) 버튼 클릭 시 'PopulatePointList' 함수를 호출하도록 연결
-            // 루프 안에서 리스너를 추가할 땐 변수를 복사해야 함
+            TextMeshProUGUI label = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null)
+                label.text = group.GetZoneName();
+
+            Image image = buttonObj.GetComponentInChildren<Image>();
+            if (image != null && group.zoneSpirte != null)
+                image.sprite = group.zoneSpirte;
+
             TeleportZoneData currentGroup = group;
-            buttonObj.GetComponent<Button>().onClick.AddListener(() => 
-            {
-                CreateTeleportButtons(currentGroup , buttonObj.GetComponent<Button>());
-            });
+            Button button = buttonObj.GetComponent<Button>();
+            if (button != null)
+                button.onClick.AddListener(() => CreateTeleportButtons(currentGroup, button));
         }
     }
 
-    void CreateTeleportButtons(TeleportZoneData selectedGroup , Button Button)
+    private void CreateTeleportButtons(TeleportZoneData selectedGroup, Button button)
     {
-        if (SelectbigButton != null && SelectbigButton != Button)
-        {
-            SelectbigButton.GetComponent<Image>().color = normalColor;
-            SelectbigButton = Button;
-            SelectbigButton.GetComponent<Image>().color = selectedColor;
-        }
-        else if(SelectbigButton == null)
-        {
-            SelectbigButton = Button;
-            SelectbigButton.GetComponent<Image>().color = selectedColor;
-        }
+        currentSelectedGroup = selectedGroup;
 
-        // 기존 버튼 삭제
+        if (SelectbigButton != null && SelectbigButton != button)
+            SelectbigButton.GetComponent<Image>().color = normalColor;
+
+        SelectbigButton = button;
+
+        if (SelectbigButton != null)
+            SelectbigButton.GetComponent<Image>().color = selectedColor;
+
         ClearPointList();
         SelectsmallButton = null;
 
         if (teleportMapMaker != null)
-        {
             teleportMapMaker.DrawMap(selectedGroup, OnTeleportButtonClick);
-        }
 
         if (teleportMapViewport != null)
-        {
             teleportMapViewport.ResetView();
-        }
-
-        //SelectGroup = selectedGroup.zoneName;
-
-        // 선택된 그룹에 속한 '포인트 데이터' 목록을 가져옴 기존 기능
-        /*foreach (TeleportData pointData in selectedGroup.pointsInZone)
-        {
-            GameObject buttonObj = Instantiate(teleportSmallButtonPrefab, smallButtonContainer);
-            buttonObj.name = pointData.pointID;
-            buttonObj.GetComponentInChildren<TextMeshProUGUI>().text = pointData.displayName;
-
-            // TeleportManager에서 이 포인트의 '잠금 해제' 여부를 물어봄
-            bool unlocked = TeleportManager.Instance.IsPointUnlocked(pointData.targetSpawnPointID);
-
-            Button pointButton = buttonObj.GetComponent<Button>();
-            pointButton.interactable = unlocked; // 잠금 해제 안됐으면 비활성화
-
-            if (unlocked)
-            {
-                // 잠금 해제되었다면 텔레포트 기능 연결
-                TeleportData currentPoint = pointData;
-                pointButton.onClick.AddListener(() =>
-                {
-                    OnTeleportButtonClick(currentPoint, pointButton);
-                });
-            }
-        }
-        */
     }
+
     private void ClearPointList()
     {
-        foreach (Transform child in smallButtonContainer) Destroy(child.gameObject);
+        if (smallButtonContainer == null)
+            return;
+
+        foreach (Transform child in smallButtonContainer)
+            Destroy(child.gameObject);
     }
 
-    public void OnTeleportButtonClick(TeleportData teleportPoint , Button Button)//Name
+    public void OnTeleportButtonClick(TeleportData teleportPoint, Button button)
     {
-        if (SelectsmallButton != null && SelectsmallButton != Button)
-        {
+        if (teleportPoint == null)
+            return;
+
+        if (SelectsmallButton != null && SelectsmallButton != button)
             SelectsmallButton.GetComponent<Image>().color = normalColor;
-            SelectsmallButton = Button;
+
+        SelectsmallButton = button;
+
+        if (SelectsmallButton != null)
             SelectsmallButton.GetComponent<Image>().color = selectedColor;
-        }
-        else if(SelectsmallButton == null)
-        {
-            SelectsmallButton = Button;
-            SelectsmallButton.GetComponent<Image>().color = selectedColor;
-        }
+
         if (IsHome)
         {
             TeleportManager.Instance.startMapName = teleportPoint.GetTargetMapID();
@@ -143,15 +139,28 @@ public class TeleportUI : MonoBehaviour
         {
             Teleporter teleporter = player.GetComponent<Teleporter>();
             if (teleporter != null)
-            {
                 teleporter.TeleportTo(teleportPoint.GetTargetMapID(), teleportPoint.targetSpawnPointID);
-            }
-            gameObject.SetActive(false); // Hide UI after teleporting
+
+            gameObject.SetActive(false);
         }
     }
 
     public void CloseUI()
     {
         gameObject.SetActive(false);
+    }
+
+    private Button FindBigButton(TeleportZoneData group)
+    {
+        if (group == null || bigButtonContainer == null)
+            return null;
+
+        foreach (Transform child in bigButtonContainer)
+        {
+            if (child != null && child.name == group.zoneName)
+                return child.GetComponent<Button>();
+        }
+
+        return null;
     }
 }

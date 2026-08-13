@@ -15,12 +15,19 @@ public class CharacterSelectionManager : MonoBehaviour
     public TMP_Text nameText;
     public TMP_Text costText;
     public TMP_Text descriptionText;
-    public TMP_Text playerStatsText;
-    public TMP_Text playerLevelUpStatsText;
+    public TMP_Text skillName;
+    public TMP_Text skillDescription;
+    public StatTableUI baseStatTable;
+    public StatTableUI levelUpStatTable;
+    public StatPanelUI MainStatPanel;
+    public StatPanelUI baseStatPanel;
+    public StatPanelUI specialStatPanel;
     public GameObject BuyButtons;
     public GameObject ConfirmButton;
     public Image icon;
-    public CharacterSelectionButton characterSelectionButton;
+    public Image Skillicon;
+
+    private CharacterSelectionButton characterSelectionButton;
 
     [SerializeField] private List<CharacterScriptableObject> characterList; // List of CharacterScriptableObjects
     private string saveFilePath;
@@ -87,68 +94,64 @@ public class CharacterSelectionManager : MonoBehaviour
         if(descriptionText != null)
             descriptionText.text = info.GetLocalizedDescription();
         //costText.text = info.costPerLevel.ToString();
-        icon.sprite = info.IconSprite;
+        if(icon != null)
+            icon.sprite = info.IconSprite;
 
-        playerStatsText.text = BuildBaseStatsText(info);
-        if(playerLevelUpStatsText != null)
-            playerLevelUpStatsText.text = BuildSpecialStatsText(info);
+        List<StatEntry> baseStats = StatEntryFactory.FromCharacterBase(info);
+
+        if(MainStatPanel != null)
+        {
+            ExtractionMainStat(baseStats);
+        }
+        
+        if (baseStatTable != null)
+        {
+            baseStatTable.SetStats(baseStats);
+        }
+        else if (baseStatPanel != null)
+        {
+            baseStatPanel.SetStats(baseStats);
+        }
+        List<StatEntry> levelUpStats = StatEntryFactory.FromCharacterLevelUpBonus(info);
+        if (levelUpStatTable != null)
+        {
+            levelUpStatTable.SetStats(levelUpStats);
+        }
+        else if (specialStatPanel != null)
+        {
+            specialStatPanel.SetStats(levelUpStats);
+        }
+
+        DrawSkillInfo();
         //BuyButtons.SetActive(!info.purchased);
         ConfirmButton.SetActive(info.purchased);
     }
-
-    private string BuildBaseStatsText(CharacterScriptableObject info)
+    public void ExtractionMainStat(List<StatEntry> baseStats)
     {
-        StringBuilder builder = new StringBuilder();
-        builder.AppendLine($"<b>{CharacterLocalization.Get("character.section.basic_stats", "Basic Stats")}</b>");
-        AppendStat(builder, nameof(CharacterScriptableObject.BaseHP), info.BaseHP);
-        AppendStat(builder, nameof(CharacterScriptableObject.Damage), info.Damage);
-        AppendStat(builder, nameof(CharacterScriptableObject.MovementSpeed), info.MovementSpeed);
-        AppendStat(builder, nameof(CharacterScriptableObject.Armor), info.Armor);
-        AppendStat(builder, nameof(CharacterScriptableObject.HealthRegeneration), info.HealthRegeneration);
-        AppendPercentStat(builder, nameof(CharacterScriptableObject.LuckBoost), info.LuckBoost);
-        AppendPercentStat(builder, nameof(CharacterScriptableObject.CooldownReduction), info.CooldownReduction);
-        AppendPercentStat(builder, nameof(CharacterScriptableObject.DobleDamageChance), info.DobleDamageChance);
-        return builder.ToString();
-    }
+        List<StatEntry> mainStats = new List<StatEntry>();
+        mainStats.Add(StatEntry.Header("character.section.main_stats", CharacterLocalization.Get("character.section.main_stats", "main_stats")));
 
-    private string BuildSpecialStatsText(CharacterScriptableObject info)
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.AppendLine($"<b>{CharacterLocalization.Get("character.section.special_stats", "Special Stats")}</b>");
-
-        if (info.statModifiers == null || info.statModifiers.Count == 0)
+        foreach (StatEntry entry in baseStats)
         {
-            builder.Append(CharacterLocalization.Get("character.stat.none", "None"));
-            return builder.ToString();
+            if(entry.StatKey == nameof(CharacterScriptableObject.BaseHP) 
+            || entry.StatKey == nameof(CharacterScriptableObject.Damage)
+            || entry.StatKey == nameof(CharacterScriptableObject.MovementSpeed)
+            || entry.StatKey == nameof(CharacterScriptableObject.Armor)
+            )
+            {
+                mainStats.Add(entry);
+            }
         }
-
-        foreach (StatModifier modifier in info.statModifiers)
-        {
-            string statName = CharacterLocalization.GetStatModifierLabel(modifier.statName);
-            builder.AppendLine($"{statName}: {FormatSignedValue(modifier.value)}");
-        }
-
-        return builder.ToString();
+        MainStatPanel.SetStats(mainStats);
     }
-
-    private static void AppendStat(StringBuilder builder, string statKey, float value)
+    public void DrawSkillInfo()
     {
-        builder.AppendLine($"{CharacterLocalization.GetStatLabel(statKey)}: {FormatValue(value)}");
-    }
-
-    private static void AppendPercentStat(StringBuilder builder, string statKey, float value)
-    {
-        builder.AppendLine($"{CharacterLocalization.GetStatLabel(statKey)}: {FormatValue(value)}%");
-    }
-
-    private static string FormatValue(float value)
-    {
-        return value.ToString("0.##");
-    }
-
-    private static string FormatSignedValue(float value)
-    {
-        return value.ToString("+0.##;-0.##;0");
+        if(Skillicon != null)
+            Skillicon.sprite = currentCharacterInfo.startingWeapon.Icon;
+        if(skillName != null)
+            skillName.text = currentCharacterInfo.startingWeapon.GetLocalizedTitle();
+        if(skillDescription != null)
+            skillDescription.text = currentCharacterInfo.startingWeapon.GetCurrentDescription();
     }
     public void DeselectOtherButtons()
     {
