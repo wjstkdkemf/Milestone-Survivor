@@ -11,20 +11,23 @@ public class CustomCursor : MonoBehaviour
 
     void Start()
     {
-        hotspot = new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
+        hotspot = cursorTexture ? new Vector2(cursorTexture.width / 2, cursorTexture.height / 2) : new Vector2(0,0);
         Cursor.SetCursor(cursorTexture, hotspot, cursorMode);
     }
 
     private void Update()
     {
-        if (GameManager.Instance.Pause)
+        if(GameManager.Instance != null)
         {
-            Cursor.SetCursor(cursorTexture2, hotspot, cursorMode);
-        }
-        else
-        {
-            Cursor.SetCursor(cursorTexture, hotspot, cursorMode);
+            if (GameManager.Instance.Pause)
+            {
+                Cursor.SetCursor(cursorTexture2, hotspot, cursorMode);
+            }
+            else
+            {
+                Cursor.SetCursor(cursorTexture, hotspot, cursorMode);
 
+            }
         }
     }
 

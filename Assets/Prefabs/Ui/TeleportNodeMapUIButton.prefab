@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5734839247222403830}
   - component: {fileID: 5839505905602977603}
   m_Layer: 5
-  m_Name: TeleportSmallMapUIButton
+  m_Name: TeleportNodeMapUIButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,8 +67,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 0968521a7eefb5d47bac1e4fc5e5726c, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 692301601, guid: b66e87a2162a94e4abc366b217bcdcb9, type: 3}
+  m_Type: 2
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 4.19
 --- !u!114 &5839505905602977603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,9 +106,9 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
+    m_HighlightedSprite: {fileID: 1141116936, guid: b66e87a2162a94e4abc366b217bcdcb9, type: 3}
+    m_PressedSprite: {fileID: 1141116936, guid: b66e87a2162a94e4abc366b217bcdcb9, type: 3}
+    m_SelectedSprite: {fileID: 1141116936, guid: b66e87a2162a94e4abc366b217bcdcb9, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal

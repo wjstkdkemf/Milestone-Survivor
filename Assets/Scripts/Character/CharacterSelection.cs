@@ -25,55 +25,66 @@ public class CharacterSelection : MonoBehaviour
 
     public void OnceSetting()
     {
-        int selectedCharacter = PlayerStats.Instance.CharacterID;
+        if (!TryGetSelectedCharacter(out int selectedCharacter, out CharacterScriptableObject characterDatas))
+        {
+            return;
+        }
 
         if (PlayerStatsCalculate.Instance != null)
         {
+            //베이스 스탯 추가시 수정점
             PlayerStatsCalculate.Instance.SetBaseStats(
-                characterData[selectedCharacter].BaseHP,
-                characterData[selectedCharacter].MovementSpeed,
-                characterData[selectedCharacter].HealthRegeneration,
-                characterData[selectedCharacter].LuckBoost,
-                characterData[selectedCharacter].Damage,
-                characterData[selectedCharacter].statModifiers
+                characterDatas.BaseHP,
+                characterDatas.MovementSpeed,
+                characterDatas.HealthRegeneration,
+                characterDatas.LuckBoost,
+                characterDatas.Damage,
+                characterDatas.statModifiers
             );
             PlayerStatsCalculate.Instance.LevelUpBonus(0);
         }
         else
-            Debug.Log("PlayerStatsCalculate가 존재하지않음");
+            Debug.LogWarning("PlayerStatsCalculate가 존재하지않음");
 
-        Player.GetComponent<PlayerHealth>().UpdateHealthUI();
+        if (Player != null && Player.TryGetComponent<PlayerHealth>(out var playerHealth))
+            playerHealth.UpdateHealthUI();
 
-        CharacterScriptableObject characterDatas = characterData[PlayerStats.Instance.CharacterID];
-        characterIconImage.sprite = characterDatas.IconSprite;
+        if (characterIconImage != null)
+            characterIconImage.sprite = characterDatas.IconSprite;
 
         // 애니메이터 적용
-        if (characterDatas.animatorController != null) {
-            Player.transform.GetChild(0).GetComponent<Animator>().runtimeAnimatorController = characterDatas.animatorController;
+        if (characterDatas.animatorController != null && Player != null && Player.transform.childCount > 0)
+        {
+            Animator animator = Player.transform.GetChild(0).GetComponent<Animator>();
+            if (animator != null)
+                animator.runtimeAnimatorController = characterDatas.animatorController;
         }
 
         if (UpgradeManager.Instance != null) 
         {
             UpgradeManager.Instance.ResetRunData(characterDatas.StartingDeck); // 업글레이드 매니저 초기화.
-            UpgradeManager.Instance.OnUpgradeSelected(characterDatas.startingWeapon);
+
+            if (characterDatas.startingWeapon != null)
+                UpgradeManager.Instance.OnUpgradeSelected(characterDatas.startingWeapon);
         }
         if(weaponVisual != null)
         {
-            weaponVisual.SetBaseLocalPosition(characterData[selectedCharacter].weaponLocalPosition);
-            weaponVisual.SetDirectionalOffset(characterData[selectedCharacter].weaponLocalDirection);
-            weaponVisual.SetRotationOffset(characterData[selectedCharacter].weaponRotationOffset);
+            weaponVisual.SetBaseLocalPosition(characterDatas.weaponLocalPosition);
+            weaponVisual.SetDirectionalOffset(characterDatas.weaponLocalDirection);
+            weaponVisual.SetRotationOffset(characterDatas.weaponRotationOffset);
         
-            weaponSprite.sprite = characterData[selectedCharacter].WeaponSprite;
+            if (weaponSprite != null)
+                weaponSprite.sprite = characterDatas.WeaponSprite;
         }
         if(weaponVisual != null)
         {
-            weaponVisual.mode = characterData[selectedCharacter].WeaponVisualMode;
+            weaponVisual.mode = characterDatas.WeaponVisualMode;
         }
 
-        if (characterDatas.startingWeapon != null) {
+        if (characterDatas.startingWeapon != null && Player != null && Player.TryGetComponent<PlayerWeaponController>(out var weaponController)) {
         // 플레이어의 무기 관리자(PlayerWeaponController)를 찾아 무기 등록
             //Player.GetComponent<PlayerWeaponController>().AddWeapon(characterDatas.startingWeapon);
-            Player.GetComponent<PlayerWeaponController>().ToggleCombatMode(false);
+            weaponController.ToggleCombatMode(false);
         }
 
         // switch (selectedCharacter)
@@ -91,7 +102,42 @@ public class CharacterSelection : MonoBehaviour
         //         UpgradeManager.Instance.SwordSlash();
         //         break;
         // }
-        Debug.Log("초기화 설정");
+        DevLog.Log("초기화 설정");
         //UpgradeManager.Instance.SaveUpgrade();
+    }
+
+    private bool TryGetSelectedCharacter(out int selectedCharacter, out CharacterScriptableObject character)
+    {
+        selectedCharacter = 0;
+        character = null;
+
+        if (PlayerStats.Instance == null)
+        {
+            Debug.LogError("[CharacterSelection] PlayerStats is missing.");
+            return false;
+        }
+
+        if (characterData == null || characterData.Length == 0)
+        {
+            Debug.LogError("[CharacterSelection] Character data is empty.");
+            return false;
+        }
+
+        selectedCharacter = Mathf.Clamp(PlayerStats.Instance.CharacterID, 0, characterData.Length - 1);
+        character = characterData[selectedCharacter];
+
+        if (character == null)
+        {
+            Debug.LogError($"[CharacterSelection] Character data at index {selectedCharacter} is missing.");
+            return false;
+        }
+
+        if (selectedCharacter != PlayerStats.Instance.CharacterID)
+        {
+            Debug.LogWarning($"[CharacterSelection] CharacterID {PlayerStats.Instance.CharacterID} is out of range. Using {selectedCharacter} instead.");
+            PlayerStats.Instance.CharacterID = selectedCharacter;
+        }
+
+        return true;
     }
 }

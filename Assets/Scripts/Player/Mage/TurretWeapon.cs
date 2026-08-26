@@ -40,7 +40,7 @@ public class TurretWeapon : WeaponBase
             bulletPrefab = turretData.bulletPrefab;
             targetUpdateRate = turretData.targetUpdateRate;
 
-            Debug.Log("TurretWeaponDataSO 완료");
+            DevLog.Log("TurretWeaponDataSO 완료");
         }
         else
         {
@@ -132,7 +132,7 @@ public class TurretWeapon : WeaponBase
         currentBulletNumber++; 
         currentDamage += 2;
         
-        Debug.Log($"[Turret Level Up] 총알: {currentBulletNumber}, 데미지: {currentDamage}");
+        DevLog.Log($"[Turret Level Up] 총알: {currentBulletNumber}, 데미지: {currentDamage}");
     }
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)

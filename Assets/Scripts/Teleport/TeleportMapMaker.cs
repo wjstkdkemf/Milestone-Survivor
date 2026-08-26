@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,12 +18,18 @@ public class TeleportMapMaker : MonoBehaviour
     [SerializeField] private GameObject linePrefab;
 
     [Header("Node Colors")]
+    [SerializeField] private bool UseColor = false;
     [SerializeField] private Color unlockedColor = new Color(0.20f, 0.24f, 0.21f, 1f);
     [SerializeField] private Color lockedColor = new Color(0.16f, 0.12f, 0.12f, 1f);
     [SerializeField] private Color selectedColor = new Color(0.18f, 0.55f, 0.34f, 1f);
     [SerializeField] private Color bossColor = new Color(0.45f, 0.12f, 0.14f, 1f);
     [SerializeField] private Color rewardColor = new Color(0.54f, 0.39f, 0.15f, 1f);
-
+    [Header("Node Image")]
+    [SerializeField] private Sprite unlockedSprite;
+    [SerializeField] private Sprite lockedSprite;
+    [SerializeField] private Sprite selectedSprite;
+    [SerializeField] private Sprite bossSprite;
+    [SerializeField] private Sprite rewardSprite;
     [Header("Line Colors")]
     [SerializeField] private Color lineColor = new Color(0.34f, 0.25f, 0.18f, 1f);
     [SerializeField] private Color lockedLineColor = new Color(0.18f, 0.14f, 0.12f, 1f);
@@ -334,7 +341,15 @@ public class TeleportMapMaker : MonoBehaviour
             if (image == null)
                 continue;
 
-            image.color = GetNodeColor(point);
+            if(UseColor)
+            {
+                image.color = GetNodeColor(point);
+            }
+            else
+            {
+                image.color = Color.white;
+                image.sprite = GetNodeSprite(point) == null ? image.sprite : GetNodeSprite(point);
+            }
         }
     }
 
@@ -354,6 +369,24 @@ public class TeleportMapMaker : MonoBehaviour
                 return rewardColor;
             default:
                 return unlockedColor;
+        }
+    }
+    private Sprite GetNodeSprite(TeleportData point)
+    {
+        if (point == selectedPoint)
+            return selectedSprite;
+
+        if (!IsUnlocked(point))
+            return lockedSprite;
+
+        switch (point.nodeType)
+        {
+            case TeleportData.TeleportNodeType.Boss:
+                return bossSprite;
+            case TeleportData.TeleportNodeType.Reward:
+                return rewardSprite;
+            default:
+                return unlockedSprite;
         }
     }
 

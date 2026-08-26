@@ -94,31 +94,34 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     private static List<Enemy> nearbyEnemies = new List<Enemy>(32);
 
-    void Awake()
+    protected virtual void Awake()
     {
-        GameObject gameObject = GameManager.Instance.Player;
-        player = gameObject.transform.Find("CenterPosition").transform;
-        playerHealth = gameObject.GetComponent<PlayerHealth>();
-
+        CachePlayerReferences();
         lootDrop = GetComponent<LootDrop>();
 
 
         if (boss)
         {
-            spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>(); 
-            originalMaterial = spriteRenderer.material;      
+            if (transform.childCount > 0)
+                spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>(); 
             //EnemyCollider2D = GetComponent<Collider2D>();
            // EnemyRigidbody2D = GetComponent<Rigidbody2D>();
         }
         else
         {
             spriteRenderer = GetComponent<SpriteRenderer>(); 
-            originalMaterial = spriteRenderer.material;      
             //EnemyRigidbody2D = GetComponent<Rigidbody2D>();
             //EnemyCollider2D = GetComponent<Collider2D>();
         }
+
+        if (spriteRenderer != null)
+        {
+            if (originalMaterial == null)
+                originalMaterial = spriteRenderer.material;
         
-        defaultColor = spriteRenderer.color;
+            defaultColor = spriteRenderer.color;
+        }
+
         currentStateColor = defaultColor;
 
         baseSpeed = speed;
@@ -135,9 +138,18 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         health = maxhealth;
         currentNormalState = EnemyState.Chasing;
 
-        spriteRenderer.material = originalMaterial;
-        spriteRenderer.color = defaultColor;
-        GameManager.Instance.activeEnemies++;
+        CachePlayerReferences();
+
+        if (spriteRenderer != null)
+        {
+            if (originalMaterial != null)
+                spriteRenderer.material = originalMaterial;
+
+            spriteRenderer.color = defaultColor;
+        }
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.activeEnemies++;
 
         lastPosition = transform.position;
         stuckCount = 0;
@@ -154,7 +166,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             EnemySwarmSystem.Instance.RegisterEnemy(this);
     }
 
-    public virtual void OnDisable()
+    protected virtual void OnDisable()
     {
         InvalidateRepositionRequest();
 
@@ -163,7 +175,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             Debug.LogWarning($"[Enemy CSI] {gameObject.name} 비정상 종료! (Health: {health})");
         }
 
-        spriteRenderer.color = defaultColor;
+        if (spriteRenderer != null)
+            spriteRenderer.color = defaultColor;
         if (GameManager.Instance != null)
             GameManager.Instance.activeEnemies--;
             
@@ -178,6 +191,28 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
     public float GetKnockBackTime() { return knockBackTime; }
     public float GetSpeed() { return speed; }
+
+    protected bool CachePlayerReferences()
+    {
+        if (player != null && playerHealth != null)
+            return true;
+
+        if (GameManager.Instance == null || GameManager.Instance.Player == null)
+            return false;
+
+        GameObject playerObject = GameManager.Instance.Player;
+
+        if (player == null)
+        {
+            Transform center = playerObject.transform.Find("CenterPosition");
+            player = center != null ? center : playerObject.transform;
+        }
+
+        if (playerHealth == null)
+            playerHealth = playerObject.GetComponent<PlayerHealth>();
+
+        return player != null;
+    }
 
     protected void RequestReposition(RepositionReason reason)
     {
@@ -304,7 +339,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     public virtual void ManualUpdate()
     {
-        if (currentNormalState == EnemyState.Dead || player == null || stopMoving) return;
+        if (currentNormalState == EnemyState.Dead || stopMoving) return;
+        if (player == null && !CachePlayerReferences()) return;
 
         knockBackTime -= Time.deltaTime;
         coolDownTimer -= Time.deltaTime;
@@ -330,7 +366,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         // 넉백 처리 (이것은 Job이 아니라 여기서 직접 처리합니다)
         if (knockBackTime > 0 && !CantBeKnocked)
         {
-            float finalKnockBack = knockBackForce * (1 + PlayerStats.Instance.KnockBackBonus);
+            float knockBackBonus = PlayerStats.Instance != null ? PlayerStats.Instance.KnockBackBonus : 0f;
+            float finalKnockBack = knockBackForce * (1 + knockBackBonus);
             Vector3 knockbackDir = -delta.normalized;
             transform.position += knockbackDir * finalKnockBack * Time.deltaTime;
             return;
@@ -382,7 +419,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         if (knockBackTime > 0 && !CantBeKnocked)
         {
-            float finalKnockBack = knockBackForce * (1 + PlayerStats.Instance.KnockBackBonus);
+            float knockBackBonus = PlayerStats.Instance != null ? PlayerStats.Instance.KnockBackBonus : 0f;
+            float finalKnockBack = knockBackForce * (1 + knockBackBonus);
             Vector3 knockbackDir = -delta.normalized;
             velocity = knockbackDir * finalKnockBack;
             return;
@@ -435,14 +473,19 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         if (DamageText != null)
         {
-            GameObject textObj = ObjectPoolingManager.Instance.spawnGameObject(DamageText, transform.position, Quaternion.identity);
+            GameObject textObj = ObjectPoolingManager.Instance != null
+                ? ObjectPoolingManager.Instance.spawnGameObject(DamageText, transform.position, Quaternion.identity)
+                : Instantiate(DamageText, transform.position, Quaternion.identity);
+
             if (textObj != null)
             {
-                textObj.GetComponent<TMP_Text>().text = amount.ToString();
+                TMP_Text damageText = textObj.GetComponent<TMP_Text>();
+                if (damageText != null)
+                    damageText.text = amount.ToString();
             }
         }
 
-        if (flashMaterial != null && !boss)
+        if (flashMaterial != null && !boss && spriteRenderer != null)
         {
             spriteRenderer.color = Color.red;
             flashTimer = duration;
@@ -463,13 +506,14 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         //{
           //  EnemyRigidbody2D.simulated = false; 
         //}
-        GameManager.Instance.NumberOfKills++;
+        if (GameManager.Instance != null)
+            GameManager.Instance.NumberOfKills++;
 
         GlobalEventManager.OnEnemyKilled?.Invoke(enemyID);
 
         if (lootDrop != null) lootDrop.DropLoot();
 
-        if (!DontUseObjectPooling)
+        if (!DontUseObjectPooling && ObjectPoolingManager.Instance != null)
             ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
         else
             Destroy(gameObject);
@@ -482,7 +526,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             flashTimer -= Time.deltaTime;
             if (flashTimer <= 0)
             {
-                spriteRenderer.color = currentStateColor;
+                if (spriteRenderer != null)
+                    spriteRenderer.color = currentStateColor;
             }
         }
     }

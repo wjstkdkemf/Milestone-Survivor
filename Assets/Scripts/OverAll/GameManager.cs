@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
                 TextKill.text = lastKillCount.ToString();
         }
 
-        if (PlayerStats.Instance.level != lastLevel)
+        if (PlayerStats.Instance != null && PlayerStats.Instance.level != lastLevel)
         {
             lastLevel = PlayerStats.Instance.level;
             if (Player_Level_Count != null)
@@ -77,6 +77,9 @@ public class GameManager : MonoBehaviour
     public void SelectCharacter()//int index
     {
         //DontDestroyOnLoad_.Instance.selectedCharacterIndex = index; // Save the selected character index
-        SceneManager.LoadScene("Village");
+        if (LoadingManager.Instance != null)
+            LoadingManager.Instance.LoadScene("Village");
+        else
+            SceneManager.LoadScene("Village");
     }
 }

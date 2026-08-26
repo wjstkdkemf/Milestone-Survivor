@@ -12,13 +12,13 @@ public abstract class SkillProjectileBase : MonoBehaviour
     protected virtual void OnEnable()
     {
         if (SkillCollisionManager.Instance != null)
-            SkillCollisionManager.Instance.activeSkills.Add(this);
+            SkillCollisionManager.Instance.RegisterSkill(this);
     }
 
     protected virtual void OnDisable()
     {
-        //if (SkillCollisionManager.Instance != null)
-            //SkillCollisionManager.Instance.activeSkills.Remove(this);
+        if (SkillCollisionManager.Instance != null)
+            SkillCollisionManager.Instance.UnregisterSkill(this);
     }
 
     public abstract void OnHit(Enemy hitEnemy);

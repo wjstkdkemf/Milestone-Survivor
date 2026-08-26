@@ -22,7 +22,9 @@ public class TrashHandler : MonoBehaviour
         //    PlayerStats의 골드를 아이템 가격만큼 증가시킵니다.
         //    PlayerStats.Instance.AddCoin(data.price);
         int slotIndex = item.GetPosition();
-        PlayerStats.Instance.AddGold(item.GetPrice());
+
+        if(PlayerStats.Instance != null)
+            PlayerStats.Instance.AddGold(item.GetPrice());
 
         
         //}
@@ -32,7 +34,9 @@ public class TrashHandler : MonoBehaviour
         //}
 
         // 인벤토리에서 아이템을 제거합니다.
-        InventoryController.instance.RemoveItem(item.GetInventory(), item, item.GetAmount());
-        Debug.Log($"[TrashHandler] '{item.GetItemType()}' 아이템을 팔았습니다.");
+        if(InventoryController.instance != null)
+            InventoryController.instance.RemoveItem(item.GetInventory(), item, item.GetAmount());
+            
+        DevLog.Log($"[TrashHandler] '{item.GetItemType()}' 아이템을 팔았습니다.");
     }
 }

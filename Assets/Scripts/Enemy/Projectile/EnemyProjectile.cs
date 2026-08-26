@@ -26,6 +26,14 @@ public abstract class EnemyProjectile : MonoBehaviour
             EnemyProjectileManager.Instance.RegisterProjectile(this);
         }
     }
+
+    private void OnDisable()
+    {
+        if (EnemyProjectileManager.Instance != null)
+        {
+            EnemyProjectileManager.Instance.UnregisterProjectile(this);
+        }
+    }
     protected virtual void Update()
     {
         if (!isActived) return;
@@ -57,6 +65,10 @@ public abstract class EnemyProjectile : MonoBehaviour
         if (ObjectPoolingManager.Instance != null && gameObject.activeInHierarchy)
         {
             ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
+        }
+        else if (gameObject.activeSelf)
+        {
+            gameObject.SetActive(false);
         }
     }
 }

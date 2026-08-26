@@ -70,6 +70,10 @@ public class AudioManager : MonoBehaviour
 
     public void PlayBGM(AudioClip bgmClip)
     {
+        if (bgmSource == null || bgmClip == null) return;
+
+        AudioSettings.ApplySavedVolumes(bgmMixerGroup != null ? bgmMixerGroup.audioMixer : null);
+
         if (bgmSource.clip == bgmClip) return; // 이미 같은 노래가 나오고 있으면 무시
 
         bgmSource.outputAudioMixerGroup = bgmMixerGroup; // 믹서를 BGM으로 할당!
@@ -108,7 +112,8 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayBGMWithFade(AudioClip newClip)
     {
-        if (bgmSource.clip == newClip) return;
+        if (bgmSource == null || newClip == null) return;
+        if (bgmSource.clip == newClip && bgmSource.isPlaying) return;
 
         // 이미 페이드 효과가 진행 중이라면 중지
         if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);

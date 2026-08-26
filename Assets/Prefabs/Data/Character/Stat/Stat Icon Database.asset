@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bef4f8bccba00b4ebbca91eba35ea6d, type: 3}
+  m_Name: Stat Icon Database
+  m_EditorClassIdentifier: 
+  entries:
+  - statKey: BaseHP
+    icon: {fileID: 813586958, guid: d1e33dbb2e6ff94498f8d838b1528476, type: 3}
+  - statKey: Damage
+    icon: {fileID: -6184050716912831369, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
+  - statKey: MovementSpeed
+    icon: {fileID: 4565449861219673537, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
+  - statKey: Armor
+    icon: {fileID: 5866580483785869697, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
+  - statKey: HealthRegeneration
+    icon: {fileID: -2519624897654106960, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
+  - statKey: LuckBoost
+    icon: {fileID: 2881655999765225791, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
+  - statKey: CooldownReduction
+    icon: {fileID: 2020055091839791569, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
+  - statKey: DobleDamageChance
+    icon: {fileID: 4403919537802097465, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}

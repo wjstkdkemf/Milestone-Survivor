@@ -54,7 +54,7 @@ MonoBehaviour:
   labelText: {fileID: 4088240118711764845}
   valueText: {fileID: 4305417844271457376}
   divider: {fileID: 0}
-  normalColor: {r: 0.92, g: 0.92, b: 0.92, a: 1}
+  normalColor: {r: 0, g: 0, b: 0, a: 1}
   positiveColor: {r: 0.29, g: 0.84, b: 0.43, a: 1}
   negativeColor: {r: 0.85, g: 0.32, b: 0.32, a: 1}
   headerColor: {r: 1, g: 0.95, b: 0.68, a: 1}
@@ -93,8 +93,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -15.7, y: 0}
-  m_SizeDelta: {x: 118.44, y: 40}
+  m_AnchoredPosition: {x: -17.4, y: 0}
+  m_SizeDelta: {x: 149.0833, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2187676710884478610
 CanvasRenderer:
@@ -151,8 +151,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -264,7 +264,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 33, y: -21}
+  m_AnchoredPosition: {x: 25.5, y: -21}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &42665922698748845
@@ -339,8 +339,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 97.4, y: 0}
-  m_SizeDelta: {x: 82.65, y: 40}
+  m_AnchoredPosition: {x: 97.935, y: 0}
+  m_SizeDelta: {x: 81.586, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9082837778999843613
 CanvasRenderer:

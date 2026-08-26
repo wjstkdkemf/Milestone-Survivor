@@ -48,7 +48,7 @@ public class SaveLoadManager : MonoBehaviour
         // Create the main save data object.
         GameSaveData saveData = new GameSaveData(invJson, powData, statsData);
         SaveDataMigrator.PrepareForSave(saveData);
-        Debug.Log("Loading Inventory JSON: " + saveData.inventoryJson);
+        DevLog.Log("Loading Inventory JSON: " + saveData.inventoryJson);
         
         // Serialize to JSON and save to PlayerPrefs.
         string jsonData = JsonUtility.ToJson(saveData, true);
@@ -59,7 +59,7 @@ public class SaveLoadManager : MonoBehaviour
         GameProgressManager.Instance.SaveProgress();
         QuestManager.Instance.SaveQuestData();
 
-        Debug.Log($"<color=green>[SaveLoadManager]</color> Game Saved to Slot {slotNumber}.");
+        DevLog.Log($"<color=green>[SaveLoadManager]</color> Game Saved to Slot {slotNumber}.");
     }
 
     public void LoadGame(int slotNumber)
@@ -70,12 +70,12 @@ public class SaveLoadManager : MonoBehaviour
         }
 
         GameSaveData saveData = GetSaveSlotData(slotNumber);
-        Debug.Log("체크");
+        DevLog.Log("[SaveLoadManager] LoadGame started.");
 
         if (saveData != null)
         {
             // Distribute data to the managers.
-            Debug.Log("Loading Inventory JSON: " + saveData.inventoryJson);
+            DevLog.Log("Loading Inventory JSON: " + saveData.inventoryJson);
             InventorySystem.InventoryController.instance.LoadFromData(saveData.inventoryJson);
             // 불러온 장비 아이템 효과를 다시 적용합니다.
             InventorySystem.InventoryController.instance.ReapplyAllEquipmentEffects();
@@ -87,7 +87,7 @@ public class SaveLoadManager : MonoBehaviour
             PlayerStats.Instance.LoadData(saveData.playerStatsData);
             QuestManager.Instance.LoadQuestData();
             IsLoadingFromFile = true; // Set the flag
-            Debug.Log($"<color=green>[SaveLoadManager]</color> Game Loaded from Slot {slotNumber}.");
+            DevLog.Log($"<color=green>[SaveLoadManager]</color> Game Loaded from Slot {slotNumber}.");
         }
         else
         {
@@ -114,7 +114,7 @@ public class SaveLoadManager : MonoBehaviour
 
         itemsToTransfer = null;
         IsLoadingFromFile = false; // Reset the flag
-        Debug.Log("<color=yellow>[SaveLoadManager]</color> All data has been reset for a new game.");
+        DevLog.Log("<color=yellow>[SaveLoadManager]</color> All data has been reset for a new game.");
     }
 
     private bool CanSaveGame()
@@ -217,13 +217,13 @@ public class SaveLoadManager : MonoBehaviour
         {
             PlayerPrefs.DeleteKey(saveKey);
             PlayerPrefs.Save();
-            Debug.Log($"<color=yellow>[SaveLoadManager]</color> Save data for slot {slotNumber} deleted.");
+            DevLog.Log($"<color=yellow>[SaveLoadManager]</color> Save data for slot {slotNumber} deleted.");
         }
     }
 
     public void SettingMode(int mode)
     {
         startMode = (GameStartMode)mode;
-        Debug.Log(startMode);
+        DevLog.Log(startMode);
     }
 }

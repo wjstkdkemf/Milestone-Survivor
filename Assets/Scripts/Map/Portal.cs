@@ -22,23 +22,31 @@ public class Portal : MonoBehaviour
         {
             return; // 플레이어가 아니면 아무것도 하지 않음
         }
+        other.TryGetComponent<Teleporter>(out var teleporter);
 
-        if (other.GetComponent<Teleporter>().isTeleporting) return;
+        if (teleporter == null)
+            return;
 
-        other.GetComponent<Teleporter>().isTeleporting = true;
+        if (teleporter.isTeleporting)
+            return;
 
-        for (int i = conditionalLinks.Count - 1; i >= 0; i--)//역순체크 -> 추후 추가되는 업적이 더 상위 업적일것으로 예상.
+        teleporter.isTeleporting = true;
+
+        if(conditionalLinks != null)
         {
-            ConditionalMapLink link = conditionalLinks[i];
-
-            // 3. GameProgressManager를 통해 업적 달성 여부 확인
-            //    GameProgressManager.Instance가 싱글톤이라고 가정합니다.
-            if (GameProgressManager.Instance.IsUnlocked(link.requiredProgressID))
+            for (int i = conditionalLinks.Count - 1; i >= 0; i--)//역순체크 -> 추후 추가되는 업적이 더 상위 업적일것으로 예상.
             {
-                // 4. 조건 만족! 이 맵으로 즉시 이동하고 함수 종료
-                Debug.Log($"조건 '{link.requiredProgressID}' 만족. '{link.targetMapName}'(으)로 이동합니다.");
-                MainMapManager.Instance.ChangeMap(link.targetMapName, link.targetSpawnPoint);
-                return; // 이동했으므로 더 이상 검사할 필요 없음
+                ConditionalMapLink link = conditionalLinks[i];
+
+                // 3. GameProgressManager를 통해 업적 달성 여부 확인
+                //    GameProgressManager.Instance가 싱글톤이라고 가정합니다.
+                if (GameProgressManager.Instance.IsUnlocked(link.requiredProgressID))
+                {
+                    // 4. 조건 만족! 이 맵으로 즉시 이동하고 함수 종료
+                    Debug.Log($"조건 '{link.requiredProgressID}' 만족. '{link.targetMapName}'(으)로 이동합니다.");
+                    MainMapManager.Instance.ChangeMap(link.targetMapName, link.targetSpawnPoint);
+                    return; // 이동했으므로 더 이상 검사할 필요 없음
+                }
             }
         }
         Debug.Log("이동확인");

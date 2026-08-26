@@ -28,6 +28,9 @@ public class ItemInfoDisplay : MonoBehaviour
 
     void UpdateWithDefaultValues()
     {
+        if(infoTextEvent == null || infoTextEvent.Length < 3)
+            return;
+        
         infoTextEvent[0].StringReference.Arguments = new object[] {
             "---", // {0}
         };
@@ -47,7 +50,8 @@ public class ItemInfoDisplay : MonoBehaviour
     {
         foreach(var eve in infoTextEvent)
         {
-            eve.RefreshString();
+            if(eve != null)
+                eve.RefreshString();
         }
     }
 
@@ -98,6 +102,8 @@ public class ItemInfoDisplay : MonoBehaviour
     private void UpdateItemInfo(InventoryItem item)
     {
         itemImage.sprite = item.GetItemImage();
+        if(infoTextEvent == null || infoTextEvent.Length < 3)
+            return;
 
         infoTextEvent[0].StringReference.Arguments = new object[] 
         {

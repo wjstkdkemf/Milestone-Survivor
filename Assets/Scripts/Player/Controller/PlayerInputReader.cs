@@ -58,7 +58,7 @@ public class PlayerInputReader : MonoBehaviour
     public void PressMobileDash()
     {
         mobileDashPressed = true;
-        Debug.Log("체크");
+        DevLog.Log("체크");
     }
     public void PressMobileInteract()
     {

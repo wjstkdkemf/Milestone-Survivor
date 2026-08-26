@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 58d81af24769e2944af9d89805ee26e0
+guid: 24cdebe3fc4aded41a146e335c068f37
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -72,7 +72,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -93,17 +93,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MainButton_0
+      name: 2_0
       rect:
         serializedVersion: 2
-        x: 88
-        y: 548
-        width: 396
-        height: 250
+        x: 102
+        y: 841
+        width: 882
+        height: 349
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -111,20 +124,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ea5e6705058315c46a33604f09b97d18
-      internalID: -270762792
+      spriteID: d6119d2d5fabd114380e6b2d2faf174b
+      internalID: 1798192753
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MainButton_1
+      name: 2_1
       rect:
         serializedVersion: 2
-        x: 88
-        y: 180
-        width: 396
-        height: 250
+        x: 102
+        y: 289
+        width: 882
+        height: 349
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -132,8 +145,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9b3aa740f32e05b449ff845322169451
-      internalID: 475535596
+      spriteID: 742f03af04f69e44db39d4efff17cf91
+      internalID: -1973380155
       vertices: []
       indices: 
       edges: []
@@ -149,8 +162,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      MainButton_0: -270762792
-      MainButton_1: 475535596
+      2_0: 1798192753
+      2_1: -1973380155
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

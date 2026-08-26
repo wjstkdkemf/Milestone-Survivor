@@ -88,7 +88,7 @@ public class Meteor : SkillProjectileBase
             if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[idx])
             {
                 RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
-                Debug.Log(damage);
+                DevLog.Log(damage);
                 target.TakeDamage(damage);
                 EnemySwarmSystem.Instance.nextHitTimes[idx] = Time.time + 0.1f;
             }

@@ -40,7 +40,7 @@ public class ChargerEnemy : Enemy
         }
     }
 
-    public override void OnDisable()
+    protected override void OnDisable()
     {
         base.OnDisable();
         if (chargeIndicator != null)

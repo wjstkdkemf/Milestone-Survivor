@@ -69,6 +69,9 @@ public class QuestSlotUI : MonoBehaviour
 
     private void UpdateDisplay()
     {
+        if(!CheckNullComponent(currentProgress,currentData))
+            return;
+
         titleText.text = currentData.GetLocalizedQuestName();
         if(descriptionText != null)
             descriptionText.text = currentData.GetLocalizedDescription();
@@ -76,7 +79,7 @@ public class QuestSlotUI : MonoBehaviour
         if(RewardNormalString != null)
             RewardNormalString.text = RewardString.GetLocalizedString();
         
-        if(currentData.conditions.Count > 0)
+        if(currentData.conditions.Count > 0 && currentProgress.currentCounts.Count > 0)
         {
             progressText.text = $"{currentProgress.currentCounts[0]} / {currentData.conditions[0].targetAmount}";
         }
@@ -86,6 +89,9 @@ public class QuestSlotUI : MonoBehaviour
     }
     public void SetupSlot(QuestProgressData progress, QuestDataSO data, bool isMain)
     {
+        if(!CheckNullComponent(progress, data))
+            return;
+
         currentProgress = progress;
         currentData = data;
         titleText.text = data.GetLocalizedQuestName();
@@ -247,6 +253,11 @@ public class QuestSlotUI : MonoBehaviour
     {
         if(Ingame)
             return;
+
+        if(rewardRowPrefab == null
+        || rewardContainer == null
+        || rewards == null)
+            return;
         // 기존에 켜져 있던 보상 UI들을 싹 다 끕니다.
         foreach (var row in spawnedRewardRows)
         {
@@ -281,5 +292,20 @@ public class QuestSlotUI : MonoBehaviour
             QuestLocalization.ClaimRewardKey,
             "보상 받기"
         );
+    }
+
+    private bool CheckNullComponent(QuestProgressData progress, QuestDataSO data)
+    {
+        if(titleText == null
+        || progressText == null
+        || border == null
+        || QuestManager.Instance == null
+        || progress == null
+        || data == null)
+        {
+            DevLog.Log("퀘스트 슬롯 UI 연결 체크");
+            return false;
+        }
+        return true;
     }
 }

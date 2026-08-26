@@ -73,7 +73,9 @@ public class PlayerStatsCalculate : MonoBehaviour
         baseHealthRegen = healthRegen;
         baseLuck = luck;
         baseDamage = damage;
-        baseStatModifiers = new List<StatModifier>(statModifiers);// 복사
+        baseStatModifiers = statModifiers != null
+            ? new List<StatModifier>(statModifiers)
+            : new List<StatModifier>();
         UpdatePlayerStats();
     }
     public void LevelUpBonus(int Level)
@@ -159,6 +161,9 @@ public class PlayerStatsCalculate : MonoBehaviour
         powerUpKnockBack = 0;
         powerUpArmor = 0;
         powerUpDoubleDamageChance = 0;
+        powerUpMaxHealth = 0;
+        powerUpProjectileSpeed = 0;
+        powerUpEncounter = 0;
 
         realTimeDamage = 0;
         realTimeSpeed = 0;
@@ -169,49 +174,74 @@ public class PlayerStatsCalculate : MonoBehaviour
         realTimeKnockBack = 0;
         realTimeArmor = 0;
         realTimeDoubleDamageChance = 0;
+        realTimeMaxHealth = 0;
         realTimeProjectileSpeed = 0;
+
+        levelDamage = 0;
+        levelHealthRegen = 0;
+        levelCooldownReduction = 0;
+        levelArmor = 0;
+        levelMaxHealth = 0;
 
         UpdatePlayerStats();
     }
 
     public void UpdatePlayerStats()
     {
-        if (PlayerStats.Instance != null)
+        if (PlayerStats.Instance == null)
+            return;
+
+        EquipmentEffectManager equipmentEffectManager = EquipmentEffectManager.Instance;
+
+        // EquipmentEffectManager에서 스탯 보너스 가져오기
+        float equipDamage = GetEquipmentBonus(equipmentEffectManager, "Damage");
+        float equipSpeed = GetEquipmentBonus(equipmentEffectManager, "MovementSpeed");
+        float equipHealthRegen = GetEquipmentBonus(equipmentEffectManager, "HealthRegeneration");
+        float equipExpBonus = GetEquipmentBonus(equipmentEffectManager, "XPBoost");
+        float equipCooldown = GetEquipmentBonus(equipmentEffectManager, "CooldownReduction");
+        float equipLuck = GetEquipmentBonus(equipmentEffectManager, "luckBoost");
+        float equipKnockback = GetEquipmentBonus(equipmentEffectManager, "KnockBack");
+        float equipArmor = GetEquipmentBonus(equipmentEffectManager, "Armor");
+        float equipDoubleDamage = GetEquipmentBonus(equipmentEffectManager, "DobleDamageChance");
+        float equipMaxHealth = GetEquipmentBonus(equipmentEffectManager, "MaxHealth");
+        float equiDamageRation = GetEquipmentBonus(equipmentEffectManager, "DamageRation");
+        float equipProjectileSpeed = GetEquipmentBonus(equipmentEffectManager, "ProjectileSpeed");
+
+        int equipEncount = (int)GetEquipmentBonus(equipmentEffectManager, "Encount");
+        // 최종 스탯 계산
+        PlayerStats.Instance.DamageBonus = (long)((baseDamage + powerUpDamage + realTimeDamage + levelDamage) * (1 + equiDamageRation) + equipDamage);
+        PlayerStats.Instance.SpeedBonus = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed;
+        PlayerStats.Instance.HealthRegeneration = baseHealthRegen + powerUpHealthRegen + realTimeHealthRegen + equipHealthRegen + levelHealthRegen;
+        PlayerStats.Instance.experienceBonus = powerUpExperienceBonus + realTimeExperienceBonus + equipExpBonus ;
+        PlayerStats.Instance.cooldownReduction = powerUpCooldownReduction + realTimeCooldownReduction + equipCooldown + levelCooldownReduction;
+        PlayerStats.Instance.LuckBonus = baseLuck + powerUpLuck + realTimeLuck + equipLuck;
+        PlayerStats.Instance.KnockBackBonus = baseKnockBack + powerUpKnockBack + realTimeKnockBack + equipKnockback;
+        PlayerStats.Instance.ArmorBonus = baseArmor + powerUpArmor + realTimeArmor + equipArmor + levelArmor;
+        PlayerStats.Instance.DoubleDamageChance = baseDoubleDamageChance + powerUpDoubleDamageChance + realTimeDoubleDamageChance + equipDoubleDamage;
+        PlayerStats.Instance.projectileSpeedBonus = powerUpProjectileSpeed + equipProjectileSpeed + realTimeProjectileSpeed;
+
+        if (GameObject.FindGameObjectWithTag("GameScene") != null &&
+            GameProgressManager.Instance != null &&
+            GameProgressManager.Instance.IsUnlocked("Tutorial") &&
+            EnCounterSystem.Instance != null)
         {
-            // EquipmentEffectManager에서 스탯 보너스 가져오기
-            float equipDamage = EquipmentEffectManager.Instance.GetStatBonus("Damage");
-            float equipSpeed = EquipmentEffectManager.Instance.GetStatBonus("MovementSpeed");
-            float equipHealthRegen = EquipmentEffectManager.Instance.GetStatBonus("HealthRegeneration");
-            float equipExpBonus = EquipmentEffectManager.Instance.GetStatBonus("XPBoost");
-            float equipCooldown = EquipmentEffectManager.Instance.GetStatBonus("CooldownReduction");
-            float equipLuck = EquipmentEffectManager.Instance.GetStatBonus("luckBoost");
-            float equipKnockback = EquipmentEffectManager.Instance.GetStatBonus("KnockBack");
-            float equipArmor = EquipmentEffectManager.Instance.GetStatBonus("Armor");
-            float equipDoubleDamage = EquipmentEffectManager.Instance.GetStatBonus("DobleDamageChance");
-            float equipMaxHealth = EquipmentEffectManager.Instance.GetStatBonus("MaxHealth");
-            float equiDamageRation = EquipmentEffectManager.Instance.GetStatBonus("DamageRation");
-            float equipProjectileSpeed = EquipmentEffectManager.Instance.GetStatBonus("ProjectileSpeed");
-
-            int equipEncount = (int)EquipmentEffectManager.Instance.GetStatBonus("Encount");
-            // 최종 스탯 계산
-            PlayerStats.Instance.DamageBonus = (long)((baseDamage + powerUpDamage + realTimeDamage + levelDamage) * (1 + equiDamageRation) + equipDamage);
-            PlayerStats.Instance.SpeedBonus = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed;
-            PlayerStats.Instance.HealthRegeneration = baseHealthRegen + powerUpHealthRegen + realTimeHealthRegen + equipHealthRegen + levelHealthRegen;
-            PlayerStats.Instance.experienceBonus = powerUpExperienceBonus + realTimeExperienceBonus + equipExpBonus ;
-            PlayerStats.Instance.cooldownReduction = powerUpCooldownReduction + realTimeCooldownReduction + equipCooldown + levelCooldownReduction;
-            PlayerStats.Instance.LuckBonus = baseLuck + powerUpLuck + realTimeLuck + equipLuck;
-            PlayerStats.Instance.KnockBackBonus = baseKnockBack + powerUpKnockBack + realTimeKnockBack + equipKnockback;
-            PlayerStats.Instance.ArmorBonus = baseArmor + powerUpArmor + realTimeArmor + equipArmor + levelArmor;
-            PlayerStats.Instance.DoubleDamageChance = baseDoubleDamageChance + powerUpDoubleDamageChance + realTimeDoubleDamageChance + equipDoubleDamage;
-            PlayerStats.Instance.projectileSpeedBonus = powerUpProjectileSpeed + equipProjectileSpeed + realTimeProjectileSpeed;
-            if (GameObject.FindGameObjectWithTag("GameScene") != null && GameProgressManager.Instance.IsUnlocked("Tutorial"))
-                EnCounterSystem.Instance.maxEncounter = EnCounterSystem.Instance.normalMaxEncounter + equipEncount + powerUpEncounter;
-
-            if (PlayerStats.Instance.Player != null)
-            {
-                PlayerStats.Instance.Player.GetComponent<Player_Controller>().movmentSpeed = PlayerStats.Instance.SpeedBonus;
-                PlayerStats.Instance.Player.GetComponent<PlayerHealth>().MaxHealth = baseMaxHealth + powerUpMaxHealth + realTimeMaxHealth + equipMaxHealth + levelMaxHealth;
-            }
+            EnCounterSystem.Instance.maxEncounter = EnCounterSystem.Instance.normalMaxEncounter + equipEncount + powerUpEncounter;
         }
+
+        if (PlayerStats.Instance.Player != null)
+        {
+            Player_Controller playerController = PlayerStats.Instance.Player.GetComponent<Player_Controller>();
+            if (playerController != null)
+                playerController.movmentSpeed = PlayerStats.Instance.SpeedBonus;
+
+            PlayerHealth playerHealth = PlayerStats.Instance.Player.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+                playerHealth.MaxHealth = baseMaxHealth + powerUpMaxHealth + realTimeMaxHealth + equipMaxHealth + levelMaxHealth;
+        }
+    }
+
+    private float GetEquipmentBonus(EquipmentEffectManager equipmentEffectManager, string statName)
+    {
+        return equipmentEffectManager != null ? equipmentEffectManager.GetStatBonus(statName) : 0f;
     }
 }

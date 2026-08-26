@@ -29,7 +29,7 @@ public class BarrierShield : MonoBehaviour
             {
                  // 상대방의 DoDamage 컴포넌트를 비활성화하거나 오브젝트 파괴
                  // (여기서는 투사체인 경우만 파괴하도록 체크 필요, 혹은 단순히 밀어내기)
-                 Debug.Log("투사체 충돌 확인용");
+                 DevLog.Log("투사체 충돌 확인용");
                  Destroy(collision.gameObject);
             }
         }

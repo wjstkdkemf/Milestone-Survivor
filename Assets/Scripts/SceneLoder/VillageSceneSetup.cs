@@ -59,21 +59,8 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
         Resources.UnloadUnusedAssets();
 
         if (questUIManager != null) questUIManager.RefreshAllQuestUI();
-        if(!GameProgressManager.Instance.IsUnlocked("Tutorial"))
-        {
-            if (TutorialManager.Instance != null)
-            {
-                TutorialManager.Instance.StartTutorial();
-            }
-            else
-            {
-                Debug.LogWarning("튜토리얼을 시작해야 하는데 TutorialManager 인스턴스가 없습니다!");
-            }
-        }
-        else
-        {
-            if (TutorialManager.Instance != null) TutorialManager.Instance.CheakTutorial();
-        }
+        if (TutorialManager.Instance != null) TutorialManager.Instance.CheckTutorial();
+
 
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
     }

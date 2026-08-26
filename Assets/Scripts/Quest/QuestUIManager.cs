@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 public class QuestUIManager : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class QuestUIManager : MonoBehaviour
 
     public void RefreshAllQuestUI()
     {
+        if(!CheckNullComponent())
+            return;
         // 서브 퀘스트가 비어있으면 자동으로 채우기 시도
         if (QuestManager.Instance.currentSubQuests.Count < subQuestSlots.Count)
         {
@@ -35,6 +38,9 @@ public class QuestUIManager : MonoBehaviour
         var subDataList = QuestManager.Instance.currentSubQuests;
         for (int i = 0; i < subQuestSlots.Count; i++)
         {
+            if(subQuestSlots[i] == null)
+                continue;
+                
             if (i < subDataList.Count)
             {
                 var so = QuestManager.Instance.GetQuestSO(subDataList[i].questID);
@@ -46,5 +52,18 @@ public class QuestUIManager : MonoBehaviour
                 subQuestSlots[i].gameObject.SetActive(false);
             }
         }
+    }
+    private bool CheckNullComponent()
+    {
+        if (QuestManager.Instance == null
+        || QuestManager.Instance.currentSubQuests == null
+        || subQuestSlots == null
+        || mainQuestSlot == null)
+        {
+            DevLog.Log("퀘스트 UI 매니저 연결 체크");
+            return false;
+        }
+
+        return true;
     }
 }

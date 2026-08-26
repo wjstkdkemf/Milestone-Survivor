@@ -45,7 +45,16 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
     public void Initialize(CharacterSelectionManager manager)
     {
         characterSelectionManager = manager;
-        if (characterInfo.purchased == false)
+
+        if (characterInfo == null)
+        {
+            Debug.LogWarning($"[CharacterSelectionButton] Character info is missing on {name}.");
+            if (myButton != null)
+                myButton.interactable = false;
+            return;
+        }
+
+        if (characterInfo.purchased == false && CardIcon != null)
             CardIcon.color = Color.black;
         normalScale = transform.localScale;
 
@@ -61,7 +70,8 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
         {
             originalOutlineWidth = cardText.outlineWidth;
         }
-        CardIcon.sprite = characterInfo.IconSprite;
+        if (CardIcon != null)
+            CardIcon.sprite = characterInfo.IconSprite;
         // Initialize shadow effect
         shadowEffect = GetComponent<Shadow>();
         if (shadowEffect != null)
@@ -72,6 +82,9 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
 
     public void Purchase()
     {
+        if (PlayerStats.Instance == null || characterInfo == null)
+            return;
+
         if (PlayerStats.Instance.TrySpendGold(characterInfo.costPerLevel))
         {
             characterInfo.purchased = true;
@@ -157,6 +170,7 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!myButton.interactable) return;
+        if (characterInfo == null) return;
 
         Selected();
     }

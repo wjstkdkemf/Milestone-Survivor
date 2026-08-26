@@ -6,6 +6,7 @@ public class PlayerStatsPanelPresenter : MonoBehaviour
 {
     [SerializeField] private StatTableUI statTable;
     [SerializeField] private StatPanelUI statPanel;
+    [SerializeField] private StatIconDatabase statIconDatabase;
     [SerializeField] private bool refreshOnEnable = true;
 
     private void Awake()
@@ -35,7 +36,7 @@ public class PlayerStatsPanelPresenter : MonoBehaviour
         if (statTable == null && statPanel == null)
             return;
 
-        var stats = StatEntryFactory.FromPlayerStats(PlayerStats.Instance);
+        var stats = StatEntryFactory.FromPlayerStats(PlayerStats.Instance, statIconDatabase);
         if (statTable != null)
             statTable.SetStats(stats);
         else

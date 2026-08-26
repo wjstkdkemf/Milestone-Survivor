@@ -22,7 +22,7 @@ public abstract class NavEnemy : Enemy
         agent.stoppingDistance = attackRange;
     }
 
-    public override void OnDisable()
+    protected override void OnDisable()
     {
         base.OnDisable();
         if (agent != null && agent.enabled) agent.enabled = false;

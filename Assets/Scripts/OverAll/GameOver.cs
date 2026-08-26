@@ -65,9 +65,11 @@ public class GameOver : MonoBehaviour
         if (Panel != null)
             Panel.SetActive(true);
 
-        WinnerButton.SetActive(true);
+        if (WinnerButton != null)
+            WinnerButton.SetActive(true);
         isOver = true;
-        GameManager.Instance.Pause = true;
+        if (GameManager.Instance != null)
+            GameManager.Instance.Pause = true;
     }
 
     public void stageClear(bool IsClear = false)
@@ -78,10 +80,12 @@ public class GameOver : MonoBehaviour
             // UpgradeManager.Instance.SaveUpgrade();
             // UpgradeManager.Instance.SaveCurrentChancesToPersistentData();
             // UpgradeManager.Instance.SaveCurrentPointsToPersistentData();
-            InfiniteTilemapManager.Instance.ClearMap();
+            if (InfiniteTilemapManager.Instance != null)
+                InfiniteTilemapManager.Instance.ClearMap();
             ClearEncount();
 
-            GameManager.Instance.CanSpawn = false;
+            if (GameManager.Instance != null)
+                GameManager.Instance.CanSpawn = false;
 
             return;
             //SceneManager.LoadScene("Map 1");
@@ -107,7 +111,12 @@ public class GameOver : MonoBehaviour
 
     public void MoveInventoryAndLoadScene(string sceneName)
     {
-        InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
-        SceneManager.LoadScene(sceneName);
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
+
+        if (LoadingManager.Instance != null)
+            LoadingManager.Instance.LoadScene(sceneName);
+        else
+            SceneManager.LoadScene(sceneName);
     }
 }

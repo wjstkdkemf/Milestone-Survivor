@@ -134,6 +134,6 @@ public class ElementalFireballWeapon : WeaponBase
     {
         currentDamage += 5;
         trailDamageScaling += 0.1f; // 레벨업 시 장판 데미지 비율도 증가
-        Debug.Log($"[Evo Fireball Level Up] 직격뎀: {currentDamage}, 장판계수: {trailDamageScaling}");
+        DevLog.Log($"[Evo Fireball Level Up] 직격뎀: {currentDamage}, 장판계수: {trailDamageScaling}");
     }
 }

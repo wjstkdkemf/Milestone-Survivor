@@ -19,17 +19,29 @@ public class BatEnemy : Enemy
         
         InitializeBat();
     }
+    protected override void OnDisable() 
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.color = defaultColor;
+        if (GameManager.Instance != null)
+            GameManager.Instance.activeEnemies--;
+
+        StopAllCoroutines();
+        currentNormalState = EnemyState.Dead;
+    }
 
     private void InitializeBat()
     {
         health = maxhealth;
         currentNormalState = EnemyState.Idle;
+        CachePlayerReferences();
         if(spriteRenderer != null) 
         {
             spriteRenderer.material = originalMaterial;
             spriteRenderer.color = Color.white;
         }
-        GameManager.Instance.activeEnemies++;
+        if(GameManager.Instance != null)
+            GameManager.Instance.activeEnemies++;
 
         NavMeshAgent agent = GetComponent<NavMeshAgent>();
         if (agent != null)

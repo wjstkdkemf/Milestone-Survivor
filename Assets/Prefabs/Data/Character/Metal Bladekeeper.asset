@@ -16,7 +16,6 @@ MonoBehaviour:
   animatorController: {fileID: 9100000, guid: 91da1a6f5f9bd6d47878374cf5756528, type: 2}
   CharacterPrefab: {fileID: 0}
   CharacterName: Metal Bladekeeper
-  description: 
   localizedCharacterName:
     m_TableReference:
       m_TableCollectionName: GUID:28e0f76450b5482f89a492143029b1c4
@@ -36,7 +35,7 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   Id: 1
-  startingWeapon: {fileID: 0}
+  startingWeapon: {fileID: 11400000, guid: 037b6704fac6d234695981bfe24f249b, type: 2}
   StartingDeck: []
   BaseHP: 100
   Damage: 0
@@ -54,3 +53,6 @@ MonoBehaviour:
   weaponRotationOffset: 0
   WeaponSprite: {fileID: 0}
   WeaponVisualMode: 0
+  references:
+    version: 2
+    RefIds: []

@@ -3,26 +3,26 @@ using UnityEngine;
 
 public static class StatEntryFactory
 {
-    public static List<StatEntry> FromCharacterBase(CharacterScriptableObject character)
+    public static List<StatEntry> FromCharacterBase(CharacterScriptableObject character, StatIconDatabase statIconDatabase)
     {
         List<StatEntry> entries = new List<StatEntry>();
         if (character == null)
             return entries;
 
         entries.Add(StatEntry.Header("character.section.basic_stats", CharacterLocalization.Get("character.section.basic_stats", "Basic Stats")));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.BaseHP), character.BaseHP));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Damage), character.Damage));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.MovementSpeed), character.MovementSpeed));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Armor), character.Armor));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.HealthRegeneration), character.HealthRegeneration));
-        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.LuckBoost), character.LuckBoost));
-        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.CooldownReduction), character.CooldownReduction));
-        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.DobleDamageChance), character.DobleDamageChance));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.BaseHP), character.BaseHP, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.BaseHP))));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Damage), character.Damage, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.Damage))));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.MovementSpeed), character.MovementSpeed, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.MovementSpeed))));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Armor), character.Armor, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.Armor))));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.HealthRegeneration), character.HealthRegeneration, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.HealthRegeneration))));
+        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.LuckBoost), character.LuckBoost, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.LuckBoost))));
+        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.CooldownReduction), character.CooldownReduction, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.CooldownReduction))));
+        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.DobleDamageChance), character.DobleDamageChance, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.DobleDamageChance))));
 
         return entries;
     }
 
-    public static List<StatEntry> FromCharacterLevelUpBonus(CharacterScriptableObject character)
+    public static List<StatEntry> FromCharacterLevelUpBonus(CharacterScriptableObject character , StatIconDatabase statIconDatabase)
     {
         List<StatEntry> entries = new List<StatEntry>
         {
@@ -36,12 +36,12 @@ public static class StatEntryFactory
         }
 
         foreach (StatModifier modifier in character.statModifiers)
-            entries.Add(StatEntry.Signed(modifier.statName, modifier.value));
+            entries.Add(StatEntry.Signed(modifier.statName, modifier.value, GetIcon(statIconDatabase, modifier.statName)));
 
         return entries;
     }
 
-    public static List<StatEntry> FromPlayerStats(PlayerStats stats)
+    public static List<StatEntry> FromPlayerStats(PlayerStats stats, StatIconDatabase statIconDatabase)
     {
         List<StatEntry> entries = new List<StatEntry>();
         if (stats == null)
@@ -54,19 +54,24 @@ public static class StatEntryFactory
         entries.Add(StatEntry.Header("character.section.basic_stats", CharacterLocalization.Get("character.section.basic_stats", "Basic Stats")));
 
         if (health != null)
-            entries.Add(StatEntry.CurrentMax(nameof(CharacterScriptableObject.BaseHP), health.CurrentHealth, health.MaxHealth));
+            entries.Add(StatEntry.CurrentMax(nameof(CharacterScriptableObject.BaseHP), health.CurrentHealth, health.MaxHealth, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.BaseHP))));
 
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Damage), stats.DamageBonus));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.MovementSpeed), stats.SpeedBonus));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Armor), stats.ArmorBonus));
-        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.HealthRegeneration), stats.HealthRegeneration));
-        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.LuckBoost), stats.LuckBonus));
-        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.CooldownReduction), stats.cooldownReduction));
-        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.DobleDamageChance), stats.DoubleDamageChance * 100f));
-        entries.Add(StatEntry.Percent("ProjectileSpeed", stats.projectileSpeedBonus));
-        entries.Add(StatEntry.Number("KnockBack", stats.KnockBackBonus));
-        entries.Add(StatEntry.Percent("XPBoost", stats.experienceBonus));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Damage), stats.DamageBonus, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.Damage))));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.MovementSpeed), stats.SpeedBonus, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.MovementSpeed))));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.Armor), stats.ArmorBonus, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.Armor))));
+        entries.Add(StatEntry.Number(nameof(CharacterScriptableObject.HealthRegeneration), stats.HealthRegeneration, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.HealthRegeneration))));
+        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.LuckBoost), stats.LuckBonus, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.LuckBoost))));
+        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.CooldownReduction), stats.cooldownReduction, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.CooldownReduction))));
+        entries.Add(StatEntry.Percent(nameof(CharacterScriptableObject.DobleDamageChance), stats.DoubleDamageChance * 100f, GetIcon(statIconDatabase, nameof(CharacterScriptableObject.DobleDamageChance))));
+        entries.Add(StatEntry.Percent("ProjectileSpeed", stats.projectileSpeedBonus, GetIcon(statIconDatabase, "ProjectileSpeed")));
+        entries.Add(StatEntry.Number("KnockBack", stats.KnockBackBonus, GetIcon(statIconDatabase, "KnockBack")));
+        entries.Add(StatEntry.Percent("XPBoost", stats.experienceBonus, GetIcon(statIconDatabase, "XPBoost")));
 
         return entries;
+    }
+
+    private static Sprite GetIcon(StatIconDatabase statIconDatabase, string statKey)
+    {
+        return statIconDatabase != null ? statIconDatabase.GetIcon(statKey) : null;
     }
 }

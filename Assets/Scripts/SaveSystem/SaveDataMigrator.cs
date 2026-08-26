@@ -60,7 +60,7 @@ public static class SaveDataMigrator
 
         if (originalVersion != saveData.saveVersion)
         {
-            Debug.Log($"[SaveDataMigrator] Migrated save data from version {originalVersion} to {saveData.saveVersion}.");
+            DevLog.Log($"[SaveDataMigrator] Migrated save data from version {originalVersion} to {saveData.saveVersion}.");
         }
     }
 

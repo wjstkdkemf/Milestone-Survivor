@@ -14,12 +14,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeID: "\uB358\uC804_4_2"
   pointID: "\uB358\uC804 4-1"
-  displayName: "4\uCE35 \uC911\uC559"
-  mapIcon: {fileID: -6488581928283971615, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   targetSpawnPointID: TeleportPoint4-2
+  displayName: "4\uCE35 \uC911\uC559"
+  localizedDisplayName:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedMapLabel:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  mapIcon: {fileID: -6488581928283971615, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   isUnlocked: 0
-  mapPosition: {x: 100, y: 300}
+  mapPosition: {x: 200, y: 300}
   mapLabel: F4-2
   connectedPoints:
   - {fileID: 11400000, guid: b304de61167890b4f9d4cb8691d801e7, type: 2}
   nodeType: 0
+  previewImage: {fileID: 0}
+  TeleportDes:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  references:
+    version: 2
+    RefIds: []

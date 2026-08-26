@@ -10,6 +10,7 @@ public class EnemySwarmSystem : MonoBehaviour
     public static EnemySwarmSystem Instance;
 
     public List<Enemy> activeEnemies = new List<Enemy>(3000);
+    private readonly HashSet<Enemy> registeredEnemies = new HashSet<Enemy>();
     private TransformAccessArray transformAccessArray;
 
     // Job에 넘겨줄 데이터 배열들
@@ -24,20 +25,34 @@ public class EnemySwarmSystem : MonoBehaviour
     [Header("Swarm Settings")]
     public float enemyRadius = 0.5f; // 몬스터의 크기
     public float cellSize;
+    [SerializeField, Min(1)] private int initialCapacity = 3000;
+    private Transform playerCenter;
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
         // 최대 몬스터 수용량 미리 할당
-        transformAccessArray = new TransformAccessArray(3000);
-        grid = new NativeParallelMultiHashMap<int, int>(3000, Allocator.Persistent);
-        nextHitTimes = new NativeArray<float>(3000, Allocator.Persistent);
+        transformAccessArray = new TransformAccessArray(initialCapacity);
+        grid = new NativeParallelMultiHashMap<int, int>(initialCapacity, Allocator.Persistent);
+        nextHitTimes = new NativeArray<float>(initialCapacity, Allocator.Persistent);
 
-        cellSize = enemyRadius * 2;
+        enemyRadius = Mathf.Max(0.01f, enemyRadius);
+        cellSize = Mathf.Max(0.01f, enemyRadius * 2);
     }
 
     private void OnDestroy()
     {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+
         if (transformAccessArray.isCreated) transformAccessArray.Dispose();
         if (positions.IsCreated) positions.Dispose();
         if (speeds.IsCreated) speeds.Dispose();
@@ -49,6 +64,14 @@ public class EnemySwarmSystem : MonoBehaviour
 
     public void RegisterEnemy(Enemy enemy)
     {
+        if (enemy == null || registeredEnemies.Contains(enemy))
+        {
+            return;
+        }
+
+        EnsureNextHitCapacity(activeEnemies.Count + 1);
+
+        registeredEnemies.Add(enemy);
         activeEnemies.Add(enemy);
         transformAccessArray.Add(enemy.transform);
 
@@ -62,6 +85,11 @@ public class EnemySwarmSystem : MonoBehaviour
 
     public void UnregisterEnemy(Enemy enemy)
     {
+        if (enemy == null || !registeredEnemies.Remove(enemy))
+        {
+            return;
+        }
+
         int index = activeEnemies.IndexOf(enemy);
         if (index >= 0)
         {
@@ -83,7 +111,12 @@ public class EnemySwarmSystem : MonoBehaviour
     private void Update()
     {
         int count = activeEnemies.Count;
-        if (count == 0 || GameManager.Instance.Player == null) return;
+        if (count == 0 || !TryGetPlayerCenter(out Transform targetCenter)) return;
+        if (InfiniteTilemapManager.Instance == null ||
+            !InfiniteTilemapManager.Instance.globalWallMap.IsCreated)
+        {
+            return;
+        }
 
         // 매 프레임 배열 크기 맞추기 및 데이터 갱신
         if (!positions.IsCreated || positions.Length != count)
@@ -104,6 +137,12 @@ public class EnemySwarmSystem : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Enemy e = activeEnemies[i];
+            if (e == null)
+            {
+                canMove[i] = false;
+                continue;
+            }
+
             float3 pos = e.transform.position;
             positions[i] = pos.xy;
             
@@ -133,7 +172,7 @@ public class EnemySwarmSystem : MonoBehaviour
             int hash = Hash(cell);
             grid.Add(hash, i);
         }
-        float3 PlayerPos = GameManager.Instance.Player.transform.Find("CenterPosition").position;
+        float3 PlayerPos = targetCenter.position;
 
         SwarmMoveJob moveJob = new SwarmMoveJob
         {
@@ -160,6 +199,51 @@ public class EnemySwarmSystem : MonoBehaviour
 
         //grid.Dispose();
     }
+    private void EnsureNextHitCapacity(int requiredCapacity)
+    {
+        if (nextHitTimes.IsCreated && nextHitTimes.Length >= requiredCapacity)
+        {
+            return;
+        }
+
+        int newCapacity = Mathf.Max(requiredCapacity, nextHitTimes.IsCreated ? nextHitTimes.Length * 2 : initialCapacity);
+        NativeArray<float> newNextHitTimes = new NativeArray<float>(newCapacity, Allocator.Persistent);
+
+        if (nextHitTimes.IsCreated)
+        {
+            NativeArray<float>.Copy(nextHitTimes, newNextHitTimes, nextHitTimes.Length);
+            nextHitTimes.Dispose();
+        }
+
+        nextHitTimes = newNextHitTimes;
+    }
+
+    private bool TryGetPlayerCenter(out Transform center)
+    {
+        if (playerCenter != null)
+        {
+            center = playerCenter;
+            return true;
+        }
+
+        center = null;
+
+        if (GameManager.Instance == null || GameManager.Instance.Player == null)
+        {
+            return false;
+        }
+
+        playerCenter = GameManager.Instance.Player.transform.Find("CenterPosition");
+        if (playerCenter == null)
+        {
+            Debug.LogWarning("[EnemySwarmSystem] Player CenterPosition transform is missing.");
+            return false;
+        }
+
+        center = playerCenter;
+        return true;
+    }
+
     public Enemy GetEnemyByIndex(int index)
     {
         if (index < 0 || index >= activeEnemies.Count)
@@ -171,9 +255,10 @@ public class EnemySwarmSystem : MonoBehaviour
     }
     public int2 GetCell(float2 pos)
     {
+        float safeCellSize = Mathf.Max(0.01f, cellSize);
         return new int2(
-            (int)math.floor(pos.x / cellSize),
-            (int)math.floor(pos.y / cellSize)
+            (int)math.floor(pos.x / safeCellSize),
+            (int)math.floor(pos.y / safeCellSize)
         );
     }
     int Hash(int2 cell)
@@ -182,6 +267,11 @@ public class EnemySwarmSystem : MonoBehaviour
     }
     public Enemy GetClosestEnemy(Vector2 center, float range, HashSet<Enemy> excludedEnemies = null)
     {
+        if (!grid.IsCreated || activeEnemies.Count == 0 || cellSize <= 0f)
+        {
+            return null;
+        }
+
         float closestDistanceSqr = range * range;
         Enemy closestEnemy = null;
 
@@ -223,7 +313,17 @@ public class EnemySwarmSystem : MonoBehaviour
     }
     public void GetEnemiesInRadius(Vector2 center, float range, List<int> results)
     {
+        if (results == null)
+        {
+            return;
+        }
+
         results.Clear(); 
+        if (!grid.IsCreated || activeEnemies.Count == 0 || cellSize <= 0f)
+        {
+            return;
+        }
+
         float rangeSqr = range * range;
 
         int minCellX = Mathf.FloorToInt((center.x - range) / cellSize);

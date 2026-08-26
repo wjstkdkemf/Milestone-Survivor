@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements.Experimental;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -187,7 +186,7 @@ public class PlayerStats : MonoBehaviour
             level = 1;
             currentXP = 0;
             requiredXP = 50;
-            Debug.Log("No player stats data found. Using default values.");
+            DevLog.Log("No player stats data found. Using default values.");
         }
         else
         {
@@ -198,7 +197,7 @@ public class PlayerStats : MonoBehaviour
             level = data.level;
             currentXP = data.currentXP;
             requiredXP = data.requiredXP;
-            Debug.Log("Player stats loaded.");
+            DevLog.Log("Player stats loaded.");
         }
         UpdateExpBar();
     }
@@ -216,6 +215,12 @@ public class PlayerStats : MonoBehaviour
 
     public void AddXP(int amount)
     {
+        if (amount <= 0)
+            return;
+
+        if (requiredXP <= 0f)
+            requiredXP = 50f;
+
         currentXP += amount + Mathf.RoundToInt(experienceBonus);
 
         while (currentXP >= requiredXP)
@@ -223,7 +228,8 @@ public class PlayerStats : MonoBehaviour
             LevelUp();
         }
 
-        PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
+        if (PlayerStatsCalculate.Instance != null)
+            PlayerStatsCalculate.Instance.LevelUpBonus(level - 1);
 
         UpdateExpBar();
     }
@@ -250,7 +256,7 @@ public class PlayerStats : MonoBehaviour
 
     public void ShowUpgradeMenu()
     {
-        if(MenuButtonController.Instance == true)
+        if(MenuButtonController.Instance != null)
         {
             MenuButtonController.Instance.CloseAllMenus();
         }
@@ -263,9 +269,13 @@ public class PlayerStats : MonoBehaviour
     public void ApplyPowerUps()
     {
         if (PlayerStatsCalculate.Instance == null) return;
+        if (powerUps == null) return;
 
         foreach (var powerUp in powerUps)
         {
+            if (powerUp == null || powerUp.upgradeValues == null)
+                continue;
+
             if (powerUp.CurrentLevel > 0 && powerUp.CurrentLevel <= powerUp.upgradeValues.Length)
             {
                 float upgradeValue = powerUp.upgradeValues[powerUp.CurrentLevel - 1];

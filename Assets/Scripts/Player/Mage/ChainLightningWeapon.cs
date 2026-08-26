@@ -97,7 +97,7 @@ public class ChainLightningWeapon : WeaponBase
         currentBaseDamage += 3f;
         if (currentChainCount < 5) 
             currentChainCount++;
-        Debug.Log($"[Chain Lightning Level Up] 데미지: {currentBaseDamage}, 체인 횟수: {currentChainCount}");
+        DevLog.Log($"[Chain Lightning Level Up] 데미지: {currentBaseDamage}, 체인 횟수: {currentChainCount}");
     }
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)

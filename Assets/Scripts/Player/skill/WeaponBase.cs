@@ -30,7 +30,7 @@ public abstract class WeaponBase : MonoBehaviour
     {
         // 자식들이 오버라이드해서 구현
         // 예: OrbWeapon은 orbCount++, AxeWeapon은 데미지++
-        Debug.Log("무기 레벨업!");
+        DevLog.Log("무기 레벨업!");
     }
     public virtual UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {

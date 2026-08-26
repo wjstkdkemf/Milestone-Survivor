@@ -21,7 +21,7 @@ public class InventoryManager : MonoBehaviour
             Instance = this;
             transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
-            Debug.Log($"[InventoryManager] Awake: Instance created. GameObject: {gameObject.name}");
+            DevLog.Log($"[InventoryManager] Awake: Instance created. GameObject: {gameObject.name}");
         }
         else
         {
@@ -40,7 +40,7 @@ public class InventoryManager : MonoBehaviour
         {
             itemCounts[itemName] = quantity;
         }
-        Debug.Log($"Added {quantity} {itemName}. Total: {itemCounts[itemName]}");
+        DevLog.Log($"Added {quantity} {itemName}. Total: {itemCounts[itemName]}");
     }
 
     public Dictionary<string, int> GetInventoryData()
@@ -51,20 +51,20 @@ public class InventoryManager : MonoBehaviour
     public void LoadInventoryData(Dictionary<string, int> data)
     {
         itemCounts = new Dictionary<string, int>(data);
-        Debug.Log("Inventory data loaded.");
+        DevLog.Log("Inventory data loaded.");
     }
 
     public void ClearInventory()
     {
         itemCounts.Clear();
         Debug.LogWarning("[InventoryManager] itemCounts cleared.");
-        Debug.Log(new System.Diagnostics.StackTrace().ToString());
+        DevLog.Log(new System.Diagnostics.StackTrace().ToString());
     }
 
     public void ClearStoredInventory()
     {
         itemCounts.Clear();
-        Debug.Log("[InventoryManager] Stored inventory cleared.");
+        DevLog.Log("[InventoryManager] Stored inventory cleared.");
     }
 
     public void InsertGame(int gameName = 100)
@@ -84,7 +84,7 @@ public class InventoryManager : MonoBehaviour
 
     public void StoreInventoryFrom(string inventoryName)
     {
-        Debug.Log($"[InventoryManager] StoreInventoryFrom started. Current itemCounts: {itemCounts.Count}");
+        DevLog.Log($"[InventoryManager] StoreInventoryFrom started. Current itemCounts: {itemCounts.Count}");
         if (InventoryController.instance == null)
         {
             Debug.LogError("InventoryController not found.");
@@ -108,12 +108,12 @@ public class InventoryManager : MonoBehaviour
                 AddItem(item.GetItemType(), item.GetAmount());
             }
         }
-        Debug.Log($"[InventoryManager] Stored {itemCounts.Count} item types from {inventoryName}.");
+        DevLog.Log($"[InventoryManager] Stored {itemCounts.Count} item types from {inventoryName}.");
     }
 
     public void RestoreInventoryTo(string inventoryName)
     {
-        Debug.Log($"[InventoryManager] RestoreInventoryTo started. Current itemCounts: {itemCounts.Count}");
+        DevLog.Log($"[InventoryManager] RestoreInventoryTo started. Current itemCounts: {itemCounts.Count}");
         if (InventoryController.instance == null)
         {
             Debug.LogError("InventoryController not found.");
@@ -124,7 +124,7 @@ public class InventoryManager : MonoBehaviour
         {
             InventoryController.instance.AddItem(inventoryName, item.Key, item.Value);
         }
-        Debug.Log($"[InventoryManager] Restored {itemCounts.Count} item types to {inventoryName}.");
+        DevLog.Log($"[InventoryManager] Restored {itemCounts.Count} item types to {inventoryName}.");
 
         ClearInventory(); // Clear after restoring.
     }
@@ -146,7 +146,7 @@ public class InventoryManager : MonoBehaviour
         // JSON 문자열을 파일에 씁니다.
         File.WriteAllText(GetFullPath(fileName), jsonData);
 
-        Debug.Log($"모든 인벤토리가 {GetFullPath(fileName)} 파일에 저장되었습니다.");
+        DevLog.Log($"모든 인벤토리가 {GetFullPath(fileName)} 파일에 저장되었습니다.");
     }
     public void LoadAllInventories(string fileName)
     {
@@ -167,7 +167,7 @@ public class InventoryManager : MonoBehaviour
             InventoryController.instance.LoadFromData(jsonData);
             //InventoryController.instance.CopyEquippedItemsToInventory("HotBar", "ClearInventory");
 
-            Debug.Log($"{path} 파일에서 모든 인벤토리를 불러왔습니다.");
+            DevLog.Log($"{path} 파일에서 모든 인벤토리를 불러왔습니다.");
         }
         else
         {
@@ -183,6 +183,6 @@ public class InventoryManager : MonoBehaviour
         if (!File.Exists(path)) return;
 
         File.Delete(path);
-        Debug.Log($"[InventoryManager] Deleted saved inventory file: {path}");
+        DevLog.Log($"[InventoryManager] Deleted saved inventory file: {path}");
     }
 }

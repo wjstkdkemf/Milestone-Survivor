@@ -34,19 +34,50 @@ public class TutorialManager : MonoBehaviour
     public float animSpeed = 5f;
     public float maxScale = 1.1f;
     public float pointerBounceHeight = 20f;
-    
-    // 유저가 클릭해야 할 타겟 버튼을 임시로 기억해둘 변수
-    private Transform originalTargetParent;
-    private int originalTargetSiblingIndex;
+    [Header("듀토리얼 버튼 캐싱")]
+    [SerializeField] private Button startButton;
+    [SerializeField] private Button characterButton;
+    [SerializeField] private Button characterConfirmButton;
+    [SerializeField] private Button forestZoneButton;
+    [SerializeField] private Button forestPointButton;
+    [SerializeField] private Button teleportConfirmButton;
+
+    [Header("씬 전환 후 다시 찾을 버튼 이름")]
+    [SerializeField] private string inventoryButtonName = "Inventory";
+    [SerializeField] private string enchantButtonName = "Enchant Up button";
+    [SerializeField] private string inventoryBackButtonName = "Inventory Back";
+    [SerializeField] private string upgradeButtonName = "Upgrade";
+    [SerializeField, Min(0.1f)] private float buttonSearchTimeout = 10f;
+
+    [SerializeField] private string VillageSceneName = "Village";
+    [SerializeField] private string IngameSceneName = "GameplayScene";
+    [SerializeField] private string forestZoneButtonName = "숲";
+    [SerializeField] private string forestPointButtonName = "숲 1-1";
+
+    private Button inventoryButton;
+    private Button enchantButton;
+    private Button inventoryBackButton;
+    private Button upgradeButton;
+
+    private Coroutine activeTutorialRoutine;
+    private Coroutine activeHighlightRoutine;
+    private UnityEngine.Events.UnityAction activeDialogClickAction;
+
+    private Transform highlightedTarget;
+    private Transform highlightedOriginalParent;
+    private int highlightedOriginalSiblingIndex;
+    private Button highlightedButton;
+    private UnityEngine.Events.UnityAction highlightedButtonClickAction;
+    private Slot highlightedSlot;
+    private System.Action highlightedSlotClickAction;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 사장님 기획대로 다중 씬 유지를 위해 DDOL 적용!
+            DontDestroyOnLoad(gameObject);
             
-            // 씬이 변경될 때마다 OnSceneLoaded 함수가 자동으로 실행되도록 구독(구독)합니다.
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
@@ -59,27 +90,35 @@ public class TutorialManager : MonoBehaviour
         // 내가 현재 활성화된 인스턴스였다면, 파괴될 때 참조를 비워줌
         if (Instance == this)
         {
+            StopActiveTutorialRoutine();
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             Instance = null;
         }
     }
-    public void CheakTutorial()
+    public void CheckTutorial()
     {
-        GameProgressManager.Instance.Dislock("Tutorial");//테스트용 코드 반드시 삭제 요함.
+        //GameProgressManager.Instance.Dislock("Tutorial");
+        if (GameProgressManager.Instance == null)
+        {
+            Debug.LogWarning("[TutorialManager] GameProgressManager is missing.");
+            return;
+        }
+
         if (GameProgressManager.Instance.IsUnlocked("Tutorial"))
         {
             // 나 자신(스크립트)이 아니라, 나를 포함한 이 거대한 UI 오브젝트 덩어리 전체를 즉시 파괴!
-            
             Destroy(gameObject); 
             return;
         }
+
+        StartTutorial();
     }
     public void StartTutorial()
     {
         if (currentStep == TutorialStep.None)
         {
             // 이벤트(OnSceneLoaded)를 기다리지 않고, 태어나자마자 1부를 강제로 시작!
-            
-            //StartCoroutine(TownPhase1_Routine());//TownPhase1_Routine
+            StartTutorialRoutine(TownPhase1_Routine());//TownPhase1_Routine
         }
     }
 
@@ -88,24 +127,116 @@ public class TutorialManager : MonoBehaviour
         // 이미 튜토리얼이 끝났다면 무시
         if (currentStep == TutorialStep.Complete) return;
 
-        if (scene.name == "Village")
+        if (scene.name == VillageSceneName)
         {
             if (currentStep == TutorialStep.BattlePhase_Attack)
             {
                 // 전투가 끝나고 다시 마을로 옴: 마을 튜토리얼 2부
-                StartCoroutine(TownPhase2_Routine());
+                StartTutorialRoutine(TownPhase2_Routine());
             }
         }
-        else if (scene.name == "GameplayScene")
+        else if (scene.name == IngameSceneName)
         {
             if (currentStep == TutorialStep.TownPhase1_GoBattle)
             {
                 // 전투 씬 최초 진입
-                Debug.Log("호출타이밍 체크");
-                StartCoroutine(BattlePhase_Routine());
+                DevLog.Log("호출타이밍 체크");
+                StartTutorialRoutine(BattlePhase_Routine());
             }
         }
     }
+
+    private void StartTutorialRoutine(IEnumerator routine)
+    {
+        StopActiveTutorialRoutine();
+        activeTutorialRoutine = StartCoroutine(RunTutorialRoutine(routine));
+    }
+
+    private IEnumerator RunTutorialRoutine(IEnumerator routine)
+    {
+        yield return routine;
+        activeTutorialRoutine = null;
+    }
+
+    private void StopActiveTutorialRoutine()
+    {
+        if (activeTutorialRoutine != null)
+        {
+            StopCoroutine(activeTutorialRoutine);
+            activeTutorialRoutine = null;
+        }
+
+        ClearDialogClickListener();
+        RestoreHighlightedTarget();
+    }
+
+    private void ClearDialogClickListener()
+    {
+        if (nextDialogButton != null && activeDialogClickAction != null)
+        {
+            nextDialogButton.onClick.RemoveListener(activeDialogClickAction);
+        }
+
+        activeDialogClickAction = null;
+
+        if (nextDialogButton != null)
+        {
+            nextDialogButton.gameObject.SetActive(false);
+        }
+    }
+
+    private void CaptureHighlightedTarget(Transform target)
+    {
+        RestoreHighlightedTarget();
+
+        highlightedTarget = target;
+        highlightedOriginalParent = target.parent;
+        highlightedOriginalSiblingIndex = target.GetSiblingIndex();
+    }
+
+    private void RestoreHighlightedTarget()
+    {
+        if (activeHighlightRoutine != null)
+        {
+            StopCoroutine(activeHighlightRoutine);
+            activeHighlightRoutine = null;
+        }
+
+        if (highlightedButton != null && highlightedButtonClickAction != null)
+        {
+            highlightedButton.onClick.RemoveListener(highlightedButtonClickAction);
+        }
+
+        if (highlightedSlot != null && highlightedSlotClickAction != null)
+        {
+            highlightedSlot.OnSlotClickedForTutorial -= highlightedSlotClickAction;
+        }
+
+        if (guidePointer != null)
+        {
+            guidePointer.gameObject.SetActive(false);
+        }
+
+        if (highlightedTarget != null)
+        {
+            highlightedTarget.localScale = Vector3.one;
+
+            if (highlightedOriginalParent != null)
+            {
+                highlightedTarget.SetParent(highlightedOriginalParent);
+                highlightedTarget.SetSiblingIndex(highlightedOriginalSiblingIndex);
+            }
+        }
+
+        highlightedTarget = null;
+        highlightedOriginalParent = null;
+        highlightedOriginalSiblingIndex = 0;
+        highlightedButton = null;
+        highlightedButtonClickAction = null;
+        highlightedSlot = null;
+        highlightedSlotClickAction = null;
+    }
+
     private IEnumerator TownPhase1_Routine()
     {
         currentStep = TutorialStep.TownPhase1_Intro;
@@ -117,59 +248,31 @@ public class TutorialManager : MonoBehaviour
 
         currentStep = TutorialStep.TownPhase1_GoBattle;
         
-        GameObject battleBtnObj = GameObject.Find("Start"); 
-        
-        if (battleBtnObj != null)
-        {
-            Button battleBtn = battleBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(battleBtn, "중앙의 [전투 입장] 버튼을 눌러주세요!");
-        }
+
+        yield return HighlightButtonAndWait(startButton, "중앙의 [전투 입장] 버튼을 눌러주세요!");
 
         yield return null;//1프레임 대기
 
-        battleBtnObj = GameObject.Find("1_Character"); 
-        
-        if (battleBtnObj != null)
-        {
-            Button battleBtn = battleBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(battleBtn, "캐릭터를 눌러주세요!");
-        }
+        yield return HighlightButtonAndWait(characterButton, "캐릭터를 눌러주세요!");
         yield return null;//1프레임 대기
 
-        battleBtnObj = GameObject.Find("Char_Confirm"); 
-        
-        if (battleBtnObj != null)
-        {
-            Button battleBtn = battleBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(battleBtn, "캐릭터를 눌러주세요!");
-        }
+        yield return HighlightButtonAndWait(characterConfirmButton, "캐릭터를 눌러주세요!");
         yield return null;//1프레임 대기
 
-        battleBtnObj = GameObject.Find("숲"); 
-        
-        if (battleBtnObj != null)
-        {
-            Button battleBtn = battleBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(battleBtn, "듀토리얼 지역 버튼을 눌러주세요!");
-        }
+
+        yield return WaitForButtonByName(forestZoneButtonName, button => forestZoneButton = button);
+        yield return HighlightButtonAndWait(forestZoneButton, "듀토리얼 지역 버튼을 눌러주세요!");
+    
         yield return null;//1프레임 대기
 
-        battleBtnObj = GameObject.Find("숲 1-1"); 
         
-        if (battleBtnObj != null)
-        {
-            Button battleBtn = battleBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(battleBtn, "듀토리얼 지역 버튼을 눌러주세요!");
-        }
+
+        yield return WaitForButtonByName(forestPointButtonName, button => forestPointButton = button);
+        yield return HighlightButtonAndWait(forestPointButton, "듀토리얼 지역 버튼을 눌러주세요!");
+        
         yield return null;//1프레임 대기
         
-        battleBtnObj = GameObject.Find("Teleport_Confirm"); 
-        
-        if (battleBtnObj != null)
-        {
-            Button battleBtn = battleBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(battleBtn, "이동 버튼을 눌러주세요!");
-        }
+        yield return HighlightButtonAndWait(teleportConfirmButton, "이동 버튼을 눌러주세요!");
         // 버튼이 눌리면 씬이 전환될 것이므로, 여기서는 캔버스만 꺼줍니다.
         tutorialCanvas.SetActive(false);
     }
@@ -205,6 +308,8 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator TownPhase2_Routine()
     {
         currentStep = TutorialStep.TownPhase2_Upgrade;
+        ClearTownPhase2ButtonCache();
+
         tutorialCanvas.SetActive(true);
         blockerPanel.gameObject.SetActive(true);
         dialogText.transform.parent.gameObject.SetActive(true); 
@@ -212,12 +317,8 @@ public class TutorialManager : MonoBehaviour
         yield return ShowDialog("무사히 돌아오셨군요! 방금 얻은 재화로 무기를 강화해보세요.");
 
         // 상점 버튼 찾아서 클릭 유도
-        GameObject shopBtnObj = GameObject.Find("Inventory");
-        if (shopBtnObj != null)
-        {
-            Button shopBtn = shopBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(shopBtn, "[인벤토리] 버튼을 눌러보세요.");
-        }
+        yield return WaitForButtonByName(inventoryButtonName, button => inventoryButton = button);
+        yield return HighlightButtonAndWait(inventoryButton, "[인벤토리] 버튼을 눌러보세요.");
         yield return null;
 
         Slot[] allSlots = Object.FindObjectsByType<Slot>(FindObjectsSortMode.None);
@@ -232,31 +333,19 @@ public class TutorialManager : MonoBehaviour
         }
         yield return null;
         
-        shopBtnObj = GameObject.Find("Enchant Up button");
-        if (shopBtnObj != null)
-        {
-            Button shopBtn = shopBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(shopBtn, "[강화] 버튼을 눌러보세요.");
-        }
+        yield return WaitForButtonByName(enchantButtonName, button => enchantButton = button);
+        yield return HighlightButtonAndWait(enchantButton, "[강화] 버튼을 눌러보세요.");
         yield return null;
 
         yield return ShowDialog("아이템을 더블클릭하면 장착이 가능하고");
         yield return ShowDialog("장착된 아이템을 더블클릭하면 장착이 해제됩니다.");
 
-        shopBtnObj = GameObject.Find("Inventory Back");
-        if (shopBtnObj != null)
-        {
-            Button shopBtn = shopBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(shopBtn, "[뒤로가기] 버튼을 눌러보세요.");
-        }
+        yield return WaitForButtonByName(inventoryBackButtonName, button => inventoryBackButton = button);
+        yield return HighlightButtonAndWait(inventoryBackButton, "[뒤로가기] 버튼을 눌러보세요.");
         yield return null;
         
-        shopBtnObj = GameObject.Find("Upgrade");
-        if (shopBtnObj != null)
-        {
-            Button shopBtn = shopBtnObj.GetComponent<Button>();
-            yield return HighlightButtonAndWait(shopBtn, "[업그레이드] 버튼을 눌러보세요.");
-        }
+        yield return WaitForButtonByName(upgradeButtonName, button => upgradeButton = button);
+        yield return HighlightButtonAndWait(upgradeButton, "[업그레이드] 버튼을 눌러보세요.");
         yield return null;
 
         yield return ShowDialog("다양한 등급별 강화가 존재하고");
@@ -271,22 +360,23 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator ShowDialog(string text, bool closeAfter = false)
     {
+        ClearDialogClickListener();
+
         dialogPanel.SetActive(true); 
 
         dialogText.text = text;
         bool isClicked = false;
 
         // 대사 넘기기 버튼(화면 전체 투명 버튼)에 임시 이벤트 등록
-        UnityEngine.Events.UnityAction onClickAction = () => { isClicked = true; };
-        nextDialogButton.onClick.AddListener(onClickAction);
+        activeDialogClickAction = () => { isClicked = true; };
+        nextDialogButton.onClick.AddListener(activeDialogClickAction);
         nextDialogButton.gameObject.SetActive(true);
 
         // 유저가 화면을 터치할 때까지 대기
         yield return new WaitUntil(() => isClicked);
 
         // 이벤트 해제
-        nextDialogButton.onClick.RemoveListener(onClickAction);
-        nextDialogButton.gameObject.SetActive(false);
+        ClearDialogClickListener();
 
         if (closeAfter)
         {
@@ -296,64 +386,59 @@ public class TutorialManager : MonoBehaviour
 
     private IEnumerator HighlightButtonAndWait(Button targetButton, string guideText)
     {
+        if (targetButton == null)
+        {
+            Debug.LogWarning($"[TutorialManager] Tutorial target button is missing. Guide text: {guideText}");
+            yield break;
+        }
+
         dialogText.text = guideText;
 
-        // 타겟 버튼의 원래 위치 기억
-        originalTargetParent = targetButton.transform.parent;
-        originalTargetSiblingIndex = targetButton.transform.GetSiblingIndex();
+        CaptureHighlightedTarget(targetButton.transform);
+        highlightedButton = targetButton;
 
         // 타겟 버튼을 차단막(blockerPanel)의 자식으로 잠시 이동시켜서 화면 맨 위로 끌어올림!
         targetButton.transform.SetParent(blockerPanel.transform);
         targetButton.transform.SetAsLastSibling(); 
 
-        Coroutine animCoroutine = StartCoroutine(HighlightAnimationRoutine(targetButton.transform));
+        activeHighlightRoutine = StartCoroutine(HighlightAnimationRoutine(targetButton.transform));
 
         // 버튼 클릭 이벤트 추적
         bool isTargetClicked = false;
-        UnityEngine.Events.UnityAction onClickAction = () => { isTargetClicked = true; };
-        targetButton.onClick.AddListener(onClickAction);
+        highlightedButtonClickAction = () => { isTargetClicked = true; };
+        targetButton.onClick.AddListener(highlightedButtonClickAction);
 
         // 클릭할 때까지 무한 대기
-        yield return new WaitUntil(() => isTargetClicked);
+        yield return new WaitUntil(() => isTargetClicked || targetButton == null);
 
-        StopCoroutine(animCoroutine);
-        targetButton.transform.localScale = Vector3.one; // 크기 원래대로(1.0)
-
-        //클릭 확인 후, 버튼을 원래 UI 계층으로 돌려놓기 및 이벤트 정리
-        targetButton.transform.SetParent(originalTargetParent);
-        targetButton.transform.SetSiblingIndex(originalTargetSiblingIndex);
-        targetButton.onClick.RemoveListener(onClickAction);
+        RestoreHighlightedTarget();
     }
     private IEnumerator HighlightSlotAndWait(Slot targetSlot, string guideText)
     {
+        if (targetSlot == null)
+        {
+            Debug.LogWarning($"[TutorialManager] Tutorial target slot is missing. Guide text: {guideText}");
+            yield break;
+        }
+
         dialogText.text = guideText;
 
-        Transform originalTargetParent = targetSlot.transform.parent;
-        int originalTargetSiblingIndex = targetSlot.transform.GetSiblingIndex();
+        CaptureHighlightedTarget(targetSlot.transform);
+        highlightedSlot = targetSlot;
 
         targetSlot.transform.SetParent(blockerPanel.transform);
         targetSlot.transform.SetAsLastSibling(); 
 
-        Coroutine animCoroutine = StartCoroutine(HighlightAnimationRoutine(targetSlot.transform));
+        activeHighlightRoutine = StartCoroutine(HighlightAnimationRoutine(targetSlot.transform));
 
         bool isTargetClicked = false;
-        System.Action onClickAction = () => { isTargetClicked = true; };
+        highlightedSlotClickAction = () => { isTargetClicked = true; };
         
-        targetSlot.OnSlotClickedForTutorial += onClickAction;
+        targetSlot.OnSlotClickedForTutorial += highlightedSlotClickAction;
 
-        yield return new WaitUntil(() => isTargetClicked);
+        yield return new WaitUntil(() => isTargetClicked || targetSlot == null);
 
-        StopCoroutine(animCoroutine);
-        targetSlot.transform.localScale = Vector3.one; 
-        
-        if (guidePointer != null) 
-        {
-            guidePointer.gameObject.SetActive(false); 
-        }
-
-        targetSlot.transform.SetParent(originalTargetParent);
-        targetSlot.transform.SetSiblingIndex(originalTargetSiblingIndex);
-        targetSlot.OnSlotClickedForTutorial -= onClickAction;
+        RestoreHighlightedTarget();
     }
 
     private IEnumerator HighlightAnimationRoutine(Transform targetTransform)
@@ -375,6 +460,11 @@ public class TutorialManager : MonoBehaviour
 
         while (true)
         {
+            if (targetTransform == null)
+            {
+                yield break;
+            }
+
             timer += Time.deltaTime * animSpeed;
 
             float scaleLerp = Mathf.PingPong(timer, 1f);
@@ -389,19 +479,63 @@ public class TutorialManager : MonoBehaviour
             yield return null;
         }
     }
+    private IEnumerator WaitForButtonByName(string objectName, System.Action<Button> onFound)
+    {
+        if (string.IsNullOrEmpty(objectName))
+        {
+            onFound?.Invoke(null);
+            yield break;
+        }
+
+        Button button = null;
+        float elapsed = 0f;
+
+        while (button == null && elapsed < buttonSearchTimeout)
+        {
+            GameObject obj = GameObject.Find(objectName);
+            if (obj != null)
+                button = obj.GetComponent<Button>();
+
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        if (button == null)
+            Debug.LogWarning($"[TutorialManager] Could not find tutorial button named '{objectName}'.");
+
+        onFound?.Invoke(button);
+    }
+
+    private void ClearTownPhase2ButtonCache()
+    {
+        inventoryButton = null;
+        enchantButton = null;
+        inventoryBackButton = null;
+        upgradeButton = null;
+    }
 
     private void EndTutorialAndDestroy()
     {
         currentStep = TutorialStep.Complete;
-        tutorialCanvas.SetActive(false);
+        activeTutorialRoutine = null;
+        ClearDialogClickListener();
+        RestoreHighlightedTarget();
+
+        if (tutorialCanvas != null)
+        {
+            tutorialCanvas.SetActive(false);
+        }
 
         // 유저 데이터에 튜토리얼 클리어 저장
-        GameProgressManager.Instance.Unlock("Tutorial");
+        if (GameProgressManager.Instance != null)
+        {
+            GameProgressManager.Instance.Unlock("Tutorial");
+        }
 
         // 씬 로드 이벤트 구독 취소
         SceneManager.sceneLoaded -= OnSceneLoaded;
 
-        Debug.Log("튜토리얼 완료! 매니저를 파괴합니다.");
+        DevLog.Log("튜토리얼 완료! 매니저를 파괴합니다.");
 
         Destroy(gameObject);
     }

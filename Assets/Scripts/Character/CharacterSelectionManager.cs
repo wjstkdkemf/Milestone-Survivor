@@ -29,6 +29,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
     private CharacterSelectionButton characterSelectionButton;
 
+    [SerializeField] private StatIconDatabase statIconDatabase;
     [SerializeField] private List<CharacterScriptableObject> characterList; // List of CharacterScriptableObjects
     private string saveFilePath;
     private CharacterScriptableObject currentCharacterInfo;
@@ -60,7 +61,8 @@ public class CharacterSelectionManager : MonoBehaviour
     {
         foreach(CharacterSelectionButton button in characterButtons)
         {
-            button.Initialize(this);
+            if (button != null)
+                button.Initialize(this);
         }
         Invoke("delayedStart", .5f);
         
@@ -83,21 +85,37 @@ public class CharacterSelectionManager : MonoBehaviour
 
     void delayedStart()
     {
+        if (characterButtons == null || characterButtons.Count == 0 || characterButtons[0] == null)
+        {
+            Debug.LogWarning("[CharacterSelectionManager] No character button is available for initial selection.");
+            return;
+        }
+
         characterButtons[0].Selected();
     }
     public void SetInfo(CharacterScriptableObject info,CharacterSelectionButton button)
     {
+        if (info == null)
+        {
+            Debug.LogWarning("[CharacterSelectionManager] Cannot show character info because data is missing.");
+            return;
+        }
+
         currentCharacterInfo = info;
         characterSelectionButton = button;
-        panle.SetActive(true);
-        nameText.text = info.GetLocalizedName();
+        if (panle != null)
+            panle.SetActive(true);
+
+        if (nameText != null)
+            nameText.text = info.GetLocalizedName();
+
         if(descriptionText != null)
             descriptionText.text = info.GetLocalizedDescription();
         //costText.text = info.costPerLevel.ToString();
         if(icon != null)
             icon.sprite = info.IconSprite;
 
-        List<StatEntry> baseStats = StatEntryFactory.FromCharacterBase(info);
+        List<StatEntry> baseStats = StatEntryFactory.FromCharacterBase(info , statIconDatabase);
 
         if(MainStatPanel != null)
         {
@@ -112,7 +130,7 @@ public class CharacterSelectionManager : MonoBehaviour
         {
             baseStatPanel.SetStats(baseStats);
         }
-        List<StatEntry> levelUpStats = StatEntryFactory.FromCharacterLevelUpBonus(info);
+        List<StatEntry> levelUpStats = StatEntryFactory.FromCharacterLevelUpBonus(info, statIconDatabase);
         if (levelUpStatTable != null)
         {
             levelUpStatTable.SetStats(levelUpStats);
@@ -124,10 +142,14 @@ public class CharacterSelectionManager : MonoBehaviour
 
         DrawSkillInfo();
         //BuyButtons.SetActive(!info.purchased);
-        ConfirmButton.SetActive(info.purchased);
+        if (ConfirmButton != null)
+            ConfirmButton.SetActive(info.purchased);
     }
     public void ExtractionMainStat(List<StatEntry> baseStats)
     {
+        if (baseStats == null || MainStatPanel == null)
+            return;
+
         List<StatEntry> mainStats = new List<StatEntry>();
         mainStats.Add(StatEntry.Header("character.section.main_stats", CharacterLocalization.Get("character.section.main_stats", "main_stats")));
 
@@ -146,6 +168,17 @@ public class CharacterSelectionManager : MonoBehaviour
     }
     public void DrawSkillInfo()
     {
+        if (currentCharacterInfo == null || currentCharacterInfo.startingWeapon == null)
+        {
+            if(Skillicon != null)
+                Skillicon.sprite = null;
+            if(skillName != null)
+                skillName.text = string.Empty;
+            if(skillDescription != null)
+                skillDescription.text = string.Empty;
+            return;
+        }
+
         if(Skillicon != null)
             Skillicon.sprite = currentCharacterInfo.startingWeapon.Icon;
         if(skillName != null)
@@ -157,16 +190,25 @@ public class CharacterSelectionManager : MonoBehaviour
     {
         foreach (CharacterSelectionButton button in characterButtons)
         {
-            button.DeSelected();
+            if (button != null)
+                button.DeSelected();
         }
     }
     public void Purchase()
     {
+        if (PlayerStats.Instance == null || characterSelectionButton == null || characterSelectionButton.characterInfo == null)
+        {
+            Debug.LogWarning("[CharacterSelectionManager] Cannot purchase character because required data is missing.");
+            return;
+        }
+
         if (PlayerStats.Instance.TrySpendGold(characterSelectionButton.characterInfo.costPerLevel))
         {
             characterSelectionButton.characterInfo.purchased = true;
-            characterSelectionButton.CardIcon.color = Color.white;
-            BuyButtons.SetActive(false);
+            if (characterSelectionButton.CardIcon != null)
+                characterSelectionButton.CardIcon.color = Color.white;
+            if (BuyButtons != null)
+                BuyButtons.SetActive(false);
         }
     }
     public void SaveCharacterData()
@@ -199,7 +241,7 @@ public class CharacterSelectionManager : MonoBehaviour
         string json = JsonUtility.ToJson(new SaveDataWrapper<CharacterSaveData> { data = saveDataList }, true);
         File.WriteAllText(saveFilePath, json);
 
-        Debug.Log("Character data saved to " + saveFilePath);
+        DevLog.Log("Character data saved to " + saveFilePath);
     }
 
     /// <summary>
@@ -207,6 +249,12 @@ public class CharacterSelectionManager : MonoBehaviour
     /// </summary>
     public void LoadCharacterData()
     {
+        if (characterList == null || characterList.Count == 0)
+        {
+            Debug.LogWarning("[CharacterSelectionManager] Character list is empty. Character save data cannot be applied.");
+            return;
+        }
+
         if (!File.Exists(saveFilePath))
         {
             Debug.LogWarning("Save file not found. No data to load.");
@@ -231,7 +279,7 @@ public class CharacterSelectionManager : MonoBehaviour
                 if (character != null && character.CharacterName == saveData.CharacterName)
                 {
                     character.purchased = saveData.purchased;
-                    Debug.Log($"Loaded {character.CharacterName}: purchased = {character.purchased}");
+                    DevLog.Log($"Loaded {character.CharacterName}: purchased = {character.purchased}");
                 }
             }
         }
@@ -239,27 +287,54 @@ public class CharacterSelectionManager : MonoBehaviour
 
     public void ConfirmCharacter()
     {
+        if (PlayerStats.Instance == null || characterSelectionButton == null || characterSelectionButton.characterInfo == null)
+        {
+            Debug.LogWarning("[CharacterSelectionManager] Cannot confirm character because required data is missing.");
+            return;
+        }
+
         PlayerStats.Instance.CharacterID = characterSelectionButton.characterInfo.Id;
         //SaveLoadManager.Instance.SettingMode(1);//세 게임
     }
 
     public void ResetCharacters()
     {
+        if (characterList == null || characterList.Count == 0)
+        {
+            Debug.LogWarning("[CharacterSelectionManager] Cannot reset characters because character list is empty.");
+            return;
+        }
+
         foreach(var character in characterList)
         {
+            if (character == null)
+                continue;
+
             if (character.purchased == true)
-                PlayerStats.Instance.AddGold(character.costPerLevel);
+            {
+                if (PlayerStats.Instance != null)
+                    PlayerStats.Instance.AddGold(character.costPerLevel);
+            }
 
             character.purchased = false;
         }
-        characterList[0].purchased = true;
+
+        if (characterList[0] != null)
+            characterList[0].purchased = true;
 
         foreach (CharacterSelectionButton button in characterButtons)
         {
-            button.Initialize(this);
+            if (button != null)
+                button.Initialize(this);
         }
-        characterButtons[0].CardIcon.color = Color.white;
-        characterButtons[0].Selected();
+
+        if (characterButtons != null && characterButtons.Count > 0 && characterButtons[0] != null)
+        {
+            if (characterButtons[0].CardIcon != null)
+                characterButtons[0].CardIcon.color = Color.white;
+            characterButtons[0].Selected();
+        }
+
         SaveCharacterData();
     }
     [System.Serializable]

@@ -92,7 +92,7 @@ public class SceneTransitionManager : MonoBehaviour
         SceneTransitionManager.PrepareForVillage("PlayerInventory");
 
         // 2. Load the village scene.
-        SceneManager.LoadScene("VillageSceneName"); // <-- Replace with your actual village scene name
+        LoadingManager.Instance.LoadScene("Village");
     }
     */
 

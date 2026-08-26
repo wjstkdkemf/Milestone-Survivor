@@ -6,9 +6,12 @@ public class NextScene : MonoBehaviour
     public int SceneIndex;
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.CompareTag("Player"))
         {
-            SceneManager.LoadScene(SceneIndex);
+            if (LoadingManager.Instance != null)
+                LoadingManager.Instance.LoadScene(SceneIndex);
+            else
+                SceneManager.LoadScene(SceneIndex);
         }
     }
 }

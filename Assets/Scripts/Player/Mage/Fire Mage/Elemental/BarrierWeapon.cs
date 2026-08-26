@@ -102,7 +102,7 @@ public class BarrierWeapon : WeaponBase
         {
             playerHealthScript.SetInvincible(0.2f);
         }
-        Debug.Log("베리어!");
+        DevLog.Log("베리어!");
 
         // 2. 넉백 발생 및 데미지 무효화 처리
         PerformKnockback();
@@ -156,6 +156,6 @@ public class BarrierWeapon : WeaponBase
         // 레벨업 시 쿨타임 감소, 넉백 파워 증가 등
         currentChargeTimeLimit = Mathf.Max(1f, currentChargeTimeLimit - 0.5f);
         currentKnockbackForce += 2f;
-        Debug.Log($"[Barrier Level Up] 대기시간: {currentChargeTimeLimit}, 넉백파워: {currentKnockbackForce}");
+        DevLog.Log($"[Barrier Level Up] 대기시간: {currentChargeTimeLimit}, 넉백파워: {currentKnockbackForce}");
     }
 }

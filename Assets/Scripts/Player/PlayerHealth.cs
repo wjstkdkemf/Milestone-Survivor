@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
 public class PlayerHealth : MonoBehaviour ,IDamageable
 {
@@ -23,7 +24,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     public Vector3 SliderOffset;
     public bool IsDead;
     private bool isInvincible = false; // 무적 상태 플래그
-
+    private Player_Controller player_Controller;
 
     // ******************** Flash Stuff*********************
     public Material flashMaterial;
@@ -51,6 +52,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
             slider = GameObject.FindGameObjectWithTag("HealthSlider")?.GetComponent<Slider>();
             spriteRenderer = transform.GetChild(0)?.GetComponent<SpriteRenderer>();
             if(spriteRenderer != null) originalMaterial = spriteRenderer.material;
+            player_Controller = GetComponent<Player_Controller>();
         }
         myBarrierSkill = GetComponentInChildren<BarrierWeapon>();
 
@@ -60,7 +62,9 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     // Update is called once per frame
     void Update()
     {
-        Dashing = GetComponent<Player_Controller>().Dashing;
+        if(player_Controller != null)
+            Dashing = player_Controller.Dashing;
+            
         if (CurrentHealth <= 0)
         {
             if (!IsDead) // Prevent this from running multiple times

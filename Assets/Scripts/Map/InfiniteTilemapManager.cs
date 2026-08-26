@@ -55,7 +55,9 @@ public class InfiniteTilemapManager : MonoBehaviour
     }
     private void Start()
     {
-        player = GameObject.FindWithTag("Player").transform;
+        var playerGameObject = GameObject.FindWithTag("Player");
+        if(playerGameObject != null)
+            player = playerGameObject.transform;
         //GenerateMap(mapThemes[0].themeName);
     }
     private void OnDestroy()

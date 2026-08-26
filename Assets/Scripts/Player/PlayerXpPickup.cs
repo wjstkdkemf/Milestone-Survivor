@@ -58,8 +58,12 @@ public class PlayerXpPickup : MonoBehaviour
 
         foreach (Collider2D collider in hitColliders)
         {
-            ItemObject itemObject = collider.GetComponent<ItemObject>();
-            if (itemObject != null && itemObject.GetComponent<ItemDropEffect>().GetHasLand())
+            if(!collider.TryGetComponent<ItemObject>(out var itemObject))
+                continue;
+            if(!itemObject.TryGetComponent<ItemDropEffect>(out var effect))
+                continue;
+            
+            if (itemObject != null && effect.GetHasLand())
             {
                 itemObject.Collect(trans);
             }

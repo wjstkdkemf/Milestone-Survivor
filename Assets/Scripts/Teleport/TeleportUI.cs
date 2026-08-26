@@ -6,10 +6,8 @@ using UnityEngine.UI;
 
 public class TeleportUI : MonoBehaviour
 {
-    public GameObject teleportSmallButtonPrefab;
     public GameObject teleportBigButtonPrefab;
 
-    public Transform smallButtonContainer;
     public Transform bigButtonContainer;
     public TeleportMapMaker teleportMapMaker;
     public TeleportMapViewport teleportMapViewport;
@@ -17,9 +15,9 @@ public class TeleportUI : MonoBehaviour
     public GameObject player;
     public bool IsHome;
 
-    [Header("Button Colors")]
-    public Color normalColor = Color.white;
-    public Color selectedColor = Color.grey;
+    [Header("Button Sprite")]
+    [SerializeField] private Sprite normalBigButtonSprite;
+    [SerializeField] private Sprite selectedBigButtonSprite;
 
     private Button SelectbigButton;
     private Button SelectsmallButton;
@@ -52,19 +50,21 @@ public class TeleportUI : MonoBehaviour
     {
         if (bigButtonContainer == null ||
             teleportBigButtonPrefab == null ||
-            TeleportManager.Instance == null ||
-            TeleportManager.Instance.database == null)
+            TeleportManager.Instance == null)
             return;
 
         foreach (Transform child in bigButtonContainer)
             Destroy(child.gameObject);
 
-        var zoneGroups = TeleportManager.Instance.database.allZoneGroups;
+        var zoneGroups = TeleportManager.Instance.GetAllTeleportData();
         if (zoneGroups == null)
             return;
 
         foreach (TeleportZoneData group in zoneGroups)
         {
+            if (group == null)
+                continue;
+
             GameObject buttonObj = Instantiate(teleportBigButtonPrefab, bigButtonContainer);
             buttonObj.name = group.zoneName;
 
@@ -88,14 +88,11 @@ public class TeleportUI : MonoBehaviour
         currentSelectedGroup = selectedGroup;
 
         if (SelectbigButton != null && SelectbigButton != button)
-            SelectbigButton.GetComponent<Image>().color = normalColor;
+            SetBigButtonSelected(SelectbigButton, false);
 
         SelectbigButton = button;
+        SetBigButtonSelected(SelectbigButton, true);
 
-        if (SelectbigButton != null)
-            SelectbigButton.GetComponent<Image>().color = selectedColor;
-
-        ClearPointList();
         SelectsmallButton = null;
 
         if (teleportMapMaker != null)
@@ -104,28 +101,16 @@ public class TeleportUI : MonoBehaviour
         if (teleportMapViewport != null)
             teleportMapViewport.ResetView();
     }
-
-    private void ClearPointList()
-    {
-        if (smallButtonContainer == null)
-            return;
-
-        foreach (Transform child in smallButtonContainer)
-            Destroy(child.gameObject);
-    }
-
     public void OnTeleportButtonClick(TeleportData teleportPoint, Button button)
     {
         if (teleportPoint == null)
             return;
 
-        if (SelectsmallButton != null && SelectsmallButton != button)
-            SelectsmallButton.GetComponent<Image>().color = normalColor;
+        if (SelectbigButton != null && SelectbigButton != button)
+            SetBigButtonSelected(SelectbigButton, false);
 
-        SelectsmallButton = button;
-
-        if (SelectsmallButton != null)
-            SelectsmallButton.GetComponent<Image>().color = selectedColor;
+        SelectbigButton = button;
+        SetBigButtonSelected(SelectbigButton, true);
 
         if (IsHome)
         {
@@ -148,6 +133,21 @@ public class TeleportUI : MonoBehaviour
     public void CloseUI()
     {
         gameObject.SetActive(false);
+    }
+    private void SetBigButtonSelected(Button button, bool selected)
+    {
+        if (button == null)
+            return;
+
+        Image image = button.GetComponent<Image>();
+        if (image == null)
+            return;
+
+        image.color = Color.white;
+
+        Sprite targetSprite = selected ? selectedBigButtonSprite : normalBigButtonSprite;
+        if (targetSprite != null)
+            image.sprite = targetSprite;
     }
 
     private Button FindBigButton(TeleportZoneData group)

@@ -29,6 +29,6 @@ public class ItemHandler : MonoBehaviour
 
         // 인벤토리에서 아이템을 제거합니다.
         //InventoryController.instance.RemoveItem(item.GetInventory(), item, item.GetAmount());
-        Debug.Log($"[TrashHandler] '{item.GetItemType()}' 아이템을 팔았습니다.");
+        DevLog.Log($"[TrashHandler] '{item.GetItemType()}' 아이템을 팔았습니다.");
     }
 }

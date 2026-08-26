@@ -10,6 +10,7 @@ public class SkillCollisionManager : MonoBehaviour
     public static SkillCollisionManager Instance;
 
     public List<SkillProjectileBase> activeSkills = new List<SkillProjectileBase>(400);
+    private readonly HashSet<SkillProjectileBase> registeredSkills = new HashSet<SkillProjectileBase>();
 
     private NativeArray<float2> skillPositions;
     private NativeArray<float> skillRadii;
@@ -19,15 +20,49 @@ public class SkillCollisionManager : MonoBehaviour
 
     private void Awake() 
     { 
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this; 
         hitResults = new NativeParallelMultiHashMap<int, int>(3000, Allocator.Persistent);
     }
     private void OnDestroy()
     {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+
         if (skillPositions.IsCreated) skillPositions.Dispose();
         if (skillRadii.IsCreated) skillRadii.Dispose();
         if (skillMaxHits.IsCreated) skillMaxHits.Dispose();
         if (hitResults.IsCreated) hitResults.Dispose();
+    }
+
+    public void RegisterSkill(SkillProjectileBase skill)
+    {
+        if (skill == null || registeredSkills.Contains(skill))
+            return;
+
+        registeredSkills.Add(skill);
+        activeSkills.Add(skill);
+    }
+
+    public void UnregisterSkill(SkillProjectileBase skill)
+    {
+        if (skill == null || !registeredSkills.Remove(skill))
+            return;
+
+        int index = activeSkills.IndexOf(skill);
+        if (index >= 0)
+        {
+            int lastIndex = activeSkills.Count - 1;
+            activeSkills[index] = activeSkills[lastIndex];
+            activeSkills.RemoveAt(lastIndex);
+        }
     }
 
     private void LateUpdate()
@@ -36,13 +71,16 @@ public class SkillCollisionManager : MonoBehaviour
         {
             if (activeSkills[i] == null || !activeSkills[i].gameObject.activeInHierarchy)
             {
+                if (activeSkills[i] != null)
+                    registeredSkills.Remove(activeSkills[i]);
+
                 activeSkills[i] = activeSkills[activeSkills.Count - 1];
                 activeSkills.RemoveAt(activeSkills.Count - 1);
             }
         }
 
         int skillCount = activeSkills.Count;
-        if (skillCount == 0 || EnemySwarmSystem.Instance.positions.Length == 0) return;
+        if (skillCount == 0 || !TryGetReadySwarm(out EnemySwarmSystem swarm)) return;
 
         if (!skillPositions.IsCreated || skillPositions.Length < skillCount)
         {
@@ -65,10 +103,11 @@ public class SkillCollisionManager : MonoBehaviour
         }
 
         hitResults.Clear();
-        if (hitResults.Capacity < skillCount * 5) // 적절한 용량 유지
+        int requiredHitCapacity = Mathf.Max(skillCount * 10, swarm.activeEnemies.Count);
+        if (hitResults.Capacity < requiredHitCapacity) // 적절한 용량 유지
         {
             hitResults.Dispose();
-            hitResults = new NativeParallelMultiHashMap<int, int>(skillCount * 10, Allocator.Persistent);
+            hitResults = new NativeParallelMultiHashMap<int, int>(Mathf.Max(1, requiredHitCapacity * 2), Allocator.Persistent);
         }
 
         SkillCollisionJob colJob = new SkillCollisionJob
@@ -77,15 +116,15 @@ public class SkillCollisionManager : MonoBehaviour
             skillRadii = skillRadii,
             skillMaxHits = skillMaxHits,
             
-            enemyPositions = EnemySwarmSystem.Instance.positions,
-            enemyGrid = EnemySwarmSystem.Instance.grid,
-            enemyRadius = EnemySwarmSystem.Instance.enemyRadius,
-            cellSize = EnemySwarmSystem.Instance.cellSize,
+            enemyPositions = swarm.positions,
+            enemyGrid = swarm.grid,
+            enemyRadius = swarm.enemyRadius,
+            cellSize = swarm.cellSize,
 
-            nextHitTimes = EnemySwarmSystem.Instance.nextHitTimes,
+            nextHitTimes = swarm.nextHitTimes,
             currentTime = Time.time,
-            enemyRadii = EnemySwarmSystem.Instance.enemyRadii,
-            maxEnemyRadius = EnemySwarmSystem.Instance.MaxEnemyRadius,
+            enemyRadii = swarm.enemyRadii,
+            maxEnemyRadius = swarm.MaxEnemyRadius,
             
             hitResults = hitResults.AsParallelWriter() 
         };
@@ -101,7 +140,7 @@ public class SkillCollisionManager : MonoBehaviour
                 if (skill == null || !skill.gameObject.activeInHierarchy) continue;
                  do
                  {
-                     Enemy hitEnemy = EnemySwarmSystem.Instance.GetEnemyByIndex(enemyIndex);
+                     Enemy hitEnemy = swarm.GetEnemyByIndex(enemyIndex);
                      if (hitEnemy != null && hitEnemy.currentNormalState != Enemy.EnemyState.Dead)
                      {
                         float distSqr = (hitEnemy.transform.position - skill.transform.position).sqrMagnitude;
@@ -111,7 +150,8 @@ public class SkillCollisionManager : MonoBehaviour
                         {
                             hitEnemy.TakeDamage(skill.damage);
                             skill.OnHit(hitEnemy);
-                            EnemySwarmSystem.Instance.nextHitTimes[enemyIndex] = Time.time + 0.1f;
+                            if (enemyIndex >= 0 && enemyIndex < swarm.nextHitTimes.Length)
+                                swarm.nextHitTimes[enemyIndex] = Time.time + 0.1f;
 
                             if (!skill.gameObject.activeInHierarchy) 
                             {
@@ -122,6 +162,26 @@ public class SkillCollisionManager : MonoBehaviour
                  } while (hitResults.TryGetNextValue(out enemyIndex, ref it));
              }
          }
+    }
+
+    private bool TryGetReadySwarm(out EnemySwarmSystem swarm)
+    {
+        swarm = EnemySwarmSystem.Instance;
+
+        if (swarm == null ||
+            !swarm.positions.IsCreated ||
+            !swarm.grid.IsCreated ||
+            !swarm.nextHitTimes.IsCreated ||
+            !swarm.enemyRadii.IsCreated ||
+            swarm.positions.Length == 0 ||
+            swarm.enemyRadii.Length == 0 ||
+            swarm.nextHitTimes.Length == 0 ||
+            swarm.cellSize <= 0f)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     [BurstCompile]

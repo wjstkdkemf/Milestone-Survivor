@@ -11,7 +11,7 @@ public static class SaveManager
     {
         string json = JsonUtility.ToJson(saveData, true);
         File.WriteAllText(savePath, json);
-        Debug.Log("Game Saved: " + savePath);
+        DevLog.Log("Game Saved: " + savePath);
     }
 
     public static PowerUpSaveData Load()
@@ -31,7 +31,7 @@ public static class SaveManager
         if (File.Exists(savePath))
         {
             File.Delete(savePath);
-            Debug.Log("Save file deleted.");
+            DevLog.Log("Save file deleted.");
         }
     }
 }
