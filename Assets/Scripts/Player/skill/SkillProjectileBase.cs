@@ -9,15 +9,16 @@ public abstract class SkillProjectileBase : MonoBehaviour
     public int maxHits = 1;        // 관통 횟수 (터렛은 1)
     public long damage;           // 무기에서 전달받을 데미지
 
+    [SerializeField]protected bool UseSkillCol = true;
     protected virtual void OnEnable()
     {
-        if (SkillCollisionManager.Instance != null)
+        if (SkillCollisionManager.Instance != null && UseSkillCol)
             SkillCollisionManager.Instance.RegisterSkill(this);
     }
 
     protected virtual void OnDisable()
     {
-        if (SkillCollisionManager.Instance != null)
+        if (SkillCollisionManager.Instance != null && UseSkillCol)
             SkillCollisionManager.Instance.UnregisterSkill(this);
     }
 

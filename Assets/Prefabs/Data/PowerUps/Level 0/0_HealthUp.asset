@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   powerUpType: 0
   IconSprite: {fileID: 0}
-  powerUpName: MaxHealth
+  powerUpName: 1_MaxHealth
   description: 
   localizedPowerUpName:
     m_TableReference:
@@ -34,13 +34,14 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  costPerLevel:
-  - 10
-  - 20
-  - 30
+  costPerLevel: 0a0000000000000014000000000000001e00000000000000
   CurrentLevel: 0
   isPercentage: 1
   upgradeValues:
+  - 0
   - 30
   - 50
   - 90
+  references:
+    version: 2
+    RefIds: []

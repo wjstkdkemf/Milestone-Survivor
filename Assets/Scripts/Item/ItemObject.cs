@@ -55,7 +55,7 @@ public class ItemObject : MonoBehaviour
         if (InventoryController.instance != null && itemData != null)
         {
             // "ClearInventory"라는 이름의 인벤토리로 아이템 1개 추가
-            DropGold();
+            //DropGold();//AddItem에 통합
             InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);
         }
 

@@ -1,198 +1,199 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerWeaponController : MonoBehaviour
 {
-    // 현재 활성화된 무기들 목록 (최대 6개 제한 가능)
     public List<WeaponBase> activeWeapons = new List<WeaponBase>();
     public List<WeaponBase> WeaponsFromEquipment = new List<WeaponBase>();
-
     [SerializeField] private Transform weaponHolder;
     public PlayerSkillHUD playerHUD;
 
-    // 레벨업해서 무기를 골랐을 때 호출!
+    private sealed class WeaponState
+    {
+        public int LearnedLevel;
+        public int EquipmentLevel;
+        public WeaponBase Weapon;
+    }
+
+    private readonly Dictionary<WeaponDataSO, WeaponState> weaponStates = new Dictionary<WeaponDataSO, WeaponState>();
+    private readonly Dictionary<WeaponDataSO, int> requestedEquipmentLevels = new Dictionary<WeaponDataSO, int>();
+    private readonly List<WeaponDataSO> stateKeys = new List<WeaponDataSO>();
+    private bool combatEnabled = true;
+
     public void AddWeapon(WeaponDataSO data)
     {
-        if (data.fusionWeaponData != null)
-            CheckFusion(data);
-
-        if(!CheckLevelUp(data))
-        {
-            // 해당 무기의 프리팹을 플레이어 자식으로 생성
-            GameObject newWeaponObj = Instantiate(data.weaponPrefab, weaponHolder);
-            newWeaponObj.transform.localPosition = Vector3.zero;
-            newWeaponObj.transform.localRotation = Quaternion.identity;
-            
-            // 스크립트 가져오기
-            WeaponBase newWeapon = newWeaponObj.GetComponent<WeaponBase>();
-            
-            // 초기화 및 리스트 추가
-            newWeapon.Initialize(data);
-            newWeapon.myData = data;
-            newWeapon.CurrentLevel = 1;
-            activeWeapons.Add(newWeapon);
-
-            if (playerHUD != null)
-            {
-                playerHUD.RefreshWeaponIcons();
-            }
-        }
+        if (data == null) return;
+        CheckFusion(data);
+        WeaponState state = GetOrCreateState(data);
+        state.LearnedLevel++;
+        SyncWeapon(data, state);
+        RefreshHUD();
     }
+
     public void AddWeaponFromEquipment(WeaponDataSO data)
     {
-        if (data.fusionWeaponData != null)
-            CheckFusion(data);
-
-        if(!CheckLevelUp(data))
-        {
-            // 해당 무기의 프리팹을 플레이어 자식으로 생성
-            GameObject newWeaponObj = Instantiate(data.weaponPrefab, weaponHolder);
-            newWeaponObj.transform.localPosition = Vector3.zero;
-            newWeaponObj.transform.localRotation = Quaternion.identity;
-            
-            // 스크립트 가져오기
-            WeaponBase newWeapon = newWeaponObj.GetComponent<WeaponBase>();
-            
-            // 초기화 및 리스트 추가
-            newWeapon.Initialize(data);
-            newWeapon.myData = data;
-            newWeapon.CurrentLevel = 1;
-            WeaponsFromEquipment.Add(newWeapon);
-
-            if (playerHUD != null)
-            {
-                playerHUD.RefreshWeaponIcons();
-            }
-        }
+        if (data == null) return;
+        // Borrowed equipment skills must not consume learned fusion ingredients.
+        WeaponState state = GetOrCreateState(data);
+        state.EquipmentLevel++;
+        SyncWeapon(data, state);
+        RefreshHUD();
     }
+
     public void RemoveWeaponFromEquipment(WeaponDataSO data)
     {
-        for (int i = WeaponsFromEquipment.Count - 1; i >= 0; i--)
-        {
-            // 데이터(SO)가 일치하는지 확인
-            if (WeaponsFromEquipment[i].myData == data)
-            {
-                WeaponBase weaponToRemove = WeaponsFromEquipment[i];
+        if (data == null || !weaponStates.TryGetValue(data, out WeaponState state) || state.EquipmentLevel == 0)
+            return;
 
-                // 리스트에서 제거 (장부 정리)
-                WeaponsFromEquipment.RemoveAt(i);
-
-                // 실제 게임 오브젝트 파괴 (화면에서 제거)
-                if (weaponToRemove != null)
-                {
-                    Destroy(weaponToRemove.gameObject);
-                }
-
-                if (playerHUD != null)
-                {
-                    playerHUD.RefreshWeaponIcons();
-                }
-
-                return;
-            }
-        }
+        state.EquipmentLevel--;
+        SyncWeapon(data, state);
+        RefreshHUD();
     }
+
     public void RemoveWeapon(WeaponDataSO data)
     {
-        for (int i = activeWeapons.Count - 1; i >= 0; i--)
-        {
-            if (activeWeapons[i].myData == data)
-            {
-                WeaponBase weaponToRemove = activeWeapons[i];
-
-                // 리스트에서 제거
-                activeWeapons.RemoveAt(i);
-
-                // 실제 오브젝트 파괴
-                if (weaponToRemove != null)
-                {
-                    Destroy(weaponToRemove.gameObject);
-                }
-
-                if (playerHUD != null)
-                {
-                    playerHUD.RefreshWeaponIcons();
-                }
-
-                return;
-            }
-        }
+        if (data == null || !weaponStates.TryGetValue(data, out WeaponState state)) return;
+        state.LearnedLevel = 0;
+        SyncWeapon(data, state);
+        RefreshHUD();
     }
+
     public void CheckFusion(WeaponDataSO data)
     {
-        foreach (WeaponDataSO weapon in data.fusionWeaponData)
-        {
-            RemoveWeapon(weapon);
-        }
+        if (data == null || data.fusionWeaponData == null) return;
+        foreach (WeaponDataSO ingredient in data.fusionWeaponData)
+            RemoveWeapon(ingredient);
     }
+
     public bool CheckLevelUp(WeaponDataSO data)
     {
-        foreach (var weapon in activeWeapons)
-        {
-            if(weapon != null && weapon.myData == data)
-            {
-                weapon.CurrentLevel++;
-                weapon.LevelUp();
-                return true;
-            }
-        }
-        return false;
+        if (data == null || !weaponStates.TryGetValue(data, out WeaponState state) || state.LearnedLevel == 0)
+            return false;
+
+        state.LearnedLevel++;
+        SyncWeapon(data, state);
+        RefreshHUD();
+        return true;
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
-        // 내가 가진 무기들만 동작시킴
-        foreach (var weapon in activeWeapons)
-        {
-            if (weapon != null && weapon.gameObject.activeInHierarchy)
-                weapon.OnUpdate();
-        }
-        foreach (var weapon in WeaponsFromEquipment)
-        {
-            if (weapon != null && weapon.gameObject.activeInHierarchy)
-                weapon.OnUpdate();
-        }
+        foreach (WeaponBase weapon in activeWeapons)
+            if (weapon != null && weapon.gameObject.activeInHierarchy) weapon.OnUpdate();
+        foreach (WeaponBase weapon in WeaponsFromEquipment)
+            if (weapon != null && weapon.gameObject.activeInHierarchy) weapon.OnUpdate();
     }
+
     public void ToggleCombatMode(bool isCombat)
     {
-        // 내가 가진 모든 무기들을 순회하면서
-        foreach (var weapon in activeWeapons)
-        {
-            if (weapon != null)
-            {
-                // 무기 오브젝트 자체를 껐다 킵니다.
-                // (꺼지면 Update가 안 돌아가니 공격도 멈추고, 화면에서도 사라집니다)
-                weapon.gameObject.SetActive(isCombat);
-            }
-        }
-
-        foreach (var weapon in WeaponsFromEquipment)
-        {
-            if (weapon != null)
-            {
-                weapon.gameObject.SetActive(isCombat);
-            }
-        }
+        combatEnabled = isCombat;
+        foreach (WeaponBase weapon in activeWeapons)
+            if (weapon != null) weapon.gameObject.SetActive(isCombat);
+        foreach (WeaponBase weapon in WeaponsFromEquipment)
+            if (weapon != null) weapon.gameObject.SetActive(isCombat);
     }
 
     public void ClearEquipmentSkills()
     {
-        for (int i = WeaponsFromEquipment.Count - 1; i >= 0; i--)
+        SetEquipmentSkills(null);
+    }
+
+    public int GetLearnedLevel(WeaponDataSO data)
+    {
+        return data != null && weaponStates.TryGetValue(data, out WeaponState state) ? state.LearnedLevel : 0;
+    }
+
+    public int GetEquipmentLevel(WeaponDataSO data)
+    {
+        return data != null && weaponStates.TryGetValue(data, out WeaponState state) ? state.EquipmentLevel : 0;
+    }
+
+    public void SetEquipmentSkills(IReadOnlyList<WeaponDataSO> skills)
+    {
+        requestedEquipmentLevels.Clear();
+        if (skills != null)
         {
-            WeaponBase weaponToRemove = WeaponsFromEquipment[i];
-            // 실제 게임 오브젝트 파괴 (화면에서 제거)
-            if (weaponToRemove != null)
+            for (int i = 0; i < skills.Count; i++)
             {
-                Destroy(weaponToRemove.gameObject);
+                WeaponDataSO data = skills[i];
+                if (data == null) continue;
+                requestedEquipmentLevels.TryGetValue(data, out int count);
+                requestedEquipmentLevels[data] = count + 1;
+                GetOrCreateState(data);
             }
         }
-        
-        if (playerHUD != null)
+
+        // Snapshot keys because removing the last level also removes its state.
+        stateKeys.Clear();
+        stateKeys.AddRange(weaponStates.Keys);
+        bool changed = false;
+        foreach (WeaponDataSO data in stateKeys)
         {
-            playerHUD.RefreshWeaponIcons();
+            WeaponState state = weaponStates[data];
+            requestedEquipmentLevels.TryGetValue(data, out int level);
+            if (state.EquipmentLevel == level && state.Weapon != null) continue;
+            state.EquipmentLevel = level;
+            SyncWeapon(data, state);
+            changed = true;
         }
-        WeaponsFromEquipment.Clear();
+        if (changed) RefreshHUD();
+    }
+
+    private WeaponState GetOrCreateState(WeaponDataSO data)
+    {
+        if (!weaponStates.TryGetValue(data, out WeaponState state))
+        {
+            state = new WeaponState();
+            weaponStates.Add(data, state);
+        }
+        return state;
+    }
+
+    private void SyncWeapon(WeaponDataSO data, WeaponState state)
+    {
+        int totalLevel = state.LearnedLevel + state.EquipmentLevel;
+        WeaponBase weapon = state.Weapon;
+        if (totalLevel == 0)
+        {
+            activeWeapons.Remove(weapon);
+            WeaponsFromEquipment.Remove(weapon);
+            if (weapon != null)
+            {
+                weapon.gameObject.SetActive(false);
+                Destroy(weapon.gameObject);
+            }
+            weaponStates.Remove(data);
+            return;
+        }
+
+        if (weapon == null)
+        {
+            if (data.weaponPrefab == null || data.weaponPrefab.GetComponent<WeaponBase>() == null)
+            {
+                Debug.LogError($"[PlayerWeaponController] Missing weapon prefab/component: {data.name}");
+                return;
+            }
+            GameObject instance = Instantiate(data.weaponPrefab, weaponHolder);
+            instance.transform.localPosition = Vector3.zero;
+            instance.transform.localRotation = Quaternion.identity;
+            weapon = instance.GetComponent<WeaponBase>();
+            state.Weapon = weapon;
+            weapon.myData = data;
+            weapon.CurrentLevel = 1;
+            weapon.Initialize(data);
+            instance.SetActive(combatEnabled);
+        }
+
+        weapon.SetLevel(totalLevel);
+        List<WeaponBase> target = state.LearnedLevel > 0 ? activeWeapons : WeaponsFromEquipment;
+        List<WeaponBase> other = state.LearnedLevel > 0 ? WeaponsFromEquipment : activeWeapons;
+        other.Remove(weapon);
+        if (!target.Contains(weapon)) target.Add(weapon);
+    }
+
+    private void RefreshHUD()
+    {
+        if (playerHUD != null) playerHUD.RefreshWeaponIcons();
     }
 
     public WeaponBase GetWeaponById(string weaponId)

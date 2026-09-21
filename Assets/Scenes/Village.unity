@@ -41917,7 +41917,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 549850736}
-  - component: {fileID: 549850735}
   - component: {fileID: 549850744}
   - component: {fileID: 549850748}
   - component: {fileID: 549850750}
@@ -41925,6 +41924,7 @@ GameObject:
   - component: {fileID: 549850752}
   - component: {fileID: 549850754}
   - component: {fileID: 549850753}
+  - component: {fileID: 549850755}
   m_Layer: 0
   m_Name: GameManger
   m_TagString: Untagged
@@ -41932,29 +41932,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &549850735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 549850734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b11fe3220679ee4ebb15ed9db0fba4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StopMoveing: 0
-  Pause: 0
-  TextKill: {fileID: 0}
-  Player_Level_Count: {fileID: 0}
-  NumberOfKills: 0
-  activeEnemies: 0
-  AllKill: 0
-  Heal: 0
-  Panel: {fileID: 163008177}
-  Player: {fileID: 0}
-  CanSpawn: 1
 --- !u!4 &549850736
 Transform:
   m_ObjectHideFlags: 0
@@ -42148,7 +42125,7 @@ MonoBehaviour:
   leftButton: {fileID: 1085640047}
   rightButton: {fileID: 1222258964}
   tierTitleText: {fileID: 1887742358}
-  panel: {fileID: 1456401254}
+  panel: {fileID: 1550617891}
   MyGoldText: {fileID: 2139872212}
   nameText: {fileID: 745509799}
   currentLevelText: {fileID: 1544490568}
@@ -42237,6 +42214,29 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d7b6930103b488c4c942a9cf46da1f82, type: 2}
   - {fileID: 11400000, guid: 2239958edd108c84ba78f8c3c968935f, type: 2}
   - {fileID: 11400000, guid: 63b065118bf35f1448e2ffc93e24be02, type: 2}
+--- !u!114 &549850755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549850734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b11fe3220679ee4ebb15ed9db0fba4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StopMoveing: 0
+  Pause: 0
+  TextKill: {fileID: 0}
+  Player_Level_Count: {fileID: 0}
+  NumberOfKills: 0
+  activeEnemies: 0
+  AllKill: 0
+  Heal: 0
+  Panel: {fileID: 0}
+  Player: {fileID: 0}
+  CanSpawn: 0
 --- !u!1 &550198750
 GameObject:
   m_ObjectHideFlags: 0
@@ -55599,7 +55599,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -55614,7 +55614,7 @@ Canvas:
   m_GameObject: {fileID: 743506513}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -55625,7 +55625,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: 1715723639
   m_SortingOrder: 50
   m_TargetDisplay: 0
 --- !u!1 &744884116
@@ -64706,8 +64706,8 @@ MonoBehaviour:
   buttonSearchTimeout: 10
   VillageSceneName: Village
   IngameSceneName: GameplayScene
-  forestZoneButtonName: "\uC232"
-  forestPointButtonName: "\uC232 1-1"
+  forestZoneButtonName: "\uB358\uC804"
+  forestPointButtonName: "MapNode_\uB358\uC804_1"
 --- !u!4 &866225236
 Transform:
   m_ObjectHideFlags: 0
@@ -64717,7 +64717,7 @@ Transform:
   m_GameObject: {fileID: 866225234}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2996.1777, y: 3001.0554, z: 0.11800442}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -101213,7 +101213,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1328242538
 RectTransform:
   m_ObjectHideFlags: 0
@@ -109225,6 +109225,7 @@ MonoBehaviour:
     isCompleted: 0
     isClaimed: 0
   currentSubQuests: []
+  mainQuestLineCompleted: 0
 --- !u!4 &1437723455
 Transform:
   m_ObjectHideFlags: 0

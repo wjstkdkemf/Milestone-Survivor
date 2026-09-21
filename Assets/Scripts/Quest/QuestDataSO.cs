@@ -61,6 +61,8 @@ public class QuestDataSO : ScriptableObject
     public List<QuestReward> rewards = new List<QuestReward>();
     [Tooltip("완료 시 GameProgressManager에 등록될 업적 ID (옵션)")]
     public string unlockProgressID;//메인퀘스트용.
+
+    public QuestDataSO NextQuest;
 }
 
 public static class QuestLocalization

@@ -69,7 +69,7 @@ public class UpgradeManager : MonoBehaviour
     }
     public void SetUpgradeCount()
     {
-         if (PowerUpgrade.CurrentLevel > 0 && PowerUpgrade.CurrentLevel <= PowerUpgrade.upgradeValues.Length)
+         if (PowerUpgrade.CurrentLevel > 0 && PowerUpgrade.CurrentLevel <= PowerUpgrade.upgradeValues.Length - 1)
             UpgradeCount = (int)PowerUpgrade.upgradeValues[PowerUpgrade.CurrentLevel] + 3;
         Debug.Log(UpgradeCount);
     }
@@ -110,6 +110,7 @@ public class UpgradeManager : MonoBehaviour
         // 게임 일시정지 및 UI 켜기
         if (MenuButtonController.Instance != null) MenuButtonController.Instance.CloseAllMenus();
         if (GameManager.Instance != null) GameManager.Instance.Pause = true;
+
 
         InGameUpgrade = true;
         SetUpgradePanelState(true);
@@ -212,38 +213,7 @@ public class UpgradeManager : MonoBehaviour
 
     private void ApplyStatBonus(UpgradeScriptableObject upgrade)
     {
-        var stats = PlayerStats.Instance; 
-        var health = PlayerObject.GetComponent<PlayerHealth>();
-
-        float value = upgrade.statValue; // SO에 설정된 값
-
-        switch (upgrade.upgradeType)
-        {
-            case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth:
-                if (health != null) health.MaxHealth += value;
-                break;
-
-            case UpgradeScriptableObject.UpgradeType.Stat_Heal:
-                if (health != null) health.Heal(value);
-                break;
-
-            case UpgradeScriptableObject.UpgradeType.Stat_Might:
-                if (stats != null) stats.DamageBonus += (long)value;
-                break;
-
-            case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed:
-                if (stats != null) stats.SpeedBonus += value;
-                break;
-
-            case UpgradeScriptableObject.UpgradeType.Stat_Cooldown:
-                if (stats != null) stats.cooldownReduction += value; 
-                break;
-            
-            case UpgradeScriptableObject.UpgradeType.Stat_Growth:
-                if (stats != null) stats.experienceBonus += value;
-                break;
-
-        }
+        PlayerStatsCalculate.Instance.AddRealTimeBonus(upgrade);
     }
 
     private bool CheckAndSetJobClass()

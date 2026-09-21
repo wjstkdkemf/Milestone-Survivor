@@ -29,7 +29,7 @@ public class TurretWeapon : WeaponBase
         {
             currentBulletNumber = turretData.bulletNumber;
             currentCooldown = turretData.baseCooldown;
-            cooldownTimer = currentCooldown;
+            cooldownTimer = GetCooldown(currentCooldown);
             currentRange = turretData.range;
             currentScaling = turretData.playerDamageScaling;
             currentDamage = turretData.baseDamage;
@@ -80,7 +80,7 @@ public class TurretWeapon : WeaponBase
     private void PerformAttack()
     {
         // 쿨타임 리셋
-        cooldownTimer = currentCooldown;
+        cooldownTimer = GetCooldown(currentCooldown);
         float finalDamage = GetDamage();
 
         // 발사 코루틴 시작
@@ -127,10 +127,12 @@ public class TurretWeapon : WeaponBase
         closestEnemyPosition = closestEnemy != null ? closestEnemy.transform : null;
     }
 
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        currentBulletNumber++; 
-        currentDamage += 2;
+        if (!(myData is TurretWeaponDataSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentBulletNumber = data.bulletNumber + upgrades;
+        currentDamage = data.baseDamage + 2L * upgrades;
         
         DevLog.Log($"[Turret Level Up] 총알: {currentBulletNumber}, 데미지: {currentDamage}");
     }

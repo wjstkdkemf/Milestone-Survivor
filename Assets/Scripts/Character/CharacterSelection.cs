@@ -35,11 +35,13 @@ public class CharacterSelection : MonoBehaviour
             //베이스 스탯 추가시 수정점
             PlayerStatsCalculate.Instance.SetBaseStats(
                 characterDatas.BaseHP,
+                characterDatas.Armor,
                 characterDatas.MovementSpeed,
                 characterDatas.HealthRegeneration,
                 characterDatas.LuckBoost,
                 characterDatas.Damage,
-                characterDatas.statModifiers
+                characterDatas.statModifiers,
+                characterDatas.CooldownReduction
             );
             PlayerStatsCalculate.Instance.LevelUpBonus(0);
         }

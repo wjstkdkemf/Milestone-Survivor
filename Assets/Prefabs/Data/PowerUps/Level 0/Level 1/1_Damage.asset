@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   powerUpType: 1
   IconSprite: {fileID: -7634800435284293121, guid: 557274c3687466342827d8b19503cfbe, type: 3}
-  powerUpName: Damage
+  powerUpName: 1_Damage
   description: "\uACE0\uC815 \uB370\uBBF8\uC9C0 \uC99D\uAC00"
   localizedPowerUpName:
     m_TableReference:
@@ -38,6 +38,10 @@ MonoBehaviour:
   CurrentLevel: 0
   isPercentage: 0
   upgradeValues:
+  - 0
   - 30
   - 60
   - 100
+  references:
+    version: 2
+    RefIds: []

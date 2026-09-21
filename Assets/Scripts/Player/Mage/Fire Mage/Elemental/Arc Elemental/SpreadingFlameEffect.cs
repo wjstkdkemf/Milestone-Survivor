@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class SpreadingFlameEffect : MonoBehaviour
 {
-    private static readonly HashSet<Enemy> burningEnemies = new HashSet<Enemy>();
+    private static readonly Dictionary<Enemy, uint> burningEnemies = new Dictionary<Enemy, uint>();
 
     private readonly List<int> spreadResults = new List<int>(64);
     private readonly List<Enemy> spreadCandidates = new List<Enemy>(64);
 
     private Enemy target;
+    private uint targetSpawnVersion;
     private float damage;
     private float duration;
     private float tickInterval;
@@ -24,8 +25,12 @@ public class SpreadingFlameEffect : MonoBehaviour
 
     public static bool IsBurning(Enemy enemy)
     {
-        return enemy != null && burningEnemies.Contains(enemy);
+        return enemy != null && burningEnemies.TryGetValue(enemy, out uint version)
+            && version == enemy.SpawnVersion;
     }
+
+    private bool HasValidTarget => target != null && target.SpawnVersion == targetSpawnVersion
+        && target.isActiveAndEnabled && target.currentNormalState != Enemy.EnemyState.Dead;
 
     public void Attach(
         Enemy newTarget,
@@ -40,6 +45,7 @@ public class SpreadingFlameEffect : MonoBehaviour
         DetachCurrentTarget();
 
         target = newTarget;
+        targetSpawnVersion = target != null ? target.SpawnVersion : 0;
         damage = damagePerTick;
         duration = newDuration;
         tickInterval = newTickInterval;
@@ -52,7 +58,7 @@ public class SpreadingFlameEffect : MonoBehaviour
 
         if (target != null)
         {
-            burningEnemies.Add(target);
+            burningEnemies[target] = targetSpawnVersion;
             lastTargetPosition = target.transform.position;
             transform.position = lastTargetPosition;
         }
@@ -66,7 +72,7 @@ public class SpreadingFlameEffect : MonoBehaviour
         if (!isActive)
             return;
 
-        if (target == null || target.currentNormalState == Enemy.EnemyState.Dead || !target.gameObject.activeInHierarchy)
+        if (!HasValidTarget)
         {
             TrySpreadFromLastPosition();
             return;
@@ -92,7 +98,7 @@ public class SpreadingFlameEffect : MonoBehaviour
 
     private void DealTickDamage()
     {
-        if (target == null || target.currentNormalState == Enemy.EnemyState.Dead)
+        if (!HasValidTarget)
             return;
 
         target.TakeDamage(damage);
@@ -100,7 +106,7 @@ public class SpreadingFlameEffect : MonoBehaviour
         if (RunStatisticsManager.Instance != null)
             RunStatisticsManager.Instance.RecordWeaponDamage(weaponID, (long)damage);
 
-        if (target == null || target.currentNormalState == Enemy.EnemyState.Dead || !target.gameObject.activeInHierarchy)
+        if (!HasValidTarget)
             TrySpreadFromLastPosition();
     }
 
@@ -164,7 +170,9 @@ public class SpreadingFlameEffect : MonoBehaviour
 
     private void DetachCurrentTarget()
     {
-        if (target != null)
+        // A previous lifetime must not clear a burn registered after respawn.
+        if (!ReferenceEquals(target, null) && burningEnemies.TryGetValue(target, out uint version)
+            && version == targetSpawnVersion)
             burningEnemies.Remove(target);
 
         target = null;

@@ -15,6 +15,8 @@ public class ItemEnchanter : MonoBehaviour
     [Tooltip("The item currently selected for enchantment.")]
     private InventoryItem currentItem;
 
+    private InventoryItem enchantHoldItem;
+
     [Tooltip("The UI button for enchanting.")]
     public Button enchantButton;
     //public TMP_Text MyGoldText;
@@ -190,6 +192,8 @@ public class ItemEnchanter : MonoBehaviour
         isEnchanting = true;
         enchantButton.interactable = false;
 
+        enchantHoldItem = currentItem;
+
         itemUIEffectManager?.OnEnhanceTry();
 
         yield return new WaitForSecondsRealtime(0.35f);
@@ -198,20 +202,22 @@ public class ItemEnchanter : MonoBehaviour
 
         if (success)
         {
-            currentItem.SetEnhancementLevel(currentLevel + 1);
-            HandleEnchantSync(currentItem);
+            enchantHoldItem.SetEnhancementLevel(currentLevel + 1);
+            HandleEnchantSync(enchantHoldItem);
 
             itemUIEffectManager?.OnEnhanceSuccess();
-            Debug.Log($"'{currentItem.GetItemType()}' enhanced to +{currentItem.GetEnhancementLevel()}.");
+            Debug.Log($"'{enchantHoldItem.GetItemType()}' enhanced to +{enchantHoldItem.GetEnhancementLevel()}.");
         }
         else
         {
             itemUIEffectManager?.OnEnhanceFailure();
-            Debug.Log($"'{currentItem.GetItemType()}' enhancement failed.");
+            Debug.Log($"'{enchantHoldItem.GetItemType()}' enhancement failed.");
         }
 
         LoadScreenManager.Instance.ConfirmSelectionSave();
-        InventoryEventSystem.RaiseSlotClicked(currentItem, currentItem.GetInventory());
+        InventoryEventSystem.RaiseSlotClicked(enchantHoldItem, enchantHoldItem.GetInventory());
+
+        enchantHoldItem = null;
 
         UpdateItemInfoDisplay();
         UpdateEnchantButton();

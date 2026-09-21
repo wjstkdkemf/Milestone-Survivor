@@ -64,9 +64,9 @@ public class AuraZone : SkillProjectileBase
             int enemyIdx = enemiesInsideIndices[i];
             if (enemyIdx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
 
-            Enemy target = EnemySwarmSystem.Instance.activeEnemies[enemyIdx];
+            Enemy target = EnemySwarmSystem.Instance.TryGetTarget(enemyIdx);
 
-            if (target == null || target.currentNormalState == Enemy.EnemyState.Dead) continue;
+            if (target == null) continue;
 
             if (timeToSlow)
             {

@@ -122,7 +122,10 @@ public class InventoryManager : MonoBehaviour
 
         foreach (var item in itemCounts)
         {
-            InventoryController.instance.AddItem(inventoryName, item.Key, item.Value);
+            if(!InventoryController.instance.AddItem(inventoryName, item.Key, item.Value))
+            {
+                //PlayerStats.Instance.AddGold
+            }
         }
         DevLog.Log($"[InventoryManager] Restored {itemCounts.Count} item types to {inventoryName}.");
 

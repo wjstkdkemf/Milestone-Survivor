@@ -16,7 +16,6 @@ MonoBehaviour:
   animatorController: {fileID: 9100000, guid: c7a10685558528940bdd712645901c55, type: 2}
   CharacterPrefab: {fileID: 0}
   CharacterName: Leaf Ranger
-  description: 
   localizedCharacterName:
     m_TableReference:
       m_TableCollectionName: GUID:28e0f76450b5482f89a492143029b1c4
@@ -46,7 +45,7 @@ MonoBehaviour:
   BaseHP: 1000
   Damage: 0
   MovementSpeed: 6
-  Armor: 0
+  Armor: 1
   HealthRegeneration: 0.1
   LuckBoost: 10
   CooldownReduction: 0
@@ -61,3 +60,6 @@ MonoBehaviour:
   weaponRotationOffset: 0
   WeaponSprite: {fileID: 8955490483851906880, guid: 3df21ef11d498fa48aec5ca1fe7e5a37, type: 3}
   WeaponVisualMode: 1
+  references:
+    version: 2
+    RefIds: []

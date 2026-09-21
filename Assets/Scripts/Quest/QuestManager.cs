@@ -24,6 +24,7 @@ public class QuestSaveData
     public int saveVersion;
     public string appVersion;
     public QuestProgressData mainQuest;
+    public bool mainQuestIsCompleted;
     public List<QuestProgressData> activeSubQuests = new List<QuestProgressData>();
 }
 
@@ -41,6 +42,7 @@ public class QuestManager : MonoBehaviour
     public QuestProgressData currentMainQuest;
     public List<QuestProgressData> currentSubQuests = new List<QuestProgressData>();
 
+    public bool mainQuestLineCompleted;
     private string saveFilePath;
 
     private void Awake()
@@ -164,8 +166,6 @@ public class QuestManager : MonoBehaviour
     {
         if (quest == null || quest.isCompleted) return;
 
-        Debug.Log("호출 체크");
-
         QuestDataSO data = GetQuestSO(quest.questID);
         if (data == null) return;
 
@@ -242,10 +242,30 @@ public class QuestManager : MonoBehaviour
         }
         recentlyClaimedQuestID = quest.questID;
 
-        if (quest == currentMainQuest) currentMainQuest = null;
-        else currentSubQuests.Remove(quest);
+        if (quest == currentMainQuest)
+            AdvanceMainQuest(data);
+        else
+            currentSubQuests.Remove(quest);
 
         SaveQuestData();
+    }
+    private void AdvanceMainQuest(QuestDataSO completedQuest)
+    {
+        QuestDataSO nextQuest = completedQuest.NextQuest;
+
+        if (nextQuest == null)
+        {
+            currentMainQuest = null;
+            mainQuestLineCompleted = true;
+            return;
+        }
+
+        currentMainQuest = new QuestProgressData
+        {
+            questID = nextQuest.questID
+        };
+        currentMainQuest.InitializeCounts(nextQuest.conditions.Count);
+        mainQuestLineCompleted = false;
     }
     public void SaveQuestData()
     {
@@ -253,6 +273,7 @@ public class QuestManager : MonoBehaviour
             saveVersion = CurrentQuestSaveVersion,
             appVersion = Application.version,
             mainQuest = currentMainQuest,
+            mainQuestIsCompleted = mainQuestLineCompleted,
             activeSubQuests = currentSubQuests
         };
 
@@ -288,12 +309,14 @@ public class QuestManager : MonoBehaviour
             
                 currentMainQuest = data.mainQuest;
                 currentSubQuests = data.activeSubQuests;
+                mainQuestLineCompleted = data.mainQuestIsCompleted;
             }
         }
 
-        if (currentMainQuest == null || string.IsNullOrEmpty(currentMainQuest.questID))
+        if (!mainQuestLineCompleted &&
+            (currentMainQuest == null ||
+            string.IsNullOrEmpty(currentMainQuest.questID)))
         {
-            Debug.Log("초기 메인 퀘스트 할당 시도: Main_Test");
             AssignMainQuest("Main_Test");
         }
     }

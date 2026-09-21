@@ -1813,6 +1813,7 @@ GameObject:
   m_Component:
   - component: {fileID: 201204059}
   - component: {fileID: 201204066}
+  - component: {fileID: 201204067}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1849,6 +1850,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GameManager: {fileID: 201204057}
   Mixer: {fileID: 24100000, guid: e15cf6bfcba3ea345ac71fde17084ce0, type: 2}
+--- !u!114 &201204067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 201204057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b11fe3220679ee4ebb15ed9db0fba4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StopMoveing: 0
+  Pause: 0
+  TextKill: {fileID: 0}
+  Player_Level_Count: {fileID: 0}
+  NumberOfKills: 0
+  activeEnemies: 0
+  AllKill: 0
+  Heal: 0
+  Panel: {fileID: 0}
+  Player: {fileID: 0}
+  CanSpawn: 0
 --- !u!1 &215468162
 GameObject:
   m_ObjectHideFlags: 0
@@ -23261,6 +23285,7 @@ MonoBehaviour:
   baseLuck: 0
   baseKnockBack: 0
   baseArmor: 0
+  baseCooldownReduction: 0
   baseDoubleDamageChance: 0
   baseStatModifiers: []
   Level: 0

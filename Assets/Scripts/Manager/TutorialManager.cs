@@ -51,8 +51,8 @@ public class TutorialManager : MonoBehaviour
 
     [SerializeField] private string VillageSceneName = "Village";
     [SerializeField] private string IngameSceneName = "GameplayScene";
-    [SerializeField] private string forestZoneButtonName = "숲";
-    [SerializeField] private string forestPointButtonName = "숲 1-1";
+    [SerializeField] private string forestZoneButtonName = "던전";
+    [SerializeField] private string forestPointButtonName = "던전 1-1";
 
     private Button inventoryButton;
     private Button enchantButton;
@@ -127,6 +127,8 @@ public class TutorialManager : MonoBehaviour
         // 이미 튜토리얼이 끝났다면 무시
         if (currentStep == TutorialStep.Complete) return;
 
+        SetCanvasCamera();
+
         if (scene.name == VillageSceneName)
         {
             if (currentStep == TutorialStep.BattlePhase_Attack)
@@ -182,6 +184,13 @@ public class TutorialManager : MonoBehaviour
         if (nextDialogButton != null)
         {
             nextDialogButton.gameObject.SetActive(false);
+        }
+    }
+    private void SetCanvasCamera()
+    {
+        if(tutorialCanvas != null)
+        {
+            tutorialCanvas.GetComponent<Canvas>().worldCamera = Camera.main;
         }
     }
 
@@ -242,6 +251,7 @@ public class TutorialManager : MonoBehaviour
         currentStep = TutorialStep.TownPhase1_Intro;
         tutorialCanvas.SetActive(true);
         blockerPanel.gameObject.SetActive(true); // 모든 터치 방지 시작
+        SetCanvasCamera();
 
         yield return ShowDialog("용사님, 깨어나셨군요! 마을에 오신 것을 환영합니다.");
         yield return ShowDialog("우선 몸을 풀기 위해 전투를 한 번 진행해볼까요?");

@@ -16,9 +16,11 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     public bool CantBeKnocked = false;
     public bool stopMoving = false; 
     public bool useSwarmMovement = true;
+    public bool casting = false;
     private bool repositionPending;
     private int repositionRequestVersion;
     private float nextRepositionRequestTime;
+    public uint SpawnVersion = 0;
 
     [Header("Stats")]
     [SerializeField] protected float maxhealth;
@@ -63,9 +65,9 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected Vector3 lastVelocity;
     protected Color defaultColor = Color.white;
     protected AnimState currentState = AnimState.Run;
-    private float slowEndTime = 0f;       // 슬로우가 끝나는 시간
-    private float currentSlowPercent = 0f;
-    private bool isSlowed = false;        // 현재 슬로우 상태인지 여부
+    protected float slowEndTime = 0f;       // 슬로우가 끝나는 시간
+    protected float currentSlowPercent = 0f;
+    protected bool isSlowed = false;        // 현재 슬로우 상태인지 여부
 
     [Header("Reposition Settings")]
     [SerializeField] protected float checkInterval = 2.0f; 
@@ -117,7 +119,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         if (spriteRenderer != null)
         {
             if (originalMaterial == null)
-                originalMaterial = spriteRenderer.material;
+                originalMaterial = spriteRenderer.sharedMaterial;
         
             defaultColor = spriteRenderer.color;
         }
@@ -134,23 +136,28 @@ public abstract class Enemy : MonoBehaviour, IDamageable
        // {
        //     EnemyRigidbody2D.simulated = true; 
        // }
+        InitializeRuntimeState();
+        RegisterSystem();
+    }
 
+    protected virtual void OnDisable()
+    {
+        ReSetRuntimeState();
+        UnRegisterSystem();
+    }
+    protected virtual void InitializeRuntimeState()
+    {
         health = maxhealth;
         currentNormalState = EnemyState.Chasing;
-
+        SpawnVersion++;
         CachePlayerReferences();
-
         if (spriteRenderer != null)
         {
             if (originalMaterial != null)
-                spriteRenderer.material = originalMaterial;
+                spriteRenderer.sharedMaterial = originalMaterial;
 
             spriteRenderer.color = defaultColor;
         }
-
-        if (GameManager.Instance != null)
-            GameManager.Instance.activeEnemies++;
-
         lastPosition = transform.position;
         stuckCount = 0;
         distanceCheckTimer = Random.Range(0.0f, checkInterval);
@@ -158,15 +165,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         nextRepositionRequestTime = 0f;
 
         ResetStatusEffects();
-
-        if (WaveSpawner.Instance != null)
-            WaveSpawner.Instance.RegisterEnemy(this);
-
-        if (EnemySwarmSystem.Instance != null)
-            EnemySwarmSystem.Instance.RegisterEnemy(this);
+        if (GameManager.Instance != null)
+            GameManager.Instance.activeEnemies++;
     }
-
-    protected virtual void OnDisable()
+    protected virtual void ReSetRuntimeState()
     {
         InvalidateRepositionRequest();
 
@@ -177,15 +179,24 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         if (spriteRenderer != null)
             spriteRenderer.color = defaultColor;
+
         if (GameManager.Instance != null)
             GameManager.Instance.activeEnemies--;
             
         StopAllCoroutines();
         currentNormalState = EnemyState.Dead;
-
+    }
+    protected virtual void RegisterSystem()
+    {       
+        if (WaveSpawner.Instance != null)
+            WaveSpawner.Instance.RegisterEnemy(this);
+        if (EnemySwarmSystem.Instance != null )//&& useSwarmMovement
+            EnemySwarmSystem.Instance.RegisterEnemy(this);
+    }
+    protected virtual void UnRegisterSystem()
+    {
         if (WaveSpawner.Instance != null)
             WaveSpawner.Instance.UnregisterEnemy(this);
-
         if (EnemySwarmSystem.Instance != null)
             EnemySwarmSystem.Instance.UnregisterEnemy(this);
     }
@@ -415,7 +426,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    protected virtual void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
+    /*protected virtual void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
     {
         if (knockBackTime > 0 && !CantBeKnocked)
         {
@@ -464,6 +475,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         if (velocity.sqrMagnitude > 0.1f)
             lastVelocity = velocity;
     }
+    */
 
     public abstract void Attack();
 
@@ -546,7 +558,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
             if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
         }
     }
-    private void CheckStatusEffects()
+    protected virtual void CheckStatusEffects()
     {
         if (isSlowed)
         {
@@ -568,30 +580,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         speed = baseSpeed;
         currentStateColor = defaultColor;
         if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
-    }
-    Vector3 ComputeSeparation()
-    {
-        GridManager.Instance.GetNearby(transform.position, nearbyEnemies);
-
-        Vector3 force = Vector3.zero;
-
-        foreach (var other in nearbyEnemies)
-        {
-            if (other == this) continue;
-
-            Vector3 diff = transform.position - other.transform.position;
-            float sqrDist = diff.sqrMagnitude;
-
-            if (sqrDist < neighborRadius * neighborRadius && sqrDist > 0.0001f)
-            {
-                float dist = Mathf.Sqrt(sqrDist);
-                float push = 1.0f - (dist / neighborRadius);
-
-                force += diff.normalized * push;
-            }
-        }
-
-        return force;
     }
 }
 [System.Serializable]

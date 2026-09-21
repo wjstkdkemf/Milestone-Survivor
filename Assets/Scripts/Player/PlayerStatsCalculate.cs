@@ -14,6 +14,7 @@ public class PlayerStatsCalculate : MonoBehaviour
     public float baseLuck = 0;
     public float baseKnockBack = 0;
     public float baseArmor = 0;
+    public float baseCooldownReduction = 0;
     public float baseDoubleDamageChance = 0;
     public List<StatModifier> baseStatModifiers;
     public int Level = 0;
@@ -66,13 +67,15 @@ public class PlayerStatsCalculate : MonoBehaviour
         }
     }
 
-    public void SetBaseStats(float maxHealth, float speed, float healthRegen, float luck, float damage, List<StatModifier> statModifiers)
+    public void SetBaseStats(float maxHealth,float Armor ,float speed, float healthRegen, float luck, float damage, List<StatModifier> statModifiers, float cooldownReduction = 0f)
     {
         baseMaxHealth = maxHealth;
         baseSpeed = speed;
+        baseArmor = Armor;
         baseHealthRegen = healthRegen;
         baseLuck = luck;
         baseDamage = damage;
+        baseCooldownReduction = cooldownReduction;
         baseStatModifiers = statModifiers != null
             ? new List<StatModifier>(statModifiers)
             : new List<StatModifier>();
@@ -121,6 +124,7 @@ public class PlayerStatsCalculate : MonoBehaviour
             case PowerUpType.Damage: powerUpDamage += value; break;
             case PowerUpType.MovementSpeed: powerUpSpeed += value; break;
             case PowerUpType.HealthRegeneration: powerUpHealthRegen += value; break;
+            case PowerUpType.MaxHealth: powerUpMaxHealth += value; break;
             case PowerUpType.XPBoost: powerUpExperienceBonus += value; break;
             case PowerUpType.CooldownReduction: powerUpCooldownReduction += value; break;
             case PowerUpType.projectilespeed: powerUpProjectileSpeed += value; break;
@@ -133,19 +137,23 @@ public class PlayerStatsCalculate : MonoBehaviour
         UpdatePlayerStats();
     }
 
-    public void AddRealTimeBonus(PowerUpType type, float value)
+    public void AddRealTimeBonus(UpgradeScriptableObject upgrade)
     {
+        UpgradeScriptableObject.UpgradeType type = upgrade.upgradeType;
+        float value = upgrade.statValue;
         switch (type)
         {
-            case PowerUpType.Damage: realTimeDamage += value; break;
-            case PowerUpType.MovementSpeed: realTimeSpeed += value; break;
-            case PowerUpType.HealthRegeneration: realTimeHealthRegen += value; break;
-            case PowerUpType.XPBoost: realTimeExperienceBonus += value; break;
-            case PowerUpType.CooldownReduction: realTimeCooldownReduction += value; break;
-            case PowerUpType.luckBoost: realTimeLuck += value; break;
+            case UpgradeScriptableObject.UpgradeType.Stat_Might: realTimeDamage += value; break;
+            case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth: realTimeMaxHealth += value; break;
+            case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed: realTimeSpeed += value; break;
+            case UpgradeScriptableObject.UpgradeType.Stat_Heal: realTimeHealthRegen += value; break;
+            case UpgradeScriptableObject.UpgradeType.Stat_Growth: realTimeExperienceBonus += value; break;
+            case UpgradeScriptableObject.UpgradeType.Stat_Cooldown: realTimeCooldownReduction += value; break;
+            /*case PowerUpType.luckBoost: realTimeLuck += value; break;
             case PowerUpType.KnockBack: realTimeKnockBack += value; break;
             case PowerUpType.Armor: realTimeArmor += value; break;
             case PowerUpType.DobleDamageChance: realTimeDoubleDamageChance += value; break;
+            */
         }
         UpdatePlayerStats();
     }
@@ -213,7 +221,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         PlayerStats.Instance.SpeedBonus = baseSpeed + powerUpSpeed + realTimeSpeed + equipSpeed;
         PlayerStats.Instance.HealthRegeneration = baseHealthRegen + powerUpHealthRegen + realTimeHealthRegen + equipHealthRegen + levelHealthRegen;
         PlayerStats.Instance.experienceBonus = powerUpExperienceBonus + realTimeExperienceBonus + equipExpBonus ;
-        PlayerStats.Instance.cooldownReduction = powerUpCooldownReduction + realTimeCooldownReduction + equipCooldown + levelCooldownReduction;
+        PlayerStats.Instance.cooldownReduction = baseCooldownReduction + powerUpCooldownReduction + realTimeCooldownReduction + equipCooldown + levelCooldownReduction;
         PlayerStats.Instance.LuckBonus = baseLuck + powerUpLuck + realTimeLuck + equipLuck;
         PlayerStats.Instance.KnockBackBonus = baseKnockBack + powerUpKnockBack + realTimeKnockBack + equipKnockback;
         PlayerStats.Instance.ArmorBonus = baseArmor + powerUpArmor + realTimeArmor + equipArmor + levelArmor;

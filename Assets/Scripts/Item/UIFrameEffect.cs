@@ -21,7 +21,7 @@ public class UIFrameEffect : MonoBehaviour
 
     public void Play()
     {
-        if (effectImage == null || frames == null || frames.Length == 0)
+        if (gameObject.activeSelf || effectImage == null || frames == null || frames.Length == 0)
             return;
 
         if (playRoutine != null)

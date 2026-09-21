@@ -20,6 +20,22 @@ public class BarrierWeapon : WeaponBase
 
     private PlayerHealth playerHealthScript;
 
+    private void OnEnable()
+    {
+        RegisterWithPlayer();
+    }
+
+    private void OnDisable()
+    {
+        if (playerHealthScript != null) playerHealthScript.UnregisterBarrier(this);
+    }
+
+    private void RegisterWithPlayer()
+    {
+        playerHealthScript = GetComponentInParent<PlayerHealth>();
+        if (playerHealthScript != null) playerHealthScript.RegisterBarrier(this);
+    }
+
     // 1. 초기화
     public override void Initialize(WeaponDataSO data)
     {
@@ -52,7 +68,7 @@ public class BarrierWeapon : WeaponBase
             Debug.LogError("잘못된 데이터! BarrierDataSO가 필요합니다.");
         }
 
-        playerHealthScript = GetComponentInParent<PlayerHealth>();
+        RegisterWithPlayer();
 
         chargeTimer = 0f;
         isBarrierActive = false;
@@ -69,7 +85,7 @@ public class BarrierWeapon : WeaponBase
             chargeTimer += Time.deltaTime;
 
             // 충전 완료 시 배리어 생성
-            if (chargeTimer >= currentChargeTimeLimit)
+            if (chargeTimer >= GetCooldown(currentChargeTimeLimit))
             {
                 ActivateBarrier();
             }
@@ -151,11 +167,12 @@ public class BarrierWeapon : WeaponBase
         }
     }
     
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        // 레벨업 시 쿨타임 감소, 넉백 파워 증가 등
-        currentChargeTimeLimit = Mathf.Max(1f, currentChargeTimeLimit - 0.5f);
-        currentKnockbackForce += 2f;
+        if (!(myData is BarrierDataSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentChargeTimeLimit = upgrades == 0 ? data.chargeTime : Mathf.Max(1f, data.chargeTime - 0.5f * upgrades);
+        currentKnockbackForce = data.knockbackForce + 2f * upgrades;
         DevLog.Log($"[Barrier Level Up] 대기시간: {currentChargeTimeLimit}, 넉백파워: {currentKnockbackForce}");
     }
 }

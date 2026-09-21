@@ -12,6 +12,8 @@ public class SkillCollisionManager : MonoBehaviour
     public List<SkillProjectileBase> activeSkills = new List<SkillProjectileBase>(400);
     private readonly HashSet<SkillProjectileBase> registeredSkills = new HashSet<SkillProjectileBase>();
 
+    private HashSet<SkillProjectileBase> AddReservation = new HashSet<SkillProjectileBase>();
+    private HashSet<SkillProjectileBase> RemoveReservation = new HashSet<SkillProjectileBase>();
     private NativeArray<float2> skillPositions;
     private NativeArray<float> skillRadii;
     private NativeArray<int> skillMaxHits;
@@ -41,8 +43,15 @@ public class SkillCollisionManager : MonoBehaviour
         if (skillMaxHits.IsCreated) skillMaxHits.Dispose();
         if (hitResults.IsCreated) hitResults.Dispose();
     }
-
     public void RegisterSkill(SkillProjectileBase skill)
+    {
+        if(skill == null || AddReservation == null) return;
+
+        AddReservation.Add(skill);
+        RemoveReservation.Remove(skill);
+    }
+
+    private void RealRegisterSkill(SkillProjectileBase skill)
     {
         if (skill == null || registeredSkills.Contains(skill))
             return;
@@ -50,8 +59,15 @@ public class SkillCollisionManager : MonoBehaviour
         registeredSkills.Add(skill);
         activeSkills.Add(skill);
     }
-
     public void UnregisterSkill(SkillProjectileBase skill)
+    {
+        if(skill == null || RemoveReservation == null) return;
+
+        RemoveReservation.Add(skill);
+        AddReservation.Remove(skill);
+    }
+
+    private void RealUnregisterSkill(SkillProjectileBase skill)
     {
         if (skill == null || !registeredSkills.Remove(skill))
             return;
@@ -78,6 +94,20 @@ public class SkillCollisionManager : MonoBehaviour
                 activeSkills.RemoveAt(activeSkills.Count - 1);
             }
         }
+        if(AddReservation.Count > 0)
+        {
+            foreach(var reservation in AddReservation)
+                RealRegisterSkill(reservation);
+            
+            AddReservation.Clear();
+        }
+        if(RemoveReservation.Count > 0)
+        {
+            foreach(var reservation in RemoveReservation)
+                RealUnregisterSkill(reservation);
+
+            RemoveReservation.Clear();
+        }
 
         int skillCount = activeSkills.Count;
         if (skillCount == 0 || !TryGetReadySwarm(out EnemySwarmSystem swarm)) return;
@@ -94,20 +124,31 @@ public class SkillCollisionManager : MonoBehaviour
             skillMaxHits = new NativeArray<int>(newSize, Allocator.Persistent);
         }
 
+        long requiredHitCapacity = 0;
+        int enemyCount = swarm.activeEnemies.Count;
+        if (enemyCount == 0) return;
+
         for (int i = 0; i < skillCount; i++)
         {
             SkillProjectileBase s = activeSkills[i];
             skillPositions[i] = new float2(s.transform.position.x, s.transform.position.y);
             skillRadii[i] = s.hitRadius;
             skillMaxHits[i] = s.maxHits;
+            // Each enemy occupies one grid cell and can be recorded once per skill.
+            requiredHitCapacity += s.maxHits > 0
+                ? System.Math.Min(s.maxHits, enemyCount)
+                : enemyCount;
         }
 
         hitResults.Clear();
-        int requiredHitCapacity = Mathf.Max(skillCount * 10, swarm.activeEnemies.Count);
-        if (hitResults.Capacity < requiredHitCapacity) // 적절한 용량 유지
+        if (requiredHitCapacity > int.MaxValue)
         {
-            hitResults.Dispose();
-            hitResults = new NativeParallelMultiHashMap<int, int>(Mathf.Max(1, requiredHitCapacity * 2), Allocator.Persistent);
+            throw new System.InvalidOperationException("Skill collision result capacity exceeds the supported range.");
+        }
+        if (hitResults.Capacity < requiredHitCapacity)
+        {
+            long grownCapacity = System.Math.Max(requiredHitCapacity, (long)hitResults.Capacity * 2);
+            hitResults.Capacity = (int)System.Math.Min(grownCapacity, int.MaxValue);
         }
 
         SkillCollisionJob colJob = new SkillCollisionJob
@@ -134,15 +175,16 @@ public class SkillCollisionManager : MonoBehaviour
 
         for (int i = 0; i < skillCount; i++)
         {
-             if (hitResults.TryGetFirstValue(i, out int enemyIndex, out var it))
+            if (hitResults.TryGetFirstValue(i, out int enemyIndex, out var it))
             {
                 var skill = activeSkills[i];
                 if (skill == null || !skill.gameObject.activeInHierarchy) continue;
-                 do
-                 {
-                     Enemy hitEnemy = swarm.GetEnemyByIndex(enemyIndex);
-                     if (hitEnemy != null && hitEnemy.currentNormalState != Enemy.EnemyState.Dead)
-                     {
+
+                do
+                {
+                    Enemy hitEnemy = swarm.GetEnemyByIndex(enemyIndex);
+                    if (hitEnemy != null && hitEnemy.currentNormalState != Enemy.EnemyState.Dead)
+                    {
                         float distSqr = (hitEnemy.transform.position - skill.transform.position).sqrMagnitude;
                         float allowedDist = skill.hitRadius + hitEnemy.CollisionRadius;
 
@@ -158,10 +200,10 @@ public class SkillCollisionManager : MonoBehaviour
                                 break; 
                             }
                         }
-                     }
-                 } while (hitResults.TryGetNextValue(out enemyIndex, ref it));
-             }
-         }
+                    }
+                }while (hitResults.TryGetNextValue(out enemyIndex, ref it));
+            }
+        }
     }
 
     private bool TryGetReadySwarm(out EnemySwarmSystem swarm)
@@ -189,10 +231,10 @@ public class SkillCollisionManager : MonoBehaviour
     {
         [ReadOnly] public NativeArray<float2> skillPositions;
         [ReadOnly] public NativeArray<float> skillRadii;
-        [ReadOnly] public NativeArray<int> skillMaxHits; // 💡 읽기 전용
+        [ReadOnly] public NativeArray<int> skillMaxHits;
 
         [ReadOnly] public NativeArray<float2> enemyPositions;
-        [ReadOnly] public NativeParallelMultiHashMap<int, int> enemyGrid;
+        [ReadOnly] public NativeParallelMultiHashMap<long, int> enemyGrid;
         [ReadOnly] public NativeArray<float> enemyRadii;
         public float maxEnemyRadius;
 
@@ -209,7 +251,7 @@ public class SkillCollisionManager : MonoBehaviour
             float sRad = skillRadii[skillIndex];
             int maxHits = skillMaxHits[skillIndex];
             
-            int currentHits = 0; // 💡 이 프레임에서 몇 대 때렸는지 카운트
+            int currentHits = 0; // 이 프레임에서 몇 대 때렸는지 카운트
 
             int2 centerCell = new int2(
                 (int)math.floor(sPos.x / cellSize),
@@ -217,13 +259,12 @@ public class SkillCollisionManager : MonoBehaviour
             );
             //int cellRange = (int)math.ceil((sRad + maxEnemyRadius) / cellSize);
 
-            for (int y = -1; y <= 1; y++)
+            for (int y = -1; y <= 1; y++) //현재의 셀크기가 생각보다 여유롭게 크기때문에 일단 3*3으로 홀드
             {
                 for (int x = -1; x <= 1; x++)
                 {
                     int2 neighbor = centerCell + new int2(x, y);
-                    int hash = neighbor.x * 73856093 ^ neighbor.y * 19349663;
-
+                    long hash = unchecked(((long)neighbor.x << 32) | (uint)neighbor.y);
                     if (enemyGrid.TryGetFirstValue(hash, out int enemyIndex, out var it))
                     {
                         do

@@ -28,9 +28,27 @@ public abstract class WeaponBase : MonoBehaviour
     public abstract void OnUpdate();
     public virtual void LevelUp()
     {
-        // 자식들이 오버라이드해서 구현
-        // 예: OrbWeapon은 orbCount++, AxeWeapon은 데미지++
-        DevLog.Log("무기 레벨업!");
+        RecalculateLevelStats();
+    }
+
+    public void SetLevel(int level)
+    {
+        level = Mathf.Max(1, level);
+        if (CurrentLevel == level) return;
+
+        CurrentLevel = level;
+        RecalculateLevelStats();
+    }
+
+    // Recompute stats only; do not restart cooldowns, volleys, or Initialize().
+    protected abstract void RecalculateLevelStats();
+
+    protected float GetCooldown(float baseCooldown)
+    {
+        // Stats and UI use percentage points: 10 means a ten percent reduction.
+        float reduction = PlayerStats.Instance != null ? PlayerStats.Instance.cooldownReduction : 0f;
+        if (float.IsNaN(reduction) || float.IsInfinity(reduction)) reduction = 0f;
+        return Mathf.Max(0.01f, baseCooldown * (1f - Mathf.Clamp(reduction, 0f, 100f) / 100f));
     }
     public virtual UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {

@@ -31,8 +31,8 @@ public class Orb : SkillProjectileBase
             
             // 스왑백 및 유령 방어선
             if (enemyIdx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
-            Enemy target = EnemySwarmSystem.Instance.activeEnemies[enemyIdx];
-            if (target == null || target.currentNormalState == Enemy.EnemyState.Dead) continue;
+            Enemy target = EnemySwarmSystem.Instance.TryGetTarget(enemyIdx);
+            if (target == null) continue;
 
             // 2. 무적 시간 체크 (Job System의 0.1초가 아니라, 오브 전용 0.5초 쿨타임 적용!)
             if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[enemyIdx])

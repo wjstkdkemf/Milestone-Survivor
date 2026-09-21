@@ -115,8 +115,8 @@ public class CelestialFireballProjectile : SkillProjectileBase
             int idx = searchResults[i];
             if (idx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
             
-            Enemy boomTarget = EnemySwarmSystem.Instance.activeEnemies[idx];
-            if (boomTarget == null || boomTarget.currentNormalState == Enemy.EnemyState.Dead) continue;
+            Enemy boomTarget = EnemySwarmSystem.Instance.TryGetTarget(idx);
+            if (boomTarget == null) continue;
 
             if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[idx])
             {
@@ -148,7 +148,7 @@ public class CelestialFireballProjectile : SkillProjectileBase
             int idx = searchResults[i];
             if (idx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
 
-            Enemy e = EnemySwarmSystem.Instance.activeEnemies[idx];
+            Enemy e = EnemySwarmSystem.Instance.TryGetTarget(idx);
             
             // 이미 맞춘 적이거나 죽은 적은 패스
             if (e == null || e.currentNormalState == Enemy.EnemyState.Dead || visitedTargets.Contains(e)) continue;

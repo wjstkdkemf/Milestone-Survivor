@@ -13,11 +13,22 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         get { return _maxHealth; }
         set
         {
-            _maxHealth = value;
-            CurrentHealth = _maxHealth; // MaxHealth가 설정될 때 항상 현재 체력을 최대치로 설정
+            if(_maxHealth < value)
+            {
+                CurrentHealth += value - _maxHealth; // MaxHealth가 커질 때 항상 이전 최대체력과 지금의 최대체력의 차이만큼 회복
+                _maxHealth = value;
+            }
+            else
+            {
+                _maxHealth = value;
+            }
+
+            if(CurrentHealth > _maxHealth)//만약 maxHealth가 줄어도 알아서 줄어듬
+                CurrentHealth = _maxHealth;
         }
     }
     private Animator animator;
+    public float health_Cal = 0.05f;
     public float CurrentHealth;
     public bool Dashing = true;
     private Slider slider;
@@ -33,6 +44,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     private SpriteRenderer spriteRenderer;
     private Material originalMaterial;
     protected Coroutine flashRoutine;
+    private PlayerStats playerStats;
     //private bool FirstSetting = false;
 
     void Start()
@@ -47,6 +59,9 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         IsDead = false;
         // UI and component initialization - this can fail if objects aren't ready.
         // We wrap it in a null check for safety.
+        playerStats = PlayerStats.Instance;
+
+
         if (GameObject.FindGameObjectWithTag("GameScene"))
         {
             slider = GameObject.FindGameObjectWithTag("HealthSlider")?.GetComponent<Slider>();
@@ -96,14 +111,25 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
     }
     public void SetBarrier(GameObject gameObject)
     {
-        myBarrierSkill = gameObject.GetComponent<BarrierWeapon>();
+        myBarrierSkill = gameObject != null ? gameObject.GetComponent<BarrierWeapon>() : null;
+    }
+
+    public void RegisterBarrier(BarrierWeapon barrier)
+    {
+        if (barrier != null && barrier.isActiveAndEnabled)
+            myBarrierSkill = barrier;
+    }
+
+    public void UnregisterBarrier(BarrierWeapon barrier)
+    {
+        if (myBarrierSkill == barrier) myBarrierSkill = null;
     }
 
     public void TakeDamage(float damage, float knockBackDuration = 0f)
     {
         if (isInvincible) return;
 
-        if (myBarrierSkill != null && myBarrierSkill.isBarrierActive)
+        if (myBarrierSkill != null && myBarrierSkill.isActiveAndEnabled && myBarrierSkill.isBarrierActive)
         {
             // 배리어를 터뜨림 -> 이때 내부적으로 SetInvincible(0.2f)가 호출됨
             myBarrierSkill.BreakBarrier();
@@ -112,7 +138,7 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
 
         if (!Dashing)
         {
-            CurrentHealth -= damage;
+            CurrentHealth -= DamageCal(damage);
             UpdateHealthUI();
             Flash();
             if(CurrentHealth <= 0)
@@ -120,6 +146,15 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
                 GameOver.Instance.GameEnded(false);
             }
         }
+    }
+    private float DamageCal(float damage)//추후 새로운 데미지 계산식 추가가능.
+    {
+        float ReturnDamage = DefenseCoefficientProcessing(damage);
+        return ReturnDamage;
+    }
+    private float DefenseCoefficientProcessing(float damage)
+    {
+        return damage * playerStats.NormalArmorRatio / (playerStats.ArmorBonus + playerStats.NormalArmorRatio);
     }
 
     public void Heal(float Healing)

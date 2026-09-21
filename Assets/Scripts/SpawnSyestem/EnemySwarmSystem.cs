@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
+using System;
+using System.Linq;
 public class EnemySwarmSystem : MonoBehaviour
 {
     public static EnemySwarmSystem Instance;
@@ -20,13 +22,17 @@ public class EnemySwarmSystem : MonoBehaviour
     public NativeArray<float> enemyRadii;
     public float MaxEnemyRadius { get; private set; }
     public NativeArray<float> nextHitTimes;
-    public NativeParallelMultiHashMap<int, int> grid;
+    public NativeParallelMultiHashMap<long, int> grid;
 
     [Header("Swarm Settings")]
     public float enemyRadius = 0.5f; // 몬스터의 크기
     public float cellSize;
     [SerializeField, Min(1)] private int initialCapacity = 3000;
     private Transform playerCenter;
+
+    private readonly HashSet<Enemy> addReservations = new HashSet<Enemy>();
+    private readonly HashSet<Enemy> removeReservations = new HashSet<Enemy>();
+    private uint[] indexedSpawnVersions;
 
     private void Awake()
     {
@@ -39,8 +45,9 @@ public class EnemySwarmSystem : MonoBehaviour
         Instance = this;
         // 최대 몬스터 수용량 미리 할당
         transformAccessArray = new TransformAccessArray(initialCapacity);
-        grid = new NativeParallelMultiHashMap<int, int>(initialCapacity, Allocator.Persistent);
+        grid = new NativeParallelMultiHashMap<long, int>(initialCapacity, Allocator.Persistent);
         nextHitTimes = new NativeArray<float>(initialCapacity, Allocator.Persistent);
+        indexedSpawnVersions = new uint[initialCapacity];
 
         enemyRadius = Mathf.Max(0.01f, enemyRadius);
         cellSize = Mathf.Max(0.01f, enemyRadius * 2);
@@ -54,18 +61,45 @@ public class EnemySwarmSystem : MonoBehaviour
         }
 
         if (transformAccessArray.isCreated) transformAccessArray.Dispose();
-        if (positions.IsCreated) positions.Dispose();
-        if (speeds.IsCreated) speeds.Dispose();
-        if (canMove.IsCreated) canMove.Dispose();
-        if (enemyRadii.IsCreated) enemyRadii.Dispose();
+        DisposeMovementBuffers();
         if (grid.IsCreated) grid.Dispose();
         if (nextHitTimes.IsCreated) nextHitTimes.Dispose();
     }
-
     public void RegisterEnemy(Enemy enemy)
     {
-        if (enemy == null || registeredEnemies.Contains(enemy))
+        if (enemy == null)
+            return;
+
+        if(removeReservations.Contains(enemy))
         {
+            removeReservations.Remove(enemy);
+            addReservations.Add(enemy);
+            return;
+        }
+
+        if (!registeredEnemies.Contains(enemy))
+            addReservations.Add(enemy);
+    }
+
+    public void UnregisterEnemy(Enemy enemy)
+    {
+        if (enemy == null)
+            return;
+
+        addReservations.Remove(enemy);
+
+        if (registeredEnemies.Contains(enemy))
+            removeReservations.Add(enemy);
+    }
+
+    private void RegisterEnemyImmediately(Enemy enemy)
+    {
+        if (enemy == null)
+            return;
+        
+        if(registeredEnemies.Contains(enemy))
+        {   
+            ReSpawnVersion(enemy);
             return;
         }
 
@@ -81,14 +115,15 @@ public class EnemySwarmSystem : MonoBehaviour
         {
             nextHitTimes[newIndex] = 0f;
         }
+        indexedSpawnVersions[newIndex] = enemy.SpawnVersion;
     }
 
-    public void UnregisterEnemy(Enemy enemy)
+    private void UnregisterEnemyImmediately(Enemy enemy)
     {
-        if (enemy == null || !registeredEnemies.Remove(enemy))
-        {
+        if (ReferenceEquals(enemy,null))
             return;
-        }
+        if(!registeredEnemies.Remove(enemy))
+            return;
 
         int index = activeEnemies.IndexOf(enemy);
         if (index >= 0)
@@ -105,11 +140,18 @@ public class EnemySwarmSystem : MonoBehaviour
                 nextHitTimes[index] = nextHitTimes[lastIndex];
                 nextHitTimes[lastIndex] = 0f;
             }
+
+            indexedSpawnVersions[index] = indexedSpawnVersions[lastIndex];
+            indexedSpawnVersions[lastIndex] = 0;
         }
     }
 
     private void Update()
     {
+        ApplyReservations();
+        MaxEnemyRadius = 0f;
+        grid.Clear();
+
         int count = activeEnemies.Count;
         if (count == 0 || !TryGetPlayerCenter(out Transform targetCenter)) return;
         if (InfiniteTilemapManager.Instance == null ||
@@ -118,21 +160,8 @@ public class EnemySwarmSystem : MonoBehaviour
             return;
         }
 
-        // 매 프레임 배열 크기 맞추기 및 데이터 갱신
-        if (!positions.IsCreated || positions.Length != count)
-        {
-            if (positions.IsCreated) positions.Dispose();
-            if (speeds.IsCreated) speeds.Dispose();
-            if (canMove.IsCreated) canMove.Dispose();
-            if (enemyRadii.IsCreated) enemyRadii.Dispose();
-
-            positions = new NativeArray<float2>(count, Allocator.Persistent);
-            speeds = new NativeArray<float>(count, Allocator.Persistent);
-            canMove = new NativeArray<bool>(count, Allocator.Persistent);
-            enemyRadii = new NativeArray<float>(count, Allocator.Persistent);
-        }
-
-        MaxEnemyRadius = 0f;
+        // 배열 크기 맞추기 및 데이터 갱신
+        EnsureCapacity(count);
 
         for (int i = 0; i < count; i++)
         {
@@ -150,7 +179,8 @@ public class EnemySwarmSystem : MonoBehaviour
             bool isChasing = e.currentNormalState == Enemy.EnemyState.Chasing && 
                                                     !e.stopMoving && 
                                                     e.GetKnockBackTime() <= 0 &&
-                                                    e.useSwarmMovement;
+                                                    e.useSwarmMovement &&
+                                                    !e.casting;
             canMove[i] = isChasing;
             speeds[i] = e.GetSpeed(); // Enemy의 현재 속도
             float radius = e.CollisionRadius;
@@ -158,18 +188,18 @@ public class EnemySwarmSystem : MonoBehaviour
             MaxEnemyRadius = Mathf.Max(MaxEnemyRadius, radius);
         }
 
-        grid.Clear();
+        grid.Clear();//안전 보호용 한번더 클리어
         
         if (grid.Capacity < activeEnemies.Count)
         {
             grid.Dispose();
-            grid = new NativeParallelMultiHashMap<int, int>(activeEnemies.Count * 2, Allocator.Persistent); 
+            grid = new NativeParallelMultiHashMap<long, int>(activeEnemies.Count * 2, Allocator.Persistent); 
         }
 
         for (int i = 0; i < count; i++)
         {
             int2 cell = GetCell(positions[i]);
-            int hash = Hash(cell);
+            long hash = Hash(cell);
             grid.Add(hash, i);
         }
         float3 PlayerPos = targetCenter.position;
@@ -199,6 +229,49 @@ public class EnemySwarmSystem : MonoBehaviour
 
         //grid.Dispose();
     }
+    private void ReSpawnVersion(Enemy enemy)
+    {
+        int count = activeEnemies.Count;
+        for (int i = 0; i < count; i++)
+        {
+            if(activeEnemies[i] == enemy)
+            {
+                if (nextHitTimes.IsCreated)
+                {
+                    nextHitTimes[i] = 0f;
+                }
+                indexedSpawnVersions[i] = enemy.SpawnVersion;
+            }
+        }
+    }
+    private void EnsureCapacity(int requiredCount)
+    {
+        bool allCreated =   positions.IsCreated &&
+                            speeds.IsCreated &&
+                            canMove.IsCreated &&
+                            enemyRadii.IsCreated;
+
+        if (allCreated && positions.Length >= requiredCount)
+            return;
+
+        int nextCapacity = Mathf.Max(
+            initialCapacity,
+            Mathf.NextPowerOfTwo(Mathf.Max(1, requiredCount))
+        );
+
+        DisposeMovementBuffers();
+
+        positions = new NativeArray<float2>(nextCapacity, Allocator.Persistent);
+
+        speeds = new NativeArray<float>(nextCapacity, Allocator.Persistent);
+
+        canMove = new NativeArray<bool>(nextCapacity, Allocator.Persistent);
+
+        enemyRadii = new NativeArray<float>(nextCapacity, Allocator.Persistent);
+
+        if(indexedSpawnVersions.Length < nextCapacity)
+            Array.Resize(ref indexedSpawnVersions, nextCapacity);
+    }
     private void EnsureNextHitCapacity(int requiredCapacity)
     {
         if (nextHitTimes.IsCreated && nextHitTimes.Length >= requiredCapacity)
@@ -215,9 +288,23 @@ public class EnemySwarmSystem : MonoBehaviour
             nextHitTimes.Dispose();
         }
 
+        if(indexedSpawnVersions.Length <= newCapacity)
+            Array.Resize(ref indexedSpawnVersions,newCapacity);
+
         nextHitTimes = newNextHitTimes;
     }
+    private void ApplyReservations()
+    {
+        foreach (Enemy enemy in removeReservations)
+            UnregisterEnemyImmediately(enemy);
 
+        removeReservations.Clear();
+
+        foreach (Enemy enemy in addReservations)
+            RegisterEnemyImmediately(enemy);
+
+        addReservations.Clear();
+    }
     private bool TryGetPlayerCenter(out Transform center)
     {
         if (playerCenter != null)
@@ -243,15 +330,27 @@ public class EnemySwarmSystem : MonoBehaviour
         center = playerCenter;
         return true;
     }
-
-    public Enemy GetEnemyByIndex(int index)
+    public Enemy TryGetTarget(int Index)
     {
-        if (index < 0 || index >= activeEnemies.Count)
+        if (Index < 0 || Index >= activeEnemies.Count)
+            return null;
+
+        Enemy enemy = activeEnemies[Index];
+
+        if (enemy == null ||
+            !enemy.isActiveAndEnabled ||
+            enemy.currentNormalState == Enemy.EnemyState.Dead ||
+            removeReservations.Contains(enemy) ||
+            enemy.SpawnVersion != indexedSpawnVersions[Index])
         {
             return null;
         }
 
-        return activeEnemies[index];
+        return enemy;
+    }
+    public Enemy GetEnemyByIndex(int index)
+    {
+        return TryGetTarget(index);
     }
     public int2 GetCell(float2 pos)
     {
@@ -261,9 +360,9 @@ public class EnemySwarmSystem : MonoBehaviour
             (int)math.floor(pos.y / safeCellSize)
         );
     }
-    int Hash(int2 cell)
+    public static long Hash(int2 cell)
     {
-        return cell.x * 73856093 ^ cell.y * 19349663;
+        return unchecked(((long)cell.x << 32) | (uint)cell.y);
     }
     public Enemy GetClosestEnemy(Vector2 center, float range, HashSet<Enemy> excludedEnemies = null)
     {
@@ -284,8 +383,8 @@ public class EnemySwarmSystem : MonoBehaviour
         {
             for (int y = minCellY; y <= maxCellY; y++)
             {
-                int hash = x * 73856093 ^ y * 19349663;
-                NativeParallelMultiHashMapIterator<int> it;
+                long hash = unchecked(((long)x << 32) | (uint)y);
+                NativeParallelMultiHashMapIterator<long> it;
                 
                 if (grid.TryGetFirstValue(hash, out int enemyIndex, out it))
                 {
@@ -293,7 +392,7 @@ public class EnemySwarmSystem : MonoBehaviour
                     {
                         if (enemyIndex < 0 || enemyIndex >= activeEnemies.Count) continue;
 
-                        Enemy enemy = activeEnemies[enemyIndex];
+                        Enemy enemy = TryGetTarget(enemyIndex);
 
                         if (enemy == null || enemy.currentNormalState == Enemy.EnemyState.Dead) continue;
                         if (excludedEnemies != null && excludedEnemies.Contains(enemy)) continue;
@@ -335,8 +434,8 @@ public class EnemySwarmSystem : MonoBehaviour
         {
             for (int y = minCellY; y <= maxCellY; y++)
             {
-                int hash = x * 73856093 ^ y * 19349663;
-                NativeParallelMultiHashMapIterator<int> it;
+                long hash = unchecked(((long)x << 32) | (uint)y);
+                NativeParallelMultiHashMapIterator<long> it;
                 
                 if (grid.TryGetFirstValue(hash, out int enemyIndex, out it))
                 {
@@ -359,11 +458,12 @@ public class EnemySwarmSystem : MonoBehaviour
             }
         }
     }
-    public void ReleaseNativeBuffers()
+    private void DisposeMovementBuffers()
     {
         if (positions.IsCreated) positions.Dispose();
         if (speeds.IsCreated) speeds.Dispose();
         if (canMove.IsCreated) canMove.Dispose();
+        if (enemyRadii.IsCreated) enemyRadii.Dispose();
     }
 
     [BurstCompile]
@@ -373,7 +473,7 @@ public class EnemySwarmSystem : MonoBehaviour
         [ReadOnly] public NativeArray<float> speeds;
         [ReadOnly] public NativeArray<bool> canMove;
 
-        [ReadOnly] public NativeParallelMultiHashMap<int, int> grid;
+        [ReadOnly] public NativeParallelMultiHashMap<long, int> grid;
         [ReadOnly] public NativeParallelHashMap<Vector2Int, byte> globalWallMap;
         [ReadOnly] public NativeArray<float> enemyRadii;
         public float2 targetPos;
@@ -403,9 +503,9 @@ public class EnemySwarmSystem : MonoBehaviour
                 for (int x = -cellRange; x <= cellRange; x++)
                 {
                     int2 neighbor = myCell + new int2(x, y);
-                    int hash = Hash(neighbor);
+                    long hash = Hash(neighbor);
 
-                    NativeParallelMultiHashMapIterator<int> it;
+                    NativeParallelMultiHashMapIterator<long> it;
                     int otherIndex;
 
                     if (grid.TryGetFirstValue(hash, out otherIndex, out it))
@@ -446,9 +546,9 @@ public class EnemySwarmSystem : MonoBehaviour
             pos3.xy = myPos + move;
             transform.position = pos3;
         }
-        private int Hash(int2 cell)
+        private static long Hash(int2 cell)
         {
-            return cell.x * 73856093 ^ cell.y * 19349663;
+            return unchecked(((long)cell.x << 32) | (uint)cell.y);
         }
         private int2 GetCell(float2 pos)
         {

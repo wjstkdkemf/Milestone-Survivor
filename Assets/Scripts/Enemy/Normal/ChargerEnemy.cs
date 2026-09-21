@@ -82,7 +82,7 @@ public class ChargerEnemy : Enemy
     private IEnumerator ChargeRoutine()
     {
         isChargingAction = true;
-        useSwarmMovement = false;
+        casting = false;
         stopMoving = true; // 이동 정지
         
         if (player != null)

@@ -38,7 +38,7 @@ public class PlayerStats : MonoBehaviour
 
     public void SetGold(long value)
     {
-        goldAmount = (long)Mathf.Max(0, value);
+        goldAmount = Math.Max(0L, value);
         OnGoldChanged?.Invoke(goldAmount);
     }
 
@@ -58,8 +58,10 @@ public class PlayerStats : MonoBehaviour
     public int StageCleared;
     public int CharacterID;
     public int level = 1;
-    public int currentXP = 0;
-    public float requiredXP = 50;
+    public long currentXP = 0;
+    public double requiredXP = 50;
+    // Exactly representable in both long and double, with room for incoming XP.
+    public const long MaxRequiredXP = 1L << 62;
     public float AttackSpeedBonnes;
     [SerializeField] private Slider ExpBar;
     public long DamageBonus { get; set; }
@@ -164,7 +166,6 @@ public class PlayerStats : MonoBehaviour
     public void ResetDataNotGold()
     {
         StageCleared = 0;
-        CharacterID = 0;
         level = 1;
         currentXP = 0;
         requiredXP = 50;
@@ -194,9 +195,9 @@ public class PlayerStats : MonoBehaviour
             SetGold(data.goldAmount);
             StageCleared = data.stageCleared;
             CharacterID = data.characterID;
-            level = data.level;
-            currentXP = data.currentXP;
-            requiredXP = data.requiredXP;
+            level = Math.Max(1, data.level);
+            currentXP = Math.Max(0L, data.currentXP);
+            requiredXP = NormalizeRequiredXP(data.requiredXP);
             DevLog.Log("Player stats loaded.");
         }
         UpdateExpBar();
@@ -206,8 +207,10 @@ public class PlayerStats : MonoBehaviour
     {
         if (ExpBar != null)
         {
-            ExpBar.maxValue = requiredXP;
-            ExpBar.value = currentXP;
+            ExpBar.wholeNumbers = false;
+            ExpBar.minValue = 0f;
+            ExpBar.maxValue = 1f;
+            ExpBar.value = (float)(currentXP / NormalizeRequiredXP(requiredXP));
         }
     }
 
@@ -218,12 +221,14 @@ public class PlayerStats : MonoBehaviour
         if (amount <= 0)
             return;
 
-        if (requiredXP <= 0f)
-            requiredXP = 50f;
+        requiredXP = NormalizeRequiredXP(requiredXP);
+        double bonus = float.IsNaN(experienceBonus) || float.IsInfinity(experienceBonus)
+            ? 0d : Math.Round(experienceBonus);
+        long gainedXP = (long)Math.Min(MaxRequiredXP, Math.Max(0d, amount + bonus));
+        currentXP = Math.Max(0L, currentXP);
+        currentXP += Math.Min(gainedXP, long.MaxValue - currentXP);
 
-        currentXP += amount + Mathf.RoundToInt(experienceBonus);
-
-        while (currentXP >= requiredXP)
+        while (level < int.MaxValue && currentXP >= (long)Math.Ceiling(requiredXP))
         {
             LevelUp();
         }
@@ -236,9 +241,9 @@ public class PlayerStats : MonoBehaviour
 
     void LevelUp()
     {
-        currentXP -= (int)requiredXP;
+        currentXP -= (long)Math.Ceiling(requiredXP);
         level++;
-        requiredXP *= 1.5f;
+        requiredXP = NormalizeRequiredXP(requiredXP * 1.5d);
 
         if (level < 100)
         {
@@ -256,14 +261,16 @@ public class PlayerStats : MonoBehaviour
 
     public void ShowUpgradeMenu()
     {
-        if(MenuButtonController.Instance != null)
-        {
-            MenuButtonController.Instance.CloseAllMenus();
-        }
         if (UpgradeManager.Instance != null)
         {
             UpgradeManager.Instance.AddPendingUpgrade();
         }
+    }
+
+    public static double NormalizeRequiredXP(double value)
+    {
+        if (double.IsNaN(value) || value <= 0d) return 50d;
+        return Math.Min(MaxRequiredXP, value);
     }
 
     public void ApplyPowerUps()
@@ -276,9 +283,9 @@ public class PlayerStats : MonoBehaviour
             if (powerUp == null || powerUp.upgradeValues == null)
                 continue;
 
-            if (powerUp.CurrentLevel > 0 && powerUp.CurrentLevel <= powerUp.upgradeValues.Length)
+            if (powerUp.CurrentLevel > 0 && powerUp.CurrentLevel < powerUp.upgradeValues.Length)
             {
-                float upgradeValue = powerUp.upgradeValues[powerUp.CurrentLevel - 1];
+                float upgradeValue = powerUp.upgradeValues[powerUp.CurrentLevel];
                 PlayerStatsCalculate.Instance.AddPowerUpBonus(powerUp.powerUpType, upgradeValue);
             }
         }

@@ -68,7 +68,7 @@ public class ChainLightningWeapon : WeaponBase
         if (firstTarget != null)
         {
             FireFirstLightning(firstTarget);
-            cooldownTimer = currentCooldownTime;
+            cooldownTimer = GetCooldown(currentCooldownTime);
         }
     }
 
@@ -92,11 +92,12 @@ public class ChainLightningWeapon : WeaponBase
         return (long)before;
     }
 
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        currentBaseDamage += 3f;
-        if (currentChainCount < 5) 
-            currentChainCount++;
+        if (!(myData is ChainLightningDataSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentBaseDamage = data.baseDamage + 3f * upgrades;
+        currentChainCount = Mathf.Min(data.chainCount + upgrades, Mathf.Max(5, data.chainCount));
         DevLog.Log($"[Chain Lightning Level Up] 데미지: {currentBaseDamage}, 체인 횟수: {currentChainCount}");
     }
 

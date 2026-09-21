@@ -85,7 +85,7 @@ public class EvolvedFireballWeapon : WeaponBase
             if (currentTarget == null) 
             {
                 pendingBullets = 0;
-                cooldownTimer = fireRate;
+                cooldownTimer = GetCooldown(fireRate);
                 return;
             }
             target = currentTarget;
@@ -109,7 +109,7 @@ public class EvolvedFireballWeapon : WeaponBase
         }
         else
         {
-            cooldownTimer = fireRate;
+            cooldownTimer = GetCooldown(fireRate);
         }
     }
 
@@ -120,9 +120,11 @@ public class EvolvedFireballWeapon : WeaponBase
         return currentDamage + bonus; 
     }
 
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        currentDamage += 5;
-        trailDamageScaling += 0.1f; 
+        if (!(myData is EvolvedFireballDataSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentDamage = data.baseDamage + 5L * upgrades;
+        trailDamageScaling = data.trailDamageScaling + 0.1f * upgrades;
     }
 }

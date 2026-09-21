@@ -8,18 +8,23 @@ public abstract class NavEnemy : Enemy
 
     protected override void OnEnable()
     {
-        base.OnEnable();
-
         useSwarmMovement = false;
 
-        if (agent == null) agent = GetComponent<NavMeshAgent>();
+        base.OnEnable();
 
-        agent.enabled = true; 
-        agent.updateRotation = false;
-        agent.updateUpAxis = false;
-        agent.updatePosition = false;
-        agent.speed = speed;
-        agent.stoppingDistance = attackRange;
+        TryGetComponent<NavMeshAgent>(out var ag);
+
+        if(ag != null)
+        {
+            agent = ag;
+
+            agent.enabled = true; 
+            agent.updateRotation = false;
+            agent.updateUpAxis = false;
+            agent.updatePosition = false;
+            agent.speed = speed;
+            agent.stoppingDistance = attackRange;
+        }
     }
 
     protected override void OnDisable()
@@ -32,6 +37,7 @@ public abstract class NavEnemy : Enemy
         if (currentNormalState == EnemyState.Dead || player == null || stopMoving) return;
 
         UpdateFlash();
+        CheckStatusEffects();
 
         knockBackTime -= Time.deltaTime;
         coolDownTimer -= Time.deltaTime;
@@ -144,5 +150,29 @@ public abstract class NavEnemy : Enemy
                 if (player != null) agent.SetDestination(player.position);
             }
         }
+    }
+    protected override void CheckStatusEffects()
+    {
+        if (isSlowed)
+        {
+            // 아직 만료 시간이 안 지났다면? 속도를 깎아버립니다.
+            if (Time.time < slowEndTime)
+            {
+                agent.speed = baseSpeed * (1f - currentSlowPercent);
+            }
+            // 시간이 지났다면? 원상 복구! (Exit 이벤트나 코루틴 종료 대기 필요 없음)
+            else
+            {
+                ResetStatusEffectsByNav();
+            }
+        }
+    }
+    private void ResetStatusEffectsByNav()
+    {
+        isSlowed = false;
+        agent.speed = baseSpeed;
+        currentStateColor = defaultColor;
+
+        if (spriteRenderer != null) spriteRenderer.color = currentStateColor;
     }
 }

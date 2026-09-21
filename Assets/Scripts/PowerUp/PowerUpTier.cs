@@ -28,7 +28,7 @@ public class PowerUpTier
     {
         foreach (var powerUp in tierPowerUps)
         {
-            if (powerUp.CurrentLevel < powerUp.upgradeValues.Length)
+            if (powerUp.CurrentLevel < powerUp.upgradeValues.Length - 1)
                 return false;
         }
         return true;

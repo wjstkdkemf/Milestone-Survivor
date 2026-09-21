@@ -65,6 +65,8 @@ public class GameManager : MonoBehaviour
         {
             if (Panel != null)
                 Panel.SetActive(true);
+            
+            Debug.Log("멈춤 체크");
             Time.timeScale = 0;
         }
         else

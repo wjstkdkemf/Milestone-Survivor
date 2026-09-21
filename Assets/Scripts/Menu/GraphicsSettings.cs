@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public class GraphicsSettings : MonoBehaviour
 {
@@ -56,8 +57,11 @@ public class GraphicsSettings : MonoBehaviour
         {
             fullScreenToggle.isOn = isFullScreen;
         }
+        if(savedResIndex < resolutions.Count())
+            Screen.SetResolution(resolutions[savedResIndex].width, resolutions[savedResIndex].height, isFullScreen);
+        else
+            Screen.SetResolution(resolutions[0].width, resolutions[0].height, isFullScreen);
 
-        Screen.SetResolution(resolutions[savedResIndex].width, resolutions[savedResIndex].height, isFullScreen);
     }
 
     public void SetResolution(int resolutionIndex)

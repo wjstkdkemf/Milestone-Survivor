@@ -24,6 +24,8 @@ public class AudioManager : MonoBehaviour
     public float fadeDuration = 1.0f; // BGM이 전환되는 데 걸리는 시간 (1초)
     private Coroutine fadeCoroutine;
 
+    private float startVolume;
+
     private void Awake()
     {
         if (Instance == null)
@@ -116,14 +118,14 @@ public class AudioManager : MonoBehaviour
         if (bgmSource.clip == newClip && bgmSource.isPlaying) return;
 
         // 이미 페이드 효과가 진행 중이라면 중지
-        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+        StopMyRoutine();
 
         fadeCoroutine = StartCoroutine(FadeRoutine(newClip));
     }
 
     private System.Collections.IEnumerator FadeRoutine(AudioClip newClip)
     {
-        float startVolume = bgmSource.volume;
+        startVolume = bgmSource.volume;
         
         if (bgmSource.isPlaying)
         {
@@ -145,5 +147,15 @@ public class AudioManager : MonoBehaviour
 
         bgmSource.volume = startVolume;
         fadeCoroutine = null;
+    }
+    void StopMyRoutine() 
+    {
+        if (fadeCoroutine != null) 
+        {
+            StopCoroutine(fadeCoroutine);
+            fadeCoroutine = null;
+
+            bgmSource.volume = startVolume;
+        }
     }
 }

@@ -189,6 +189,7 @@ MonoBehaviour:
   CantBeKnocked: 0
   stopMoving: 0
   useSwarmMovement: 1
+  casting: 0
   maxhealth: 10
   damage: 15
   speed: 2.5
@@ -202,14 +203,13 @@ MonoBehaviour:
   player: {fileID: 0}
   playerHealth: {fileID: 0}
   _knockBackDuration: 0.2
-  originalMaterial: {fileID: 2100000, guid: 89cdae45751b4be49aa07c1090a4b4b5, type: 2}
+  originalMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   flashMaterial: {fileID: 2100000, guid: 4955b5625ec49c44489c311b6d6f965d, type: 2}
   currentStateColor: {r: 0, g: 0, b: 0, a: 0}
   DontUseObjectPooling: 0
   boss: 0
   checkInterval: 2
   maxDistance: 120
-  respawnRadius: 70
   minimumMoveDistance: 0.5
   maxStuckCount: 2
   separationWeight: 2.5

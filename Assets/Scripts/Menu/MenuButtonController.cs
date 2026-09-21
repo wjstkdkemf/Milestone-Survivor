@@ -40,7 +40,7 @@ public class MenuButtonController : MonoBehaviour
         menuList.Add(menuToOpen);
         menuToOpen.SetActive(true);
 
-        Time.timeScale = 0f; 
+        GameManager.Instance.Pause = true;
     }
 
     public void ToggleMenu(GameObject menuToToggle)
@@ -70,7 +70,7 @@ public class MenuButtonController : MonoBehaviour
         }
         else
         {
-            Time.timeScale = 1f;
+            GameManager.Instance.Pause = false;
         }
     }
 
@@ -81,7 +81,7 @@ public class MenuButtonController : MonoBehaviour
             menu.SetActive(false);
         }
         menuList.Clear();
-        Time.timeScale = 1f;
+        GameManager.Instance.Pause = false;
     }
 
     private void HandleEscapeKey()

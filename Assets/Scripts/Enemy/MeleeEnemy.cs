@@ -62,7 +62,8 @@ public class MeleeEnemy : Enemy
     {
         // Example melee attack logic
         PlayAttackAnimation();
-        playerHealth.TakeDamage(damage);
+        if(playerHealth != null)
+            playerHealth.TakeDamage(damage);
         
         Debug.Log(gameObject.name + " performs a melee attack, dealing " + damage + " damage.");
     }

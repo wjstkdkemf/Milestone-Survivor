@@ -140,11 +140,12 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         currentDamage += (long)amount;
         SpawnOrbs(); // 데미지 갱신을 위해 재소환 (혹은 기존 orb들에 접근해서 수치만 변경)
     }
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        // 예시: 레벨업 시 총알 개수 증가 혹은 데미지 증가
-        currentOrbCount++; 
-        currentDamage++;
+        if (!(myData is OrbWeaponDataSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentOrbCount = data.orbCount + upgrades;
+        currentDamage = data.baseDamage + (long)upgrades;
         SpawnOrbs();
     }
 

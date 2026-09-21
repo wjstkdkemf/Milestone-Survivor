@@ -81,7 +81,12 @@ public class PowerUpManager : MonoBehaviour
     {
         if (InGame) return;
 
-        UpdateTierView();
+        if (powerUpTiers != null && currentTierIndex >= 0 && currentTierIndex < powerUpTiers.Count
+            && tierTitleText != null)
+            tierTitleText.text = powerUpTiers[currentTierIndex].GetLocalizedTierName();
+
+        foreach (var button in buttonPool)
+            if (button != null && button.gameObject.activeSelf) button.UpdateUI();
 
         if (currentSelectedButton != null && panel != null && panel.activeSelf)
             UpdateDetailPanel(currentSelectedButton.powerUp);
@@ -107,6 +112,7 @@ public class PowerUpManager : MonoBehaviour
         beforeStat.text = "";
         afterStat.text = "";
         statArrow.SetActive(false);
+        BuyButtons.SetActive(false);
     }
     
     public void OnClickLeftBtn()
@@ -131,6 +137,9 @@ public class PowerUpManager : MonoBehaviour
 
     public void UpdateTierView()
     {
+        ClearSelection();
+        if (powerUpTiers == null || powerUpTiers.Count == 0) return;
+        currentTierIndex = Mathf.Clamp(currentTierIndex, 0, powerUpTiers.Count - 1);
         PowerUpTier currentTier = powerUpTiers[currentTierIndex];
 
         if (tierTitleText != null)
@@ -146,9 +155,6 @@ public class PowerUpManager : MonoBehaviour
                 btn.gameObject.SetActive(true);
                 btn.powerUp = currentTier.tierPowerUps[i]; // 데이터 교체
                 btn.Initialize(this); // UI 새로고침
-                
-                // 버튼 선택 상태 초기화
-                btn.DeSelected(); 
             }
             else
             {
@@ -157,6 +163,7 @@ public class PowerUpManager : MonoBehaviour
         }
 
         CheckLockStatus();
+
 
         if (leftButton != null) leftButton.interactable = (currentTierIndex > 0);
         if (rightButton != null) rightButton.interactable = (currentTierIndex < powerUpTiers.Count - 1);
@@ -193,14 +200,13 @@ public class PowerUpManager : MonoBehaviour
 
         PowerUpScriptableObject powerUp = currentSelectedButton.powerUp;
 
-        if (powerUp.CurrentLevel >= powerUp.upgradeValues.Length)
+        if (!TryGetPurchaseCost(powerUp, out long cost))
         {
             Debug.Log("Already Max Level!");
             return;
         }
 
-        long cost = powerUp.costPerLevel[powerUp.CurrentLevel];
-        if (!playerStats.TrySpendGold(cost))
+        if (playerStats == null || !playerStats.TrySpendGold(cost))
         {
             Debug.Log("Not enough gold!");
             return;
@@ -261,49 +267,77 @@ public class PowerUpManager : MonoBehaviour
     {
         foreach (var btn in buttonPool)
         {
-            if(btn.gameObject.activeSelf)
+            if (btn != null && btn.IsSelected)
                 btn.DeSelected();
         }
     }
 
     private void UpdateDetailPanel(PowerUpScriptableObject info)
     {
+        if (info == null || info.upgradeValues == null || info.upgradeValues.Length == 0)
+        {
+            ClearSelection();
+            return;
+        }
         panel.SetActive(true);
         nameText.text = info.GetLocalizedName();
         descriptionText.text = info.GetLocalizedDescription();
         currentLevelText.text = "+ " + info.CurrentLevel.ToString();
         PowerUpIcon.sprite = info.IconSprite;
 
-        bool isMaxLevel = info.CurrentLevel >= info.upgradeValues.Length;
+        int displayLevel = Mathf.Clamp(info.CurrentLevel, 0, info.upgradeValues.Length - 1);
+        bool isMaxLevel = displayLevel >= info.upgradeValues.Length - 1;
+        bool canPurchase = TryGetPurchaseCost(info, out long cost) && !IsCurrentTierLocked();
 
         if (!isMaxLevel)
         {
-            costText.text = info.costPerLevel[info.CurrentLevel].ToString();
+            costText.text = canPurchase ? cost.ToString() : "---";
             //Statname.text = info.powerUpType.ToString();
-            beforeStat.text = info.upgradeValues[info.CurrentLevel].ToString();
-            afterStat.text = info.upgradeValues[info.CurrentLevel + 1].ToString();
+            beforeStat.text = info.upgradeValues[displayLevel].ToString();
+            afterStat.text = info.upgradeValues[displayLevel + 1].ToString();
             statArrow.SetActive(true);
-            BuyButtons.SetActive(true);
+            BuyButtons.SetActive(canPurchase);
         }
         else
         {
             costText.text = "MAX";
             //Statname.text = info.powerUpType.ToString();
-            beforeStat.text = info.upgradeValues[info.CurrentLevel].ToString();
+            beforeStat.text = info.upgradeValues[displayLevel].ToString();
+            afterStat.text = "";
             statArrow.SetActive(false);
             BuyButtons.SetActive(false);
         }
     }
 
 
+    private void ClearSelection()
+    {
+        if (currentSelectedButton != null) currentSelectedButton.DeSelected(true);
+        currentSelectedButton = null;
+        if (BuyButtons != null) BuyButtons.SetActive(false);
+        if (panel != null) panel.SetActive(false);
+    }
+
+    private static bool TryGetPurchaseCost(PowerUpScriptableObject powerUp, out long cost)
+    {
+        cost = 0;
+        if (powerUp == null || powerUp.upgradeValues == null || powerUp.costPerLevel == null)
+            return false;
+        int level = powerUp.CurrentLevel;
+        if (level < 0 || level >= powerUp.upgradeValues.Length - 1 || level >= powerUp.costPerLevel.Length)
+            return false;
+        cost = powerUp.costPerLevel[level];
+        return cost >= 0;
+    }
+
     public PowerUpSaveData GetSaveData()
     {
-        var powerUpLevels = new Dictionary<PowerUpType, int>();
+        var powerUpLevels = new Dictionary<string, int>();
         foreach (var tier in powerUpTiers)
         {
             foreach (var powerUp in tier.tierPowerUps)
             {
-                powerUpLevels[powerUp.powerUpType] = powerUp.CurrentLevel;
+                powerUpLevels[powerUp.powerUpName] = powerUp.CurrentLevel;
             }
         }
         return new PowerUpSaveData(powerUpLevels);
@@ -320,9 +354,9 @@ public class PowerUpManager : MonoBehaviour
             {
                 foreach (var powerUp in tier.tierPowerUps)
                 {
-                    if (powerUpLevels.ContainsKey(powerUp.powerUpType))
+                    if (powerUpLevels.ContainsKey(powerUp.powerUpName))
                     {
-                        powerUp.CurrentLevel = Mathf.Clamp(powerUpLevels[powerUp.powerUpType], 0, powerUp.upgradeValues.Length);
+                        powerUp.CurrentLevel = Mathf.Clamp(powerUpLevels[powerUp.powerUpName], 0, powerUp.upgradeValues.Length - 1);
                     }
                 }
             }

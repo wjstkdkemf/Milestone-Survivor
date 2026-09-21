@@ -21,6 +21,8 @@ public class MeteorWeapon : WeaponBase
 
     // 가비지 방지용 바구니
     private List<int> searchResults = new List<int>(200);
+    private readonly List<Vector3> candidatePositions = new List<Vector3>(200);
+    private readonly List<int> densityResults = new List<int>(50);
 
     public override void Initialize(WeaponDataSO data)
     {
@@ -68,6 +70,7 @@ public class MeteorWeapon : WeaponBase
 
     void ActivateMeteorStrike()
     {
+        if (EnemySwarmSystem.Instance == null) return;
         // 물리 엔진 대신 초고속 광역 레이더 가동
         EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, searchRadius, searchResults);
 
@@ -75,47 +78,40 @@ public class MeteorWeapon : WeaponBase
 
         FindTargetPoints(); // 타겟팅 좌표 계산
 
-        pendingMeteors = currentMeteorNumber;
+        pendingMeteors = currentTargets.Count;
         volleyTimer = 0f; // 첫 발은 즉시 발사
     }
 
     private void FindTargetPoints()
     {
         currentTargets.Clear();
+        candidatePositions.Clear();
+        foreach (int index in searchResults)
+        {
+            Enemy enemy = EnemySwarmSystem.Instance.TryGetTarget(index);
+            if (enemy != null) candidatePositions.Add(enemy.transform.position);
+        }
+        if (candidatePositions.Count == 0 || currentMeteorNumber <= 0) return;
 
         Vector3 densestPoint = GetDensestPoint();
         currentTargets.Add(densestPoint);
 
         for (int i = 1; i < currentMeteorNumber; i++)
         {
-            int randomIdx = searchResults[Random.Range(0, searchResults.Count)];
-            
-            if (randomIdx < EnemySwarmSystem.Instance.activeEnemies.Count)
-            {
-                Enemy randomEnemy = EnemySwarmSystem.Instance.activeEnemies[randomIdx];
-                if (randomEnemy != null) currentTargets.Add(randomEnemy.transform.position);
-            }
-            else
-            {
-                currentTargets.Add(densestPoint); // 에러 시 밀집 지점으로 쏨
-            }
+            currentTargets.Add(candidatePositions[Random.Range(0, candidatePositions.Count)]);
         }
     }
 
     private Vector3 GetDensestPoint()
     {
         int maxDensity = 0;
-        Vector3 bestPoint = EnemySwarmSystem.Instance.activeEnemies[searchResults[0]].transform.position;
+        Vector3 bestPoint = candidatePositions[0];
 
-        int sampleCount = Mathf.Min(searchResults.Count, 5); 
-        List<int> densityResults = new List<int>(50);
+        int sampleCount = Mathf.Min(candidatePositions.Count, 5);
 
         for (int i = 0; i < sampleCount; i++)
         {
-            int randomIdx = searchResults[Random.Range(0, searchResults.Count)];
-            if (randomIdx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
-
-            Vector3 checkPos = EnemySwarmSystem.Instance.activeEnemies[randomIdx].transform.position;
+            Vector3 checkPos = candidatePositions[Random.Range(0, candidatePositions.Count)];
             
             EnemySwarmSystem.Instance.GetEnemiesInRadius(checkPos, densityCheckRadius, densityResults);
             
@@ -131,14 +127,19 @@ public class MeteorWeapon : WeaponBase
 
     private void FireSingleMeteor()
     {
+        if (pendingMeteors <= 0 || pendingMeteors > currentTargets.Count)
+        {
+            pendingMeteors = 0;
+            return;
+        }
         Vector3 target = currentTargets[currentTargets.Count - pendingMeteors];
 
         GameObject meteorObj = ObjectPoolingManager.Instance.spawnGameObject(MeteorPrefab, target, Quaternion.identity);
         if (meteorObj != null && meteorObj.TryGetComponent<Meteor>(out var meteorSkill))
         {
             float finalDamage = currentDamage + (PlayerStats.Instance != null ? PlayerStats.Instance.DamageBonus : 0);
-            meteorSkill.Fire(target, finalDamage, currentHitRadius , WeaponID);
             meteorSkill.warningDuration = this.warningDuration;
+            meteorSkill.Fire(target, finalDamage, currentHitRadius , WeaponID);
         }
 
         pendingMeteors--;
@@ -149,14 +150,16 @@ public class MeteorWeapon : WeaponBase
         }
         else
         {
-            cooldownTimer = currentCooldownTime; // 다 쐈으면 다시 무기 쿨타임 시작
+            cooldownTimer = GetCooldown(currentCooldownTime); // 다 쐈으면 다시 무기 쿨타임 시작
         }
     }
 
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        currentMeteorNumber++;
-        currentDamage += 2;
+        if (!(myData is MeteorWeaponSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentMeteorNumber = data.MeteorNumber + upgrades;
+        currentDamage = data.baseDamage + 2L * upgrades;
     }
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)

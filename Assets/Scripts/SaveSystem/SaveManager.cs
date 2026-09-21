@@ -38,10 +38,10 @@ public static class SaveManager
 [System.Serializable]
 public class PowerUpSaveData
 {
-    public List<PowerUpType> powerUpTypes = new List<PowerUpType>();
+    public List<string> powerUpTypes = new List<string>();
     public List<int> powerUpLevels = new List<int>();
 
-    public PowerUpSaveData(Dictionary<PowerUpType, int> levels)
+    public PowerUpSaveData(Dictionary<string, int> levels)
     {
         foreach (var pair in levels)
         {
@@ -50,9 +50,9 @@ public class PowerUpSaveData
         }
     }
 
-    public Dictionary<PowerUpType, int> ToDictionary()
+    public Dictionary<string, int> ToDictionary()
     {
-        var dict = new Dictionary<PowerUpType, int>();
+        var dict = new Dictionary<string, int>();
         for (int i = 0; i < powerUpTypes.Count; i++)
         {
             if (i < powerUpLevels.Count)

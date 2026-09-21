@@ -410,7 +410,8 @@ public class WaveSpawner : MonoBehaviour
 
     bool SpawnEnemy()
     {
-        if (WavesList[CurrentWave].Enemys.Count == 0) return false; // 스폰 실패
+        if(WavesList[CurrentWave].Enemys.Count == 0) return false; // 스폰 실패
+        if(GameManager.Instance.Pause == true) return false;
 
         GameObject enemyToSpawn = GetRandomEnemy();
         if(enemyToSpawn == null) return false; // 스폰할 적 없음 -> 스폰 실패
@@ -421,15 +422,19 @@ public class WaveSpawner : MonoBehaviour
         {
             return false; // 위치 찾기 실패 -> 스폰 실패
         }
+        GameObject CheckObejct;
 
         if (!WavesList[CurrentWave].DontUseObjectPooling)
         {
-            ObjectPoolingManager.Instance.spawnGameObject(enemyToSpawn, spawnPosition, Quaternion.identity);
+            CheckObejct = ObjectPoolingManager.Instance.spawnGameObject(enemyToSpawn, spawnPosition, Quaternion.identity);
         }
         else
         {
-            Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
+            CheckObejct = Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
         }
+
+        if(CheckObejct == null)
+            return false;
 
         SpawnedEnemys++;
         return true; // 스폰 성공!

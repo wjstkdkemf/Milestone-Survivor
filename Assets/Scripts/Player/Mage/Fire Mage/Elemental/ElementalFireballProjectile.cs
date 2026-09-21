@@ -87,8 +87,8 @@ public class ElementalFireballProjectile : SkillProjectileBase
             int idx = enemiesHitIndices[i];
             
             if (idx >= EnemySwarmSystem.Instance.activeEnemies.Count) continue;
-            Enemy target = EnemySwarmSystem.Instance.activeEnemies[idx];
-            if (target == null || target.currentNormalState == Enemy.EnemyState.Dead) continue;
+            Enemy target = EnemySwarmSystem.Instance.TryGetTarget(idx);
+            if (target == null ) continue;
 
             if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[idx])
             {

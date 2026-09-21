@@ -16,32 +16,19 @@ public class BatEnemy : Enemy
         // 박쥐는 NavMesh를 안 쓰므로 이걸 막거나 agent를 꺼야 합니다.
         // Enemy.cs 구조상 base.OnEnable()을 부르면 NavMesh 로직이 돌 수 있으니,
         // 여기서는 수동으로 필요한 것만 초기화하는 게 나을 수 있습니다.
-        
+        useSwarmMovement = false;
         InitializeBat();
     }
     protected override void OnDisable() 
     {
-        if (spriteRenderer != null)
-            spriteRenderer.color = defaultColor;
-        if (GameManager.Instance != null)
-            GameManager.Instance.activeEnemies--;
-
-        StopAllCoroutines();
-        currentNormalState = EnemyState.Dead;
+        ReSetRuntimeState();
+        UnRegisterSystem();
     }
 
     private void InitializeBat()
     {
-        health = maxhealth;
-        currentNormalState = EnemyState.Idle;
-        CachePlayerReferences();
-        if(spriteRenderer != null) 
-        {
-            spriteRenderer.material = originalMaterial;
-            spriteRenderer.color = Color.white;
-        }
-        if(GameManager.Instance != null)
-            GameManager.Instance.activeEnemies++;
+        InitializeRuntimeState();
+        RegisterSystem();
 
         NavMeshAgent agent = GetComponent<NavMeshAgent>();
         if (agent != null)
@@ -88,11 +75,6 @@ public class BatEnemy : Enemy
     // 공격 구현 (Enemy 추상 클래스 요구사항)
     public override void Attack()
     {
-    }
-
-    protected override void HandleMovement(float distanceToPlayer, Vector3 delta)
-    {
-        // 부모의 HandleMovement를 안 쓰기 때문에 비워둠
     }
     
     private void OnTriggerStay2D(Collider2D collision)

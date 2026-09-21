@@ -20,7 +20,6 @@ public class TeleportUI : MonoBehaviour
     [SerializeField] private Sprite selectedBigButtonSprite;
 
     private Button SelectbigButton;
-    private Button SelectsmallButton;
     private TeleportZoneData currentSelectedGroup;
 
     private void Start()
@@ -54,7 +53,10 @@ public class TeleportUI : MonoBehaviour
             return;
 
         foreach (Transform child in bigButtonContainer)
+        {
+            child.gameObject.SetActive(false);
             Destroy(child.gameObject);
+        }
 
         var zoneGroups = TeleportManager.Instance.GetAllTeleportData();
         if (zoneGroups == null)
@@ -93,8 +95,6 @@ public class TeleportUI : MonoBehaviour
         SelectbigButton = button;
         SetBigButtonSelected(SelectbigButton, true);
 
-        SelectsmallButton = null;
-
         if (teleportMapMaker != null)
             teleportMapMaker.DrawMap(selectedGroup, OnTeleportButtonClick);
 
@@ -105,12 +105,6 @@ public class TeleportUI : MonoBehaviour
     {
         if (teleportPoint == null)
             return;
-
-        if (SelectbigButton != null && SelectbigButton != button)
-            SetBigButtonSelected(SelectbigButton, false);
-
-        SelectbigButton = button;
-        SetBigButtonSelected(SelectbigButton, true);
 
         if (IsHome)
         {
@@ -157,7 +151,7 @@ public class TeleportUI : MonoBehaviour
 
         foreach (Transform child in bigButtonContainer)
         {
-            if (child != null && child.name == group.zoneName)
+            if (child != null && child.gameObject.activeSelf && child.name == group.zoneName)
                 return child.GetComponent<Button>();
         }
 

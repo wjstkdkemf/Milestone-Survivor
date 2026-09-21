@@ -62,7 +62,7 @@ public class SpreadingFlameWeapon : WeaponBase
         }
 
         AttachFlames();
-        cooldownTimer = currentCooldown;
+        cooldownTimer = GetCooldown(currentCooldown);
     }
 
     private void AttachFlames()
@@ -123,11 +123,13 @@ public class SpreadingFlameWeapon : WeaponBase
         }
     }
 
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        flameCount += flameCountIncrease;
-        currentDamage += damageIncrease;
-        spreadRadius += spreadRadiusIncrease;
+        if (!(myData is SpreadingFlameDataSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        flameCount = Mathf.Max(1, data.flameCount) + flameCountIncrease * upgrades;
+        currentDamage = data.damagePerTick + damageIncrease * upgrades;
+        spreadRadius = data.spreadRadius + spreadRadiusIncrease * upgrades;
 
         SetupRangeIndicator();
     }

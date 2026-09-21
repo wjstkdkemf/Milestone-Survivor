@@ -77,7 +77,7 @@ public static class SaveDataMigrator
         if (saveData.playerStatsData == null) saveData.playerStatsData = new PlayerStatsData();
 
         if (saveData.playerStatsData.level <= 0) saveData.playerStatsData.level = 1;
-        if (saveData.playerStatsData.requiredXP <= 0) saveData.playerStatsData.requiredXP = 50;
+        saveData.playerStatsData.requiredXP = PlayerStats.NormalizeRequiredXP(saveData.playerStatsData.requiredXP);
         if (saveData.playerStatsData.currentXP < 0) saveData.playerStatsData.currentXP = 0;
         if (saveData.playerStatsData.goldAmount < 0) saveData.playerStatsData.goldAmount = 0;
         if (saveData.playerStatsData.stageCleared < 0) saveData.playerStatsData.stageCleared = 0;

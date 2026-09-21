@@ -23,8 +23,10 @@ public class HoverCursor : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
     public void RefreshArrowPosition()
     {
-        label.ForceMeshUpdate();
-        Cursor.gameObject.SetActive(true);
+        if(label != null)
+            label.ForceMeshUpdate();
+        if(Cursor != null)
+            Cursor.gameObject.SetActive(true);
 
         Bounds bounds = label.textBounds;
 

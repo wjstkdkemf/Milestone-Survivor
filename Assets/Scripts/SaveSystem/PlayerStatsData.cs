@@ -5,8 +5,8 @@ public class PlayerStatsData
     public int stageCleared;
     public int characterID;
     public int level;
-    public int currentXP;
-    public float requiredXP;
+    public long currentXP;
+    public double requiredXP;
 
     public PlayerStatsData()
     {

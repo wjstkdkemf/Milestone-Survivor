@@ -69,10 +69,12 @@ public class AuraWeapon : WeaponBase
     }
 
     // 레벨업 시 범위와 데미지 증가
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        currentDamage += 2;
-        currentRadius += 1.5f;
+        if (!(myData is AuraDataSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentDamage = data.baseDamage + 2L * upgrades;
+        currentRadius = data.baseRadius + 1.5f * upgrades;
 
         if (auraScript != null)
         {

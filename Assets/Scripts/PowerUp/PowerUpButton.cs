@@ -21,26 +21,45 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public PowerUpScriptableObject powerUp;
     public Color hoverColor = Color.yellow;
     private Color originalColor;
+    private bool visualStateInitialized;
     
     // Scale Settings
     private Vector3 normalScale;
     public float hoverScaleFactor = 1.1f;
     public float animationDuration = 0.2f;
+    private int scaleTweenId = -1;
+    private Vector3 scaleTweenTarget;
 
     private PowerUpManager powerUpManager;
     public bool IsSelected;
+    private void Awake()
+    {
+        EnsureVisualStateInitialized();
+    }
+
+    private void EnsureVisualStateInitialized()
+    {
+        if (visualStateInitialized) return;
+
+        // Power-up selection owns the visuals; the generic card effect also animates this Transform.
+        if (TryGetComponent<CardUIEffects>(out var cardEffects))
+            cardEffects.enabled = false;
+
+        normalScale = transform.localScale;
+        cardGraphic = GetComponent<Graphic>();
+
+        if (cardGraphic != null)
+            originalColor = cardGraphic.color;
+
+        visualStateInitialized = true;
+    }
 
     public void Initialize(PowerUpManager manager)
     {
-        this.powerUpManager = manager;
-        normalScale = transform.localScale;
+        EnsureVisualStateInitialized();
 
-        // 그래픽 컴포넌트 가져오기 (Image 혹은 TMP 등)
-        cardGraphic = GetComponent<Graphic>();
-        if (cardGraphic != null)
-        {
-            originalColor = cardGraphic.color;
-        }
+        this.powerUpManager = manager;
+        DeSelected(true);
 
         if (powerUp != null)
         {
@@ -86,10 +105,14 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         Selected();
     }
+    private void OnDisable()
+    {
+        DeSelected(true);
+    }
 
     public void Selected()
     {
-        if (powerUpManager == null) return;
+        if (powerUpManager == null || IsSelected) return;
 
         // 다른 버튼 선택 해제 요청
         powerUpManager.DeselectOtherButtons();
@@ -103,12 +126,14 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         PlaySelectEffect();
     }
 
-    public void DeSelected()
+    public void DeSelected(bool Imm = false)
     {
+        EnsureVisualStateInitialized();
+
         IsSelected = false;
 
         // 원래 상태로 복귀
-        LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
+        ChangeScale(normalScale, Imm);
         
         if (cardGraphic != null)
             cardGraphic.color = originalColor;
@@ -121,10 +146,12 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     private void PlaySelectEffect()
     {
+        EnsureVisualStateInitialized();
         if (hoverSound != null) hoverSound.Play();
 
         // 선택 시 약간 확대
-        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
+        ChangeScale(normalScale * hoverScaleFactor);
+
 
         if (cardGraphic != null)
             cardGraphic.color = hoverColor;
@@ -135,21 +162,66 @@ public class PowerUpButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (!isActiveAndEnabled) return;
+        EnsureVisualStateInitialized();
         // 이미 선택된 상태라면 마우스 오버 효과 무시 (또는 다르게 처리)
         if (IsSelected) return;
 
         if (hoverSound != null) hoverSound.Play();
-        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
+        ChangeScale(normalScale * hoverScaleFactor);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (!isActiveAndEnabled) return;
+        EnsureVisualStateInitialized();
         // 선택된 상태라면 크기를 줄이지 않음
         if (IsSelected) return;
 
-        LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
+        ChangeScale(normalScale);
         
         if (customCursor != null)
             Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+    }
+
+    private void CancelScaleTween()
+    {
+        if (scaleTweenId < 0) return;
+
+        LeanTween.cancel(scaleTweenId);
+        scaleTweenId = -1;
+    }
+    private void ChangeScale(Vector3 target, bool immediate = false)
+    {
+        // Hover followed by click must not restart a tween already moving to the same size.
+        if (!immediate && isActiveAndEnabled && animationDuration > 0f
+            && scaleTweenId >= 0 && LeanTween.isTweening(scaleTweenId)
+            && scaleTweenTarget == target)
+            return;
+
+        CancelScaleTween();
+
+        if(immediate || !isActiveAndEnabled || animationDuration <= 0f)
+        {
+            transform.localScale = target;
+            return;
+        }
+
+        if(transform.localScale == target)
+        {
+            transform.localScale = target;
+            return;
+        }
+
+        scaleTweenTarget = target;
+        scaleTweenId = LeanTween.scale(gameObject, target, animationDuration)
+                                .setIgnoreTimeScale(true)
+                                .setEase(LeanTweenType.easeOutQuad)
+                                .setOnComplete(() =>
+                                {
+                                    transform.localScale = target;
+                                    scaleTweenId = -1;
+                                })
+                                .id;
     }
 }

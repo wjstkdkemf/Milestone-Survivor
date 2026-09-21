@@ -97,7 +97,7 @@ public class CelestialFireballWeapon : WeaponBase
             if (currentTarget == null) 
             {
                 pendingBullets = 0;
-                cooldownTimer = fireRate;
+                cooldownTimer = GetCooldown(fireRate);
                 return;
             }
             target = currentTarget;
@@ -121,7 +121,7 @@ public class CelestialFireballWeapon : WeaponBase
 
         pendingBullets--;
         if (pendingBullets > 0) volleyTimer = 0.1f;
-        else cooldownTimer = fireRate;
+        else cooldownTimer = GetCooldown(fireRate);
     }
 
     // 데미지 계산식
@@ -136,10 +136,12 @@ public class CelestialFireballWeapon : WeaponBase
         float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
         return currentDamage + (bonus * 2.0f); // 폭발 2배율 적용
     }
-    public override void LevelUp()
+    protected override void RecalculateLevelStats()
     {
-        currentDamage += 5;
-        trailDamageScaling += 0.1f; // 레벨업 시 장판 데미지 비율도 증가
+        if (!(myData is CelestialFireballSO data)) return;
+        int upgrades = CurrentLevel - 1;
+        currentDamage = data.baseDamage + 5L * upgrades;
+        trailDamageScaling = data.trailDamageScaling + 0.1f * upgrades;
         DevLog.Log($"[Evo Fireball Level Up] 직격뎀: {currentDamage}, 장판계수: {trailDamageScaling}");
     }
 }

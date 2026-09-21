@@ -25,6 +25,10 @@ public class ResourceManager : MonoBehaviour
     }
     private void OnDestroy()
     {
+        foreach (KeyValuePair<string, AsyncOperationHandle<GameObject>> pair in loadedAssets)
+        {
+            Addressables.Release(pair.Value);
+        }
         if (Instance == this)
         {
             Instance = null;
@@ -101,13 +105,22 @@ public class ResourceManager : MonoBehaviour
 
     private IEnumerator LoadAssetByKeyCoroutine(string key, Action<GameObject> onLoaded)
     {
-        AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(key);
-        yield return handle;
+        AsyncOperationHandle<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(key);            
 
+        yield return handle;
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
-            loadedAssets.Add(key, handle);
-            onLoaded?.Invoke(handle.Result);
+            if (!loadedAssets.ContainsKey(key))
+            {
+                loadedAssets.Add(key, handle);
+                onLoaded?.Invoke(handle.Result);
+            }
+            else
+            {
+                Addressables.Release(handle);
+                AsyncOperationHandle<GameObject> existingHandle = loadedAssets[key];
+                onLoaded?.Invoke(existingHandle.Result);
+            }
         }
         else
         {

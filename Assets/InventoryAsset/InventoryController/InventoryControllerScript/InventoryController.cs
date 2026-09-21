@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.Localization.Platform.Android;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -59,6 +60,7 @@ namespace InventorySystem
         private Dictionary<string, Inventory> inventoryManager = new Dictionary<string, Inventory>();
         private Dictionary<string, GameObject> inventoryUIDict = new Dictionary<string, GameObject>();
         private Dictionary<string, InventoryItem> itemManager = new Dictionary<string, InventoryItem>();
+        private readonly List<WeaponDataSO> equipmentSkills = new List<WeaponDataSO>();
         private Dictionary<string, List<GameObject>> EnableDisableDict = new Dictionary<string, List<GameObject>>();
         public bool InGame;
         private Dictionary<string, EquipmentData> equipmentDataCache = new Dictionary<string, EquipmentData>();
@@ -505,11 +507,11 @@ namespace InventorySystem
             inventory.AddItemPos(position, item);
         }
 
-        public void AddItem(string inventoryName, string itemType, int amount = 1)
+        public bool AddItem(string inventoryName, string itemType, int amount = 1)
         {
             if (!(TestInventoryDict(inventoryName) && TestItemDict(itemType)))
             {
-                return;
+                return false;
             }
 
             Inventory inventory = inventoryManager[inventoryName];
@@ -520,11 +522,13 @@ namespace InventorySystem
             if (currentAmount + amount > maxStack)
             {
                 Debug.Log($"Cannot add item. Total amount for '{itemType}' would exceed max stack of {maxStack}.");
-                return;
+                PlayerStats.Instance.AddGold(itemTemplate.GetPrice());
+                return false;
             }
 
             InventoryItem item = new InventoryItem(itemTemplate, amount);
             inventory.AddItemAuto(item, amount);
+            return true;
         }
 
         public void RemoveItemPos(string inventoryName, int position, int amount)
@@ -1358,7 +1362,6 @@ namespace InventorySystem
         /// </summary>
         public void ReapplyAllEquipmentSkills()
         {
-            // 기존 효과 모두 초기화
             if (GameObject.FindGameObjectWithTag("Village") != null ||
                 UpgradeManager.Instance == null ||
                 UpgradeManager.Instance.playerWeaponController == null)
@@ -1366,13 +1369,14 @@ namespace InventorySystem
                 return;
             }
 
-            UpgradeManager.Instance.playerWeaponController.ClearEquipmentSkills();
+            equipmentSkills.Clear();
 
             //  "HotBar" 인벤토리를 가져옴
             Inventory hotbarInv = GetInventory(HotBarInventoryName);
             if (hotbarInv == null)
             {
-                Debug.LogWarning("[InventoryController] ReapplyAllEquipmentEffects: 'HotBar' inventory not found.");
+                Debug.LogWarning("[InventoryController] ReapplyAllEquipmentSkills: 'HotBar' inventory not found.");
+                UpgradeManager.Instance.playerWeaponController.SetEquipmentSkills(equipmentSkills);
                 return;
             }
 
@@ -1383,13 +1387,14 @@ namespace InventorySystem
                 {
                     // 아이템 데이터를 로드하고 장비인 경우 효과 적용
                     EquipmentData equipmentData = LoadEquipmentData(item.GetItemType());
-                    if (equipmentData != null)
+                    if (equipmentData != null && equipmentData.weapons != null)
                     {
                         foreach(var EquiData in equipmentData.weapons)
-                            UpgradeManager.Instance.playerWeaponController.AddWeaponFromEquipment(EquiData);
+                            equipmentSkills.Add(EquiData);
                     }
                 }
             }
+            UpgradeManager.Instance.playerWeaponController.SetEquipmentSkills(equipmentSkills);
             Debug.Log("장비 스킬 적용");
         }
         public void CopyEquippedItemsToInventory(string equipmentInvName, string mainInvName)
