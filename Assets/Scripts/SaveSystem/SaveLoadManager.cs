@@ -47,6 +47,8 @@ public class SaveLoadManager : MonoBehaviour
 
         // Create the main save data object.
         GameSaveData saveData = new GameSaveData(invJson, powData, statsData);
+        if (InventoryManager.Instance != null)
+            saveData.pendingInventoryItems = InventoryManager.Instance.GetPendingSaveData();
         SaveDataMigrator.PrepareForSave(saveData);
         DevLog.Log("Loading Inventory JSON: " + saveData.inventoryJson);
         
@@ -85,6 +87,11 @@ public class SaveLoadManager : MonoBehaviour
 
             PowerUpManager.Instance.LoadData(saveData.powerUpData);
             PlayerStats.Instance.LoadData(saveData.playerStatsData);
+            if (InventoryManager.Instance != null)
+            {
+                InventoryManager.Instance.LoadPendingSaveData(saveData.pendingInventoryItems);
+                InventoryManager.Instance.RestoreInventoryTo(InventorySystem.InventoryController.InventoryName);
+            }
             QuestManager.Instance.LoadQuestData();
             IsLoadingFromFile = true; // Set the flag
             DevLog.Log($"<color=green>[SaveLoadManager]</color> Game Loaded from Slot {slotNumber}.");
@@ -117,9 +124,15 @@ public class SaveLoadManager : MonoBehaviour
         DevLog.Log("<color=yellow>[SaveLoadManager]</color> All data has been reset for a new game.");
     }
 
-    private bool CanSaveGame()
+    public bool CanSaveGame()
     {
         bool canSave = true;
+
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot save: pending inventory storage is missing.");
+            canSave = false;
+        }
 
         if (InventorySystem.InventoryController.instance == null)
         {
@@ -153,6 +166,12 @@ public class SaveLoadManager : MonoBehaviour
     private bool CanLoadGame()
     {
         bool canLoad = true;
+
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogError("[SaveLoadManager] Cannot load: pending inventory storage is missing.");
+            canLoad = false;
+        }
 
         if (InventorySystem.InventoryController.instance == null)
         {

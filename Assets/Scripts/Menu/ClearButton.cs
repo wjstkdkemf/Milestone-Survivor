@@ -6,13 +6,16 @@ public class ClearButton : MonoBehaviour
 {
 	public void EndDungeun()
 	{
+		if (InventoryManager.Instance == null || !InventoryManager.Instance.StoreInventoryFrom("ClearInventory"))
+		{
+			Debug.LogError("[ClearButton] Items could not be stored. Return to village was cancelled.");
+			return;
+		}
 		if(GameManager.Instance != null)
 		{
 		GameManager.Instance.Pause = false;
 		GameManager.Instance.StopMoveing = false;
 		}
-		if(InventoryManager.Instance != null)
-			InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
 		if(WaveSpawner.Instance != null)
 			WaveSpawner.Instance.ReleaseWaveAssets();
 		if(ObjectPoolingManager.Instance != null)

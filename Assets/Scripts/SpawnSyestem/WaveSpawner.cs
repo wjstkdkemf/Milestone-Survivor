@@ -29,6 +29,7 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private bool onlySideSpawn;
     [SerializeField] private List<Transform> spawningPotions;
 
+    private IEnumerator spawnCoroutine;
     private bool LastSpawn = false;
     private bool isClearingStage = false;
     // 벽을 감지하기 위한 레이어 마스크
@@ -172,7 +173,8 @@ public class WaveSpawner : MonoBehaviour
             {
                 if (!isMassiveSpawning)
                     {
-                        StartCoroutine(SpawnMassiveEnemies(WavesList[CurrentWave].EnemyNumber));
+                        spawnCoroutine = SpawnMassiveEnemies(WavesList[CurrentWave].EnemyNumber);
+                        StartCoroutine(spawnCoroutine);
                     }
             }
             else
@@ -183,8 +185,18 @@ public class WaveSpawner : MonoBehaviour
 
         waveTimer -= Time.fixedDeltaTime;
 
-        if (waveTimer <= 0 && !LastSpawn)
+        Wave wave = WavesList[CurrentWave];
+
+        bool clearedFiniteWave =
+            SpawnAll &&
+            SpawnedEnemys >= wave.EnemyNumber &&
+            !isMassiveSpawning &&
+            GameManager.Instance.activeEnemies == 0;
+
+        if (!LastSpawn && (waveTimer <= 0f || clearedFiniteWave))
         {
+            StopSpawnRoutine();
+
             if (CurrentWave >= WavesList.Count - 1)
             {
                 LastSpawn = true;
@@ -323,6 +335,9 @@ public class WaveSpawner : MonoBehaviour
         LastSpawn = false;
         isClearingStage = false;
         StopAllCoroutines(); // Stop any running coroutines like ClearStageAfterItemCollection
+
+        isMassiveSpawning = false;
+        spawnCoroutine = null;
 
         //ReleaseWaveAssets();
     }
@@ -669,6 +684,16 @@ public class WaveSpawner : MonoBehaviour
     {
         return cameraBrain == null ||
             !cameraBrain.IsBlending;
+    }
+    private void StopSpawnRoutine()
+    {
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+
+        isMassiveSpawning = false;
     }
 }
 

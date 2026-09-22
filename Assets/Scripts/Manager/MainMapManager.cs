@@ -8,8 +8,11 @@ public class MainMapManager : MonoBehaviour
     public Transform mapContainer;
     private GameObject currentMapInstance;
     public GameObject TeleportUI;
+
+    private bool isChangingMap = false;
     
     private string currentMapTheme = "";
+
     
     // 메모리 해제를 위해 현재 맵의 '문자열 주소'를 기억해둡니다.
     private string currentMapAddress = ""; 
@@ -36,10 +39,14 @@ public class MainMapManager : MonoBehaviour
 
     public void ChangeMap(string newMapAddress, string playerSpawnPosition)
     {
-        FadeManager.Instance.FadeOut(() =>
+        if(!isChangingMap)
         {
-            StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
-        });
+            isChangingMap = true;
+            FadeManager.Instance.FadeOut(() =>
+            {
+                StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
+            });
+        }
     }
 
     private IEnumerator ProcessMapChange(string newMapAddress, string playerSpawnPosition)
@@ -93,18 +100,20 @@ public class MainMapManager : MonoBehaviour
             {
                 TeleportManager.Instance.TeleportPlayer(player, newMapAddress, playerSpawnPosition);
             }
-            
+            isChangingMap = false;
             FadeManager.Instance.FadeIn();
         }
         else
         {
             Debug.LogError("맵 로드 실패: " + newMapAddress);
+            isChangingMap = false;
+            FadeManager.Instance.FadeIn();
         }
     }
 
     public void InitializeMap(string newMapAddress, string playerSpawnPosition)
     {
-         StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
+        StartCoroutine(ProcessMapChange(newMapAddress, playerSpawnPosition));
     }
     
     public GameObject GetTeleportUI()

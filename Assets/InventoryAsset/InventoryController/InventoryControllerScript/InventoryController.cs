@@ -1,10 +1,26 @@
 using System.Collections.Generic;
-using UnityEditor.Localization.Platform.Android;
+//using UnityEditor.Localization.Platform.Android;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace InventorySystem
 {
+    public readonly struct ItemAddResult
+    {
+        public int Requested { get; }
+        public int Added { get; }
+        public int Converted { get; }
+        public int Remaining => Requested - Added - Converted;
+        public bool FullyProcessed => Requested > 0 && Remaining == 0;
+
+        public ItemAddResult(int requested, int added = 0, int converted = 0)
+        {
+            Requested = Mathf.Max(0, requested);
+            Added = added;
+            Converted = converted;
+        }
+    }
+
     //Author: Jaxon Schauer
     //Modified by Gemini to integrate with a central SaveLoadManager
     public class InventoryController : MonoBehaviour
@@ -509,26 +525,64 @@ namespace InventorySystem
 
         public bool AddItem(string inventoryName, string itemType, int amount = 1)
         {
+            return AddItemWithResult(inventoryName, itemType, amount).FullyProcessed;
+        }
+
+        public ItemAddResult AddItemWithResult(string inventoryName, string itemType, int amount = 1)
+        {
+            if (amount <= 0 || string.IsNullOrEmpty(inventoryName) || string.IsNullOrEmpty(itemType))
+                return new ItemAddResult(amount);
+
             if (!(TestInventoryDict(inventoryName) && TestItemDict(itemType)))
             {
-                return false;
+                return new ItemAddResult(amount);
             }
+
+            return AddItemWithResult(inventoryName, itemManager[itemType], amount);
+        }
+
+        public ItemAddResult AddItemWithResult(string inventoryName, InventoryItem itemTemplate, int amount)
+        {
+            if (amount <= 0 || itemTemplate == null || itemTemplate.GetIsNull() ||
+                string.IsNullOrEmpty(inventoryName) || !TestInventoryDict(inventoryName))
+                return new ItemAddResult(amount);
 
             Inventory inventory = inventoryManager[inventoryName];
-            InventoryItem itemTemplate = itemManager[itemType];
+            string itemType = itemTemplate.GetItemType();
             int maxStack = itemTemplate.GetItemStackAmount();
+            if (maxStack <= 0) return new ItemAddResult(amount);
             int currentAmount = inventory.Count(itemType);
+            int allowedAmount = Mathf.Min(amount, Mathf.Max(0, maxStack - currentAmount));
+            int added = inventory.AddItemAuto(itemTemplate, allowedAmount);
 
-            if (currentAmount + amount > maxStack)
+            // Only the ownership-limit excess becomes gold. A full inventory leaves a remainder.
+            int excess = amount - allowedAmount;
+            int converted = 0;
+            if (excess > 0 && PlayerStats.Instance != null)
             {
-                Debug.Log($"Cannot add item. Total amount for '{itemType}' would exceed max stack of {maxStack}.");
-                PlayerStats.Instance.AddGold(itemTemplate.GetPrice());
-                return false;
+                int price = Mathf.Max(0, itemTemplate.GetPrice());
+                long availableGold = long.MaxValue - System.Math.Max(0L, PlayerStats.Instance.GoldAmount);
+                converted = price == 0 ? excess : (int)System.Math.Min(excess, availableGold / price);
+                PlayerStats.Instance.AddGold((long)price * converted);
             }
 
-            InventoryItem item = new InventoryItem(itemTemplate, amount);
-            inventory.AddItemAuto(item, amount);
-            return true;
+            return new ItemAddResult(amount, added, converted);
+        }
+
+        public ItemAddResult TransferItem(string fromInventory, string toInventory, InventoryItem item)
+        {
+            if (item == null || item.GetIsNull()) return new ItemAddResult(0);
+            int amount = item.GetAmount();
+            if (fromInventory == toInventory || !TestInventoryDict(fromInventory))
+                return new ItemAddResult(amount);
+
+            Inventory source = inventoryManager[fromInventory];
+            if (!source.GetList().Contains(item)) return new ItemAddResult(amount);
+
+            ItemAddResult result = AddItemWithResult(toInventory, item, amount);
+            int processed = result.Added + result.Converted;
+            if (processed > 0) source.RemoveItemInPosition(item, processed);
+            return result;
         }
 
         public void RemoveItemPos(string inventoryName, int position, int amount)

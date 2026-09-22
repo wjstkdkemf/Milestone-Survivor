@@ -6,6 +6,295 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using InventorySystem;
+
+public class ItemAcquisitionRegressionTests
+{
+    private readonly List<Object> owned = new List<Object>();
+    private readonly Dictionary<string, Inventory> inventories = new Dictionary<string, Inventory>();
+    private readonly Dictionary<string, InventoryItem> templates = new Dictionary<string, InventoryItem>();
+    private InventoryController controller;
+    private InventoryController previousController;
+    private PlayerStats previousStats;
+    private InventoryManager previousStorage;
+    private InventoryManager storage;
+
+    [SetUp]
+    public void SetUp()
+    {
+        previousController = InventoryController.instance;
+        previousStats = PlayerStats.Instance;
+        previousStorage = InventoryManager.Instance;
+        controller = Root("Acquisition controller").AddComponent<InventoryController>();
+        InventoryController.instance = controller;
+        SetField(controller, "inventoryManager", inventories);
+        SetField(controller, "itemManager", templates);
+        PlayerStats.Instance = Root("Acquisition stats").AddComponent<PlayerStats>();
+        storage = Root("Pending items").AddComponent<InventoryManager>();
+        SetStorage(storage);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        for (int i = owned.Count - 1; i >= 0; i--)
+            if (owned[i] != null) Object.DestroyImmediate(owned[i]);
+        owned.Clear();
+        inventories.Clear();
+        templates.Clear();
+        InventoryController.instance = previousController;
+        PlayerStats.Instance = previousStats;
+        SetStorage(previousStorage);
+    }
+
+    [Test]
+    public void RawAdd_ReportsOnlyWhatFitsInSlots()
+    {
+        Inventory inventory = Inventory("Inventory", 2);
+        Assert.That(inventory.AddItemAuto(Item("Potion", 5), 12), Is.EqualTo(10));
+        Assert.That(inventory.Count("Potion"), Is.EqualTo(10));
+    }
+
+    [Test]
+    public void RawAdd_ReportsPartialMergeWithoutFreeSlots()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        InventoryItem item = Item("Potion", 5);
+        inventory.AddItemAuto(item, 4);
+        Assert.That(inventory.AddItemAuto(item, 4), Is.EqualTo(1));
+        Assert.That(inventory.Count("Potion"), Is.EqualTo(5));
+    }
+
+    [Test]
+    public void FullInventory_PreservesRemainderWithoutConvertingToGold()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        inventory.AddItemAuto(Item("Blocker", 1), 1);
+        Item("Potion", 5);
+        AssertResult(controller.AddItemWithResult("Inventory", "Potion", 3), 0, 0, 3);
+        Assert.That(controller.AddItem("Inventory", "Potion"), Is.False);
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.Zero);
+    }
+
+    [Test]
+    public void OwnershipCap_AddsAvailableQuantityAndConvertsOnlyExcess()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        inventory.AddItemAuto(Item("Potion", 5), 4);
+        AssertResult(controller.AddItemWithResult("Inventory", "Potion", 3), 1, 2, 0);
+        Assert.That(inventory.Count("Potion"), Is.EqualTo(5));
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.EqualTo(20));
+    }
+
+    [Test]
+    public void CapacityAndOwnershipLimits_ReportSeparateRemainders()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        inventory.AddItemAuto(Item("Blocker", 1), 1);
+        Item("Potion", 5);
+        AssertResult(controller.AddItemWithResult("Inventory", "Potion", 7), 0, 2, 5);
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.EqualTo(20));
+    }
+
+    [Test]
+    public void MissingStats_DoesNotConsumeItemsThatNeedGoldConversion()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        inventory.AddItemAuto(Item("Potion", 1), 1);
+        PlayerStats.Instance = null;
+        AssertResult(controller.AddItemWithResult("Inventory", "Potion", 1), 0, 0, 1);
+    }
+
+    [Test]
+    public void GoldNearLimit_LeavesUnconvertibleItemsPending()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        inventory.AddItemAuto(Item("Potion", 1), 1);
+        PlayerStats.Instance.SetGold(long.MaxValue - 15);
+        AssertResult(controller.AddItemWithResult("Inventory", "Potion", 2), 0, 1, 1);
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.EqualTo(long.MaxValue - 5));
+    }
+
+    [TestCase(0)]
+    [TestCase(-1)]
+    public void InvalidQuantity_DoesNotCreateItemsOrGold(int amount)
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        Item("Potion", 5);
+        Assert.That(controller.AddItem("Inventory", "Potion", amount), Is.False);
+        Assert.That(inventory.Count("Potion"), Is.Zero);
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.Zero);
+    }
+
+    [Test]
+    public void Restore_RetainsBlockedItemsAndRetryDoesNotDuplicate()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        inventory.AddItemAuto(Item("Blocker", 1), 1);
+        Item("Potion", 5);
+        storage.AddItem("Potion", 3);
+        storage.RestoreInventoryTo("Inventory");
+        Assert.That(storage.GetInventoryData()["Potion"], Is.EqualTo(3));
+        inventory.RemoveItemInPosition(0, 1);
+        storage.RestoreInventoryTo("Inventory");
+        storage.RestoreInventoryTo("Inventory");
+        Assert.That(storage.GetInventoryData(), Is.Empty);
+        Assert.That(inventory.Count("Potion"), Is.EqualTo(3));
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.Zero);
+    }
+
+    [Test]
+    public void Restore_PartialConversionRetiresOnlyProcessedUnits()
+    {
+        Inventory inventory = Inventory("Inventory", 1);
+        inventory.AddItemAuto(Item("Blocker", 1), 1);
+        Item("Potion", 5);
+        storage.AddItem("Potion", 7);
+        storage.RestoreInventoryTo("Inventory");
+        storage.RestoreInventoryTo("Inventory");
+        Assert.That(storage.GetInventoryData()["Potion"], Is.EqualTo(5));
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.EqualTo(20));
+    }
+
+    [Test]
+    public void StoreRepeatedly_DoesNotDuplicateSourceItems()
+    {
+        Inventory inventory = Inventory("ClearInventory", 1);
+        inventory.AddItemAuto(Item("Potion", 5), 3);
+        storage.StoreInventoryFrom("ClearInventory");
+        storage.StoreInventoryFrom("ClearInventory");
+        Assert.That(inventory.Count("Potion"), Is.Zero);
+        Assert.That(storage.GetInventoryData()["Potion"], Is.EqualTo(3));
+    }
+
+    [Test]
+    public void StoreOverflow_ReportsFailureAndLeavesSourceUntouched()
+    {
+        Inventory inventory = Inventory("ClearInventory", 1);
+        inventory.AddItemAuto(Item("Potion", 5), 3);
+        storage.AddItem("Potion", int.MaxValue);
+        UnityEngine.TestTools.LogAssert.Expect(LogType.Error,
+            "[InventoryManager] Pending quantity overflow for 'Potion'.");
+        Assert.That(storage.StoreInventoryFrom("ClearInventory"), Is.False);
+        Assert.That(inventory.Count("Potion"), Is.EqualTo(3));
+        Assert.That(storage.GetInventoryData()["Potion"], Is.EqualTo(int.MaxValue));
+    }
+
+    [Test]
+    public void PendingItems_SurviveSaveJsonRoundTrip()
+    {
+        storage.AddItem("Potion", 3);
+        storage.AddItem("Sword", 1);
+        var data = new GameSaveData("{}", null, null) { pendingInventoryItems = storage.GetPendingSaveData() };
+        string json = JsonUtility.ToJson(data);
+        storage.ClearStoredInventory();
+        storage.LoadPendingSaveData(JsonUtility.FromJson<GameSaveData>(json).pendingInventoryItems);
+        Assert.That(storage.GetInventoryData()["Potion"], Is.EqualTo(3));
+        Assert.That(storage.GetInventoryData()["Sword"], Is.EqualTo(1));
+    }
+
+    [Test]
+    public void LegacySaveWithoutPendingItems_ClearsPreviousSlotPendingItems()
+    {
+        storage.AddItem("Potion", 3);
+        storage.LoadPendingSaveData(JsonUtility.FromJson<GameSaveData>("{\"inventoryJson\":\"{}\"}").pendingInventoryItems);
+        Assert.That(storage.GetInventoryData(), Is.Empty);
+    }
+
+    [Test]
+    public void TransferBlocked_KeepsSourceAndSameInventoryIsNoOp()
+    {
+        Inventory source = Inventory("Source", 1);
+        Inventory target = Inventory("Target", 1);
+        source.AddItemAuto(Item("Potion", 5), 3);
+        target.AddItemAuto(Item("Blocker", 1), 1);
+        InventoryItem item = source.InventoryGetItem(0);
+        AssertResult(controller.TransferItem("Source", "Target", item), 0, 0, 3);
+        AssertResult(controller.TransferItem("Source", "Source", item), 0, 0, 3);
+        Assert.That(source.Count("Potion"), Is.EqualTo(3));
+    }
+
+    [Test]
+    public void TransferSuccessful_PreservesEnhancementAndRemovesSourceOnce()
+    {
+        Inventory source = Inventory("Source", 1);
+        Inventory target = Inventory("Target", 1);
+        source.AddItemAuto(Item("Sword", 1), 1);
+        InventoryItem item = source.InventoryGetItem(0);
+        item.SetEnhancementLevel(4);
+        AssertResult(controller.TransferItem("Source", "Target", item), 1, 0, 0);
+        Assert.That(source.Count("Sword"), Is.Zero);
+        Assert.That(target.InventoryGetItem(0).GetEnhancementLevel(), Is.EqualTo(4));
+        controller.TransferItem("Source", "Target", item);
+        Assert.That(PlayerStats.Instance.GoldAmount, Is.Zero);
+    }
+
+    [Test]
+    public void FailedPickup_KeepsObjectAndReenablesCollider()
+    {
+        Inventory inventory = Inventory("ClearInventory", 1);
+        inventory.AddItemAuto(Item("Blocker", 1), 1);
+        Item("Potion", 5);
+        var pickup = Root("Pickup").AddComponent<ItemObject>();
+        pickup.itemData = (ItemData)owned.Find(value => value is ItemData data && data.itemName == "Potion");
+        var collider = pickup.gameObject.AddComponent<BoxCollider2D>();
+        SetField(pickup, "isCollecting", true);
+        var routine = (System.Collections.IEnumerator)typeof(ItemObject)
+            .GetMethod("MoveAndCollect", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(pickup, new object[] { Root("Player").transform });
+        Assert.That(routine.MoveNext(), Is.False);
+        Assert.That(pickup != null, Is.True);
+        Assert.That(collider.enabled, Is.True);
+        Assert.That(typeof(ItemObject).GetField("isCollecting", BindingFlags.Instance | BindingFlags.NonPublic)
+            .GetValue(pickup), Is.False);
+    }
+
+    private GameObject Root(string name)
+    {
+        var root = new GameObject(name);
+        root.SetActive(false);
+        owned.Add(root);
+        return root;
+    }
+
+    private Inventory Inventory(string name, int capacity)
+    {
+        var ui = Root(name).AddComponent<InventoryUIManager>();
+        var inventory = new Inventory(ui.gameObject, name, capacity);
+        inventory.Init();
+        inventory.SetupItemAcceptance(true, false, new List<string>());
+        inventories.Add(name, inventory);
+        return inventory;
+    }
+
+    private InventoryItem Item(string name, int maxStack)
+    {
+        var data = ScriptableObject.CreateInstance<ItemData>();
+        data.itemName = name;
+        data.itemType = ItemType.Consumable;
+        data.maxStackAmount = maxStack;
+        data.price = 10;
+        owned.Add(data);
+        var item = new InventoryItem(data);
+        templates.Add(name, item);
+        return item;
+    }
+
+    private static void AssertResult(ItemAddResult result, int added, int converted, int remaining)
+    {
+        Assert.That(result.Added, Is.EqualTo(added));
+        Assert.That(result.Converted, Is.EqualTo(converted));
+        Assert.That(result.Remaining, Is.EqualTo(remaining));
+        Assert.That(result.Requested, Is.EqualTo(added + converted + remaining));
+    }
+
+    private static void SetField(object target, string name, object value)
+        => target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
+
+    private static void SetStorage(InventoryManager value)
+        => typeof(InventoryManager).GetField("<Instance>k__BackingField", BindingFlags.Static | BindingFlags.NonPublic)
+            .SetValue(null, value);
+}
 
 public class PowerUpButtonVisualRegressionTests
 {

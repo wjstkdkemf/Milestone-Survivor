@@ -213,26 +213,54 @@ public class QuestManager : MonoBehaviour
 
     public void ClaimReward(QuestProgressData quest)
     {
-        if (quest == null || !quest.isCompleted) return;
+        if (quest == null || !quest.isCompleted || quest.isClaimed) return;
+        if (quest != currentMainQuest && !currentSubQuests.Contains(quest)) return;
 
         QuestDataSO data = GetQuestSO(quest.questID);
         if (data == null) return;
-
-        foreach(QuestReward reward in data.rewards)
+        if (InventoryManager.Instance == null || InventoryController.instance == null ||
+            PlayerStats.Instance == null || SaveLoadManager.Instance == null ||
+            !SaveLoadManager.Instance.CanSaveGame())
         {
-            if(reward.rewardType == RewardType.Gold)
+            Debug.LogWarning("[QuestManager] Reward services are not ready. Reward remains unclaimed.");
+            return;
+        }
+
+        // Resolve random items once, before awarding anything. Retries use these item identities.
+        var items = new Dictionary<string, int>();
+        var pending = InventoryManager.Instance.GetInventoryData();
+        long gold = 0;
+        foreach (QuestReward reward in data.rewards)
+        {
+            if (reward == null || reward.amount <= 0) continue;
+            if (reward.rewardType == RewardType.Gold)
             {
-                PlayerStats.Instance.AddGold(reward.amount);
+                if (reward.amount > long.MaxValue - gold) return;
+                gold += reward.amount;
             }
-            else if(reward.rewardType == RewardType.Item)
+            else if (reward.rewardType == RewardType.Item)
             {
-                if(reward.lootTable != null)
+                LootTableItem drop = reward.lootTable != null ? reward.lootTable.QuestDrop() : null;
+                ItemObject itemObject = drop?.itemPrefab != null ? drop.itemPrefab.GetComponent<ItemObject>() : null;
+                if (itemObject == null || itemObject.itemData == null || string.IsNullOrEmpty(itemObject.itemData.itemName))
                 {
-                    ItemObject itemObject = reward.lootTable.QuestDrop().itemPrefab.GetComponent<ItemObject>();
-                    InventoryController.instance.AddItem("Inventory", itemObject.itemData.itemName, reward.amount);
+                    Debug.LogError("[QuestManager] Invalid item reward. Reward remains unclaimed.");
+                    return;
                 }
+                string itemName = itemObject.itemData.itemName;
+                items.TryGetValue(itemName, out int amount);
+                pending.TryGetValue(itemName, out int stored);
+                if ((long)amount + stored + reward.amount > int.MaxValue) return;
+                items[itemName] = amount + reward.amount;
             }
         }
+        if (gold > long.MaxValue - System.Math.Max(0L, PlayerStats.Instance.GoldAmount)) return;
+
+        quest.isClaimed = true;
+        foreach (var item in items)
+            InventoryManager.Instance.AddItem(item.Key, item.Value);
+        PlayerStats.Instance.AddGold(gold);
+        InventoryManager.Instance.RestoreInventoryTo(InventoryController.InventoryName);
         //Debug.Log($"💰 보상 획득: {data.rewardGold} G");
 
         //GameProgressManager.Instance.Unlock($"Cleared_{data.questID}");
@@ -247,7 +275,7 @@ public class QuestManager : MonoBehaviour
         else
             currentSubQuests.Remove(quest);
 
-        SaveQuestData();
+        SaveLoadManager.Instance.SaveGame(SaveLoadManager.Instance.selectedIndex);
     }
     private void AdvanceMainQuest(QuestDataSO completedQuest)
     {

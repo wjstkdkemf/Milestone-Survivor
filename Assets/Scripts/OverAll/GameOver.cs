@@ -111,8 +111,11 @@ public class GameOver : MonoBehaviour
 
     public void MoveInventoryAndLoadScene(string sceneName)
     {
-        if (InventoryManager.Instance != null)
-            InventoryManager.Instance.StoreInventoryFrom("ClearInventory");
+        if (InventoryManager.Instance == null || !InventoryManager.Instance.StoreInventoryFrom("ClearInventory"))
+        {
+            Debug.LogError("[GameOver] Items could not be stored. Scene transition was cancelled.");
+            return;
+        }
 
         if (LoadingManager.Instance != null)
             LoadingManager.Instance.LoadScene(sceneName);

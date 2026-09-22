@@ -32,7 +32,7 @@ public class FadeManager : MonoBehaviour
         float timer = 0f;
         while (timer < fadeDuration)
         {
-            timer += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
             fadeImage.color = new Color(0, 0, 0, timer / fadeDuration);
             yield return null;
         }
@@ -52,7 +52,7 @@ public class FadeManager : MonoBehaviour
         float timer = 0f;
         while (timer < fadeDuration)
         {
-            timer += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
             fadeImage.color = new Color(0, 0, 0, 1f - (timer / fadeDuration));
             yield return null;
         }

@@ -161,7 +161,7 @@ public class Player_Controller : MonoBehaviour
         switch (state)
         {
             case State.Normal:
-                Vector2 myVelocity = moveDir * (movmentSpeed * (1 + PlayerStats.Instance.SpeedBonus / 100f));
+                Vector2 myVelocity = moveDir * (1 + movmentSpeed / 100f);
                 
                 int count = Physics2D.OverlapCircleNonAlloc(transform.position, playerRadius, nearbyEnemies, enemyLayer);
                 Vector2 pushBackForce = Vector2.zero;

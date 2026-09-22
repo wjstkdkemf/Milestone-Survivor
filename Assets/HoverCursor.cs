@@ -28,6 +28,7 @@ public class HoverCursor : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         if(Cursor != null)
             Cursor.gameObject.SetActive(true);
 
+
         Bounds bounds = label.textBounds;
 
         float x = arrowOnRight

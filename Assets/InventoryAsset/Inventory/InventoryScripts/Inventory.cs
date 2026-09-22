@@ -195,8 +195,11 @@ namespace InventorySystem
         /// Takes an item as input
         /// Adds the item at the lowest possible inventory location, adding it into the <see cref="itemPositions"/> to allow for efficient tracking of the inventory items
         /// </summary>
-        public void AddItemAuto(InventoryItem item, int amount = 1)
+        public int AddItemAuto(InventoryItem item, int amount = 1)
         {
+            if (item == null || item.GetIsNull() || amount <= 0 || item.GetItemStackAmount() <= 0)
+                return 0;
+
             if (!CheckAcceptance(item.GetItemType()))
             {
                 Debug.LogWarning("Inventory is set to not accept this item. Overruling and adding item.");
@@ -220,17 +223,17 @@ namespace InventorySystem
                         {
                             curItem.SetAmount(inventoryList[position].GetAmount() + newItem.GetAmount());
                             InventoryUIManagerInstance.UpdateSlot(position);
-                            return;
+                            return amount;
 
                         }
                         InventoryUIManagerInstance.UpdateSlot(position);
                     }
                 }
-                AddLinearly(newItem, newItem.GetAmount());
+                return amount - newItem.GetAmount() + AddLinearly(newItem, newItem.GetAmount());
             }
             else
             {
-                AddLinearly(newItem, newItem.GetAmount());
+                return AddLinearly(newItem, newItem.GetAmount());
             }
 
         }
@@ -238,7 +241,7 @@ namespace InventorySystem
         /// <summary>
         /// Adds a new item in the lowest possible inventoryList position
         /// </summary>
-        private void AddLinearly(InventoryItem item, int amount = 1)
+        private int AddLinearly(InventoryItem item, int amount = 1)
         {
             int trackAmount = amount;
             for (int i = 0; i < inventoryList.Count; i++)
@@ -257,7 +260,7 @@ namespace InventorySystem
                     {
                         InventoryItem newItem = new InventoryItem(item, trackAmount);
                         AddItemHelper(newItem, i);
-                        trackAmount = trackAmount - amount;
+                        trackAmount = 0;
 
                     }
                     if (trackAmount <= 0)
@@ -266,6 +269,7 @@ namespace InventorySystem
                     }
                 }
             }
+            return amount - trackAmount;
         }
         /// <summary>
         /// Adds itemstypes into <see cref="itemPositions"/> and tracks their positions for quick add/remove and count functions.

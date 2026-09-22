@@ -219,9 +219,12 @@ public class QuestSlotUI : MonoBehaviour
 
         StopHighlight();
 
-        currentProgress.isClaimed = true;
-
         QuestManager.Instance.ClaimReward(currentProgress);
+        if (!currentProgress.isClaimed)
+        {
+            actionButton.interactable = true;
+            yield break;
+        }
 
         // 보상 연출 시작
         if (rewardEffectObject != null)

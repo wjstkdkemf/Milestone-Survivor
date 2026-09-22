@@ -11,6 +11,7 @@ public class ItemObject : MonoBehaviour
     private void OnEnable()
     {
         isCollecting = false; // 상태 초기화
+        if (TryGetComponent<Collider2D>(out var collider)) collider.enabled = true;
 
         // "지금 스테이지 클리어 상태인가?" 확인
         if (GameManager.Instance != null && GameManager.Instance.AllKill)
@@ -52,16 +53,19 @@ public class ItemObject : MonoBehaviour
             
             yield return null;
         }
-        if (InventoryController.instance != null && itemData != null)
+        if (playerTransform != null && InventoryController.instance != null && itemData != null)
         {
-            // "ClearInventory"라는 이름의 인벤토리로 아이템 1개 추가
-            //DropGold();//AddItem에 통합
-            InventoryController.instance.AddItem("ClearInventory", itemData.itemName, 1);
+            ItemAddResult result = InventoryController.instance.AddItemWithResult("ClearInventory", itemData.itemName, 1);
+            if (result.FullyProcessed)
+            {
+                Destroy(gameObject);
+                yield break;
+            }
         }
 
-        // 제거 혹은 비활성화
-        Destroy(gameObject); 
-        // 만약 풀링을 쓴다면: gameObject.SetActive(false);
+        // A failed pickup remains available for another attempt.
+        isCollecting = false;
+        if (col != null) col.enabled = true;
     }
     private void DropGold()
     {

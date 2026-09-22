@@ -8,6 +8,8 @@ public class GameSaveData
     public string inventoryJson;
     public PowerUpSaveData powerUpData;
     public PlayerStatsData playerStatsData;
+    public System.Collections.Generic.List<InventorySystem.ItemSaveData> pendingInventoryItems
+        = new System.Collections.Generic.List<InventorySystem.ItemSaveData>();
 
     public GameSaveData(string invJson, PowerUpSaveData powData, PlayerStatsData statsData)
     {

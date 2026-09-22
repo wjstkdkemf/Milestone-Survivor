@@ -9,6 +9,7 @@ public class InventoryManager : MonoBehaviour
     public int SceneName;
 
     private Dictionary<string, int> itemCounts = new Dictionary<string, int>();
+    private bool isRestoring;
     
     //private InventoryData itemData;
     // If you need to store item prefabs, you can use another dictionary.
@@ -30,8 +31,15 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void AddItem(string itemName, int quantity = 1)
+    public bool AddItem(string itemName, int quantity = 1)
     {
+        if (string.IsNullOrEmpty(itemName) || quantity <= 0) return false;
+        itemCounts.TryGetValue(itemName, out int current);
+        if (quantity > int.MaxValue - current)
+        {
+            Debug.LogError($"[InventoryManager] Pending quantity overflow for '{itemName}'.");
+            return false;
+        }
         if (itemCounts.ContainsKey(itemName))
         {
             itemCounts[itemName] += quantity;
@@ -41,6 +49,7 @@ public class InventoryManager : MonoBehaviour
             itemCounts[itemName] = quantity;
         }
         DevLog.Log($"Added {quantity} {itemName}. Total: {itemCounts[itemName]}");
+        return true;
     }
 
     public Dictionary<string, int> GetInventoryData()
@@ -50,8 +59,26 @@ public class InventoryManager : MonoBehaviour
 
     public void LoadInventoryData(Dictionary<string, int> data)
     {
-        itemCounts = new Dictionary<string, int>(data);
+        itemCounts.Clear();
+        if (data != null)
+            foreach (var item in data) AddItem(item.Key, item.Value);
         DevLog.Log("Inventory data loaded.");
+    }
+
+    public List<ItemSaveData> GetPendingSaveData()
+    {
+        var result = new List<ItemSaveData>(itemCounts.Count);
+        foreach (var item in itemCounts)
+            result.Add(new ItemSaveData(item.Value, item.Key, 0, 0));
+        return result;
+    }
+
+    public void LoadPendingSaveData(List<ItemSaveData> data)
+    {
+        itemCounts.Clear();
+        if (data == null) return;
+        foreach (var item in data)
+            if (item != null) AddItem(item.name, item.amount);
     }
 
     public void ClearInventory()
@@ -76,43 +103,47 @@ public class InventoryManager : MonoBehaviour
     }
     public void ClearMapInventory()
     {
-        foreach (var item in itemCounts)
-        {
-            InventoryController.instance.AddItem("ClearInventory", item.Key, item.Value);
-        }
+        RestoreInventoryTo(InventoryController.ClearInventoryName);
     }
 
-    public void StoreInventoryFrom(string inventoryName)
+    public bool StoreInventoryFrom(string inventoryName)
     {
         DevLog.Log($"[InventoryManager] StoreInventoryFrom started. Current itemCounts: {itemCounts.Count}");
         if (InventoryController.instance == null)
         {
             Debug.LogError("InventoryController not found.");
-            return;
+            return false;
         }
 
         Inventory inventory = InventoryController.instance.GetInventory(inventoryName);
         if (inventory == null)
         {
             Debug.LogError($"Inventory '{inventoryName}' not found.");
-            return;
+            return false;
         }
 
         //ClearInventory(); // Clear previous data before storing new data.
 
-        List<InventoryItem> items = inventory.GetList();
+        bool fullyStored = true;
+        List<InventoryItem> items = new List<InventoryItem>(inventory.GetList());
         foreach (InventoryItem item in items)
         {
             if (item != null && !item.GetIsNull())
             {
-                AddItem(item.GetItemType(), item.GetAmount());
+                int amount = item.GetAmount();
+                if (AddItem(item.GetItemType(), amount))
+                    inventory.RemoveItemInPosition(item.GetPosition(), amount);
+                else
+                    fullyStored = false;
             }
         }
         DevLog.Log($"[InventoryManager] Stored {itemCounts.Count} item types from {inventoryName}.");
+        return fullyStored;
     }
 
     public void RestoreInventoryTo(string inventoryName)
     {
+        if (isRestoring || itemCounts.Count == 0) return;
         DevLog.Log($"[InventoryManager] RestoreInventoryTo started. Current itemCounts: {itemCounts.Count}");
         if (InventoryController.instance == null)
         {
@@ -120,16 +151,24 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
-        foreach (var item in itemCounts)
+        isRestoring = true;
+        try
         {
-            if(!InventoryController.instance.AddItem(inventoryName, item.Key, item.Value))
+            // Only retire quantities that were actually added or converted.
+            foreach (var item in new Dictionary<string, int>(itemCounts))
             {
-                //PlayerStats.Instance.AddGold
+                ItemAddResult result = InventoryController.instance.AddItemWithResult(inventoryName, item.Key, item.Value);
+                int processed = result.Added + result.Converted;
+                if (processed == 0) continue;
+                itemCounts[item.Key] -= processed;
+                if (itemCounts[item.Key] == 0) itemCounts.Remove(item.Key);
             }
         }
-        DevLog.Log($"[InventoryManager] Restored {itemCounts.Count} item types to {inventoryName}.");
-
-        ClearInventory(); // Clear after restoring.
+        finally
+        {
+            isRestoring = false;
+        }
+        DevLog.Log($"[InventoryManager] Restore completed. Pending item types: {itemCounts.Count}.");
     }
     private string GetFullPath(string fileName)
       {

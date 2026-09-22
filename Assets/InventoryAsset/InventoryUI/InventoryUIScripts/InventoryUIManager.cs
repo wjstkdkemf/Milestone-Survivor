@@ -680,11 +680,9 @@ namespace InventorySystem
                 {
                     return;
                 }
-                if (InventoryController.instance.checkEnabled(movePress[key]) &&
-                    !InventoryController.instance.InventoryFull(movePress[key], item.GetItemType()))
+                if (InventoryController.instance.checkEnabled(movePress[key]))
                 {
-                    InventoryController.instance.RemoveItem(inventoryName, item, item.GetAmount());
-                    InventoryController.instance.AddItem(movePress[key], item.GetItemType(), item.GetAmount());
+                    InventoryController.instance.TransferItem(inventoryName, movePress[key], item);
                 }
                 else
                 {

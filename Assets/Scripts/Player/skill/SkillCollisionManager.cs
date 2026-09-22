@@ -257,11 +257,11 @@ public class SkillCollisionManager : MonoBehaviour
                 (int)math.floor(sPos.x / cellSize),
                 (int)math.floor(sPos.y / cellSize)
             );
-            //int cellRange = (int)math.ceil((sRad + maxEnemyRadius) / cellSize);
+            int cellRange = (int)math.ceil((sRad + maxEnemyRadius) / cellSize);
 
-            for (int y = -1; y <= 1; y++) //현재의 셀크기가 생각보다 여유롭게 크기때문에 일단 3*3으로 홀드
+            for (int y = -cellRange; y <= cellRange; y++) //현재의 셀크기가 생각보다 여유롭게 크기때문에 일단 3*3으로 홀드
             {
-                for (int x = -1; x <= 1; x++)
+                for (int x = -cellRange; x <= cellRange; x++)
                 {
                     int2 neighbor = centerCell + new int2(x, y);
                     long hash = unchecked(((long)neighbor.x << 32) | (uint)neighbor.y);

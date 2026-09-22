@@ -42246,7 +42246,6 @@ GameObject:
   - component: {fileID: 646667841}
   - component: {fileID: 646667840}
   - component: {fileID: 646667839}
-  - component: {fileID: 646667838}
   - component: {fileID: 646667837}
   m_Layer: 5
   m_Name: Inventory
@@ -42290,22 +42289,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 0
   targetMenu: {fileID: 636064210}
---- !u!114 &646667838
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 646667835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b70e91afa6a706438cdf641afed2b71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  label: {fileID: 0}
-  Cursor: {fileID: 0}
-  arrowOnRight: 1
-  padding: 10
 --- !u!114 &646667839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133862,7 +133845,6 @@ GameObject:
   - component: {fileID: 2025689810}
   - component: {fileID: 2025689809}
   - component: {fileID: 2025689808}
-  - component: {fileID: 2025689807}
   - component: {fileID: 2025689806}
   m_Layer: 5
   m_Name: Setting
@@ -133906,22 +133888,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 0
   targetMenu: {fileID: 1205630076}
---- !u!114 &2025689807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2025689804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b70e91afa6a706438cdf641afed2b71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  label: {fileID: 0}
-  Cursor: {fileID: 0}
-  arrowOnRight: 1
-  padding: 10
 --- !u!114 &2025689808
 MonoBehaviour:
   m_ObjectHideFlags: 0
