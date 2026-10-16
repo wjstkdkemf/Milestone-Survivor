@@ -78,4 +78,15 @@ public abstract class WeaponBase : MonoBehaviour
         if (weaponAnimator != null && attackMotion != null)
             weaponAnimator.PlayMotion(attackMotion);
     }
+    protected long CalculateDamage(long baseDamage, double attackScaling = 1d)
+    {
+        long attack = PlayerStats.Instance != null
+            ? PlayerStats.Instance.DamageBonus
+            : 0L;
+
+        return baseDamage + (long)(attack * attackScaling);
+    }
+    protected virtual void RefreshDamage()
+    {
+    }
 }

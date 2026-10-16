@@ -9,14 +9,21 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     private float currentRotationSpeed;
     private float currentScaling = 1.0f;
 
-    
     private GameObject orbPrefab; // 작은 구체 프리팹
     protected List<GameObject> spawnedOrbs = new List<GameObject>();
     private float angleStep;
 
-    private PlayerStats playerStats;   // 데미지 계산용
-    
+    void Start()
+    {
+        PlayerStatsCalculate.Instance.AttackChanged += RefreshDamage;
+        RefreshDamage();
+    }
+    void OnDestroy()
+    {
+        PlayerStatsCalculate.Instance.AttackChanged -= RefreshDamage;
+    }
     // 초기화: 플레이어가 무기를 획득했을 때 딱 1번 실행됨
+
     public override void Initialize(WeaponDataSO data)
     {
         if (data is OrbWeaponDataSO orbData)
@@ -38,16 +45,6 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         {
             Debug.LogError("잘못된 데이터가 들어왔습니다! OrbWeaponDataSO가 필요합니다.");
             return;
-        }
-
-        if (PlayerStats.Instance != null)
-        {
-            playerStats = PlayerStats.Instance;
-        }
-        else
-        {
-            // 만약 싱글톤이 아니라면 부모에서 찾기
-            playerStats = GetComponentInParent<PlayerStats>();
         }
         SpawnOrbs();
     }
@@ -71,7 +68,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
             GameObject orb = Instantiate(orbPrefab, transform.position, Quaternion.identity, transform);
             
             float angle = i * angleStep;
-            orb.transform.localPosition = GetOrbPosition(angle);
+            orb.transform.position = GetOrbPosition(angle);
             
             SetupSpawnedOrb(orb);
             spawnedOrbs.Add(orb);
@@ -97,10 +94,7 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
        for (int i = 0; i < spawnedOrbs.Count; i++)
 
         {
-
             if (spawnedOrbs[i] == null) continue;
-
-
 
             float angle = (i * angleStep) + Time.time * currentRotationSpeed;
 
@@ -117,14 +111,6 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
         }
         spawnedOrbs.Clear();
     }
-
-
-    public void UpgradeOrbCount(int amount)
-    {
-        currentOrbCount += amount;
-        SpawnOrbs(); // 개수 바뀌면 다시 소환
-    }
-
     public void UpgradeRadius(float amount)
     {
         currentRadius += amount;
@@ -134,18 +120,11 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     {
         currentRotationSpeed += amount;
     }
-    
-    public virtual void UpgradeDamage(float amount)
-    {
-        currentDamage += (long)amount;
-        SpawnOrbs(); // 데미지 갱신을 위해 재소환 (혹은 기존 orb들에 접근해서 수치만 변경)
-    }
     protected override void RecalculateLevelStats()
     {
         if (!(myData is OrbWeaponDataSO data)) return;
         int upgrades = CurrentLevel - 1;
         currentOrbCount = data.orbCount + upgrades;
-        currentDamage = data.baseDamage + (long)upgrades;
         SpawnOrbs();
     }
 
@@ -159,11 +138,11 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
             (currentOrbCount + 1).ToString()
         ));
 
-        preview.Lines.Add(new UpgradePreviewLine(
+        /*preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
             currentDamage.ToString(),
             (currentDamage + 1).ToString()
-        ));
+        ));*/
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.orbit_area",
@@ -173,9 +152,18 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
 
         return preview;
     }
-    public float GetDamage()
+    public long GetDamage()
     {
-        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return currentDamage + (bonus * currentScaling);
+        return CalculateDamage(currentDamage, currentScaling);
+    }
+    protected override void RefreshDamage()
+    {
+        long damage = GetDamage();
+
+        foreach (GameObject orb in spawnedOrbs)
+        {
+            if (orb != null && orb.TryGetComponent<Orb>(out var orbScript))
+                orbScript.damage = damage;
+        }
     }
 }

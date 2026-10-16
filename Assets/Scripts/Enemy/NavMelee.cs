@@ -24,6 +24,19 @@ public class NavMelee : NavEnemy
             UpdateRunAnimation();
         }
     }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+
+        ResetAnimation();
+    }
+    private void ResetAnimation()
+    {
+        currentState = AnimState.Run;
+        timer = 0;
+        currentFrameIndex = 0;
+        spriteRenderer.sprite = runFrames[0];
+    }
     private void UpdateRunAnimation()
     {
         timer += Time.deltaTime;

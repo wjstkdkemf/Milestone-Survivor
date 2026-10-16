@@ -314,17 +314,16 @@ public class ItemEnchanter : MonoBehaviour
         {
             uiManager.UpdateSlot(enchantedItem.GetPosition());
         }
-
-        // Case A: 인벤토리에서 강화했는데 장착 중인 경우
-        if (isEquipped)
-        {
-            // 만약 '인벤토리'에서 강화했다면 -> '장착창(HotBar)'의 아이템도 레벨업 필요
-            SyncToEquipmentSlot(enchantedItem);
-        }
-        else if(invName == "HotBar") // 장착 중인 아이템을 직접 강화한 경우
+        
+        if(invName == "HotBar") // 장착 중인 아이템을 직접 강화한 경우
         {
             // 만약 '장착창(HotBar)'에서 강화했다면 -> '인벤토리(Inventory)'의 원본도 레벨업 필요
             SyncToMainInventory(enchantedItem);
+        }
+        else if (isEquipped)
+        {
+            // 만약 '인벤토리'에서 강화했다면 -> '장착창(HotBar)'의 아이템도 레벨업 필요
+            SyncToEquipmentSlot(enchantedItem);
         }
         // 플레이어 스탯 즉시 재계산 (굳이 뺐다 낄 필요 없음)
         RecalculatePlayerStats();

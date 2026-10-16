@@ -53,6 +53,8 @@ public class PlayerStatsCalculate : MonoBehaviour
     private float levelArmor = 0;
     private float levelMaxHealth = 0;
 
+    public event System.Action AttackChanged;
+
 
     private void Awake()
     {
@@ -200,6 +202,7 @@ public class PlayerStatsCalculate : MonoBehaviour
             return;
 
         EquipmentEffectManager equipmentEffectManager = EquipmentEffectManager.Instance;
+        long prevDamage = PlayerStats.Instance.DamageBonus;
 
         // EquipmentEffectManager에서 스탯 보너스 가져오기
         float equipDamage = GetEquipmentBonus(equipmentEffectManager, "Damage");
@@ -235,7 +238,8 @@ public class PlayerStatsCalculate : MonoBehaviour
         {
             EnCounterSystem.Instance.maxEncounter = EnCounterSystem.Instance.normalMaxEncounter + equipEncount + powerUpEncounter;
         }
-
+        if (prevDamage != PlayerStats.Instance.DamageBonus)
+            AttackChanged?.Invoke();
         if (PlayerStats.Instance.Player != null)
         {
             Player_Controller playerController = PlayerStats.Instance.Player.GetComponent<Player_Controller>();

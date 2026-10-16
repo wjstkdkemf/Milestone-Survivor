@@ -61,7 +61,7 @@ public class SkillCollisionManager : MonoBehaviour
     }
     public void UnregisterSkill(SkillProjectileBase skill)
     {
-        if(skill == null || RemoveReservation == null) return;
+        if(ReferenceEquals(skill, null) || RemoveReservation == null) return;
 
         RemoveReservation.Add(skill);
         AddReservation.Remove(skill);
@@ -69,7 +69,7 @@ public class SkillCollisionManager : MonoBehaviour
 
     private void RealUnregisterSkill(SkillProjectileBase skill)
     {
-        if (skill == null || !registeredSkills.Remove(skill))
+        if (ReferenceEquals(skill, null) || !registeredSkills.Remove(skill))
             return;
 
         int index = activeSkills.IndexOf(skill);

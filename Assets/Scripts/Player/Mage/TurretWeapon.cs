@@ -18,7 +18,6 @@ public class TurretWeapon : WeaponBase
     private float cooldownTimer;       // 공격 쿨타임 계산용
     private float targetUpdateTimer;   // 타겟 검색 최적화용
     private Transform closestEnemyPosition;
-    private PlayerStats playerStats;   // 데미지 계산용
 
     // 1. 초기화 (데이터 주입)
     public override void Initialize(WeaponDataSO data)
@@ -47,14 +46,6 @@ public class TurretWeapon : WeaponBase
             Debug.LogError("잘못된 데이터! TurretWeaponDataSO가 필요합니다.");
         }
 
-        if (PlayerStats.Instance != null)
-        {
-            playerStats = PlayerStats.Instance;
-        }
-        else
-        {
-            playerStats = GetComponentInParent<PlayerStats>();
-        }
     }
 
     public override void OnUpdate()
@@ -81,7 +72,7 @@ public class TurretWeapon : WeaponBase
     {
         // 쿨타임 리셋
         cooldownTimer = GetCooldown(currentCooldown);
-        float finalDamage = GetDamage();
+        long finalDamage = GetDamage();
 
         // 발사 코루틴 시작
         for (int i = 0; i < currentBulletNumber; i++)
@@ -91,13 +82,12 @@ public class TurretWeapon : WeaponBase
     }
 
     // 데미지 계산 함수 (기존 로직 유지)
-    public float GetDamage()
+    public long GetDamage()
     {
-        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        return currentDamage + (bonus * currentScaling);
+        return CalculateDamage(currentDamage, currentScaling);
     }
 
-    IEnumerator ShootBullet(float delay , float damage)
+    IEnumerator ShootBullet(float delay , long damage)
     {
         yield return new WaitForSeconds(delay);
 
@@ -107,7 +97,7 @@ public class TurretWeapon : WeaponBase
             
             if (bullet != null && bullet.TryGetComponent<TurretBullet>(out var bulletSkill))
             {
-                bulletSkill.damage = (long)damage;//GetDamage()
+                bulletSkill.damage = damage;
                 bulletSkill.hitRadius = currentHitRadius;
                 bulletSkill.maxHits = currentMaxHits;
                 bulletSkill.speed = currentProjectileSpeed;

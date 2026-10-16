@@ -49,9 +49,9 @@ public class FireTrailOrbWeapon : OrbWeapon
         }
     }
 
-    public override void UpgradeDamage(float amount)
+    protected override void RefreshDamage()
     {
-        base.UpgradeDamage(amount);
+        base.RefreshDamage();
         UpdateTrailInfoForExistingOrbs();
     }
 }

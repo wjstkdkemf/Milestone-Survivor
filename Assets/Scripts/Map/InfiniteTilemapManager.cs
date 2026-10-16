@@ -75,8 +75,8 @@ public class InfiniteTilemapManager : MonoBehaviour
             lastChunkUpdateTime = Time.time;
 
             Vector2Int playerChunkCoord = new Vector2Int(
-                Mathf.FloorToInt(player.position.x / chunkSize),
-                Mathf.FloorToInt(player.position.y / chunkSize)
+                GetStableChunkIndex(player.position.x, lastPlayerChunkCoord.x),
+                GetStableChunkIndex(player.position.y, lastPlayerChunkCoord.y)
             );
 
             if (playerChunkCoord != lastPlayerChunkCoord)
@@ -164,6 +164,18 @@ public class InfiniteTilemapManager : MonoBehaviour
         BorderWall = null;
         
         lastPlayerChunkCoord = Vector2Int.one * int.MaxValue;
+    }
+    private int GetStableChunkIndex(float position, int previousIndex)
+    {
+        float margin = chunkSize * 0.1f;
+
+        float min = previousIndex * (float)chunkSize - margin;
+        float max = (previousIndex + 1f) * chunkSize + margin;
+
+        if (position >= min && position < max)
+            return previousIndex;
+
+        return Mathf.FloorToInt(position / chunkSize);
     }
 
     private void InitializeChunkPool()

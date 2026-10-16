@@ -1,82 +1,51 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;
 using UnityEngine.UI;
-using Unity.VisualScripting;
 
-[RequireComponent(typeof(Button))]
-public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+[RequireComponent(typeof(CardUIEffects))]
+public class CharacterSelectionButton : MonoBehaviour, IPointerClickHandler
 {
     public CharacterScriptableObject characterInfo;
-    private CharacterSelectionManager characterSelectionManager;
-    private Vector3 normalScale;
-    public float hoverScaleFactor = 1.1f;
-    public float animationDuration = 0.2f;
-
-    // Color & Glow effects
-    private Graphic cardGraphic;  // For color (could be Image or TextMeshProUGUI)
-    public Color hoverColor = Color.yellow; // Color to change to when hovered
-    private Color originalColor; // Original color to reset to
-
-    // Text Outline & Glow for TextMeshPro
     public Image CardIcon;
-    public TextMeshProUGUI cardText;
-    public float glowOutlineWidth = 0.2f;
-    private float originalOutlineWidth;
-    public Color glowOutlineColor = Color.yellow;
-
-    // Shadow Effect
-    private Shadow shadowEffect; // For shadow manipulation
-    public Vector2 hoverShadowOffset = new Vector2(5f, -5f);
-    private Vector2 originalShadowOffset;
-
-    // Sound effect on hover
-    public AudioSource hoverSound;
-
-    // Cursor
-    public Texture2D customCursor;
-    // Start is called before the first frame update
     public bool IsSelected;
+
+    [SerializeField] private CardUIEffects cardUIEffects;
+
+    private CharacterSelectionManager characterSelectionManager;
     private Button myButton;
+
     private void Awake()
     {
-        myButton = GetComponent<Button>();
+        CacheComponents();
     }
+
+    private void CacheComponents()
+    {
+        if (cardUIEffects == null)
+            cardUIEffects = GetComponent<CardUIEffects>();
+        if (myButton == null)
+            myButton = GetComponent<Button>();
+    }
+
     public void Initialize(CharacterSelectionManager manager)
     {
+        // The manager can initialize cards before their first activation.
+        CacheComponents();
         characterSelectionManager = manager;
+        IsSelected = false;
+        if (cardUIEffects != null)
+            cardUIEffects.SetSelected(false, true);
 
         if (characterInfo == null)
         {
             Debug.LogWarning($"[CharacterSelectionButton] Character info is missing on {name}.");
-            if (myButton != null)
-                myButton.interactable = false;
             return;
         }
 
-        if (characterInfo.purchased == false && CardIcon != null)
-            CardIcon.color = Color.black;
-        normalScale = transform.localScale;
-
-        // Initialize card graphic and colors
-        cardGraphic = GetComponent<Graphic>();
-        if (cardGraphic != null)
-        {
-            originalColor = cardGraphic.color;
-        }
-
-        // Initialize text outline if using TextMeshPro
-        if (cardText != null)
-        {
-            originalOutlineWidth = cardText.outlineWidth;
-        }
         if (CardIcon != null)
-            CardIcon.sprite = characterInfo.IconSprite;
-        // Initialize shadow effect
-        shadowEffect = GetComponent<Shadow>();
-        if (shadowEffect != null)
         {
-            originalShadowOffset = shadowEffect.effectDistance;
+            CardIcon.sprite = characterInfo.IconSprite;
+            CardIcon.color = characterInfo.purchased ? Color.white : Color.black;
         }
     }
 
@@ -86,91 +55,41 @@ public class CharacterSelectionButton : MonoBehaviour, IPointerEnterHandler, IPo
             return;
 
         if (PlayerStats.Instance.TrySpendGold(characterInfo.costPerLevel))
-        {
             characterInfo.purchased = true;
-        }
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        if (!myButton.interactable) return;
-        // Play hover sound
-        if (hoverSound != null)
-        {
-            hoverSound.Play();
-        }
-
-        // Smooth scale up using LeanTween
-        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
-    }
-
-    // On hover exit, scale back to normal, reset color, remove glow, and reset shadow
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        // Smooth scale down using LeanTween
-        if (IsSelected == false)
-            LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
-
-
     }
 
     public void Selected()
     {
-        characterSelectionManager?.DeselectOtherButtons();
-        characterSelectionManager?.SetInfo(characterInfo, this);
+        if (characterSelectionManager == null || characterInfo == null || IsSelected)
+            return;
+
+        CacheComponents();
+        if (myButton != null && !myButton.IsInteractable())
+            return;
+
+        characterSelectionManager.DeselectOtherButtons();
+        characterSelectionManager.SetInfo(characterInfo, this);
+
         IsSelected = true;
-        // Play hover sound
-        if (hoverSound != null)
-        {
-            hoverSound.Play();
-        }
-
-        // Smooth scale up using LeanTween
-        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
-
-        // Change color
-        if (cardGraphic != null)
-        {
-            cardGraphic.color = hoverColor;
-        }
-        // Increase shadow effect
-        if (shadowEffect != null)
-        {
-            shadowEffect.effectDistance = hoverShadowOffset;
-        }
-
-        // Set custom cursor
-        if (customCursor != null)
-        {
-            Cursor.SetCursor(customCursor, Vector2.zero, CursorMode.Auto);
-        }
+        if (cardUIEffects != null)
+            cardUIEffects.SetSelected(true);
     }
+
     public void DeSelected()
     {
+        CacheComponents();
         IsSelected = false;
-        // Smooth scale down using LeanTween
-        LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
-
-        // Reset color
-        if (cardGraphic != null)
-        {
-            cardGraphic.color = originalColor;
-        }
-        // Reset shadow effect
-        if (shadowEffect != null)
-        {
-            shadowEffect.effectDistance = originalShadowOffset;
-        }
-
-        // Reset cursor to default
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        if (cardUIEffects != null)
+            cardUIEffects.SetSelected(false);
     }
 
-    // On click, add a small scale "pop" effect
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!myButton.interactable) return;
-        if (characterInfo == null) return;
+        if (!isActiveAndEnabled || eventData.button != PointerEventData.InputButton.Left)
+            return;
+        CacheComponents();
+        if (myButton != null && !myButton.isActiveAndEnabled)
+            return;
 
         Selected();
     }

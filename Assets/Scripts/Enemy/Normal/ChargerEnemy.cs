@@ -149,7 +149,7 @@ public class ChargerEnemy : Enemy
         
         isChargingAction = false;
         stopMoving = false;
-        // coolDownTimer = coolDown; 
+        coolDownTimer = coolDown; 
         useSwarmMovement = true;
     }
 

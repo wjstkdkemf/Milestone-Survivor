@@ -21,7 +21,7 @@ public class UIFrameEffect : MonoBehaviour
 
     public void Play()
     {
-        if (gameObject.activeSelf || effectImage == null || frames == null || frames.Length == 0)
+        if (!isActiveAndEnabled  || effectImage == null || frames == null || frames.Length == 0)
             return;
 
         if (playRoutine != null)
@@ -45,5 +45,19 @@ public class UIFrameEffect : MonoBehaviour
         effectImage.enabled = false;
 
         playRoutine = null;
+    }
+    private void OnDisable()
+    {
+        if (playRoutine != null)
+        {
+            StopCoroutine(playRoutine);
+            playRoutine = null;
+        }
+
+        if (effectImage != null)
+        {
+            effectImage.sprite = null;
+            effectImage.enabled = false;
+        }
     }
 }

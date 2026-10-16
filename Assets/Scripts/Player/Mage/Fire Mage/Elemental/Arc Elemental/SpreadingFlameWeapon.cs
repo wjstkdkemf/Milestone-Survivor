@@ -114,13 +114,18 @@ public class SpreadingFlameWeapon : WeaponBase
 
         if (flameObj.TryGetComponent<SpreadingFlameEffect>(out var flame))
         {
-            float finalDamage = currentDamage + (PlayerStats.Instance != null ? PlayerStats.Instance.DamageBonus : 0);
+            long finalDamage = GetDamage();
             flame.Attach(target, finalDamage, flameDuration, tickInterval, spreadRadius, spreadDelay, WeaponID);
         }
         else
         {
             ObjectPoolingManager.Instance.ReturnObjectToPool(flameObj);
         }
+    }
+
+    public long GetDamage()
+    {
+        return CalculateDamage(currentDamage);
     }
 
     protected override void RecalculateLevelStats()

@@ -88,7 +88,7 @@ public class RunStatisticsManager : MonoBehaviour
 
         record.AddDamage(damage);
 
-        RefreshDebugList();
+        //RefreshDebugList();
     }
 
     public RunResultData CreateResultData()
@@ -125,6 +125,8 @@ public class RunStatisticsManager : MonoBehaviour
             HighestSingleHitDamage = bestSingleHitWeapon?.HighestSingleHit ?? 0
         };
     }
+    
+    [ContextMenu("Refresh Damage Debug View")]
     private void RefreshDebugList()
     {
         weaponDamageDebugList.Clear();

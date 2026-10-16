@@ -23,4 +23,8 @@ public abstract class SkillProjectileBase : MonoBehaviour
     }
 
     public abstract void OnHit(Enemy hitEnemy);
+    public virtual bool CanHit(Enemy hitEnemy)
+    {
+        return true;
+    }
 }

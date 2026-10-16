@@ -95,10 +95,10 @@ public class EvolvedFireballWeapon : WeaponBase
 
         if (fireball != null && fireball.TryGetComponent<EvolvedFireballProjectile>(out var evoScript))
         {
-            float directDamage = GetDamage();
+            long directDamage = GetDamage();
             float finalTrailDamage = directDamage * trailDamageScaling;
             
-            evoScript.SetupEvo(target.transform, projectileSpeed, trailPrefab, (long)directDamage, finalTrailDamage, trailDuration, trailSpawnDistance , WeaponID);
+            evoScript.SetupEvo(target.transform, projectileSpeed, trailPrefab, directDamage, finalTrailDamage, trailDuration, trailSpawnDistance , WeaponID);
         }
 
         pendingBullets--;
@@ -114,10 +114,9 @@ public class EvolvedFireballWeapon : WeaponBase
     }
 
     // 데미지 계산식
-    public float GetDamage()
+    public long GetDamage()
     {
-        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
-        return currentDamage + bonus; 
+        return CalculateDamage(currentDamage);
     }
 
     protected override void RecalculateLevelStats()

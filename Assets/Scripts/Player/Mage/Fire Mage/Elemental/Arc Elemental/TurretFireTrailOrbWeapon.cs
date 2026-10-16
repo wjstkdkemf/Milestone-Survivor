@@ -50,9 +50,9 @@ public class TurretFireTrailOrbWeapon : FireTrailOrbWeapon
         }
     }
 
-    public override void UpgradeDamage(float amount)
+    protected override void RefreshDamage()
     {
-        base.UpgradeDamage(amount);
+        base.RefreshDamage();
         UpdateTurretInfoForExistingOrbs();
     }
 }

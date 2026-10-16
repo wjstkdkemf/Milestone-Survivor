@@ -103,14 +103,14 @@ public class ElementalFireballWeapon : WeaponBase
 
         if (fireball != null && fireball.TryGetComponent<ElementalFireballProjectile>(out var evoScript))
         {
-            float directDamage = GetDamage();
+            long directDamage = GetDamage();
             float finalTrailDamage = directDamage * trailDamageScaling;
             float boomDamage = GetFireBoomDamage();
             
             evoScript.Setup(target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
                             LastFireBoomPrefab, boomDamage, lastFireBoomSize , WeaponID);
             
-            evoScript.damage = (long)directDamage; // 직격 딜 세팅
+            evoScript.damage = directDamage; // 직격 딜 세팅
         }
 
         pendingBullets--;
@@ -119,15 +119,13 @@ public class ElementalFireballWeapon : WeaponBase
         else cooldownTimer = GetCooldown(fireRate);
     }
 
-    public float GetDamage()
+    public long GetDamage()
     {
-        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
-        return currentDamage + bonus;
+        return CalculateDamage(currentDamage);
     }
-    public float GetFireBoomDamage()
+    public long GetFireBoomDamage()
     {
-        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
-        return currentDamage + (bonus * 2.0f);
+        return CalculateDamage(currentDamage, 2d);
     }
 
     protected override void RecalculateLevelStats()

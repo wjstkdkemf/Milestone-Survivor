@@ -67,7 +67,14 @@ public class BatEnemy : Enemy
             float dist = Vector3.Distance(transform.position, player.position);
             if (dist > flyDistance) // 화면 밖 소멸 거리
             {
-                gameObject.SetActive(false);
+                if (ObjectPoolingManager.Instance != null)
+                {
+                    ObjectPoolingManager.Instance.ReturnObjectToPool(gameObject);
+                }
+                else
+                {
+                    Destroy(gameObject); 
+                }
             }
         }
     }

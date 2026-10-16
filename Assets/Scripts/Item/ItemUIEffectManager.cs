@@ -8,14 +8,29 @@ public class ItemUIEffectManager : MonoBehaviour
     [SerializeField] private UIFrameEffect enhanceTryEffect;
     [SerializeField] private UIFrameEffect enhanceSuccessEffect;
     [SerializeField] private UIFrameEffect enhanceFailureEffect;
+
+    private RectTransform animatingIcon;
+    private Vector3 originalScale;
+    private Coroutine punchRoutine;
     public void OnEnhanceTry()
     {
         enhanceTryEffect.Play();
     }
     public void OnEnhanceSuccess()
     {
-        enhanceSuccessEffect.Play();
-        StartCoroutine(PunchIcon(itemIconRect));
+        if (!isActiveAndEnabled)
+            return;
+
+        enhanceSuccessEffect?.Play();
+        StopAndRestoreIcon();
+
+        if (itemIconRect == null ||
+            !itemIconRect.gameObject.activeInHierarchy)
+            return;
+    
+        animatingIcon = itemIconRect;
+        originalScale = itemIconRect.localScale;
+        punchRoutine = StartCoroutine(PunchIcon(itemIconRect));
     }
     public void OnEnhanceFailure()
     {
@@ -24,8 +39,6 @@ public class ItemUIEffectManager : MonoBehaviour
     
     public IEnumerator PunchIcon(RectTransform icon)
     {
-        Vector3 originalScale = icon.localScale;
-
         float duration = 0.18f;
         float time = 0f;
 
@@ -43,5 +56,26 @@ public class ItemUIEffectManager : MonoBehaviour
         }
 
         icon.localScale = originalScale;
+        animatingIcon = null;
+        punchRoutine = null;    
+    }
+    private void StopAndRestoreIcon()
+    {
+        if (punchRoutine != null)
+        {
+            StopCoroutine(punchRoutine);
+            punchRoutine = null;
+        }
+
+        if (animatingIcon != null)
+        {
+            animatingIcon.localScale = originalScale;
+            animatingIcon = null;
+        }
+    }
+
+    private void OnDisable()
+    {
+        StopAndRestoreIcon();
     }
 }

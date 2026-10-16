@@ -74,6 +74,8 @@ public class AudioManager : MonoBehaviour
     {
         if (bgmSource == null || bgmClip == null) return;
 
+        StopMyRoutine();
+
         AudioSettings.ApplySavedVolumes(bgmMixerGroup != null ? bgmMixerGroup.audioMixer : null);
 
         if (bgmSource.clip == bgmClip) return; // 이미 같은 노래가 나오고 있으면 무시

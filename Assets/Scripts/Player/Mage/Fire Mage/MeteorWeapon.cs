@@ -137,7 +137,7 @@ public class MeteorWeapon : WeaponBase
         GameObject meteorObj = ObjectPoolingManager.Instance.spawnGameObject(MeteorPrefab, target, Quaternion.identity);
         if (meteorObj != null && meteorObj.TryGetComponent<Meteor>(out var meteorSkill))
         {
-            float finalDamage = currentDamage + (PlayerStats.Instance != null ? PlayerStats.Instance.DamageBonus : 0);
+            long finalDamage = GetDamage();
             meteorSkill.warningDuration = this.warningDuration;
             meteorSkill.Fire(target, finalDamage, currentHitRadius , WeaponID);
         }
@@ -152,6 +152,11 @@ public class MeteorWeapon : WeaponBase
         {
             cooldownTimer = GetCooldown(currentCooldownTime); // 다 쐈으면 다시 무기 쿨타임 시작
         }
+    }
+
+    public long GetDamage()
+    {
+        return CalculateDamage(currentDamage);
     }
 
     protected override void RecalculateLevelStats()

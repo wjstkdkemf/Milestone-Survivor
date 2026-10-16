@@ -128,6 +128,8 @@ public class ObjectPoolingManager : MonoBehaviour
             {
                 damageableCache[spawnableObject.GetInstanceID()] = damageable;
             }
+
+            spawnableObject.SetActive(true);
         }
         else
         {

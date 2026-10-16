@@ -11,7 +11,16 @@ public class AuraWeapon : WeaponBase
     // [내부 변수]
     private GameObject auraInstance;
     private AuraZone auraScript;
-    private PlayerStats playerStats;
+
+    void Start()
+    {
+        PlayerStatsCalculate.Instance.AttackChanged += RefreshDamage;
+        RefreshDamage();
+    }
+    void OnDestroy()
+    {
+        PlayerStatsCalculate.Instance.AttackChanged -= RefreshDamage;
+    }
 
     public override void Initialize(WeaponDataSO data)
     {
@@ -43,8 +52,6 @@ public class AuraWeapon : WeaponBase
             Debug.LogError("잘못된 데이터! AuraDataSO가 필요합니다.");
         }
 
-        if (PlayerStats.Instance != null) playerStats = PlayerStats.Instance;
-        else playerStats = GetComponentInParent<PlayerStats>();
     }
 
     public override void OnUpdate()
@@ -56,8 +63,7 @@ public class AuraWeapon : WeaponBase
     // 데미지 계산식
     public long GetDamage()
     {
-        long bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
-        return currentDamage + bonus;
+        return CalculateDamage(currentDamage);
     }
 
     private void UpdateAuraSize()
@@ -82,6 +88,11 @@ public class AuraWeapon : WeaponBase
         }
         UpdateAuraSize();
     }
+    protected override void RefreshDamage()
+    {
+        RecalculateLevelStats();
+    }
+
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {

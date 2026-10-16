@@ -9,12 +9,10 @@ public class ChainLightningWeapon : WeaponBase
     private int currentChainCount;
     private float currentChainRange;
     private float currentDamageReduction;
-    private float currentBaseDamage;
     private float currentScaling;
 
     private GameObject projectilePrefab;
     private float cooldownTimer;
-    private PlayerStats playerStats;
 
     public override void Initialize(WeaponDataSO data)
     {
@@ -26,7 +24,7 @@ public class ChainLightningWeapon : WeaponBase
             currentChainCount = lightningData.chainCount;
             currentChainRange = lightningData.chainRange;
             currentDamageReduction = lightningData.damageReductionPerBounce;
-            currentBaseDamage = lightningData.baseDamage;
+            currentDamage = lightningData.baseDamage;
             currentScaling = lightningData.playerDamageScaling;
 
             attackMotion = lightningData.attackMotion;
@@ -39,11 +37,6 @@ public class ChainLightningWeapon : WeaponBase
         {
             Debug.LogError("잘못된 데이터! ChainLightningDataSO가 필요합니다.");
         }
-
-        if (PlayerStats.Instance != null)
-             playerStats = PlayerStats.Instance;
-        else
-             playerStats = GetComponentInParent<PlayerStats>();
 
         cooldownTimer = 0f; 
     }
@@ -87,18 +80,16 @@ public class ChainLightningWeapon : WeaponBase
     
     public long GetDamage()
     {
-        float bonus = (playerStats != null) ? playerStats.DamageBonus : 0;
-        float before = currentBaseDamage + (bonus * currentScaling);
-        return (long)before;
+        return CalculateDamage(currentDamage, currentScaling);
     }
 
     protected override void RecalculateLevelStats()
     {
         if (!(myData is ChainLightningDataSO data)) return;
         int upgrades = CurrentLevel - 1;
-        currentBaseDamage = data.baseDamage + 3f * upgrades;
+        currentDamage = data.baseDamage + 3L * upgrades;
         currentChainCount = Mathf.Min(data.chainCount + upgrades, Mathf.Max(5, data.chainCount));
-        DevLog.Log($"[Chain Lightning Level Up] 데미지: {currentBaseDamage}, 체인 횟수: {currentChainCount}");
+        DevLog.Log($"[Chain Lightning Level Up] 데미지: {currentDamage}, 체인 횟수: {currentChainCount}");
     }
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
@@ -107,8 +98,8 @@ public class ChainLightningWeapon : WeaponBase
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
-            currentBaseDamage.ToString("0.##"),
-            (currentBaseDamage + 3f).ToString("0.##")
+            currentDamage.ToString(),
+            (currentDamage + 3L).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(

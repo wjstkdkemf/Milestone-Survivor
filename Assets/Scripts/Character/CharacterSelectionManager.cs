@@ -190,7 +190,7 @@ public class CharacterSelectionManager : MonoBehaviour
     {
         foreach (CharacterSelectionButton button in characterButtons)
         {
-            if (button != null)
+            if (button != null && button.IsSelected)
                 button.DeSelected();
         }
     }

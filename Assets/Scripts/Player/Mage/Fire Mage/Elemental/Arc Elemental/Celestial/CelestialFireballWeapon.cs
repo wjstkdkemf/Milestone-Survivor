@@ -107,7 +107,7 @@ public class CelestialFireballWeapon : WeaponBase
 
         if (fireball != null && fireball.TryGetComponent<CelestialFireballProjectile>(out var evoScript))
         {
-            float directDamage = GetDamage();
+            long directDamage = GetDamage();
             float finalTrailDamage = directDamage * trailDamageScaling;
             float boomDamage = GetFireBoomDamage();
 
@@ -116,7 +116,7 @@ public class CelestialFireballWeapon : WeaponBase
                 LastFireBoomPrefab, boomDamage, lastFireBoomSize, chains, chainRange , WeaponID
             );
             
-            evoScript.damage = (long)directDamage; // SkillProjectileBase 직격 데미지
+            evoScript.damage = directDamage; // SkillProjectileBase 직격 데미지
         }
 
         pendingBullets--;
@@ -125,16 +125,14 @@ public class CelestialFireballWeapon : WeaponBase
     }
 
     // 데미지 계산식
-    public float GetDamage()
+    public long GetDamage()
     {
-        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
-        return currentDamage + bonus;
+        return CalculateDamage(currentDamage);
     }
 
-    public float GetFireBoomDamage()
+    public long GetFireBoomDamage()
     {
-        float bonus = (PlayerStats.Instance != null) ? PlayerStats.Instance.DamageBonus : 0;
-        return currentDamage + (bonus * 2.0f); // 폭발 2배율 적용
+        return CalculateDamage(currentDamage, 2d);
     }
     protected override void RecalculateLevelStats()
     {

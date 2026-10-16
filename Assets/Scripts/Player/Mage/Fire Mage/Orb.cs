@@ -9,9 +9,9 @@ public class Orb : SkillProjectileBase
     private float trueHitRadius;
     private List<int> enemiesInsideIndices = new List<int>(50);
 
-    public void SetInfo(float _baseDamage, float _hitRadius, float _chanceDoubleDamage , string WeaponID)
+    public void SetInfo(long _baseDamage, float _hitRadius, float _chanceDoubleDamage , string WeaponID)
     {
-        damage = (long)_baseDamage;
+        damage = _baseDamage;
         hitRadius = 0f;
         maxHits = -1; 
         
@@ -41,6 +41,7 @@ public class Orb : SkillProjectileBase
                 if (Random.value < chanceDoubleDamage) finalDamage *= 2f;
 
                 target.TakeDamage(finalDamage);
+                RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
 
                 // 🚨 0.5초 동안은 이 몬스터가 오브에 또 맞지 않도록 무적 시간을 길게 부여합니다.
                 EnemySwarmSystem.Instance.nextHitTimes[enemyIdx] = Time.time + hitCooldown;

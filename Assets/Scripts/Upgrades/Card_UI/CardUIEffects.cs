@@ -1,138 +1,145 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;
 using UnityEngine.UI;
 
-public class CardUIEffects : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class CardUIEffects : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public string Description;
-
-    // Scale & Animation settings
     private Vector3 normalScale;
     public float hoverScaleFactor = 1.1f;
     public float animationDuration = 0.2f;
-
-    // Color & Glow effects
-    private Graphic cardGraphic;  // For color (could be Image or TextMeshProUGUI)
-    public Color hoverColor = Color.yellow; // Color to change to when hovered
-    private Color originalColor; // Original color to reset to
-
-    // Text Outline & Glow for TextMeshPro
-    public TextMeshProUGUI cardText;
-    public float glowOutlineWidth = 0.2f;
-    private float originalOutlineWidth;
-    public Color glowOutlineColor = Color.yellow;
-
-    // Shadow Effect
-    private Shadow shadowEffect; // For shadow manipulation
-    public Vector2 hoverShadowOffset = new Vector2(5f, -5f);
-    private Vector2 originalShadowOffset;
-
-    // Sound effect on hover
+    private int scaleTweenId = -1;
+    private Vector3 scaleTweenTarget;
+    private Graphic cardGraphic;
     public AudioSource hoverSound;
-
-    // Cursor
     public Texture2D customCursor;
+    public Color hoverColor = Color.yellow;
+    private Color originalColor;
+    private bool visualStateInitialized;
+    public bool IsSelected = false;
+    private bool isHovered;
+    private Selectable selectable;
 
-    void Start()
+    private void OnEnable()
     {
-        normalScale = transform.localScale;
-
-        // Initialize card graphic and colors
-        cardGraphic = GetComponent<Graphic>();
-        if (cardGraphic != null)
-        {
-            originalColor = cardGraphic.color;
-        }
-
-        // Initialize text outline if using TextMeshPro
-        if (cardText != null)
-        {
-            originalOutlineWidth = cardText.outlineWidth;
-        }
-
-        // Initialize shadow effect
-        shadowEffect = GetComponent<Shadow>();
-        if (shadowEffect != null)
-        {
-            originalShadowOffset = shadowEffect.effectDistance;
-        }
+        RefreshVisual(true);
     }
 
-    // On hover, scale up, change color, add glow, and increase shadow
+    private void OnDisable()
+    {
+        isHovered = false;
+        CancelScaleTween();
+        if (!visualStateInitialized) return;
+
+        transform.localScale = normalScale;
+        if (cardGraphic != null)
+            cardGraphic.color = originalColor;
+        if (customCursor != null)
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // Play hover sound
-        if (hoverSound != null)
-        {
+        if (!isActiveAndEnabled) return;
+        EnsureVisualStateInitialized();
+        if (selectable != null && (!selectable.isActiveAndEnabled || !selectable.IsInteractable()))
+            return;
+
+        if (!isHovered && !IsSelected && hoverSound != null)
             hoverSound.Play();
-        }
-
-        // Smooth scale up using LeanTween
-        LeanTween.scale(gameObject, normalScale * hoverScaleFactor, animationDuration).setEaseOutBack();
-
-        // Change color
-        if (cardGraphic != null)
-        {
-            cardGraphic.color = hoverColor;
-        }
-
-        // Add glow outline for TextMeshPro
-        if (cardText != null)
-        {
-            cardText.outlineWidth = glowOutlineWidth;
-            cardText.outlineColor = glowOutlineColor;
-        }
-
-        // Increase shadow effect
-        if (shadowEffect != null)
-        {
-            shadowEffect.effectDistance = hoverShadowOffset;
-        }
-
-        // Set custom cursor
-        if (customCursor != null)
-        {
-            Cursor.SetCursor(customCursor, Vector2.zero, CursorMode.Auto);
-        }
-        //TooltipManager.instance.SetInfo(Description);
+        isHovered = true;
+        RefreshVisual();
     }
 
-    // On hover exit, scale back to normal, reset color, remove glow, and reset shadow
     public void OnPointerExit(PointerEventData eventData)
     {
-        // Smooth scale down using LeanTween
-        LeanTween.scale(gameObject, normalScale, animationDuration).setEaseInBack();
-
-        // Reset color
-        if (cardGraphic != null)
-        {
-            cardGraphic.color = originalColor;
-        }
-
-        // Remove glow outline for TextMeshPro
-        if (cardText != null)
-        {
-            cardText.outlineWidth = originalOutlineWidth;
-        }
-
-        // Reset shadow effect
-        if (shadowEffect != null)
-        {
-            shadowEffect.effectDistance = originalShadowOffset;
-        }
-
-        // Reset cursor to default
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        if (!isActiveAndEnabled) return;
+        isHovered = false;
+        RefreshVisual();
     }
 
-    // On click, add a small scale "pop" effect
-    public void OnPointerClick(PointerEventData eventData)
+    public void EnsureVisualStateInitialized()
     {
-        // Create a quick pop animation on click
-        LeanTween.scale(gameObject, normalScale * 0.9f, 0.1f).setEaseOutBounce().setOnComplete(() =>
+        if (visualStateInitialized) return;
+
+        normalScale = transform.localScale;
+        cardGraphic = GetComponent<Graphic>();
+        selectable = GetComponent<Selectable>();
+
+        if (cardGraphic != null)
+            originalColor = cardGraphic.color;
+
+        visualStateInitialized = true;
+    }
+    public void SetSelected(bool selected, bool immediate = false)
+    {
+        EnsureVisualStateInitialized();
+        bool playSound = selected && !IsSelected && !isHovered;
+        IsSelected = selected;
+
+        if (playSound && isActiveAndEnabled && !immediate && hoverSound != null)
+            hoverSound.Play();
+
+        RefreshVisual(immediate);
+    }
+
+    private void RefreshVisual(bool immediate = false)
+    {
+        EnsureVisualStateInitialized();
+        bool highlighted = isActiveAndEnabled && (IsSelected || isHovered)
+            && (selectable == null || (selectable.isActiveAndEnabled && selectable.IsInteractable()));
+        Vector3 targetScale = highlighted
+            ? normalScale * hoverScaleFactor
+            : normalScale;
+
+        ChangeScale(targetScale, immediate);
+
+        if (cardGraphic != null)
+            cardGraphic.color = highlighted ? hoverColor : originalColor;
+
+        if (customCursor != null)
+            Cursor.SetCursor(
+                highlighted ? customCursor : null,
+                Vector2.zero,
+                CursorMode.Auto);
+    }
+    public void ChangeScale(Vector3 target, bool immediate = false)
+    {
+        // Hover followed by click must not restart a tween already moving to the same size.
+        if (!immediate && isActiveAndEnabled && animationDuration > 0f
+            && scaleTweenId >= 0 && LeanTween.isTweening(scaleTweenId)
+            && scaleTweenTarget == target)
+            return;
+
+        CancelScaleTween();
+
+        if(immediate || !isActiveAndEnabled || animationDuration <= 0f)
         {
-            LeanTween.scale(gameObject, normalScale, 0.1f).setEaseInBounce();
-        });
+            transform.localScale = target;
+            return;
+        }
+
+        if(transform.localScale == target)
+        {
+            transform.localScale = target;
+            return;
+        }
+
+        scaleTweenTarget = target;
+        scaleTweenId = LeanTween.scale(gameObject, target, animationDuration)
+                                .setIgnoreTimeScale(true)
+                                .setEase(LeanTweenType.easeOutQuad)
+                                .setOnComplete(() =>
+                                {
+                                    transform.localScale = target;
+                                    scaleTweenId = -1;
+                                })
+                                .id;
+    }
+    private void CancelScaleTween()
+    {
+        if (scaleTweenId < 0) return;
+
+        LeanTween.cancel(scaleTweenId);
+        scaleTweenId = -1;
     }
 }

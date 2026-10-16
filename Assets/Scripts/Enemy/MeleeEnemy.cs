@@ -32,6 +32,20 @@ public class MeleeEnemy : Enemy
             spriteRenderer.sprite = runFrames[currentFrameIndex];
         }
     }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+
+        ResetAnimation();
+    }
+    private void ResetAnimation()
+    {
+        currentState = AnimState.Run;
+        timer = 0;
+        currentFrameIndex = 0;
+        spriteRenderer.sprite = runFrames[0];
+    }
+
 
     public void PlayAttackAnimation()
     {

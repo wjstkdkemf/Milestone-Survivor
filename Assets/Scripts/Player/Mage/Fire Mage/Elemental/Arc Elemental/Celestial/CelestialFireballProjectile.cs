@@ -121,6 +121,7 @@ public class CelestialFireballProjectile : SkillProjectileBase
             if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[idx])
             {
                 boomTarget.TakeDamage(lastFireBoomDamage);
+                RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, (long)lastFireBoomDamage);
                 EnemySwarmSystem.Instance.nextHitTimes[idx] = Time.time + 0.1f;
             }
         }
