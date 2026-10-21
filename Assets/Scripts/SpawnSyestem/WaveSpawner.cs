@@ -366,12 +366,15 @@ public class WaveSpawner : MonoBehaviour
 
         PlayerXpPickup playerPickup = null;
         GameObject playerObj = GameObject.FindWithTag("Player");
+
+        var retryDelay = new WaitForSeconds(0.5f);
+
         if (playerObj != null)
         {
             playerPickup = playerObj.GetComponent<PlayerXpPickup>();
         }
 
-        yield return new WaitForSeconds(0.5f);
+        yield return retryDelay;
 
         /*while (FindObjectsByType<XPCrystal>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<GoldCoin>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<ItemObject>(FindObjectsSortMode.None).Length > 0)
         {
@@ -379,26 +382,22 @@ public class WaveSpawner : MonoBehaviour
         }*/
         while (true)
         {
-            int crystalCount = FindObjectsByType<XPCrystal>(FindObjectsSortMode.None).Length;
-            int goldCount = FindObjectsByType<GoldCoin>(FindObjectsSortMode.None).Length;
-            int itemCount = FindObjectsByType<ItemObject>(FindObjectsSortMode.None).Length;
-
-            if (crystalCount == 0 && goldCount == 0 && itemCount == 0)
-                break;
-
-            if (playerPickup != null)
+            if (playerPickup == null || !playerPickup.isActiveAndEnabled)
             {
-                playerPickup.CollectEverything();
-            }
-            else
-            {
-                // 혹시 루프 도중에 플레이어가 죽어서 null이 됐거나, 처음에 못 찾았다면 다시 찾음
-                // (안전장치)
                 playerObj = GameObject.FindWithTag("Player");
-                if (playerObj != null) playerPickup = playerObj.GetComponent<PlayerXpPickup>();
+                playerPickup = playerObj != null
+                    ? playerObj.GetComponent<PlayerXpPickup>()
+                    : null;
             }
 
-            yield return new WaitForSeconds(0.5f); 
+            if (playerPickup != null &&
+                playerPickup.isActiveAndEnabled &&
+                playerPickup.CollectEverything())
+            {
+                break;
+            }
+
+            yield return retryDelay;
         }
         GameManager.Instance.AllKill = false;
 

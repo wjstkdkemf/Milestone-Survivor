@@ -24,6 +24,7 @@ public class ItemEnchanter : MonoBehaviour
     [SerializeField]private ItemStatContainer[] BeforeAfterStatPrefab;
     [SerializeField]private ItemLevelContainer BeforeAfterLevelPrefab;
     [SerializeField]private ItemUIEffectManager itemUIEffectManager;
+    [SerializeField]private GameObject blockPanel;
 
     private bool isEnchanting;
     private bool IsMax = false;
@@ -72,7 +73,6 @@ public class ItemEnchanter : MonoBehaviour
             Instance = null;
         }
     }
-
     private void Start()
     {
         if (enchantButton != null)
@@ -191,6 +191,7 @@ public class ItemEnchanter : MonoBehaviour
 
         isEnchanting = true;
         enchantButton.interactable = false;
+        blockPanel.SetActive(true);
 
         enchantHoldItem = currentItem;
 
@@ -223,6 +224,7 @@ public class ItemEnchanter : MonoBehaviour
         UpdateEnchantButton();
 
         isEnchanting = false;
+        blockPanel.SetActive(false);
     }
     private bool TryGetEnhancementRule(ItemGrade grade,int currentLevel, out EnhancementRule rule)
     {

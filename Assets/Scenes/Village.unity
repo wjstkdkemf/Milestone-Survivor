@@ -3986,16 +3986,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1504839012}
   powerUpPointText: {fileID: 2135018476}
   Icon: {fileID: 431403099}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 155250272}
   - {fileID: 1266872284}
   - {fileID: 1806915007}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 48109944}
 --- !u!114 &48109943
@@ -11565,16 +11560,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1713567719}
   powerUpPointText: {fileID: 1763929766}
   Icon: {fileID: 1388621121}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 504876070}
   - {fileID: 1988313585}
   - {fileID: 1766471401}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 144384663}
 --- !u!114 &144384662
@@ -18607,16 +18597,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1535170751}
   powerUpPointText: {fileID: 1469170561}
   Icon: {fileID: 2075321268}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 1536377439}
   - {fileID: 1248518621}
   - {fileID: 1692349007}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 219863657}
 --- !u!114 &219863656
@@ -18893,16 +18878,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1653282046}
   powerUpPointText: {fileID: 566323614}
   Icon: {fileID: 107709422}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 270937252}
   - {fileID: 1758443187}
   - {fileID: 347101953}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 222254555}
 --- !u!114 &222254554
@@ -21425,16 +21405,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1048328677}
   powerUpPointText: {fileID: 1559560812}
   Icon: {fileID: 321829149}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 1588098976}
   - {fileID: 444954255}
   - {fileID: 1254176781}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 250481798}
 --- !u!114 &250481797
@@ -39888,16 +39863,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1607382720}
   powerUpPointText: {fileID: 160306041}
   Icon: {fileID: 1933974778}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 289105758}
   - {fileID: 1761398641}
   - {fileID: 1325335776}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 530021568}
 --- !u!114 &530021567
@@ -42158,6 +42128,7 @@ MonoBehaviour:
   - {fileID: 343021514}
   BeforeAfterLevelPrefab: {fileID: 1624907909}
   itemUIEffectManager: {fileID: 1328242541}
+  blockPanel: {fileID: 6607940091820294169}
 --- !u!114 &549850754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57170,7 +57141,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 411297271}
-  - {fileID: 7507630178948209827}
   - {fileID: 602392132099540332}
   - {fileID: 163008178}
   - {fileID: 7552100642969784405}
@@ -57182,6 +57152,7 @@ RectTransform:
   - {fileID: 1350403063}
   - {fileID: 281674549}
   - {fileID: 2115641173}
+  - {fileID: 7507630178948209827}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -64676,7 +64647,7 @@ MonoBehaviour:
   maxScale: 1.1
   pointerBounceHeight: 20
   startButton: {fileID: 326433824}
-  characterButton: {fileID: 1488523298}
+  characterButton: {fileID: 0}
   characterConfirmButton: {fileID: 314552664}
   forestZoneButton: {fileID: 0}
   forestPointButton: {fileID: 0}
@@ -82642,16 +82613,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 2071572320}
   powerUpPointText: {fileID: 1760467495}
   Icon: {fileID: 1502489091}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 702673513}
   - {fileID: 1413972146}
   - {fileID: 907052149}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 1096129201}
 --- !u!114 &1096129200
@@ -112538,17 +112504,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57d2ee6e9eb556a4b9f535b3adfa5077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1488523298 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1209509181129000741, guid: af3bc8ade753cca4fadd57ed9c28579d, type: 3}
-  m_PrefabInstance: {fileID: 1488523295}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1488882092
 GameObject:
   m_ObjectHideFlags: 0
@@ -114104,16 +114059,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1690115769}
   powerUpPointText: {fileID: 1819575387}
   Icon: {fileID: 19761384}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 662529229}
   - {fileID: 333931510}
   - {fileID: 728939637}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 1511471751}
 --- !u!1 &1508943790
@@ -123537,16 +123487,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1298100453}
   powerUpPointText: {fileID: 845893393}
   Icon: {fileID: 983521056}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 1823399469}
   - {fileID: 1834136600}
   - {fileID: 1522917557}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 1638327573}
 --- !u!114 &1638327572
@@ -129523,16 +129468,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1579528715}
   powerUpPointText: {fileID: 1508986791}
   Icon: {fileID: 183049298}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 742338746}
   - {fileID: 480782626}
   - {fileID: 161861759}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 1708049673}
 --- !u!114 &1708049672
@@ -130785,16 +130725,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 2112834452}
   powerUpPointText: {fileID: 654794354}
   Icon: {fileID: 245118792}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 1635318857}
   - {fileID: 106410255}
   - {fileID: 147558967}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 1724333810}
 --- !u!114 &1724333809
@@ -135442,16 +135377,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1788653856}
   powerUpPointText: {fileID: 776361232}
   Icon: {fileID: 2128917583}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 1041872175}
   - {fileID: 549169968}
   - {fileID: 1311691402}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 1777780900}
 --- !u!114 &1777780899
@@ -144283,16 +144213,11 @@ MonoBehaviour:
   powerUpNameText: {fileID: 1966491619}
   powerUpPointText: {fileID: 2013891815}
   Icon: {fileID: 519500037}
-  hoverSound: {fileID: 0}
-  customCursor: {fileID: 0}
   LevelUpPlusObjects:
   - {fileID: 987781294}
   - {fileID: 1758590809}
   - {fileID: 1275052338}
   powerUp: {fileID: 11400000, guid: f8c95a0c0e896094fb3b86a675de5d27, type: 2}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  hoverScaleFactor: 1.1
-  animationDuration: 0.2
   IsSelected: 0
   cardUIEffects: {fileID: 1889982047}
 --- !u!114 &1889982046
@@ -168570,7 +168495,7 @@ GameObject:
   - component: {fileID: 1571256116950916709}
   - component: {fileID: 7652007160405984521}
   m_Layer: 5
-  m_Name: Image
+  m_Name: blockPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -168622,8 +168547,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -18.338135, y: -16.046082}
-  m_SizeDelta: {x: 36.6768, y: 32.0922}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &7552100642969784405
 RectTransform:
@@ -168657,14 +168582,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5245924340494248533, guid: c61b01854210a974c801ae0b7a87e175, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

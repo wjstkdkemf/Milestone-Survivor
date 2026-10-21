@@ -41,8 +41,10 @@ public class UpgradeScriptableObject : ScriptableObject
 
     // [핵심 2] 무기가 아니라면, 어떤 스탯을 올려줄지 결정합니다.
     public UpgradeType upgradeType;
+    public BonusMode bonusMode = BonusMode.Flat;
 
     // [핵심 3] 스탯을 얼마나 올려줄지 (예: 체력 +10, 속도 +5)
+    [Tooltip("Flat adds the value directly. Percent uses 10 for a 10% increase.")]
     public float statValue; 
 
     public UpgradeLevelInfo GetLevelInfoOrNull()

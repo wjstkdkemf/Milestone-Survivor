@@ -127,24 +127,18 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
 
     public void TakeDamage(float damage, float knockBackDuration = 0f)
     {
-        if (isInvincible) return;
+        if (isInvincible || Dashing) return;
 
-        if (myBarrierSkill != null && myBarrierSkill.isActiveAndEnabled && myBarrierSkill.isBarrierActive)
-        {
-            // 배리어를 터뜨림 -> 이때 내부적으로 SetInvincible(0.2f)가 호출됨
-            myBarrierSkill.BreakBarrier();
-            return; // 데미지 무효화
-        }
+        if (myBarrierSkill != null && myBarrierSkill.TryBlockDamage())
+            return;
 
-        if (!Dashing)
+
+        CurrentHealth -= DamageCal(damage);
+        UpdateHealthUI();
+        Flash();
+        if(CurrentHealth <= 0)
         {
-            CurrentHealth -= DamageCal(damage);
-            UpdateHealthUI();
-            Flash();
-            if(CurrentHealth <= 0)
-            {
-                GameOver.Instance.GameEnded(false);
-            }
+            GameOver.Instance.GameEnded(false);
         }
     }
     private float DamageCal(float damage)//추후 새로운 데미지 계산식 추가가능.

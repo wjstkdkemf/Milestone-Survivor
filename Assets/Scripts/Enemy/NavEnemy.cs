@@ -64,7 +64,7 @@ public abstract class NavEnemy : Enemy
          }
          else if (!CantBeKnocked)
          {
-             ApplyKnockbackEffect(delta);
+             ApplyKnockbackEffect();
          }
     
          HandleAction(delta);
@@ -94,13 +94,11 @@ public abstract class NavEnemy : Enemy
         // Agent 위치를 오브젝트 위치와 동기화 (updatePosition = false일 때 필수)
         agent.nextPosition = transform.position;
     }
-    private void ApplyKnockbackEffect(Vector3 delta)
+    private void ApplyKnockbackEffect()
     {
         if (agent != null && agent.isActiveAndEnabled) agent.isStopped = true;
         
-        float finalKnockBack = knockBackForce * (1 + (PlayerStats.Instance != null ? PlayerStats.Instance.KnockBackBonus : 0));
-        Vector3 knockbackDir = -delta.normalized;
-        transform.position += knockbackDir * finalKnockBack * Time.deltaTime;
+        MoveKnockback();
         
         if (agent != null) agent.nextPosition = transform.position;
     }

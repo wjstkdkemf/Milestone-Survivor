@@ -293,8 +293,8 @@ public class PowerUpManager : MonoBehaviour
         {
             costText.text = canPurchase ? cost.ToString() : "---";
             //Statname.text = info.powerUpType.ToString();
-            beforeStat.text = info.upgradeValues[displayLevel].ToString();
-            afterStat.text = info.upgradeValues[displayLevel + 1].ToString();
+            beforeStat.text = info.FormatValue(info.upgradeValues[displayLevel]);
+            afterStat.text = info.FormatValue(info.upgradeValues[displayLevel + 1]);
             statArrow.SetActive(true);
             BuyButtons.SetActive(canPurchase);
         }
@@ -302,7 +302,7 @@ public class PowerUpManager : MonoBehaviour
         {
             costText.text = "MAX";
             //Statname.text = info.powerUpType.ToString();
-            beforeStat.text = info.upgradeValues[displayLevel].ToString();
+            beforeStat.text = info.FormatValue(info.upgradeValues[displayLevel]);
             afterStat.text = "";
             statArrow.SetActive(false);
             BuyButtons.SetActive(false);

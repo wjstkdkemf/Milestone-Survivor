@@ -12,70 +12,58 @@ public class PlayerXpPickup : MonoBehaviour
 
     private void Update()
     {
-        // Automatically pick up nearby items
-        PickupNearbyXpCrystals();
-        PickupNearbyGoldCoin();
-        PickupNearbyItems();
+        PickupNearbyCollectibles();
     }
-    public void CollectEverything()
+    private void PickupNearbyCollectibles()
     {
-        CollectAllXpCrystals();
-        CollectAllGoldCoin();
-        CollectAllItems();
-    }
+        if (trans == null || !trans.gameObject.activeInHierarchy)
+            return;
 
-    void PickupNearbyXpCrystals()
-    {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(trans.position, xpPickupRange, CollectiblesLayer);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(
+            trans.position, xpPickupRange, CollectiblesLayer);
 
-        foreach (Collider2D collider in hitColliders)
+        foreach (Collider2D col in colliders)
         {
-            XPCrystal crystal = collider.GetComponent<XPCrystal>();
-            if (crystal != null)
-            {
+            if (col == null) continue;
+
+            if (col.TryGetComponent<XPCrystal>(out var crystal))
                 crystal.Collect(trans);
-            }
+
+            if (col.TryGetComponent<GoldCoin>(out var coin))
+                coin.Collect(trans);
+
+            if (col.TryGetComponent<ItemObject>(out var item))
+                item.Collect(trans);
         }
     }
 
-    void PickupNearbyGoldCoin()
+    public bool CollectEverything()
     {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(trans.position, xpPickupRange, CollectiblesLayer);
+        var crystals = FindObjectsByType<XPCrystal>(FindObjectsSortMode.None);
+        var coins = FindObjectsByType<GoldCoin>(FindObjectsSortMode.None);
+        var items = FindObjectsByType<ItemObject>(FindObjectsSortMode.None);
 
-        foreach (Collider2D collider in hitColliders)
-        {
-            GoldCoin goldCoin = collider.GetComponent<GoldCoin>();
-            if (goldCoin != null)
-            {
-                goldCoin.Collect(trans); // Pass player transform to the coin
-            }
-        }
+        if (crystals.Length == 0 && coins.Length == 0 && items.Length == 0)
+            return true;
+
+        if (trans == null || !trans.gameObject.activeInHierarchy)
+            return false;
+
+        foreach (var crystal in crystals)
+            if (crystal != null)
+                crystal.Collect(trans);
+
+        foreach (var coin in coins)
+            if (coin != null)
+                coin.Collect(trans);
+
+        foreach (var item in items)
+            if (item != null)
+                item.Collect(trans);
+
+        return false;
     }
-
-    void PickupNearbyItems()
-    {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(trans.position, xpPickupRange, CollectiblesLayer);
-
-        foreach (Collider2D collider in hitColliders)
-        {
-            if(!collider.TryGetComponent<ItemObject>(out var itemObject))
-                continue;
-            if(!itemObject.TryGetComponent<ItemDropEffect>(out var effect))
-                continue;
-            
-            if (itemObject != null && effect.GetHasLand())
-            {
-                itemObject.Collect(trans);
-            }
-        }
-    }
-
     public void CollectAllXpCrystals()
-    {
-        StartCoroutine(CollectAllXpCrystalsRoutine());
-    }
-
-    private IEnumerator CollectAllXpCrystalsRoutine()
     {
         XPCrystal[] allCrystals = FindObjectsOfType<XPCrystal>();
         foreach (XPCrystal crystal in allCrystals)
@@ -83,17 +71,11 @@ public class PlayerXpPickup : MonoBehaviour
             if (crystal != null)
             {
                 crystal.Collect(trans);
-                yield return new WaitForSeconds(0.05f);
             }
         }
     }
 
     public void CollectAllGoldCoin()
-    {
-        StartCoroutine(CollectAllGoldCoinRoutine());
-    }
-
-    private IEnumerator CollectAllGoldCoinRoutine()
     {
         GoldCoin[] allGoldCoins = FindObjectsOfType<GoldCoin>();
         foreach (GoldCoin goldCoin in allGoldCoins)
@@ -101,17 +83,10 @@ public class PlayerXpPickup : MonoBehaviour
             if (goldCoin != null)
             {
                 goldCoin.Collect(trans);
-                yield return new WaitForSeconds(0.05f);
             }
         }
     }
-
     public void CollectAllItems()
-    {
-        StartCoroutine(CollectAllItemsRoutine());
-    }
-
-    private IEnumerator CollectAllItemsRoutine()
     {
         ItemObject[] allItems = FindObjectsOfType<ItemObject>();
         foreach (ItemObject item in allItems)
@@ -119,11 +94,9 @@ public class PlayerXpPickup : MonoBehaviour
             if (item != null)
             {
                 item.Collect(trans);
-                yield return new WaitForSeconds(0.05f);
             }
         }
     }
-
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

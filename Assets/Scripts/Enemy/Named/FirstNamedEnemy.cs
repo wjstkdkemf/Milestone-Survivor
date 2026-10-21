@@ -11,7 +11,7 @@ public class FirstNamedEnemy : NavEnemy
     }
 
     [Header("State Machine")]
-    public State currentState = State.Idle;
+    public State currentState_Named = State.Idle;
 
     [Header("Slam Attack Settings")]
     public float slamRadius = 3f; // The radius of the slam attack
@@ -25,10 +25,16 @@ public class FirstNamedEnemy : NavEnemy
     public Color warningEndColor = new Color(0, 0, 0, 0.9f);         // 진한 검은색
 
     private Coroutine currentCoroutine;
+    private GameObject warningInstance;
 
     void Start()
     {
         ChangeState(State.Idle);
+    }
+    protected override void OnDisable()
+    {
+        ClearWarning();
+        base.OnDisable();
     }
 
     public override void ManualUpdate()
@@ -40,13 +46,13 @@ public class FirstNamedEnemy : NavEnemy
         // State transition logic
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        if (currentState == State.Idle || currentState == State.Chasing)
+        if (currentState_Named == State.Idle || currentState_Named == State.Chasing)
         {
             if (distanceToPlayer <= attackRange)
             {
                 ChangeState(State.SlamAttack);
             }
-            else if (distanceToPlayer > attackRange && currentState != State.Chasing)
+            else if (distanceToPlayer > attackRange && currentState_Named != State.Chasing)
             {
                 ChangeState(State.Chasing);
             }
@@ -60,9 +66,9 @@ public class FirstNamedEnemy : NavEnemy
             StopCoroutine(currentCoroutine);
         }
 
-        currentState = newState;
+        currentState_Named = newState;
 
-        switch (currentState)
+        switch (currentState_Named)
         {
             case State.Idle:
                 currentCoroutine = StartCoroutine(Idle_State());
@@ -95,13 +101,12 @@ public class FirstNamedEnemy : NavEnemy
     {
         stopMoving = true;
 
-        GameObject indicatorInstance = null;
         Image warningImage = null;
 
         if (slamWarningPrefab != null)
         {
-            indicatorInstance = Instantiate(slamWarningPrefab, transform.position, Quaternion.identity);
-            warningImage = indicatorInstance.GetComponentInChildren<Image>();
+            warningInstance = Instantiate(slamWarningPrefab, transform.position, Quaternion.identity);
+            warningImage = warningInstance.GetComponentInChildren<Image>();
             if (warningImage != null)
             {
                 warningImage.color = warningStartColor;
@@ -116,9 +121,9 @@ public class FirstNamedEnemy : NavEnemy
         while (timer < windUpTime)
         {
             float progress = timer / windUpTime;
-            if (indicatorInstance != null)
+            if (warningInstance != null)
             {
-                indicatorInstance.transform.localScale = Vector3.Lerp(startScale, endScale, progress);
+                warningInstance.transform.localScale = Vector3.Lerp(startScale, endScale, progress);
             }
             if (warningImage != null)
             {
@@ -128,9 +133,9 @@ public class FirstNamedEnemy : NavEnemy
             yield return null;
         }
 
-        if (indicatorInstance != null)
+        if (warningInstance != null)
         {
-            indicatorInstance.transform.localScale = endScale;
+            warningInstance.transform.localScale = endScale;
             if (warningImage != null)
             {
                 warningImage.color = warningEndColor;
@@ -152,10 +157,7 @@ public class FirstNamedEnemy : NavEnemy
             }
         }
 
-        if (indicatorInstance != null)
-        {
-            Destroy(indicatorInstance);
-        }
+        ClearWarning();
 
         yield return new WaitForSeconds(coolDown);
 
@@ -168,6 +170,13 @@ public class FirstNamedEnemy : NavEnemy
         // This method is now effectively replaced by the SlamAttack_State coroutine.
         // We leave it empty to satisfy the abstract class requirement, 
         // or you could have it log a warning if it's ever called unexpectedly.
+    }
+    private void ClearWarning()
+    {
+        if (warningInstance != null)
+            Destroy(warningInstance);
+
+        warningInstance = null;
     }
 
     private void OnDrawGizmosSelected()

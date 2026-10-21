@@ -26,25 +26,42 @@ public class ItemObject : MonoBehaviour
 
     public void Collect(Transform playerTransform)
     {
-        if (!isCollecting)
-        {
-            isCollecting = true;
-            // 코루틴으로 이동 로직 위임 (Update보다 효율적)
-            StopAllCoroutines();
-            StartCoroutine(MoveAndCollect(playerTransform));
-        }
+        if (isCollecting || !isActiveAndEnabled ||
+            playerTransform == null ||
+            !playerTransform.gameObject.activeInHierarchy)
+            return;
+
+        isCollecting = true;
+        StartCoroutine(MoveAndCollect(playerTransform));
     }
 
     // [핵심 2] XPCrystal과 동일한 Lerp 움직임 적용
     private IEnumerator MoveAndCollect(Transform playerTransform)
     {
+        if (TryGetComponent<ItemDropEffect>(out var dropEffect))
+        {
+            while (dropEffect != null && !dropEffect.GetHasLand())
+            {
+                if (playerTransform == null ||
+                    !playerTransform.gameObject.activeInHierarchy)
+                {
+                    isCollecting = false;
+                    yield break;
+                }
+
+                yield return null;
+            }
+        }
+
         var col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
         float minSpeed = 10f; 
         float distanceWeight = 5f; 
 
-        while (playerTransform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
+        while ( playerTransform != null &&
+                playerTransform.gameObject.activeInHierarchy &&
+                Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
         {
             float distance = Vector3.Distance(transform.position, playerTransform.position);
             float currentSpeed = Mathf.Max(minSpeed, distance * distanceWeight);
@@ -53,7 +70,11 @@ public class ItemObject : MonoBehaviour
             
             yield return null;
         }
-        if (playerTransform != null && InventoryController.instance != null && itemData != null)
+        
+        if (playerTransform != null &&
+            playerTransform.gameObject.activeInHierarchy &&
+            InventoryController.instance != null &&
+            itemData != null)
         {
             ItemAddResult result = InventoryController.instance.AddItemWithResult("ClearInventory", itemData.itemName, 1);
             if (result.FullyProcessed)

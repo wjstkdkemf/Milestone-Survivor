@@ -15,10 +15,10 @@ public class BarrierWeapon : WeaponBase
     private GameObject barrierInstance; // 생성된 배리어 객체
     private BarrierShield barrierScript; // 배리어 로직 스크립트
     private GameObject explosionEffect;
-    private LayerMask enemyLayerMask;
-    private LayerMask projectileLayerMask;
 
     private PlayerHealth playerHealthScript;
+
+    private readonly List<int> knockbackTargets = new List<int>(64);
 
     private void OnEnable()
     {
@@ -45,8 +45,6 @@ public class BarrierWeapon : WeaponBase
             currentKnockbackRadius = barrierData.knockbackRadius;
             currentKnockbackForce = barrierData.knockbackForce;
             explosionEffect = barrierData.explosionEffectPrefab;
-            enemyLayerMask = barrierData.enemyLayerMask;
-            projectileLayerMask = barrierData.projectileLayerMask;
 
             // 배리어 프리팹을 플레이어 자식으로 생성
             if (barrierData.barrierPrefab != null)
@@ -57,7 +55,7 @@ public class BarrierWeapon : WeaponBase
                 barrierScript = barrierInstance.GetComponent<BarrierShield>();
                 if (barrierScript == null) barrierScript = barrierInstance.AddComponent<BarrierShield>();
                 
-                barrierScript.Setup(this, enemyLayerMask, projectileLayerMask);
+                barrierScript.Setup(this, explosionEffect);
                 
                 // 시작은 비활성화
                 barrierInstance.SetActive(false);
@@ -103,12 +101,19 @@ public class BarrierWeapon : WeaponBase
             // 재생성 시 애니메이션 등을 위해 재설정 가능
         }
     }
+    public bool TryBlockDamage()
+    {
+        if (!isActiveAndEnabled || !isBarrierActive)
+            return false;
+
+        BreakBarrier();
+
+        return true;
+    }
 
     // 배리어가 맞았을 때 호출됨 (BarrierShield 스크립트에서 호출)
     public void BreakBarrier()
     {
-        if (!isBarrierActive) return;
-
         // 1. 배리어 해제
         isBarrierActive = false;
         chargeTimer = 0f; // 타이머 리셋
@@ -124,36 +129,26 @@ public class BarrierWeapon : WeaponBase
         PerformKnockback();
 
         // 3. 이펙트 재생
-        if (explosionEffect != null)
-        {
-            Instantiate(explosionEffect, transform.position, Quaternion.identity);
-        }
+        barrierScript.PlayExplosion();
     }
 
     // 주변 적 밀어내기
     private void PerformKnockback()
     {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, currentKnockbackRadius, enemyLayerMask);
+        var swarm = EnemySwarmSystem.Instance;
+        if (swarm == null) return;
 
-        foreach (Collider2D col in colliders)
+        Vector2 origin = transform.position;
+        swarm.GetEnemiesInRadius(
+            origin, currentKnockbackRadius, knockbackTargets);
+
+        foreach (int index in knockbackTargets)
         {
-            Enemy enemyScript = col.GetComponent<Enemy>();
-            
-            if (enemyScript != null && enemyScript.CantBeKnocked)
-            {
-                continue;
-            }
-            // 적에게 Rigidbody2D가 있다면 힘을 가함
-            Rigidbody2D enemyRb = col.GetComponent<Rigidbody2D>();
-            if (enemyRb != null)
-            {
-                Vector2 direction = (col.transform.position - transform.position).normalized;
-                // ForceMode2D.Impulse로 순간적인 힘을 가함
-                enemyRb.AddForce(direction * currentKnockbackForce, ForceMode2D.Impulse);
-            }
-            
-            // (선택사항) 만약 적이 투사체라면 파괴할 수도 있음
-            //if (col.CompareTag("EnemyProjectile")) Destroy(col.gameObject);
+            Enemy enemy = swarm.TryGetTarget(index);
+            if (enemy == null) continue;
+
+            enemy.ApplyKnockback(
+                origin, currentKnockbackForce, 0.2f);
         }
     }
 

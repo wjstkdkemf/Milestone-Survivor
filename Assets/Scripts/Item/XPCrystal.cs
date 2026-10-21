@@ -35,14 +35,15 @@ public class XPCrystal : MonoBehaviour
         }
     }
 
-    public void Collect(Transform player)
+    public void Collect(Transform playerTransform)
     {
-        if (!isCollected)
-        {
-            isCollected = true;
-            StopAllCoroutines();
-            StartCoroutine(MoveAndCollect(player.transform));
-        }
+        if (isCollected || !isActiveAndEnabled ||
+            playerTransform == null ||
+            !playerTransform.gameObject.activeInHierarchy)
+            return;
+
+        isCollected = true;
+        StartCoroutine(MoveAndCollect(playerTransform));
     }
 
     private IEnumerator MoveAndCollect(Transform playerTransform)
@@ -56,7 +57,9 @@ public class XPCrystal : MonoBehaviour
         float minSpeed = 10f; 
         float distanceWeight = 5f; 
 
-        while (playerTransform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
+        while ( playerTransform != null &&
+                playerTransform.gameObject.activeInHierarchy &&
+                Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
         {
             float distance = Vector3.Distance(transform.position, playerTransform.position);
             float currentSpeed = Mathf.Max(minSpeed, distance * distanceWeight);
@@ -66,11 +69,21 @@ public class XPCrystal : MonoBehaviour
             yield return null;
         }
 
-        // Final processing: grant XP and destroy the object
-        if (PlayerStats.Instance != null)
+        PlayerStats stats = PlayerStats.Instance;
+
+        if (playerTransform == null ||
+            !playerTransform.gameObject.activeInHierarchy ||
+            stats == null)
         {
-            PlayerStats.Instance.AddXP(xpValue);
+            isCollected = false;
+
+            if (myCollider != null)
+                myCollider.enabled = true;
+
+            yield break;
         }
+        
+        stats.AddXP(xpValue);
         Destroy(gameObject);
     }
 }

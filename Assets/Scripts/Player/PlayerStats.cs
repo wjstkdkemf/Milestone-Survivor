@@ -286,7 +286,7 @@ public class PlayerStats : MonoBehaviour
             if (powerUp.CurrentLevel > 0 && powerUp.CurrentLevel < powerUp.upgradeValues.Length)
             {
                 float upgradeValue = powerUp.upgradeValues[powerUp.CurrentLevel];
-                PlayerStatsCalculate.Instance.AddPowerUpBonus(powerUp.powerUpType, upgradeValue);
+                PlayerStatsCalculate.Instance.AddPowerUpBonus(powerUp.powerUpType, upgradeValue, powerUp.bonusMode);
             }
         }
     }

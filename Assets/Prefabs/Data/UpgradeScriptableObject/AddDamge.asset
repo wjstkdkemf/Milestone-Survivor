@@ -15,10 +15,36 @@ MonoBehaviour:
   Icon: {fileID: 8367830406354533065, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
   Title: +5% Damge
   Description: 
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  TitleLocalizationKey: 
+  DescriptionLocalizationKey: 
+  Grade: 0
   Points: 3
   MaxPoints: 99
   UpgradesList: []
   Chance: 68
+  InitialChance: 0
   linkedWeaponData: {fileID: 0}
   upgradeType: 6
+  bonusMode: 0
   statValue: 0
+  references:
+    version: 2
+    RefIds: []

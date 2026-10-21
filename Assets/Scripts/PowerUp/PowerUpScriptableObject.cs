@@ -14,6 +14,7 @@ public class PowerUpScriptableObject : ScriptableObject
     public long[] costPerLevel; // Base cost per level
     public int CurrentLevel;
     public bool isPercentage = true; // if true add "%" in the tool tip
+    public BonusMode bonusMode;
     public float[] upgradeValues; // Upgrade values for each level
 
     public string GetLocalizedName()
@@ -38,6 +39,22 @@ public class PowerUpScriptableObject : ScriptableObject
 
         return fallback ?? string.Empty;
     }
+    public string FormatValue(float value)
+    {
+        string suffix = "";
+
+        if (bonusMode == BonusMode.Percent)
+            suffix = "%";
+        else if (isPercentage)
+            suffix = "%p";
+
+        return $"{value:0.##}{suffix}";
+    }
+}
+public enum BonusMode
+{
+    Flat,
+    Percent
 }
 [System.Serializable]
 public enum PowerUpType

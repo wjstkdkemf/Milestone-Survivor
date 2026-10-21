@@ -84,6 +84,9 @@ public class ChargerEnemy : Enemy
         isChargingAction = true;
         casting = false;
         stopMoving = true; // 이동 정지
+        previousCantBeKnocked = CantBeKnocked;
+        CantBeKnocked = true;
+        ResetKnockback();
         
         if (player != null)
         {
@@ -151,6 +154,7 @@ public class ChargerEnemy : Enemy
         stopMoving = false;
         coolDownTimer = coolDown; 
         useSwarmMovement = true;
+        CantBeKnocked = previousCantBeKnocked;
     }
 
     private void DamageAlongPath(Vector3 start, Vector3 end)

@@ -37,11 +37,11 @@ public class Orb : SkillProjectileBase
             // 2. 무적 시간 체크 (Job System의 0.1초가 아니라, 오브 전용 0.5초 쿨타임 적용!)
             if (Time.time >= EnemySwarmSystem.Instance.nextHitTimes[enemyIdx])
             {
-                float finalDamage = damage;
-                if (Random.value < chanceDoubleDamage) finalDamage *= 2f;
+                long finalDamage = damage;
+                if (Random.value < chanceDoubleDamage) finalDamage *= 2;
 
                 target.TakeDamage(finalDamage);
-                RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
+                RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, finalDamage);
 
                 // 🚨 0.5초 동안은 이 몬스터가 오브에 또 맞지 않도록 무적 시간을 길게 부여합니다.
                 EnemySwarmSystem.Instance.nextHitTimes[enemyIdx] = Time.time + hitCooldown;

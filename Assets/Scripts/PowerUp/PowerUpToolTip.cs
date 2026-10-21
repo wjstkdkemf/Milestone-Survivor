@@ -15,8 +15,11 @@ public class PowerUpToolTip : MonoBehaviour
     {
         panle.SetActive(true);
         nameText.text = info.GetLocalizedName();
-        string percentage = info.isPercentage ? "%" : "";
-        descriptionText.text = $"{info.GetLocalizedDescription()} by {info.upgradeValues[info.CurrentLevel] } {percentage} per level Up , (max {info.upgradeValues[info.upgradeValues.Length-1] } { percentage} )";
+        string current = info.FormatValue(info.upgradeValues[info.CurrentLevel]);
+        string maximum = info.FormatValue(info.upgradeValues[info.upgradeValues.Length - 1]);
+
+        descriptionText.text =
+            $"{info.GetLocalizedDescription()} by {current}, (max {maximum})";
         costText.text = info.costPerLevel[info.CurrentLevel].ToString();
         icon.sprite = info.IconSprite;
     }

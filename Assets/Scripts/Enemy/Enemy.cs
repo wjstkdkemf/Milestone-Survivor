@@ -14,6 +14,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected bool facingRight = true;
     protected bool I_frame = false;
     public bool CantBeKnocked = false;
+    protected bool previousCantBeKnocked = false;
     public bool stopMoving = false; 
     public bool useSwarmMovement = true;
     public bool casting = false;
@@ -47,6 +48,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     
     protected float coolDownTimer;
     protected float knockBackTime = 0f;
+    private Vector2 knockbackDirection;
+    private float currentKnockbackSpeed;
     public float _knockBackDuration = .2f;
 
     [Header("Flash Elements")]
@@ -149,6 +152,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         health = maxhealth;
         currentNormalState = EnemyState.Chasing;
+        ResetKnockback();
         SpawnVersion++;
         CachePlayerReferences();
         if (spriteRenderer != null)
@@ -171,6 +175,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected virtual void ReSetRuntimeState()
     {
         InvalidateRepositionRequest();
+        ResetKnockback();
 
         if (health > 0) 
         {
@@ -202,6 +207,44 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
     public float GetKnockBackTime() { return knockBackTime; }
     public float GetSpeed() { return speed; }
+
+    public void ApplyKnockback(Vector2 origin, float speed, float duration)
+    {
+        if (!isActiveAndEnabled || CantBeKnocked || I_frame ||
+            currentNormalState == EnemyState.Dead || health <= 0f ||
+            speed <= 0f || duration <= 0f)
+        {
+            return;
+        }
+
+        float bonus = PlayerStats.Instance != null ? PlayerStats.Instance.KnockBackBonus : 0f;
+        float finalSpeed = speed * Mathf.Max(0f, 1f + bonus);
+        if (finalSpeed <= 0f) return;
+
+        // A weaker hit must not replace an active barrier knockback.
+        if (knockBackTime > 0f && finalSpeed < currentKnockbackSpeed)
+            return;
+
+        Vector2 direction = (Vector2)transform.position - origin;
+        if (direction.sqrMagnitude < 0.0001f)
+            direction = Vector2.right;
+
+        knockbackDirection = direction.normalized;
+        currentKnockbackSpeed = finalSpeed;
+        knockBackTime = Mathf.Max(knockBackTime, duration);
+    }
+
+    protected void MoveKnockback()
+    {
+        transform.position += (Vector3)(knockbackDirection * currentKnockbackSpeed * Time.deltaTime);
+    }
+
+    protected void ResetKnockback()
+    {
+        knockBackTime = 0f;
+        knockbackDirection = Vector2.zero;
+        currentKnockbackSpeed = 0f;
+    }
 
     protected bool CachePlayerReferences()
     {
@@ -377,10 +420,7 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         // 넉백 처리 (이것은 Job이 아니라 여기서 직접 처리합니다)
         if (knockBackTime > 0 && !CantBeKnocked)
         {
-            float knockBackBonus = PlayerStats.Instance != null ? PlayerStats.Instance.KnockBackBonus : 0f;
-            float finalKnockBack = knockBackForce * (1 + knockBackBonus);
-            Vector3 knockbackDir = -delta.normalized;
-            transform.position += knockbackDir * finalKnockBack * Time.deltaTime;
+            MoveKnockback();
             return;
         }
 
@@ -505,9 +545,14 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
         health -= amount;
 
-        if (health <= 0) Die();
+        if (health <= 0)
+        {
+            Die();
+            return;
+        }
 
-        knockBackTime = _knockBackDuration;
+        if (player != null || CachePlayerReferences())
+            ApplyKnockback(player.position, knockBackForce, _knockBackDuration);
     }
 
     public virtual void Die()

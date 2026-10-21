@@ -37,12 +37,13 @@ public class GoldCoin : MonoBehaviour
 
     public void Collect(Transform playerTransform)
     {
-        if (!isCollected)
-        {
-            isCollected = true;
-            StopAllCoroutines();
-            StartCoroutine(MoveAndCollect(playerTransform));
-        }
+        if (isCollected || !isActiveAndEnabled ||
+            playerTransform == null ||
+            !playerTransform.gameObject.activeInHierarchy)
+            return;
+
+        isCollected = true;
+        StartCoroutine(MoveAndCollect(playerTransform));
     }
 
     private IEnumerator MoveAndCollect(Transform playerTransform)
@@ -56,7 +57,9 @@ public class GoldCoin : MonoBehaviour
         float minSpeed = 10f; 
         float distanceWeight = 5f; 
 
-        while (playerTransform != null && Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
+        while ( playerTransform != null &&
+                playerTransform.gameObject.activeInHierarchy &&
+                Vector3.Distance(transform.position, playerTransform.position) > 0.1f)
         {
             float distance = Vector3.Distance(transform.position, playerTransform.position);
             float currentSpeed = Mathf.Max(minSpeed, distance * distanceWeight);
@@ -66,11 +69,21 @@ public class GoldCoin : MonoBehaviour
             yield return null;
         }
 
-        // Grant coin and destroy
-        if (PlayerStats.Instance != null)
+        PlayerStats stats = PlayerStats.Instance;
+
+        if (playerTransform == null ||
+            !playerTransform.gameObject.activeInHierarchy ||
+            stats == null)
         {
-            PlayerStats.Instance.AddGold(GoldValue);
+            isCollected = false;
+
+            if (myCollider != null)
+                myCollider.enabled = true;
+
+            yield break;
         }
+        
+        stats.AddGold(GoldValue);
         Destroy(gameObject);
     }
 }

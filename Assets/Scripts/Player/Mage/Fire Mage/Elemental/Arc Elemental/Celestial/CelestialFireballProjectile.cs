@@ -99,10 +99,11 @@ public class CelestialFireballProjectile : SkillProjectileBase
 
     public override void OnHit(Enemy hitEnemy)
     {
+        RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
+
         if (state == 1 || visitedTargets.Contains(hitEnemy)) return;
 
         visitedTargets.Add(hitEnemy);
-        RunStatisticsManager.Instance.RecordWeaponDamage(WeaponID, damage);
 
         if (lastFireBoom != null)
         {

@@ -18,8 +18,4 @@ public class BarrierDataSO : WeaponDataSO
     public GameObject barrierPrefab; 
     [Tooltip("배리어 파괴(넉백) 시 생성될 이펙트 (선택사항)")]
     public GameObject explosionEffectPrefab;
-    
-    [Header("Settings")]
-    public LayerMask enemyLayerMask; // 적 감지용
-    public LayerMask projectileLayerMask; // 적 투사체 감지용 (있다면)
 }

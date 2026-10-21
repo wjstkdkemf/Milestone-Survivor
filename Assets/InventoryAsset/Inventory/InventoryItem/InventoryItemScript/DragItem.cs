@@ -190,7 +190,12 @@ namespace InventorySystem
             isDragging = true; // Start checking for scroll input
 
             if (CurrentSlot != null && dropped)
-            {
+        {
+                InventoryEventSystem.RaiseSlotClicked(
+                    null,
+                    CurrentSlot.GetInventoryUI().GetInventoryName()
+                );
+
                 dropped = false;
                 CurrentSlot.ResetSlot();
                 transform.SetParent(CurrentSlot.GetInventoryUI().GetUI());
