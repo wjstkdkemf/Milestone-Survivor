@@ -43,6 +43,10 @@ public class AuraZone : SkillProjectileBase
 
     protected virtual void Update()
     {
+        var gameManager = GameManager.Instance;
+        if (gameManager == null || !gameManager.CanProcessCombat)
+            return;
+        
         if (hasLifeTime)
         {
             lifeTimer -= Time.deltaTime;

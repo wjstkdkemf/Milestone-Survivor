@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 public class ClearButton : MonoBehaviour
@@ -12,10 +13,9 @@ public class ClearButton : MonoBehaviour
 			return;
 		}
 		if(GameManager.Instance != null)
-		{
-		GameManager.Instance.Pause = false;
-		GameManager.Instance.StopMoveing = false;
-		}
+			GameManager.Instance.StopMoveing = false;
+		if(GameOver.Instance != null)
+			GameOver.Instance.RequestPauseFalse();
 		if(WaveSpawner.Instance != null)
 			WaveSpawner.Instance.ReleaseWaveAssets();
 		if(ObjectPoolingManager.Instance != null)

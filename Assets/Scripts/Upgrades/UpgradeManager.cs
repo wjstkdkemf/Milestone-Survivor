@@ -57,6 +57,11 @@ public class UpgradeManager : MonoBehaviour
         UpgradeUiSlots.Clear();
         SetUpgradePanelState(false);
     }
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.RequestPause(this, false);
+    }
     public void SetUpgradeUICount()
     {
         foreach (Transform child in UpgradeUIContainer) Destroy(child.gameObject);
@@ -109,7 +114,7 @@ public class UpgradeManager : MonoBehaviour
 
         // 게임 일시정지 및 UI 켜기
         if (MenuButtonController.Instance != null) MenuButtonController.Instance.CloseAllMenus();
-        if (GameManager.Instance != null) GameManager.Instance.Pause = true;
+        if (GameManager.Instance != null) GameManager.Instance.RequestPause(this, true);
 
 
         InGameUpgrade = true;
@@ -313,7 +318,7 @@ public class UpgradeManager : MonoBehaviour
 
     public void Close()
     {
-        if (GameManager.Instance != null) GameManager.Instance.Pause = false;
+        if (GameManager.Instance != null) GameManager.Instance.RequestPause(this, false);
         InGameUpgrade = false;
         
         SetUpgradePanelState(false);

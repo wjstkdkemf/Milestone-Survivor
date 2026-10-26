@@ -2,12 +2,16 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
     public bool StopMoveing;
-    public bool Pause;
+    private readonly HashSet<MonoBehaviour> pauseRequesters = new();
+    public bool Pause { get; private set; }
+    public bool CanProcessCombat => !Pause;
+
     public TMP_Text TextKill;
     public TMP_Text Player_Level_Count;
     public int NumberOfKills;
@@ -60,21 +64,64 @@ public class GameManager : MonoBehaviour
             if (Player_Level_Count != null)
                 Player_Level_Count.text = lastLevel.ToString();
         }
+    }
+    public void RequestPause(MonoBehaviour requester, bool pause)
+    {
+        if(pause)
+        {
+            if(pauseRequesters.Contains(requester))
+            {
+                return;
+            }
+            else
+            {
+                pauseRequesters.Add(requester);
 
-        if (Pause)
+                IsPause();
+            }
+        }
+        else if(!pause)
+        {
+            if(pauseRequesters.Contains(requester))
+            {
+                pauseRequesters.Remove(requester);
+
+                IsPause();
+            }
+        }
+    }
+    private void IsPause()
+    {
+        bool shouldPause = pauseRequesters.Count > 0;
+
+        if (Pause == shouldPause)
+            return;
+
+        Pause = shouldPause;
+        Time.timeScale = Pause ? 0f : 1f;
+
+        if(Pause)
         {
             if (Panel != null)
                 Panel.SetActive(true);
-            
-            Debug.Log("멈춤 체크");
-            Time.timeScale = 0;
         }
         else
         {
             if (Panel != null)
-                Panel.SetActive(false);
-            Time.timeScale = 1;
+                Panel.SetActive(false);            
         }
+        //PauseChanged?.Invoke(Pause);
+    }
+    public void ResetPause()
+    {
+        Pause = false;
+        pauseRequesters.Clear();
+
+        Time.timeScale = 1f;
+
+        if (Panel != null)
+            Panel.SetActive(false);            
+    
     }
     public void SelectCharacter()//int index
     {

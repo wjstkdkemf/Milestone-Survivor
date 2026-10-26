@@ -28,29 +28,43 @@ public class FireTrailOrb : Orb
     }
     protected override void Update()
     {
-        base.Update();
+        var gameManager = GameManager.Instance;
+        if (gameManager == null || !gameManager.CanProcessCombat)
+            return;
 
-        if (isFirstSpawn)
+        base.Update();
+        bool shouldSpawn = isFirstSpawn ||
+            Vector3.Distance(transform.position, lastSpawnPosition)
+                >= spawnDistanceThreshold;
+
+        if (shouldSpawn && SpawnTrail())
         {
-            SpawnTrail();
             lastSpawnPosition = transform.position;
             isFirstSpawn = false;
         }
-        if (Vector3.Distance(transform.position, lastSpawnPosition) >= spawnDistanceThreshold)
-        {
-            SpawnTrail();
-            lastSpawnPosition = transform.position; 
-        }
     }
-    private void SpawnTrail()
+    private bool SpawnTrail()
     {
-        if (trailPrefab == null) return;
+        var pool = ObjectPoolingManager.Instance;
+        if (trailPrefab == null || pool == null)
+            return false;
 
-        GameObject trail = ObjectPoolingManager.Instance.spawnGameObject(trailPrefab, transform.position, Quaternion.identity);
+        GameObject trail = pool.spawnGameObject(
+            trailPrefab, transform.position, Quaternion.identity);
 
-        if (trail != null && trail.TryGetComponent<AuraZone>(out var trailSkill))
+        if (trail == null)
+            return false;
+
+        if (!trail.TryGetComponent<AuraZone>(out var trailSkill))
         {
-            trailSkill.SetupAura(0.5f, (long)trailDamage, 1.5f, false, 0f, WeaponID ,trailDuration); 
+            pool.ReturnObjectToPool(trail);
+            return false;
         }
+
+        trailSkill.SetupAura(
+            0.5f, (long)trailDamage, 1.5f,
+            false, 0f, WeaponID, trailDuration);
+
+        return true;
     }
 }

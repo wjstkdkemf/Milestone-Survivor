@@ -72,6 +72,10 @@ public class SpreadingFlameEffect : MonoBehaviour
         if (!isActive)
             return;
 
+        var gameManager = GameManager.Instance;
+        if (gameManager == null || !gameManager.CanProcessCombat)
+            return;
+
         if (!HasValidTarget)
         {
             TrySpreadFromLastPosition();

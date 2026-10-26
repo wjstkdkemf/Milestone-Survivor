@@ -1521,5 +1521,78 @@ namespace InventorySystem
                 }
             }
         }
+        public void HandleEnchantSync(InventoryItem enchantedItem)
+        {
+            if (enchantedItem == null || enchantedItem.GetIsNull())
+                return;
+
+            bool isEquipped = enchantedItem.GetEquit();
+            string invName = enchantedItem.GetInventory();
+
+            var uiManager = GetInventoryUIByName(invName);
+            if (uiManager != null)
+            {
+                uiManager.UpdateSlot(enchantedItem.GetPosition());
+            }
+            
+            if(invName == HotBarInventoryName) // 장착 중인 아이템을 직접 강화한 경우
+            {
+                // 만약 '장착창(HotBar)'에서 강화했다면 -> '인벤토리(Inventory)'의 원본도 레벨업 필요
+                SyncToMainInventory(enchantedItem);
+            }
+            else if (isEquipped)
+            {
+                // 만약 '인벤토리'에서 강화했다면 -> '장착창(HotBar)'의 아이템도 레벨업 필요
+                SyncToEquipmentSlot(enchantedItem);
+            }
+            // 플레이어 스탯 즉시 재계산 (굳이 뺐다 낄 필요 없음)
+            if (invName == HotBarInventoryName || isEquipped)
+                ReapplyAllEquipmentEffects();
+        }
+        private void SyncToMainInventory(InventoryItem equippedItem)
+        {
+            var mainInv = GetInventory(InventoryName);
+            
+            // 메인 인벤토리에서 같은 타입의 아이템을 찾음
+            var originalItem = mainInv.GetList().Find(x => 
+                x != null && !x.GetIsNull() && x.GetItemType() == equippedItem.GetItemType());
+
+            if (originalItem != null)
+            {
+                originalItem.SetEnhancementLevel(equippedItem.GetEnhancementLevel());
+                // UI 갱신
+                var uiManager = GetInventoryUIByName(InventoryName);
+                if (uiManager != null)
+                {
+                    uiManager.UpdateSlot(originalItem.GetPosition());
+                }
+                Debug.Log("[Sync] 메인 인벤토리 아이템 동기화 완료");
+            }
+            else
+                Debug.Log("서칭실패");
+        }
+        private void SyncToEquipmentSlot(InventoryItem inventoryItem)
+        {
+            var equipInv = GetInventory(HotBarInventoryName);
+
+            // 장착창에서 같은 타입의 아이템을 찾음
+            var equippedItem = equipInv.GetList().Find(x => 
+                x != null && !x.GetIsNull() && x.GetItemType() == inventoryItem.GetItemType());
+
+            if (equippedItem != null)
+            {
+                equippedItem.SetEnhancementLevel(inventoryItem.GetEnhancementLevel());
+                
+                // 장착창 UI 갱신 (레벨 숫자가 바뀌었을 테니)
+                var uiManager = GetInventoryUIByName(HotBarInventoryName);
+                if (uiManager != null)
+                {
+                    uiManager.UpdateSlot(equippedItem.GetPosition());
+                }
+                Debug.Log("[Sync] 장착창 아이템 동기화 완료");
+            }
+            else
+                Debug.Log("서칭실패");
+        }
     }
 }

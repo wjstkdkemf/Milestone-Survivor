@@ -23,13 +23,15 @@ public class GameOver : MonoBehaviour
         Instance = this;
     }
     private void OnDestroy()
-{
-    // 내가 현재 활성화된 인스턴스였다면, 파괴될 때 참조를 비워줌
-    if (Instance == this)
     {
-        Instance = null;
+        // 내가 현재 활성화된 인스턴스였다면, 파괴될 때 참조를 비워줌
+        if (Instance == this)
+        {
+            RequestPauseFalse();
+
+            Instance = null;
+        }
     }
-}
 
     public void GameEnded(bool IsWon = false)
     {
@@ -58,7 +60,7 @@ public class GameOver : MonoBehaviour
         TimerText.text = "Time: " + Timer.text;
         KillsText.text = "Kills: " + Kills.text;
         isOver = true;
-        GameManager.Instance.Pause = true;
+        GameManager.Instance.RequestPause(this, true);
         */
         if (isOver)
             return;
@@ -67,9 +69,16 @@ public class GameOver : MonoBehaviour
 
         if (WinnerButton != null)
             WinnerButton.SetActive(true);
+
         isOver = true;
+
         if (GameManager.Instance != null)
-            GameManager.Instance.Pause = true;
+            GameManager.Instance.RequestPause(this, true);
+    }
+    public void RequestPauseFalse()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.RequestPause(this, false);
     }
 
     public void stageClear(bool IsClear = false)

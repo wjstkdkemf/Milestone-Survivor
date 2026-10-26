@@ -55,6 +55,7 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
         TeleportManager.Instance.LoadData();
         GameProgressManager.Instance.LoadProgress();
         InventoryController.instance.init();
+        GameManager.Instance.ResetPause();
 
         Resources.UnloadUnusedAssets();
 
@@ -88,6 +89,8 @@ public class VillageSceneSetup : MonoBehaviour, ISceneInitializer
         }
 
         if (questUIManager != null) questUIManager.RefreshAllQuestUI();
+
+        GameManager.Instance.ResetPause();
 
         yield return new WaitForSeconds(0.5f); // 연출용 딜레이
     }

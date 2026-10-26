@@ -108,6 +108,9 @@ public class SkillCollisionManager : MonoBehaviour
 
             RemoveReservation.Clear();
         }
+        var gameManager = GameManager.Instance;
+        if (gameManager == null || !gameManager.CanProcessCombat)
+            return;
 
         int skillCount = activeSkills.Count;
         if (skillCount == 0 || !TryGetReadySwarm(out EnemySwarmSystem swarm)) return;

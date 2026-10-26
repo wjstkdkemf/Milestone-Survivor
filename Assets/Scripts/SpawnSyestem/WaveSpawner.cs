@@ -45,6 +45,7 @@ public class WaveSpawner : MonoBehaviour
     private bool isMassiveSpawning = false;
     private List<Enemy> activeEnemiesList = new List<Enemy>();
     private EnemyPlacementManager placementManager;
+    private StageClearController stageClearController;
 
     public void RegisterEnemy(Enemy enemy)
     {
@@ -108,6 +109,11 @@ public class WaveSpawner : MonoBehaviour
         {
             placementManager =
                 gameObject.AddComponent<EnemyPlacementManager>();
+        }
+        if (stageClearController == null)
+        {
+            stageClearController =
+                GetComponent<StageClearController>();
         }
 
         placementManager.Configure(
@@ -213,7 +219,7 @@ public class WaveSpawner : MonoBehaviour
 
         if (LastSpawn && GameManager.Instance.activeEnemies == 0 && !isClearingStage)
         {
-            StartCoroutine(ClearStageAfterItemCollection());
+            ClearStageAfterItemCollection();
             /*            // 몬스터가 다 잡혔는지 확인
             if (GameManager.Instance.activeEnemies <= 0)
             {
@@ -333,7 +339,9 @@ public class WaveSpawner : MonoBehaviour
         waveTimer = 0;
         spawnTimer = 0;
         LastSpawn = false;
+        stageClearController.CancelAndReset();
         isClearingStage = false;
+
         StopAllCoroutines(); // Stop any running coroutines like ClearStageAfterItemCollection
 
         isMassiveSpawning = false;
@@ -358,55 +366,10 @@ public class WaveSpawner : MonoBehaviour
         Debug.Log("몬스터 에셋 메모리 해제 완료 (전용 장부 기준).");
     }
 
-    private IEnumerator ClearStageAfterItemCollection()
+    private void ClearStageAfterItemCollection()
     {
         isClearingStage = true;
-        GameManager.Instance.AllKill = true;
-        GameManager.Instance.Heal = true;
-
-        PlayerXpPickup playerPickup = null;
-        GameObject playerObj = GameObject.FindWithTag("Player");
-
-        var retryDelay = new WaitForSeconds(0.5f);
-
-        if (playerObj != null)
-        {
-            playerPickup = playerObj.GetComponent<PlayerXpPickup>();
-        }
-
-        yield return retryDelay;
-
-        /*while (FindObjectsByType<XPCrystal>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<GoldCoin>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<ItemObject>(FindObjectsSortMode.None).Length > 0)
-        {
-            yield return null;
-        }*/
-        while (true)
-        {
-            if (playerPickup == null || !playerPickup.isActiveAndEnabled)
-            {
-                playerObj = GameObject.FindWithTag("Player");
-                playerPickup = playerObj != null
-                    ? playerObj.GetComponent<PlayerXpPickup>()
-                    : null;
-            }
-
-            if (playerPickup != null &&
-                playerPickup.isActiveAndEnabled &&
-                playerPickup.CollectEverything())
-            {
-                break;
-            }
-
-            yield return retryDelay;
-        }
-        GameManager.Instance.AllKill = false;
-
-        yield return new WaitForSeconds(1f);
-
-        if(GameOver.Instance != null)
-        {
-            GameOver.Instance.stageClear(true);
-        }
+        stageClearController.BeginClear();
     }
 
     public void GenerateWave()

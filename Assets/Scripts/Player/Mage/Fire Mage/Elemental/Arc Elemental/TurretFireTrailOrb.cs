@@ -26,7 +26,10 @@ public class TurretFireTrailOrb : FireTrailOrb
 
     protected override void Update()
     {
-        base.Update(); 
+        var gameManager = GameManager.Instance;
+        if (gameManager == null || !gameManager.CanProcessCombat)
+            return;
+        base.Update();
 
         fireTimer -= Time.deltaTime;
         if (fireTimer <= 0f && Time.timeScale > 0f)

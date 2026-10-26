@@ -27,6 +27,7 @@ public class DungeonSceneSetup : MonoBehaviour, ISceneInitializer
             Debug.LogWarning("[DungeonSceneSetup] CharacterSelection is missing on GameManager.");
         }
         GameManager.Instance.SearchPlayer();
+        GameManager.Instance.ResetPause();
         
         ObjectPoolingManager.Instance.PrewarmDamageText(100);
         

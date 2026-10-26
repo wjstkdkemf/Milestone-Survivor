@@ -22,6 +22,9 @@ public class Orb : SkillProjectileBase
     }
     protected virtual void Update()
     {
+        var gameManager = GameManager.Instance;
+        if (gameManager == null || !gameManager.CanProcessCombat)
+            return;
         // 1. 매 프레임 내 주변 적 검색 (초고속 연산)
         EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, trueHitRadius, enemiesInsideIndices);
 

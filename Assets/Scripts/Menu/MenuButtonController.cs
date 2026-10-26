@@ -17,6 +17,11 @@ public class MenuButtonController : MonoBehaviour
     {
         playerInputReader = FindObjectOfType<PlayerInputReader>();
     }
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.RequestPause(this, false);
+    }
     private void Update()
     {
         //if (Input.GetKeyDown(KeyCode.I)) ToggleMenu(inventoryPanel);
@@ -40,7 +45,7 @@ public class MenuButtonController : MonoBehaviour
         menuList.Add(menuToOpen);
         menuToOpen.SetActive(true);
 
-        GameManager.Instance.Pause = true;
+        GameManager.Instance.RequestPause(this, true);
     }
 
     public void ToggleMenu(GameObject menuToToggle)
@@ -70,7 +75,7 @@ public class MenuButtonController : MonoBehaviour
         }
         else
         {
-            GameManager.Instance.Pause = false;
+            GameManager.Instance.RequestPause(this, false);
         }
     }
 
@@ -81,7 +86,7 @@ public class MenuButtonController : MonoBehaviour
             menu.SetActive(false);
         }
         menuList.Clear();
-        GameManager.Instance.Pause = false;
+        GameManager.Instance.RequestPause(this, false);
     }
 
     private void HandleEscapeKey()

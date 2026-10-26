@@ -135,9 +135,14 @@ public class ChargerEnemy : Enemy
         {
             float t = 0;
             Vector3 startPos = transform.position;
-            
+            var gameManager = GameManager.Instance;
             while (t < 1.0f)
-            {
+            {          
+                if (gameManager == null || !gameManager.CanProcessCombat)//임시 수정본. 추후 구조자체를 바꿀수도있음
+                {
+                    yield return null;
+                    continue;
+                }
                 t += Time.deltaTime / chargeDuration;
                 transform.position = Vector3.Lerp(startPos, chargeTargetPos, t);
                 

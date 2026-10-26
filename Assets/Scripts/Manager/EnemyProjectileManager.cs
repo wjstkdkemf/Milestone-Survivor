@@ -72,6 +72,9 @@ public class EnemyProjectileManager : MonoBehaviour
                 activeProjectiles.RemoveAt(activeProjectiles.Count - 1);
             }
         }
+        var gameManager = GameManager.Instance;
+        if (gameManager == null || !gameManager.CanProcessCombat)
+            return;
 
         int count = activeProjectiles.Count;
         if (count == 0 ||
@@ -145,8 +148,16 @@ public class EnemyProjectileManager : MonoBehaviour
         List<int> sortedIndices = new List<int>(hitMap.Keys);
         sortedIndices.Sort((a, b) => b.CompareTo(a));
 
+        var gameManager = GameManager.Instance;
+
+        if (gameManager == null)
+            return;
+
         for (int i = 0; i < sortedIndices.Count; i++)
         {
+            if (gameManager == null || !gameManager.CanProcessCombat)
+                return;
+
             int index = sortedIndices[i];
             if (index < 0 || index >= activeProjectiles.Count)
                 continue;
