@@ -78,6 +78,10 @@ public class PlayerWeaponController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (Time.timeScale <= 0f)
+            return;
+
+
         foreach (WeaponBase weapon in activeWeapons)
             if (weapon != null && weapon.gameObject.activeInHierarchy) weapon.OnUpdate();
         foreach (WeaponBase weapon in WeaponsFromEquipment)

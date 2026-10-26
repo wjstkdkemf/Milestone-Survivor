@@ -58,24 +58,31 @@ public class ChainLightningWeapon : WeaponBase
     {
         Enemy firstTarget = EnemySwarmSystem.Instance.GetClosestEnemy(transform.position, currentInitialRange);
 
-        if (firstTarget != null)
+        if (firstTarget != null && FireFirstLightning(firstTarget))
         {
-            FireFirstLightning(firstTarget);
             cooldownTimer = GetCooldown(currentCooldownTime);
         }
     }
 
-    private void FireFirstLightning(Enemy target)
+    private bool FireFirstLightning(Enemy target)
     {
-        GameObject lightningObj = ObjectPoolingManager.Instance.spawnGameObject(
+        var pool = ObjectPoolingManager.Instance;
+        if (pool == null) return false;
+
+        GameObject lightningObj = pool.spawnGameObject(
             projectilePrefab, transform.position, Quaternion.identity
         );
 
-        if (lightningObj != null && lightningObj.TryGetComponent<ChainLightningProjectile>(out var chainSkill))
+        if (lightningObj == null) return false;
+        if (!lightningObj.TryGetComponent<ChainLightningProjectile>(out var chainSkill))
         {
-            long finalDamage = GetDamage();
-            chainSkill.Fire(target, finalDamage, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction , WeaponID);
+            pool.ReturnObjectToPool(lightningObj);
+            return false;
         }
+
+        long finalDamage = GetDamage();
+        chainSkill.Fire(target, finalDamage, currentProjectileSpeed, currentChainCount, currentChainRange, currentDamageReduction , WeaponID);
+        return true;
     }
     
     public long GetDamage()

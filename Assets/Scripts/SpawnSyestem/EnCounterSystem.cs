@@ -171,6 +171,8 @@ public class EnCounterSystem : MonoBehaviour
             RunStatisticsManager.Instance.AddClearedEncounter();
         }
 
+        GlobalEventManager.OnEncounterCleared?.Invoke();
+
         if (CurEncounter >= maxEncounter)
         {
             if (GameOver.Instance != null) GameOver.Instance.GameEnded(true);

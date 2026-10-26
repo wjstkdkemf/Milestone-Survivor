@@ -103,21 +103,25 @@ public class CelestialFireballWeapon : WeaponBase
             target = currentTarget;
         }
 
-        GameObject fireball = ObjectPoolingManager.Instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
+        var pool = ObjectPoolingManager.Instance;
+        if (pool == null) return;
 
-        if (fireball != null && fireball.TryGetComponent<CelestialFireballProjectile>(out var evoScript))
+        GameObject fireball = pool.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
+        if (fireball == null) return;
+        if (!fireball.TryGetComponent<CelestialFireballProjectile>(out var evoScript))
         {
-            long directDamage = GetDamage();
-            float finalTrailDamage = directDamage * trailDamageScaling;
-            float boomDamage = GetFireBoomDamage();
-
-            evoScript.Setup(
-                target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
-                LastFireBoomPrefab, boomDamage, lastFireBoomSize, chains, chainRange , WeaponID
-            );
-            
-            evoScript.damage = directDamage; // SkillProjectileBase 직격 데미지
+            pool.ReturnObjectToPool(fireball);
+            return;
         }
+
+        long directDamage = GetDamage();
+        float finalTrailDamage = directDamage * trailDamageScaling;
+        float boomDamage = GetFireBoomDamage();
+        evoScript.Setup(
+            target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance,
+            LastFireBoomPrefab, boomDamage, lastFireBoomSize, chains, chainRange , WeaponID
+        );
+        evoScript.damage = directDamage; // SkillProjectileBase 직격 데미지
 
         pendingBullets--;
         if (pendingBullets > 0) volleyTimer = 0.1f;

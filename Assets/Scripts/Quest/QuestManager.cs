@@ -60,12 +60,14 @@ public class QuestManager : MonoBehaviour
     {
         GlobalEventManager.OnEnemyKilled += HandleEnemyKilled;
         GlobalEventManager.OnEncounterCleared += HandleEncounterCleared;
+        GlobalEventManager.OnItemCollected += HandleItemCollected;
     }
 
     private void OnDisable()
     {
         GlobalEventManager.OnEnemyKilled -= HandleEnemyKilled;
         GlobalEventManager.OnEncounterCleared -= HandleEncounterCleared;
+        GlobalEventManager.OnItemCollected -= HandleItemCollected;
     }
 
     /// <summary>
@@ -161,7 +163,13 @@ public class QuestManager : MonoBehaviour
         ProcessEvent(QuestType.ClearEncounter, "", currentMainQuest);
         foreach (var quest in currentSubQuests) ProcessEvent(QuestType.ClearEncounter, "", quest);
     }
+    private void HandleItemCollected(string itemID)
+    {
+        ProcessEvent(QuestType.CollectItem, itemID, currentMainQuest);
 
+        foreach (var quest in currentSubQuests)
+            ProcessEvent(QuestType.CollectItem, itemID, quest);
+    }
     private void ProcessEvent(QuestType type, string targetID, QuestProgressData quest)
     {
         if (quest == null || quest.isCompleted) return;

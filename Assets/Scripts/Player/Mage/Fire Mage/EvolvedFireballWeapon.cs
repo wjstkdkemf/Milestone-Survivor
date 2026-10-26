@@ -91,15 +91,20 @@ public class EvolvedFireballWeapon : WeaponBase
             target = currentTarget;
         }
 
-        GameObject fireball = ObjectPoolingManager.Instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
+        var pool = ObjectPoolingManager.Instance;
+        if (pool == null) return;
 
-        if (fireball != null && fireball.TryGetComponent<EvolvedFireballProjectile>(out var evoScript))
+        GameObject fireball = pool.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
+        if (fireball == null) return;
+        if (!fireball.TryGetComponent<EvolvedFireballProjectile>(out var evoScript))
         {
-            long directDamage = GetDamage();
-            float finalTrailDamage = directDamage * trailDamageScaling;
-            
-            evoScript.SetupEvo(target.transform, projectileSpeed, trailPrefab, directDamage, finalTrailDamage, trailDuration, trailSpawnDistance , WeaponID);
+            pool.ReturnObjectToPool(fireball);
+            return;
         }
+
+        long directDamage = GetDamage();
+        float finalTrailDamage = directDamage * trailDamageScaling;
+        evoScript.SetupEvo(target.transform, projectileSpeed, trailPrefab, directDamage, finalTrailDamage, trailDuration, trailSpawnDistance , WeaponID);
 
         pendingBullets--;
 

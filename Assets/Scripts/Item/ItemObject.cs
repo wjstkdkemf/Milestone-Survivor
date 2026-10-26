@@ -79,6 +79,8 @@ public class ItemObject : MonoBehaviour
             ItemAddResult result = InventoryController.instance.AddItemWithResult("ClearInventory", itemData.itemName, 1);
             if (result.FullyProcessed)
             {
+                GlobalEventManager.OnItemCollected?.Invoke(itemData.itemName);
+                
                 Destroy(gameObject);
                 yield break;
             }
@@ -87,10 +89,5 @@ public class ItemObject : MonoBehaviour
         // A failed pickup remains available for another attempt.
         isCollecting = false;
         if (col != null) col.enabled = true;
-    }
-    private void DropGold()
-    {
-        if(PlayerStats.Instance != null)
-            PlayerStats.Instance.AddGold(itemData.price);
     }
 }

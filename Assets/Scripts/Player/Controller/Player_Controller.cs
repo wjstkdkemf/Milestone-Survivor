@@ -75,14 +75,15 @@ public class Player_Controller : MonoBehaviour
     private void Update()
     {
         if (inputReader == null) return;
-        if(StopMoving) return;
 
         Trail.emitting = Dashing;
         
         switch (state)
         {
             case State.Normal:
-                Vector2 inputMove = inputReader.MoveDirection;
+                Vector2 inputMove = StopMoving
+                                    ? Vector2.zero
+                                    : inputReader.MoveDirection;
                 
                 if (inputMove.x < 0)
                 {
@@ -107,7 +108,7 @@ public class Player_Controller : MonoBehaviour
                     if(haveAnimation) PlayerAnimator.SetBool("Moving",false); 
                 }
 
-                if (inputReader.DashPressed && dashCoolDown <= 0)
+                if (!StopMoving && inputReader.DashPressed && dashCoolDown <= 0)
                 {
                     dashCoolDown = cooltime;
                     dashDir = lastMoveDir;
@@ -161,7 +162,9 @@ public class Player_Controller : MonoBehaviour
         switch (state)
         {
             case State.Normal:
-                Vector2 myVelocity = moveDir * (1 + movmentSpeed / 100f);
+                Vector2 myVelocity = StopMoving
+                                    ? Vector2.zero
+                                    : moveDir * (1 + movmentSpeed / 100f);
                 
                 int count = Physics2D.OverlapCircleNonAlloc(transform.position, playerRadius, nearbyEnemies, enemyLayer);
                 Vector2 pushBackForce = Vector2.zero;

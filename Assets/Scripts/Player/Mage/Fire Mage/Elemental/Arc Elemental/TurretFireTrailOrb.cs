@@ -29,32 +29,31 @@ public class TurretFireTrailOrb : FireTrailOrb
         base.Update(); 
 
         fireTimer -= Time.deltaTime;
-        if (fireTimer <= 0f)
-        {
+        if (fireTimer <= 0f && Time.timeScale > 0f)
             TryFireProjectile();
-            fireTimer = fireRate;
-        }
     }
     private void TryFireProjectile()
     {
         Enemy target = EnemySwarmSystem.Instance.GetClosestEnemy(transform.position, fireRange);
-        if (target == null) return;
-
-        GameObject bullet = ObjectPoolingManager.Instance.spawnGameObject(projectilePrefab, transform.position, Quaternion.identity);
-
-        if (bullet != null && bullet.TryGetComponent<TurretBullet>(out var bulletSkill))
+        if (target == null)
         {
-            // 투사체의 방향 계산
-            Vector3 direction = (target.transform.position - transform.position).normalized;
-            
-            // TODO: 사장님의 투사체 스크립트에 맞게 초기화 함수를 호출하세요.
-            // 예: bulletSkill.Fire(direction, projectileDamage, projectileSpeed);
-            bulletSkill.Fire(target.transform.position, projectileSpeed , WeaponID);
-            bulletSkill.damage = (long)projectileDamage;
-            /*
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            bullet.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            */
+            fireTimer = fireRate;
+            return;
         }
+
+        var pool = ObjectPoolingManager.Instance;
+        if (pool == null) return;
+
+        GameObject bullet = pool.spawnGameObject(projectilePrefab, transform.position, Quaternion.identity);
+        if (bullet == null) return;
+        if (!bullet.TryGetComponent<TurretBullet>(out var bulletSkill))
+        {
+            pool.ReturnObjectToPool(bullet);
+            return;
+        }
+
+        bulletSkill.damage = (long)projectileDamage;
+        bulletSkill.Fire(target.transform.position, projectileSpeed , WeaponID);
+        fireTimer = fireRate;
     }
 }

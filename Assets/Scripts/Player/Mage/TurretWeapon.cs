@@ -18,6 +18,14 @@ public class TurretWeapon : WeaponBase
     private float cooldownTimer;       // 공격 쿨타임 계산용
     private float targetUpdateTimer;   // 타겟 검색 최적화용
     private Transform closestEnemyPosition;
+    // Keep retries isolated when a new volley overlaps an older one's delayed shots.
+    private sealed class VolleyState
+    {
+        public int PendingShots;
+        public bool Started;
+    }
+
+    private VolleyState waitingVolley;
 
     // 1. 초기화 (데이터 주입)
     public override void Initialize(WeaponDataSO data)
@@ -62,7 +70,7 @@ public class TurretWeapon : WeaponBase
             targetUpdateTimer = targetUpdateRate;
         }
 
-        if (closestEnemyPosition != null && cooldownTimer <= 0f)
+        if (closestEnemyPosition != null && cooldownTimer <= 0f && waitingVolley == null)
         {
             PerformAttack();
         }
@@ -70,14 +78,16 @@ public class TurretWeapon : WeaponBase
 
     private void PerformAttack()
     {
-        // 쿨타임 리셋
-        cooldownTimer = GetCooldown(currentCooldown);
+        if (currentBulletNumber <= 0) return;
+
+        var volley = new VolleyState { PendingShots = currentBulletNumber };
+        waitingVolley = volley;
         long finalDamage = GetDamage();
 
         // 발사 코루틴 시작
         for (int i = 0; i < currentBulletNumber; i++)
         {
-            StartCoroutine(ShootBullet(i * 0.1f , finalDamage));
+            StartCoroutine(ShootBullet(i * 0.1f , finalDamage, volley));
         }
     }
 
@@ -87,27 +97,59 @@ public class TurretWeapon : WeaponBase
         return CalculateDamage(currentDamage, currentScaling);
     }
 
-    IEnumerator ShootBullet(float delay , long damage)
+    IEnumerator ShootBullet(float delay , long damage, VolleyState volley)
     {
         yield return new WaitForSeconds(delay);
 
-        if (closestEnemyPosition != null && closestEnemyPosition.gameObject.activeInHierarchy) 
+        while (closestEnemyPosition != null && closestEnemyPosition.gameObject.activeInHierarchy)
         {
-            GameObject bullet = ObjectPoolingManager.Instance.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
-            
-            if (bullet != null && bullet.TryGetComponent<TurretBullet>(out var bulletSkill))
+            if (Time.timeScale <= 0f || !TryShootBullet(damage))
             {
-                bulletSkill.damage = damage;
-                bulletSkill.hitRadius = currentHitRadius;
-                bulletSkill.maxHits = currentMaxHits;
-                bulletSkill.speed = currentProjectileSpeed;
-                
-                // 총알 발사!
-                bulletSkill.Fire(closestEnemyPosition.position, currentProjectileSpeed, WeaponID);
-                weaponVisual.SetTarget(closestEnemyPosition);
-                PlayAttackMotion();
+                yield return null;
+                continue;
             }
+
+            if (!volley.Started)
+            {
+                cooldownTimer = GetCooldown(currentCooldown);
+                volley.Started = true;
+                waitingVolley = null;
+            }
+            break;
         }
+
+        volley.PendingShots--;
+        if (!volley.Started && volley.PendingShots == 0)
+            waitingVolley = null;
+    }
+
+    private bool TryShootBullet(long damage)
+    {
+        var pool = ObjectPoolingManager.Instance;
+        if (pool == null) return false;
+
+        GameObject bullet = pool.spawnGameObject(bulletPrefab, transform.position, Quaternion.identity);
+        if (bullet == null) return false;
+        if (!bullet.TryGetComponent<TurretBullet>(out var bulletSkill))
+        {
+            pool.ReturnObjectToPool(bullet);
+            return false;
+        }
+
+        bulletSkill.damage = damage;
+        bulletSkill.hitRadius = currentHitRadius;
+        bulletSkill.maxHits = currentMaxHits;
+        bulletSkill.speed = currentProjectileSpeed;
+        bulletSkill.Fire(closestEnemyPosition.position, currentProjectileSpeed, WeaponID);
+        if (weaponVisual != null) weaponVisual.SetTarget(closestEnemyPosition);
+        PlayAttackMotion();
+        return true;
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        waitingVolley = null;
     }
 
     void UpdateTarget()

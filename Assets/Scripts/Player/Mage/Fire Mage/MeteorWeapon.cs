@@ -6,6 +6,7 @@ public class MeteorWeapon : WeaponBase
 {
     private int currentMeteorNumber;
     private float currentCooldownTime;
+    private float playerDamageScaling;
     private float warningDuration;
     private float volleyDelay; 
     private float searchRadius;
@@ -32,6 +33,7 @@ public class MeteorWeapon : WeaponBase
             
             currentMeteorNumber = MeteorData.MeteorNumber;
             currentCooldownTime = MeteorData.baseCooldown;
+            playerDamageScaling = MeteorData.playerDamageScaling;
             warningDuration = MeteorData.warningDuration;
             volleyDelay = MeteorData.volleyDelay;
             searchRadius = MeteorData.range;
@@ -134,13 +136,20 @@ public class MeteorWeapon : WeaponBase
         }
         Vector3 target = currentTargets[currentTargets.Count - pendingMeteors];
 
-        GameObject meteorObj = ObjectPoolingManager.Instance.spawnGameObject(MeteorPrefab, target, Quaternion.identity);
-        if (meteorObj != null && meteorObj.TryGetComponent<Meteor>(out var meteorSkill))
+        var pool = ObjectPoolingManager.Instance;
+        if (pool == null) return;
+
+        GameObject meteorObj = pool.spawnGameObject(MeteorPrefab, target, Quaternion.identity);
+        if (meteorObj == null) return;
+        if (!meteorObj.TryGetComponent<Meteor>(out var meteorSkill))
         {
-            long finalDamage = GetDamage();
-            meteorSkill.warningDuration = this.warningDuration;
-            meteorSkill.Fire(target, finalDamage, currentHitRadius , WeaponID);
+            pool.ReturnObjectToPool(meteorObj);
+            return;
         }
+
+        long finalDamage = GetDamage();
+        meteorSkill.warningDuration = this.warningDuration;
+        meteorSkill.Fire(target, finalDamage, currentHitRadius , WeaponID);
 
         pendingMeteors--;
 
@@ -156,7 +165,7 @@ public class MeteorWeapon : WeaponBase
 
     public long GetDamage()
     {
-        return CalculateDamage(currentDamage);
+        return CalculateDamage(currentDamage, playerDamageScaling);
     }
 
     protected override void RecalculateLevelStats()

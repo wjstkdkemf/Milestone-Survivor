@@ -17,6 +17,7 @@ public class SpreadingFlameWeapon : WeaponBase
     private float spreadRadiusIncrease;
     private GameObject flameEffectPrefab;
     private float cooldownTimer;
+    private int pendingFlames;
     [SerializeField] private RangeCircleIndicator rangeIndicator;
 
     public override void Initialize(WeaponDataSO data)
@@ -44,6 +45,7 @@ public class SpreadingFlameWeapon : WeaponBase
         spreadRadiusIncrease = flameData.spreadRadiusIncrease;
         flameEffectPrefab = flameData.flameEffectPrefab;
         cooldownTimer = 0f;
+        pendingFlames = 0;
 
         attackMotion = flameData.attackMotion;
 
@@ -61,24 +63,32 @@ public class SpreadingFlameWeapon : WeaponBase
             return;
         }
 
-        AttachFlames();
-        cooldownTimer = GetCooldown(currentCooldown);
+        if (AttachFlames())
+            cooldownTimer = GetCooldown(currentCooldown);
     }
 
-    private void AttachFlames()
+    private bool AttachFlames()
     {
         EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, searchRadius, searchResults);
         BuildTargetCandidates();
 
-        int attachCount = Mathf.Min(flameCount, targetCandidates.Count);
+        if (pendingFlames == 0)
+            pendingFlames = Mathf.Min(flameCount, targetCandidates.Count);
+
+        int attachCount = Mathf.Min(pendingFlames, targetCandidates.Count);
         for (int i = 0; i < attachCount; i++)
         {
             int randomIndex = Random.Range(0, targetCandidates.Count);
             Enemy target = targetCandidates[randomIndex];
             targetCandidates.RemoveAt(randomIndex);
 
-            SpawnFlame(target);
+            if (!SpawnFlame(target)) return false;
+            pendingFlames--;
         }
+
+        // No eligible targets ends the volley; a failed spawn above keeps the remainder.
+        pendingFlames = 0;
+        return true;
     }
 
     private void BuildTargetCandidates()
@@ -98,10 +108,10 @@ public class SpreadingFlameWeapon : WeaponBase
         }
     }
 
-    private void SpawnFlame(Enemy target)
+    private bool SpawnFlame(Enemy target)
     {
         if (ObjectPoolingManager.Instance == null)
-            return;
+            return false;
 
         GameObject flameObj = ObjectPoolingManager.Instance.spawnGameObject(
             flameEffectPrefab,
@@ -110,16 +120,18 @@ public class SpreadingFlameWeapon : WeaponBase
         );
 
         if (flameObj == null)
-            return;
+            return false;
 
         if (flameObj.TryGetComponent<SpreadingFlameEffect>(out var flame))
         {
             long finalDamage = GetDamage();
             flame.Attach(target, finalDamage, flameDuration, tickInterval, spreadRadius, spreadDelay, WeaponID);
+            return true;
         }
         else
         {
             ObjectPoolingManager.Instance.ReturnObjectToPool(flameObj);
+            return false;
         }
     }
 

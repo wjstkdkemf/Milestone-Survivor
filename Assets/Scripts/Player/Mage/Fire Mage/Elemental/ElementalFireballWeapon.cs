@@ -99,19 +99,23 @@ public class ElementalFireballWeapon : WeaponBase
             target = currentTarget;
         }
 
-        GameObject fireball = ObjectPoolingManager.Instance.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
+        var pool = ObjectPoolingManager.Instance;
+        if (pool == null) return;
 
-        if (fireball != null && fireball.TryGetComponent<ElementalFireballProjectile>(out var evoScript))
+        GameObject fireball = pool.spawnGameObject(fireballPrefab, transform.position, Quaternion.identity);
+        if (fireball == null) return;
+        if (!fireball.TryGetComponent<ElementalFireballProjectile>(out var evoScript))
         {
-            long directDamage = GetDamage();
-            float finalTrailDamage = directDamage * trailDamageScaling;
-            float boomDamage = GetFireBoomDamage();
-            
-            evoScript.Setup(target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance, 
-                            LastFireBoomPrefab, boomDamage, lastFireBoomSize , WeaponID);
-            
-            evoScript.damage = directDamage; // 직격 딜 세팅
+            pool.ReturnObjectToPool(fireball);
+            return;
         }
+
+        long directDamage = GetDamage();
+        float finalTrailDamage = directDamage * trailDamageScaling;
+        float boomDamage = GetFireBoomDamage();
+        evoScript.Setup(target.transform, projectileSpeed, trailPrefab, finalTrailDamage, trailDuration, trailSpawnDistance,
+                        LastFireBoomPrefab, boomDamage, lastFireBoomSize , WeaponID);
+        evoScript.damage = directDamage; // 직격 딜 세팅
 
         pendingBullets--;
 

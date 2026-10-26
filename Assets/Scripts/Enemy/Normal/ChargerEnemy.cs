@@ -49,8 +49,8 @@ public class ChargerEnemy : Enemy
             chargeIndicator.sortingOrder = 10; 
             chargeIndicator.useWorldSpace = true;
         }
-        isChargingAction = false;
-        stopMoving = false;
+
+        recoveryCharge();
     }
 
     public override void ManualUpdate()
@@ -149,12 +149,18 @@ public class ChargerEnemy : Enemy
 
         yield return new WaitForSeconds(recoveryTime);
 
-        
+        recoveryCharge();
+
+    }
+    protected void recoveryCharge()
+    {
+        if (isChargingAction)
+            CantBeKnocked = previousCantBeKnocked;
+
         isChargingAction = false;
         stopMoving = false;
         coolDownTimer = coolDown; 
         useSwarmMovement = true;
-        CantBeKnocked = previousCantBeKnocked;
     }
 
     private void DamageAlongPath(Vector3 start, Vector3 end)
