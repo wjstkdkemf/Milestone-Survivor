@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5289c325deea0d8418bfa58a87a6f9ea, type: 3}
   m_Name: W_Evolved Fireball Data
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 0
+    mode: 0
+    valuePerLevel: 5
+  - stat: 4
+    mode: 0
+    valuePerLevel: 0.1
   weaponId: 2_Evolved
   weaponName:
     m_TableReference:

@@ -211,6 +211,41 @@ public class PlayerStatsCalculate : MonoBehaviour
         UpdatePlayerStats();
     }
 
+    public bool TryGetRealTimeBonus(
+        UpgradeScriptableObject.UpgradeType type,
+        BonusMode mode,
+        out float value)
+    {
+        value = 0f;
+        if (mode != BonusMode.Flat && mode != BonusMode.Percent)
+            return false;
+
+        bool isPercent = mode == BonusMode.Percent;
+        switch (type)
+        {
+            case UpgradeScriptableObject.UpgradeType.Stat_Might:
+                value = isPercent ? realTimePercentageDamage : realTimeDamage;
+                return true;
+            case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth:
+                value = isPercent ? realTimePercentageMaxHealth : realTimeMaxHealth;
+                return true;
+            case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed:
+                value = isPercent ? realTimePercentageSpeed : realTimeSpeed;
+                return true;
+            case UpgradeScriptableObject.UpgradeType.Stat_Heal:
+                value = isPercent ? realTimePercentageHealthRegen : realTimeHealthRegen;
+                return true;
+            case UpgradeScriptableObject.UpgradeType.Stat_Growth:
+                value = isPercent ? realTimePercentageExperienceBonus : realTimeExperienceBonus;
+                return true;
+            case UpgradeScriptableObject.UpgradeType.Stat_Cooldown:
+                value = isPercent ? realTimePercentageCooldownReduction : realTimeCooldownReduction;
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public void ResetBonuses()
     {
         powerUpDamage = 0;

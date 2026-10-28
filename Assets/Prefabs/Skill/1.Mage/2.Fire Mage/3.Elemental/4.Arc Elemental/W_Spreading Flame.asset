@@ -12,6 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02970029a3343a1438fcb5e5f6d03ab3, type: 3}
   m_Name: W_Spreading Flame
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 1
+    mode: 0
+    valuePerLevel: 1
+  - stat: 0
+    mode: 0
+    valuePerLevel: 2
+  - stat: 2
+    mode: 0
+    valuePerLevel: 0.5
   weaponId: 4_Spread
   weaponName:
     m_TableReference:
@@ -47,9 +57,6 @@ MonoBehaviour:
   spreadDelay: 0
   damagePerTick: 5
   flameEffectPrefab: {fileID: 2570127432386111287, guid: 4749923e4c3de854e9caa52c13d00522, type: 3}
-  flameCountIncrease: 1
-  damageIncrease: 2
-  spreadRadiusIncrease: 0.5
   references:
     version: 2
     RefIds: []

@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64cadf1c7f59ba746868fc34d419ffa8, type: 3}
   m_Name: W_Orb Data
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 1
+    mode: 0
+    valuePerLevel: 1
   weaponId: 2_Orb
   weaponName:
     m_TableReference:

@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 164a633abf62bf44ebc19fd9353ed083, type: 3}
   m_Name: W_Barrier Data
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 5
+    mode: 0
+    valuePerLevel: -0.5
+  - stat: 6
+    mode: 0
+    valuePerLevel: 2
   weaponName: Barrier
   icon: {fileID: 6157748173069639754, guid: 315906bd04ec2314cbfcfb9d4fa8e3c1, type: 3}
   description: 

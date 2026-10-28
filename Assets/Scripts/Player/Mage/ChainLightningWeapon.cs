@@ -93,26 +93,32 @@ public class ChainLightningWeapon : WeaponBase
     protected override void RecalculateLevelStats()
     {
         if (!(myData is ChainLightningDataSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        currentDamage = data.baseDamage + 3L * upgrades;
-        currentChainCount = Mathf.Min(data.chainCount + upgrades, Mathf.Max(5, data.chainCount));
+        currentDamage = CalculateLevelDamage(data.baseDamage, CurrentLevel);
+        currentChainCount = CalculateChainCount(data, CurrentLevel);
         DevLog.Log($"[Chain Lightning Level Up] 데미지: {currentDamage}, 체인 횟수: {currentChainCount}");
+    }
+
+    private int CalculateChainCount(ChainLightningDataSO data, int level)
+    {
+        return Mathf.Min(CalculateCount(SkillStatType.ChainCount, data.chainCount, level),
+            Mathf.Max(5, data.chainCount));
     }
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+        if (!(myData is ChainLightningDataSO data)) return preview;
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
             currentDamage.ToString(),
-            (currentDamage + 3L).ToString()
+            CalculateLevelDamage(data.baseDamage, CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.chain_count",
             currentChainCount.ToString(),
-            Mathf.Min(currentChainCount + 1, 5).ToString()
+            CalculateChainCount(data, CurrentLevel + 1).ToString()
         ));
 
         return preview;

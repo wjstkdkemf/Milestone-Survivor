@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac7e9f83c93e78b4baf918e216076b9f, type: 3}
   m_Name: W_Meteor Data
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 0
+    mode: 0
+    valuePerLevel: 2
+  - stat: 1
+    mode: 0
+    valuePerLevel: 1
   weaponId: 2_Meteor
   weaponName:
     m_TableReference:

@@ -12,9 +12,4 @@ public class SpreadingFlameDataSO : WeaponDataSO
     public float spreadDelay = 0f;
     public long damagePerTick = 5;
     public GameObject flameEffectPrefab;
-
-    [Header("Level Up")]
-    public int flameCountIncrease = 1;
-    public long damageIncrease = 2;
-    public float spreadRadiusIncrease = 0.5f;
 }

@@ -162,9 +162,8 @@ public class TurretWeapon : WeaponBase
     protected override void RecalculateLevelStats()
     {
         if (!(myData is TurretWeaponDataSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        currentBulletNumber = data.bulletNumber + upgrades;
-        currentDamage = data.baseDamage + 2L * upgrades;
+        currentBulletNumber = CalculateCount(SkillStatType.ProjectileCount, data.bulletNumber, CurrentLevel);
+        currentDamage = CalculateLevelDamage(data.baseDamage, CurrentLevel);
         
         DevLog.Log($"[Turret Level Up] 총알: {currentBulletNumber}, 데미지: {currentDamage}");
     }
@@ -172,17 +171,18 @@ public class TurretWeapon : WeaponBase
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+        if (!(myData is TurretWeaponDataSO data)) return preview;
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.amount",
             currentBulletNumber.ToString(),
-            (currentBulletNumber + 1).ToString()
+            CalculateCount(SkillStatType.ProjectileCount, data.bulletNumber, CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
             currentDamage.ToString(),
-            (currentDamage + 2).ToString()
+            CalculateLevelDamage(data.baseDamage, CurrentLevel + 1).ToString()
         ));
 
         return preview;

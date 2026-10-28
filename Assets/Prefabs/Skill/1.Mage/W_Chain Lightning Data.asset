@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 011a3dd9c90c3bf4ca75c4402ded635e, type: 3}
   m_Name: W_Chain Lightning Data
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 0
+    mode: 0
+    valuePerLevel: 3
+  - stat: 3
+    mode: 0
+    valuePerLevel: 1
   weaponId: 1_Chain
   weaponName:
     m_TableReference:

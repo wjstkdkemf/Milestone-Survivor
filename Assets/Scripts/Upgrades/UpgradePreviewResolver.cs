@@ -4,44 +4,36 @@ using UnityEngine;
 public class UpgradePreviewResolver : MonoBehaviour
 {
     [SerializeField] private PlayerWeaponController weaponManager;
-    [SerializeField] private PlayerStats playerStats;
-
-    private void Start()
-    {
-        playerStats = PlayerStats.Instance;
-    }
 
     public UpgradePreviewData Resolve(UpgradeScriptableObject upgrade)
     {
         if (upgrade == null)
             return null;
 
-        if (upgrade.upgradeType == UpgradeScriptableObject.UpgradeType.Weapon &&
-            upgrade.linkedWeaponData != null &&
+        if (upgrade.IsWeaponUpgrade &&
             weaponManager != null &&
-            weaponManager.TryGetWeapon(upgrade.linkedWeaponData, out WeaponBase weapon))
+            weaponManager.TryGetWeapon(upgrade.linkedWeaponData, out WeaponBase weapon, includeEquipmentWeapons: true))
         {
             return weapon.GetUpgradePreview(upgrade);
         }
 
-        return UpgradePreviewFactory.CreateFallbackPreview(upgrade, playerStats);
+        return UpgradePreviewFactory.CreateFallbackPreview(upgrade);
     }
 }
 
 public static class UpgradePreviewFactory
 {
-    public static UpgradePreviewData CreateFallbackPreview(UpgradeScriptableObject upgrade, PlayerStats playerStats)
+    public static UpgradePreviewData CreateFallbackPreview(UpgradeScriptableObject upgrade)
     {
         if (upgrade == null)
             return null;
 
-        if (upgrade.upgradeType == UpgradeScriptableObject.UpgradeType.Weapon &&
-            upgrade.linkedWeaponData != null)
+        if (upgrade.IsWeaponUpgrade)
         {
             return CreateNewWeaponPreview(upgrade);
         }
 
-        return CreateStatPreview(upgrade, playerStats);
+        return CreateStatPreview(upgrade);
     }
 
     private static UpgradePreviewData CreateNewWeaponPreview(UpgradeScriptableObject upgrade)
@@ -56,44 +48,116 @@ public static class UpgradePreviewFactory
             true,
             true
         ));
-        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.damage", "-", weaponData.baseDamage.ToString()));
-        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.cooldown", "-", weaponData.baseCooldown.ToString("0.##")));
-        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.area", "-", weaponData.hitRadius.ToString("0.##")));
         preview.Lines.Add(new UpgradePreviewLine(
-            "upgrade.stat.max_hits",
-            "-",
-            FormatMaxHits(weaponData.maxHits),
-            false,
-            weaponData.maxHits < 0
+            "upgrade.stat.level",
+            "upgrade.value.unowned",
+            "Lv.1",
+            true
         ));
-        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.projectile_speed", "-", weaponData.projectileSpeed.ToString("0.##")));
+
+        AddInitialWeaponStats(preview, weaponData);
 
         return preview;
     }
 
-    private static UpgradePreviewData CreateStatPreview(UpgradeScriptableObject upgrade, PlayerStats playerStats)
+    private static void AddInitialWeaponStats(UpgradePreviewData preview, WeaponDataSO data)
     {
-        UpgradePreviewData preview = CreateBasePreview(upgrade);
+        const int firstLevel = 1;
 
-        switch (upgrade.upgradeType)
+        // Initial values come from the SO, never from a temporary weapon instance.
+        if (data is BarrierDataSO barrier)
         {
-            case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed:
-                AddStatLine(preview, "upgrade.stat.move_speed", playerStats != null ? playerStats.SpeedBonus : 0f, upgrade.statValue);
+            AddInitialValue(preview, "upgrade.stat.charge_time",
+                WeaponBase.CalculateLevelStat(data, SkillStatType.ChargeTime, barrier.chargeTime, firstLevel));
+            AddInitialValue(preview, "upgrade.stat.knockback_force",
+                WeaponBase.CalculateLevelStat(data, SkillStatType.KnockbackForce, barrier.knockbackForce, firstLevel));
+            AddInitialValue(preview, "upgrade.stat.area", barrier.knockbackRadius);
+            return;
+        }
+
+        long baseDamage = data is SpreadingFlameDataSO flame ? flame.damagePerTick : data.baseDamage;
+        preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.damage", "-",
+            WeaponBase.CalculateLevelDamage(data, baseDamage, firstLevel).ToString()));
+
+        switch (data)
+        {
+            case OrbWeaponDataSO orb:
+                AddInitialCount(preview, data, "upgrade.stat.orb_count", SkillStatType.ProjectileCount, orb.orbCount);
+                AddInitialValue(preview, "upgrade.stat.orbit_area", orb.radius);
+                return;
+            case AuraDataSO aura:
+                AddInitialValue(preview, "upgrade.stat.area",
+                    WeaponBase.CalculateLevelStat(data, SkillStatType.Radius, aura.baseRadius, firstLevel));
+                return;
+            case SpreadingFlameDataSO spreading:
+                AddInitialCount(preview, data, "upgrade.stat.amount", SkillStatType.ProjectileCount, Mathf.Max(1, spreading.flameCount));
+                AddInitialValue(preview, "upgrade.stat.area",
+                    WeaponBase.CalculateLevelStat(data, SkillStatType.Radius, spreading.spreadRadius, firstLevel));
+                AddInitialValue(preview, "upgrade.stat.cooldown", Mathf.Max(0.1f, spreading.baseCooldown));
+                return;
+            case TurretWeaponDataSO turret:
+                AddInitialCount(preview, data, "upgrade.stat.amount", SkillStatType.ProjectileCount, turret.bulletNumber);
+                AddInitialValue(preview, "upgrade.stat.area", data.hitRadius);
+                preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.max_hits", "-",
+                    FormatMaxHits(data.maxHits), false, data.maxHits < 0));
                 break;
-            case UpgradeScriptableObject.UpgradeType.Stat_Might:
-                AddStatLine(preview, "upgrade.stat.damage", playerStats != null ? playerStats.DamageBonus : 0f, upgrade.statValue);
+            case MeteorWeaponSO meteor:
+                AddInitialCount(preview, data, "upgrade.stat.amount", SkillStatType.ProjectileCount, meteor.MeteorNumber);
+                AddInitialValue(preview, "upgrade.stat.explosion_area", data.hitRadius);
+                AddInitialValue(preview, "upgrade.stat.cooldown", data.baseCooldown);
+                return;
+            case ChainLightningDataSO chain:
+                AddInitialCount(preview, data, "upgrade.stat.chain_count", SkillStatType.ChainCount, chain.chainCount);
                 break;
-            case UpgradeScriptableObject.UpgradeType.Stat_Cooldown:
-                AddStatLine(preview, "upgrade.stat.cooldown_reduction", playerStats != null ? playerStats.cooldownReduction : 0f, upgrade.statValue);
+            case EvolvedFireballDataSO evolved:
+                AddInitialValue(preview, "upgrade.stat.amount", evolved.bulletNumber);
                 break;
-            case UpgradeScriptableObject.UpgradeType.Stat_Growth:
-                AddStatLine(preview, "upgrade.stat.growth", playerStats != null ? playerStats.experienceBonus : 0f, upgrade.statValue);
+            case ElementalFireballSO elemental:
+                AddInitialValue(preview, "upgrade.stat.amount", elemental.bulletNumber);
+                AddInitialValue(preview, "upgrade.stat.explosion_area", elemental.FireBoomSize);
                 break;
-            default:
-                preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.effect", "-", FormatSigned(upgrade.statValue)));
+            case CelestialFireballSO celestial:
+                AddInitialValue(preview, "upgrade.stat.amount", celestial.bulletNumber);
+                AddInitialValue(preview, "upgrade.stat.chain_count", celestial.chainCount);
+                AddInitialValue(preview, "upgrade.stat.explosion_area", celestial.FireBoomSize);
                 break;
         }
 
+        AddInitialValue(preview, "upgrade.stat.cooldown", data.baseCooldown);
+        AddInitialValue(preview, "upgrade.stat.projectile_speed", data.projectileSpeed);
+    }
+
+    private static void AddInitialValue(UpgradePreviewData preview, string statName, float value)
+    {
+        preview.Lines.Add(new UpgradePreviewLine(statName, "-", value.ToString("0.##")));
+    }
+
+    private static void AddInitialCount(UpgradePreviewData preview, WeaponDataSO data,
+        string statName, SkillStatType stat, int baseCount)
+    {
+        preview.Lines.Add(new UpgradePreviewLine(statName, "-",
+            WeaponBase.CalculateCount(data, stat, baseCount, 1).ToString()));
+    }
+
+    private static UpgradePreviewData CreateStatPreview(UpgradeScriptableObject upgrade)
+    {
+        UpgradePreviewData preview = CreateBasePreview(upgrade);
+        string statName = GetStatBonusName(upgrade.upgradeType);
+        var calculator = PlayerStatsCalculate.Instance;
+
+        if (calculator == null ||
+            !calculator.TryGetRealTimeBonus(upgrade.upgradeType, upgrade.bonusMode, out float current))
+        {
+            // Missing state or an unsupported card is not a known zero bonus.
+            preview.Lines.Add(new UpgradePreviewLine(statName, "-", "-"));
+            return preview;
+        }
+
+        preview.Lines.Add(new UpgradePreviewLine(
+            statName,
+            FormatStatBonus(current, upgrade),
+            FormatStatBonus(current + upgrade.statValue, upgrade)
+        ));
         return preview;
     }
 
@@ -106,18 +170,27 @@ public static class UpgradePreviewFactory
         };
     }
 
-    private static void AddStatLine(UpgradePreviewData preview, string statName, float current, float addValue)
+    private static string GetStatBonusName(UpgradeScriptableObject.UpgradeType type)
     {
-        preview.Lines.Add(new UpgradePreviewLine(
-            statName,
-            current.ToString("0.##"),
-            (current + addValue).ToString("0.##")
-        ));
+        switch (type)
+        {
+            case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed: return "upgrade.stat.move_speed_bonus";
+            case UpgradeScriptableObject.UpgradeType.Stat_Might: return "upgrade.stat.damage_bonus";
+            case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth: return "upgrade.stat.max_health_bonus";
+            case UpgradeScriptableObject.UpgradeType.Stat_Heal: return "upgrade.stat.health_regen_bonus";
+            case UpgradeScriptableObject.UpgradeType.Stat_Cooldown: return "upgrade.stat.cooldown_bonus";
+            case UpgradeScriptableObject.UpgradeType.Stat_Growth: return "upgrade.stat.growth_bonus";
+            default: return "upgrade.stat.effect";
+        }
     }
 
-    private static string FormatSigned(float value)
+    private static string FormatStatBonus(float value, UpgradeScriptableObject upgrade)
     {
-        return value >= 0f ? $"+{value:0.##}" : value.ToString("0.##");
+        string suffix = upgrade.bonusMode == BonusMode.Percent
+            ? "%"
+            : upgrade.upgradeType == UpgradeScriptableObject.UpgradeType.Stat_Cooldown ? "%p" : "";
+        string number = value > 0f ? $"+{value:0.##}" : value.ToString("0.##");
+        return number + suffix;
     }
 
     private static string FormatMaxHits(int maxHits)

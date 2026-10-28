@@ -15,14 +15,36 @@ MonoBehaviour:
   Icon: {fileID: 2788568348960109317, guid: 53136b053bc308240841e42ac6c29f7b, type: 3}
   Title: Orbs
   Description: 
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   TitleLocalizationKey: skill.title.orb
-  DescriptionLocalizationKey:
+  DescriptionLocalizationKey: 
   Grade: 0
   Points: 0
   MaxPoints: 5
   UpgradesList: []
   Chance: 20
-  InitialChance: 0
+  InitialChance: 20
   linkedWeaponData: {fileID: 11400000, guid: a0682e8460a0ff940a4192078b91e70e, type: 2}
   upgradeType: 0
+  bonusMode: 0
   statValue: 0
+  references:
+    version: 2
+    RefIds: []

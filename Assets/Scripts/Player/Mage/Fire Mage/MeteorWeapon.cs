@@ -171,25 +171,25 @@ public class MeteorWeapon : WeaponBase
     protected override void RecalculateLevelStats()
     {
         if (!(myData is MeteorWeaponSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        currentMeteorNumber = data.MeteorNumber + upgrades;
-        currentDamage = data.baseDamage + 2L * upgrades;
+        currentMeteorNumber = CalculateCount(SkillStatType.ProjectileCount, data.MeteorNumber, CurrentLevel);
+        currentDamage = CalculateLevelDamage(data.baseDamage, CurrentLevel);
     }
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+        if (!(myData is MeteorWeaponSO data)) return preview;
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.amount",
             currentMeteorNumber.ToString(),
-            (currentMeteorNumber + 1).ToString()
+            CalculateCount(SkillStatType.ProjectileCount, data.MeteorNumber, CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
             currentDamage.ToString(),
-            (currentDamage + 2).ToString()
+            CalculateLevelDamage(data.baseDamage, CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(

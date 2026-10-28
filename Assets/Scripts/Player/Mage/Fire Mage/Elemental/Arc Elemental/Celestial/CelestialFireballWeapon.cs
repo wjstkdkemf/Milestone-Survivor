@@ -141,9 +141,8 @@ public class CelestialFireballWeapon : WeaponBase
     protected override void RecalculateLevelStats()
     {
         if (!(myData is CelestialFireballSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        currentDamage = data.baseDamage + 5L * upgrades;
-        trailDamageScaling = data.trailDamageScaling + 0.1f * upgrades;
+        currentDamage = CalculateLevelDamage(data.baseDamage, CurrentLevel);
+        trailDamageScaling = CalculateLevelStat(SkillStatType.TrailDamageScaling, data.trailDamageScaling, CurrentLevel);
         DevLog.Log($"[Evo Fireball Level Up] 직격뎀: {currentDamage}, 장판계수: {trailDamageScaling}");
     }
 }

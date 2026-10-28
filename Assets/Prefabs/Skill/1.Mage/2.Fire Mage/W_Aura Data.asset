@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6bbfce9747437f478efdbffb9f88139, type: 3}
   m_Name: W_Aura Data
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 0
+    mode: 0
+    valuePerLevel: 2
+  - stat: 2
+    mode: 0
+    valuePerLevel: 1.5
   weaponId: 2_Aura
   weaponName:
     m_TableReference:

@@ -123,26 +123,20 @@ public class OrbWeapon : WeaponBase // 부모 클래스 변경
     protected override void RecalculateLevelStats()
     {
         if (!(myData is OrbWeaponDataSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        currentOrbCount = data.orbCount + upgrades;
+        currentOrbCount = CalculateCount(SkillStatType.ProjectileCount, data.orbCount, CurrentLevel);
         SpawnOrbs();
     }
 
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+        if (!(myData is OrbWeaponDataSO data)) return preview;
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.orb_count",
             currentOrbCount.ToString(),
-            (currentOrbCount + 1).ToString()
+            CalculateCount(SkillStatType.ProjectileCount, data.orbCount, CurrentLevel + 1).ToString()
         ));
-
-        /*preview.Lines.Add(new UpgradePreviewLine(
-            "upgrade.stat.damage",
-            currentDamage.ToString(),
-            (currentDamage + 1).ToString()
-        ));*/
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.orbit_area",

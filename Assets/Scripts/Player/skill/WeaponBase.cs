@@ -57,13 +57,13 @@ public abstract class WeaponBase : MonoBehaviour
         preview.ShortDescription = upgrade != null ? upgrade.GetCurrentShortDescription() : "";
         preview.Description = upgrade != null ? upgrade.GetCurrentDescription() : string.Empty;
 
-        preview.Lines.Add(new UpgradePreviewLine(
+        /*preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.status",
             "upgrade.value.equipped",
             "upgrade.value.upgrade",
             true,
             true
-        ));
+        ));*/
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.level",
@@ -85,6 +85,79 @@ public abstract class WeaponBase : MonoBehaviour
             : 0L;
 
         return baseDamage + (long)(attack * attackScaling);
+    }
+    protected float CalculateLevelStat(SkillStatType stat,
+                                        float baseValue,
+                                        int level)
+    {
+        return CalculateLevelStat(myData, stat, baseValue, level);
+    }
+
+    public static float CalculateLevelStat(WeaponDataSO data, SkillStatType stat, float baseValue, int level)
+    {
+        GetLevelGrowth(data, stat, level, out float flat, out float percent);
+        return (baseValue + flat) * (1f + percent * 0.01f);
+    }
+
+    protected long CalculateLevelDamage(long baseDamage, int level)
+    {
+        return CalculateLevelDamage(myData, baseDamage, level);
+    }
+
+    public static long CalculateLevelDamage(WeaponDataSO data, long baseDamage, int level)
+    {
+        GetLevelGrowth(data, SkillStatType.Damage, level, out float flat, out float percent);
+
+        // Keep the long base damage exact instead of narrowing it to float.
+        decimal result = (baseDamage + (decimal)flat) * (1m + (decimal)percent * 0.01m);
+        if (result >= long.MaxValue) return long.MaxValue;
+        return result <= 0m ? 0L : (long)result;
+    }
+
+    private static void GetLevelGrowth(WeaponDataSO data, SkillStatType stat, int level, out float flat, out float percent)
+    {
+        int growthCount = Mathf.Max(0, level - 1);
+        flat = 0f;
+        percent = 0f;
+
+        var rules = data.GrowthRules;
+
+        if (rules != null)
+        {
+            foreach (var rule in rules)
+            {
+                if (rule.stat != stat)
+                    continue;
+
+                float growth = rule.valuePerLevel * growthCount;
+
+                switch (rule.mode)
+                {
+                    case BonusMode.Flat:
+                        flat += growth;
+                        break;
+
+                    case BonusMode.Percent:
+                        percent += growth;
+                        break;
+                }
+            }
+        }
+    }
+
+    protected int CalculateCount(SkillStatType stat,
+                                int baseCount,
+                                int level)
+    {
+        return CalculateCount(myData, stat, baseCount, level);
+    }
+
+    public static int CalculateCount(WeaponDataSO data, SkillStatType stat, int baseCount, int level)
+    {
+        float result = CalculateLevelStat(data, stat, baseCount, level);
+
+        if (result >= int.MaxValue) return int.MaxValue;
+        return Mathf.FloorToInt(Mathf.Max(0f, result));
     }
     protected virtual void RefreshDamage()
     {

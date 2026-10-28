@@ -34,6 +34,10 @@ public class WeaponDataSO : ScriptableObject
     // 필요한 데이터들을 여기에 추가하면 기획자가 밸런스 잡기 좋습니다.
     [Header("스킬 애니메이션 정보")]
     public WeaponMotionData attackMotion;
+    [Header("Level Growth")]
+    [SerializeField]
+    private List<SkillGrowthRule> growthRules = new List<SkillGrowthRule>();
+    public IReadOnlyList<SkillGrowthRule> GrowthRules => growthRules;
 }
 
 public enum WeaponVisualMode

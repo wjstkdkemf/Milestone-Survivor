@@ -191,7 +191,7 @@ public class UpgradeManager : MonoBehaviour
         chosenUpgrade.Points++;
 
         // 무기인가? 패시브 스탯인가?
-        if (chosenUpgrade.linkedWeaponData != null)
+        if (chosenUpgrade.IsWeaponUpgrade)
         {
             // 무기라면
             if (playerWeaponController != null)
@@ -252,6 +252,9 @@ public class UpgradeManager : MonoBehaviour
 
     private bool CheckJobRequirements(JobDataSO job)
     {
+        if(job == null)
+            return false;
+
         foreach (JobDataSO.JobRequirement req in job.requirements)
         {
             // 플레이어가 해당 업그레이드 카드를 가지고 있는지 확인

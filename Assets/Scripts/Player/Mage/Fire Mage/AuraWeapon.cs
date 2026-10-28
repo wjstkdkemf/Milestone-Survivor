@@ -78,9 +78,8 @@ public class AuraWeapon : WeaponBase
     protected override void RecalculateLevelStats()
     {
         if (!(myData is AuraDataSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        currentDamage = data.baseDamage + 2L * upgrades;
-        currentRadius = data.baseRadius + 1.5f * upgrades;
+        currentDamage = CalculateLevelDamage(data.baseDamage, CurrentLevel);
+        currentRadius = CalculateLevelStat(SkillStatType.Radius, data.baseRadius, CurrentLevel);
 
         if (auraScript != null)
         {
@@ -97,17 +96,18 @@ public class AuraWeapon : WeaponBase
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+        if (!(myData is AuraDataSO data)) return preview;
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
             currentDamage.ToString(),
-            (currentDamage + 2).ToString()
+            CalculateLevelDamage(data.baseDamage, CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.area",
             currentRadius.ToString("0.##"),
-            (currentRadius + 1.5f).ToString("0.##")
+            CalculateLevelStat(SkillStatType.Radius, data.baseRadius, CurrentLevel + 1).ToString("0.##")
         ));
 
         return preview;

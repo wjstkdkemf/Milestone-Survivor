@@ -165,9 +165,9 @@ public class BarrierWeapon : WeaponBase
     protected override void RecalculateLevelStats()
     {
         if (!(myData is BarrierDataSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        currentChargeTimeLimit = upgrades == 0 ? data.chargeTime : Mathf.Max(1f, data.chargeTime - 0.5f * upgrades);
-        currentKnockbackForce = data.knockbackForce + 2f * upgrades;
+        float chargeTime = CalculateLevelStat(SkillStatType.ChargeTime, data.chargeTime, CurrentLevel);
+        currentChargeTimeLimit = CurrentLevel <= 1 ? chargeTime : Mathf.Max(1f, chargeTime);
+        currentKnockbackForce = CalculateLevelStat(SkillStatType.KnockbackForce, data.knockbackForce, CurrentLevel);
         DevLog.Log($"[Barrier Level Up] 대기시간: {currentChargeTimeLimit}, 넉백파워: {currentKnockbackForce}");
     }
 }

@@ -12,9 +12,6 @@ public class SpreadingFlameWeapon : WeaponBase
     private float tickInterval;
     private float spreadRadius;
     private float spreadDelay;
-    private int flameCountIncrease;
-    private long damageIncrease;
-    private float spreadRadiusIncrease;
     private GameObject flameEffectPrefab;
     private float cooldownTimer;
     private int pendingFlames;
@@ -40,9 +37,6 @@ public class SpreadingFlameWeapon : WeaponBase
         spreadDelay = Mathf.Max(0f, flameData.spreadDelay);
         currentCooldown = Mathf.Max(0.1f, flameData.baseCooldown);
         currentDamage = flameData.damagePerTick;
-        flameCountIncrease = Mathf.Max(1, flameData.flameCountIncrease);
-        damageIncrease = flameData.damageIncrease;
-        spreadRadiusIncrease = flameData.spreadRadiusIncrease;
         flameEffectPrefab = flameData.flameEffectPrefab;
         cooldownTimer = 0f;
         pendingFlames = 0;
@@ -143,10 +137,9 @@ public class SpreadingFlameWeapon : WeaponBase
     protected override void RecalculateLevelStats()
     {
         if (!(myData is SpreadingFlameDataSO data)) return;
-        int upgrades = CurrentLevel - 1;
-        flameCount = Mathf.Max(1, data.flameCount) + flameCountIncrease * upgrades;
-        currentDamage = data.damagePerTick + damageIncrease * upgrades;
-        spreadRadius = data.spreadRadius + spreadRadiusIncrease * upgrades;
+        flameCount = CalculateCount(SkillStatType.ProjectileCount, Mathf.Max(1, data.flameCount), CurrentLevel);
+        currentDamage = CalculateLevelDamage(data.damagePerTick, CurrentLevel);
+        spreadRadius = CalculateLevelStat(SkillStatType.Radius, data.spreadRadius, CurrentLevel);
 
         SetupRangeIndicator();
     }
@@ -154,23 +147,24 @@ public class SpreadingFlameWeapon : WeaponBase
     public override UpgradePreviewData GetUpgradePreview(UpgradeScriptableObject upgrade)
     {
         UpgradePreviewData preview = base.GetUpgradePreview(upgrade);
+        if (!(myData is SpreadingFlameDataSO data)) return preview;
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.amount",
             flameCount.ToString(),
-            (flameCount + flameCountIncrease).ToString()
+            CalculateCount(SkillStatType.ProjectileCount, Mathf.Max(1, data.flameCount), CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
             currentDamage.ToString(),
-            (currentDamage + damageIncrease).ToString()
+            CalculateLevelDamage(data.damagePerTick, CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.area",
             spreadRadius.ToString("0.##"),
-            (spreadRadius + spreadRadiusIncrease).ToString("0.##")
+            CalculateLevelStat(SkillStatType.Radius, data.spreadRadius, CurrentLevel + 1).ToString("0.##")
         ));
 
         return preview;

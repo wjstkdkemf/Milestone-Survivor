@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e34eabbecf79fb4e8ec5f3c2e10edbc, type: 3}
   m_Name: W_Turret Fire Trail Orb
   m_EditorClassIdentifier: 
+  growthRules:
+  - stat: 1
+    mode: 0
+    valuePerLevel: 1
   weaponId: 4_Orb
   weaponName:
     m_TableReference:

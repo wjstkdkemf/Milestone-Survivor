@@ -22,8 +22,8 @@ public class UpgradeScriptableObject : ScriptableObject
     public UpgradeGrade Grade;
 
     [Header("Level System")]
-    public int Points;     // 현재 레벨 (0부터 시작)
-    public int MaxPoints;  // 최대 레벨 (만렙)
+    public int Points;     // 업그레이드로 찍은 수
+    public int MaxPoints;  // 최대 레벨 업글레이드로 찍을 수 있는 최대 수
     
     // 레벨별 상세 설명 (1렙일 때 설명, 2렙일 때 설명...)
     // 기존에 쓰시던 방식 그대로 유지하면 좋습니다.
@@ -41,6 +41,7 @@ public class UpgradeScriptableObject : ScriptableObject
 
     // [핵심 2] 무기가 아니라면, 어떤 스탯을 올려줄지 결정합니다.
     public UpgradeType upgradeType;
+    public bool IsWeaponUpgrade => linkedWeaponData != null;
     public BonusMode bonusMode = BonusMode.Flat;
 
     // [핵심 3] 스탯을 얼마나 올려줄지 (예: 체력 +10, 속도 +5)

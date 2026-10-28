@@ -15,6 +15,42 @@ MonoBehaviour:
   m_TableCollectionName: Skill_Table
   m_TableCollectionNameGuidString: 3a31f64e2a0f40c4d946a46e17f2d303
   m_Entries:
+  - m_Id: 80000000000000043
+    m_Key: upgrade.stat.move_speed_bonus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000044
+    m_Key: upgrade.stat.damage_bonus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000045
+    m_Key: upgrade.stat.max_health_bonus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000046
+    m_Key: upgrade.stat.health_regen_bonus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000047
+    m_Key: upgrade.stat.cooldown_bonus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000048
+    m_Key: upgrade.stat.growth_bonus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000040
+    m_Key: upgrade.value.unowned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000041
+    m_Key: upgrade.stat.charge_time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 80000000000000042
+    m_Key: upgrade.stat.knockback_force
+    m_Metadata:
+      m_Items: []
   - m_Id: 21934252032
     m_Key: New Entry
     m_Metadata:
@@ -189,6 +225,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7287897264889856
     m_Key: skill.Description.spreading_Flame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 55492647239950336
+    m_Key: upgrade.stat.investment_count
     m_Metadata:
       m_Items: []
   m_Metadata:

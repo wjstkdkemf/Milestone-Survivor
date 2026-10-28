@@ -51,7 +51,28 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             Icon.sprite = Upgrade.Icon;
 
         if (UpgradeLevel != null)
-            UpgradeLevel.text = "Lv." + (Upgrade.Points + 1).ToString();
+        {
+            if (Upgrade.IsWeaponUpgrade)
+            {
+                if (playerWeaponController != null)
+                {
+                    var data = Upgrade.linkedWeaponData;
+
+                    int learned = playerWeaponController.GetLearnedLevel(data);
+                    int equipment = playerWeaponController.GetEquipmentLevel(data);
+
+                    UpgradeLevel.text = $"Lv.{learned + equipment + 1}";
+                }
+                else
+                {
+                    UpgradeLevel.text = "-";
+                }
+            }
+            else
+            {
+                UpgradeLevel.text = $"Lv.{Upgrade.Points + 1}";
+            }
+        }
 
         if (hoverBorder != null)
             hoverBorder.SetActive(false);
@@ -73,9 +94,9 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         WeaponBase weapon = null;
 
-        if (Upgrade != null && Upgrade.linkedWeaponData != null && playerWeaponController != null)
+        if (Upgrade != null && Upgrade.IsWeaponUpgrade && playerWeaponController != null)
         {
-            playerWeaponController.TryGetWeapon(Upgrade.linkedWeaponData, out weapon);
+            playerWeaponController.TryGetWeapon(Upgrade.linkedWeaponData, out weapon, includeEquipmentWeapons: true);
         }
 
         if(descriptionPanel != null)

@@ -48,24 +48,37 @@ public class UpgradeDescriptionPanel : MonoBehaviour
             root.SetActive(true);
 
         UpgradePreviewData preview = null;
-        bool usesWeaponPreview = false;
 
         if (weapon != null)
         {
             preview = weapon.GetUpgradePreview(upgrade);
-            usesWeaponPreview = preview != null;
         }
 
         if (preview == null)
-            preview = UpgradePreviewFactory.CreateFallbackPreview(upgrade, PlayerStats.Instance);
+            preview = UpgradePreviewFactory.CreateFallbackPreview(upgrade);
 
-        if (preview != null && !usesWeaponPreview)
-        {
-            preview.Lines.Add(CreateLevelPreviewLine(upgrade));
-        }
-        else if (preview == null)
-        {
+        if (preview == null)
             return;
+
+        /*if (!preview.Lines.Exists(line => line.StatNameKey == "upgrade.stat.level"))
+            preview.Lines.Add(CreateLevelPreviewLine(upgrade));*/
+
+        if (upgrade.MaxPoints > 0)
+        {
+            int currentPoints = upgrade.Points;
+            int nextPoints = Mathf.Min(currentPoints + 1, upgrade.MaxPoints);
+
+            int levelIndex = preview.Lines.FindIndex(
+                line => line.StatNameKey == "upgrade.stat.level"
+            );
+
+            int insertIndex = levelIndex >= 0 ? levelIndex + 1 : 0;
+
+            preview.Lines.Insert(insertIndex, new UpgradePreviewLine(
+                "upgrade.stat.investment_count",
+                $"{currentPoints}/{upgrade.MaxPoints}",
+                $"{nextPoints}/{upgrade.MaxPoints}"
+            ));
         }
 
         if(ShortdescriptionText != null)
@@ -120,12 +133,13 @@ public class UpgradeDescriptionPanel : MonoBehaviour
     }
     private UpgradePreviewLine CreateLevelPreviewLine(UpgradeScriptableObject upgrade)
     {
-        int currentLevel = upgrade.Points + 1;
-        bool isMaxLevel = upgrade.MaxPoints > 0 && upgrade.Points >= upgrade.MaxPoints - 1;
+        int currentLevel = upgrade.Points;
+        int nextLevel = currentLevel + 1;
+        bool isMaxLevel = upgrade.MaxPoints > 0 && upgrade.Points >= upgrade.MaxPoints;
 
         string nextLevelText = isMaxLevel
             ? UpgradeLocalization.Get("upgrade.value.max", "MAX")
-            : $"Lv.{currentLevel + 1}";
+            : $"Lv.{nextLevel}";
 
         return new UpgradePreviewLine(
             "upgrade.stat.level",
