@@ -28,7 +28,6 @@ public class UpgradeManager : MonoBehaviour
     private bool InGameUpgrade = false;
     public Transform UpgradeUIContainer;
     public GameObject UpgradeUIPrefab;
-    [SerializeField] private UpgradeDescriptionPanel descriptionPanel;
 
     [Header("Job System")]
     public List<JobDataSO> allJobs; // 모든 직업 데이터 리스트
@@ -170,7 +169,6 @@ public class UpgradeManager : MonoBehaviour
                     // UI 슬롯 스크립트에 정보 전달
                     UpgradeUiSlots[i].GetComponent<UpgradeUi>().SetInfo(
                         chosenUpgrade,
-                        descriptionPanel,
                         playerWeaponController
                     );
                     
@@ -182,7 +180,6 @@ public class UpgradeManager : MonoBehaviour
             {
                 UpgradeUiSlots[i].SetActive(false); // 남는 슬롯 끄기
             }
-            descriptionPanel.Hide();
         }
     }
 

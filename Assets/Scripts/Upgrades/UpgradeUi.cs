@@ -20,8 +20,22 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     [SerializeField] private GameObject hoverBorder;
     [SerializeField] private GameObject selectedBorder;
+
+    [Header("Grade Visuals")]
+    [SerializeField] private GradeVisualSet[] gradeVisualSets;
+    [Header("Card Images")]
+    [SerializeField] private Image cardImage;
+    [SerializeField] private List<Image> dividerImages = new();
+
+    [Header("Point Images")]
+    [SerializeField] private GameObject pointsRoot;
+    [SerializeField] private List<Image> pointImages = new();
+
+    private GradeVisualSet currentGradeVisuals;
     private bool isSelected;
-    public UpgradeDescriptionPanel descriptionPanel;
+    [SerializeField] private UpgradeDescriptionPanel descriptionPanel;
+    [SerializeField] private TMP_Text ShortDescription;
+    [SerializeField] private TMP_Text GradeText;
     [SerializeField] private PlayerWeaponController playerWeaponController;
 
     private void OnEnable()
@@ -36,12 +50,10 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void SetInfo(
         UpgradeScriptableObject info,
-        UpgradeDescriptionPanel panel,
         PlayerWeaponController weaponController = null
     )
     {
         Upgrade = info;
-        descriptionPanel = panel;
         if (weaponController != null)
             playerWeaponController = weaponController;
         else if (playerWeaponController == null && UpgradeManager.Instance != null)
@@ -76,7 +88,8 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         if (hoverBorder != null)
             hoverBorder.SetActive(false);
-
+        ApplyGradeVisuals();
+        RefreshPoints();
         RefreshLocalizedText();
     }
     public void UpgradeFunction()
@@ -91,25 +104,12 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (!isSelected && hoverBorder != null)
             hoverBorder.SetActive(true);
-
-        WeaponBase weapon = null;
-
-        if (Upgrade != null && Upgrade.IsWeaponUpgrade && playerWeaponController != null)
-        {
-            playerWeaponController.TryGetWeapon(Upgrade.linkedWeaponData, out weapon, includeEquipmentWeapons: true);
-        }
-
-        if(descriptionPanel != null)
-            descriptionPanel.Show(Upgrade, weapon);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (hoverBorder != null)
             hoverBorder.SetActive(false);
-
-        if (!isSelected && descriptionPanel != null)
-            descriptionPanel.Hide();
     }
 
     private void HandleLocaleChanged(Locale locale)
@@ -119,14 +119,130 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private void RefreshLocalizedText()
     {
-        if (Upgrade == null)
-            return;
+        if (Upgrade == null) return;
+
+        WeaponBase weapon = null;
+        if (Upgrade.IsWeaponUpgrade && playerWeaponController != null)
+        {
+            playerWeaponController.TryGetWeapon(
+                Upgrade.linkedWeaponData,
+                out weapon,
+                includeEquipmentWeapons: true
+            );
+        }
+
+        UpgradePreviewData preview = weapon != null
+            ? weapon.GetUpgradePreview(Upgrade)
+            : null;
+
+        preview ??= UpgradePreviewFactory.CreateFallbackPreview(Upgrade);
 
         if (Title != null)
             Title.text = Upgrade.GetLocalizedTitle();
 
+        if (ShortDescription != null)
+            ShortDescription.text = preview?.ShortDescription ?? "";
+
         if (Description != null)
-            Description.text = Upgrade.GetCurrentDescription();
+            Description.text = preview?.Description ?? "";
+
+        if (GradeText != null)
+        {
+            GradeText.text = GradeColorUtility.GetDisplayName(Upgrade.Grade);
+            GradeText.color = GradeColorUtility.GetColor(Upgrade.Grade);
+        }
+
+        if (descriptionPanel != null)
+            descriptionPanel.RefreshPreviewLines(preview?.Lines);
+    }
+    private void ApplyGradeVisuals()
+    {
+        currentGradeVisuals = null;
+
+        if (Upgrade == null) return;
+
+        if (gradeVisualSets != null)
+        {
+            foreach (var visuals in gradeVisualSets)
+            {
+                if (visuals == null || visuals.grade != Upgrade.Grade)
+                    continue;
+
+                currentGradeVisuals = visuals;
+                break;
+            }
+        }
+
+        if (currentGradeVisuals == null)
+        {
+            Debug.LogWarning($"Missing grade visuals: {Upgrade.Grade}", this);
+            return;
+        }
+
+        if (cardImage != null)
+        {
+            cardImage.sprite = currentGradeVisuals.cardSprite;
+            cardImage.color = Color.white;
+        }
+
+        foreach (Image divider in dividerImages)
+        {
+            if (divider == null) continue;
+
+            divider.sprite = currentGradeVisuals.dividerSprite;
+            divider.color = Color.white;
+        }
+    }
+    private void RefreshPoints()
+    {
+        if (pointsRoot == null) return;
+
+        bool canDisplay = Upgrade != null &&
+                        currentGradeVisuals != null &&
+                        Upgrade.MaxPoints > 0 &&
+                        Upgrade.MaxPoints <= pointImages.Count;
+
+        pointsRoot.SetActive(canDisplay);
+        if (!canDisplay) return;
+
+        if (currentGradeVisuals.emptyPointSprite == null ||
+            currentGradeVisuals.filledPointSprite == null)
+        {
+            pointsRoot.SetActive(false);
+            Debug.LogWarning($"Missing point sprites: {Upgrade.Grade}", this);
+            return;
+        }
+
+        int invested = Mathf.Clamp(Upgrade.Points, 0, Upgrade.MaxPoints);
+
+        for (int i = 0; i < pointImages.Count; i++)
+        {
+            Image gem = pointImages[i];
+            if (gem == null) continue;
+
+            bool visible = i < Upgrade.MaxPoints;
+            gem.gameObject.SetActive(visible);
+            if (!visible) continue;
+
+            gem.sprite = i < invested
+                ? currentGradeVisuals.filledPointSprite
+                : currentGradeVisuals.emptyPointSprite;
+
+            gem.color = Color.white;
+        }
+    }
+    [System.Serializable]
+    private class GradeVisualSet
+    {
+        public UpgradeGrade grade;
+
+        [Header("Card")]
+        public Sprite cardSprite;
+        public Sprite dividerSprite;
+
+        [Header("Points")]
+        public Sprite emptyPointSprite;
+        public Sprite filledPointSprite;
     }
 
     // void ClearEncount()

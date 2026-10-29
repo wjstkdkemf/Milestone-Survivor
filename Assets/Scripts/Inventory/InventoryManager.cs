@@ -9,6 +9,8 @@ public class InventoryManager : MonoBehaviour
     public int SceneName;
 
     private Dictionary<string, int> itemCounts = new Dictionary<string, int>();
+    private readonly HashSet<string> broughtEquipmentNames = new HashSet<string>(System.StringComparer.Ordinal);
+
     private bool isRestoring;
     
     //private InventoryData itemData;
@@ -91,6 +93,8 @@ public class InventoryManager : MonoBehaviour
     public void ClearStoredInventory()
     {
         itemCounts.Clear();
+        broughtEquipmentNames.Clear();
+        
         DevLog.Log("[InventoryManager] Stored inventory cleared.");
     }
 
@@ -125,19 +129,44 @@ public class InventoryManager : MonoBehaviour
         //ClearInventory(); // Clear previous data before storing new data.
 
         bool fullyStored = true;
+
+        // 던전 전리품을 정산할 때만 반입 장비를 제외
+        bool isDungeonSettlement = inventoryName == InventoryController.ClearInventoryName;
+
         List<InventoryItem> items = new List<InventoryItem>(inventory.GetList());
+
         foreach (InventoryItem item in items)
         {
-            if (item != null && !item.GetIsNull())
+            if (item == null || item.GetIsNull())
+                continue;
+
+            string itemName = item.GetItemType();
+            int amount = item.GetAmount();
+
+            if (isDungeonSettlement && IsBroughtEquipment(itemName))
             {
-                int amount = item.GetAmount();
-                if (AddItem(item.GetItemType(), amount))
-                    inventory.RemoveItemInPosition(item.GetPosition(), amount);
-                else
-                    fullyStored = false;
+                // 마을에 원본이 있으므로 던전의 사본만 제거
+                inventory.RemoveItemInPosition(item.GetPosition(), amount);
+                continue;
+            }
+
+            // 실제 획득품은 보관 성공 후 원래 슬롯에서 제거
+            if (AddItem(itemName, amount))
+            {
+                inventory.RemoveItemInPosition(item.GetPosition(), amount);
+            }
+            else
+            {
+                fullyStored = false;
             }
         }
-        DevLog.Log($"[InventoryManager] Stored {itemCounts.Count} item types from {inventoryName}.");
+
+        // 일부 보관에 실패했다면 재시도를 위해 기록 유지
+        if (isDungeonSettlement && fullyStored)
+        {
+            broughtEquipmentNames.Clear();
+        }
+
         return fullyStored;
     }
 
@@ -218,7 +247,6 @@ public class InventoryManager : MonoBehaviour
             InventoryController.instance.ClearAllInventories();
         }
     }
-
     public void DeleteSavedInventoryFile(string fileName)
     {
         string path = GetFullPath(fileName);
@@ -226,5 +254,26 @@ public class InventoryManager : MonoBehaviour
 
         File.Delete(path);
         DevLog.Log($"[InventoryManager] Deleted saved inventory file: {path}");
+    }
+    // 새 던전 진입 시 호출
+    public void BeginDungeonInventoryTracking()
+    {
+        broughtEquipmentNames.Clear();
+    }
+
+    // 실제 복사에 성공한 장비만 등록
+    public void TrackBroughtEquipment(string itemName)
+    {
+        if (string.IsNullOrEmpty(itemName))
+            return;
+
+        broughtEquipmentNames.Add(itemName);
+    }
+
+    // 복귀 정산에서 반입 장비인지 확인
+    public bool IsBroughtEquipment(string itemName)
+    {
+        return !string.IsNullOrEmpty(itemName) &&
+            broughtEquipmentNames.Contains(itemName);
     }
 }

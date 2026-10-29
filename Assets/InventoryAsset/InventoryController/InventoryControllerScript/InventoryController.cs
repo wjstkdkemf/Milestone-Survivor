@@ -173,6 +173,7 @@ namespace InventorySystem
             {
                 // 장착 중인 아이템을 인벤토리나 클리어 목록으로 복사
                 InventoryManager.Instance.LoadAllInventories("Current.json");
+                InventoryManager.Instance.BeginDungeonInventoryTracking();
 
                 CopyEquippedItemsToInventory(HotBarInventoryName, ClearInventoryName);
                 ReapplyAllEquipmentEffects();
@@ -554,6 +555,7 @@ namespace InventorySystem
             int currentAmount = inventory.Count(itemType);
             int allowedAmount = Mathf.Min(amount, Mathf.Max(0, maxStack - currentAmount));
             int added = inventory.AddItemAuto(itemTemplate, allowedAmount);
+
 
             // Only the ownership-limit excess becomes gold. A full inventory leaves a remainder.
             int excess = amount - allowedAmount;
@@ -1478,7 +1480,17 @@ namespace InventorySystem
                     InventoryItem newItemForMain = new InventoryItem(equippedItem);
                     newItemForMain.SetEquit(true);
 
-                    mainInventory.AddItemAuto(newItemForMain, newItemForMain.GetAmount());
+                    int added = mainInventory.AddItemAuto(
+                        newItemForMain,
+                        newItemForMain.GetAmount()
+                    );
+
+                    if (added > 0)
+                    {
+                        InventoryManager.Instance.TrackBroughtEquipment(
+                            newItemForMain.GetItemType()
+                        );
+                    }
                     
                     Debug.Log($"Copied equipped item '{newItemForMain.GetItemType()}' to '{mainInvName}'.");
                 }
