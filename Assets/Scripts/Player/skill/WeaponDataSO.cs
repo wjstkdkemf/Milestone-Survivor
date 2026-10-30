@@ -13,8 +13,8 @@ public class WeaponDataSO : ScriptableObject
     //public string description; // 설명
     [SerializeField] private string weaponId;
     public string WeaponId => weaponId;
-    [SerializeField] private LocalizedString weaponName;
-    [SerializeField] private LocalizedString weaponDescription;
+    //[SerializeField] private LocalizedString weaponName;
+    //[SerializeField] private LocalizedString weaponDescription;
 
     [Header("필수 연결")]
     // 실제 무기 로직이 들어있는 프리팹 (WeaponBase가 붙어있는 프리팹)

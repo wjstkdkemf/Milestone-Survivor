@@ -34,6 +34,7 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     private GradeVisualSet currentGradeVisuals;
     private bool isSelected;
     [SerializeField] private UpgradeDescriptionPanel descriptionPanel;
+    [SerializeField] private UpgradeJobPanel jobPanel;
     [SerializeField] private TMP_Text ShortDescription;
     [SerializeField] private TMP_Text GradeText;
     [SerializeField] private PlayerWeaponController playerWeaponController;
@@ -46,6 +47,9 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     private void OnDisable()
     {
         LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+
+        if (jobPanel != null)
+            jobPanel.SetVisible(false);
     }
 
     public void SetInfo(
@@ -88,6 +92,8 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         if (hoverBorder != null)
             hoverBorder.SetActive(false);
+        if (jobPanel != null)
+            jobPanel.SetInfo(Upgrade, UpgradeManager.Instance);
         ApplyGradeVisuals();
         RefreshPoints();
         RefreshLocalizedText();
@@ -104,12 +110,17 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (!isSelected && hoverBorder != null)
             hoverBorder.SetActive(true);
+        if (jobPanel != null)
+            jobPanel.SetVisible(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (hoverBorder != null)
             hoverBorder.SetActive(false);
+
+        if (jobPanel != null)
+            jobPanel.SetVisible(false);
     }
 
     private void HandleLocaleChanged(Locale locale)

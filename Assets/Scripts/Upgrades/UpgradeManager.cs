@@ -315,6 +315,39 @@ public class UpgradeManager : MonoBehaviour
             
         // SaveUpgradeData(); 
     }
+    public void CollectRelatedJobs(UpgradeScriptableObject upgrade,List<JobDataSO> results)
+    {
+        results.Clear();
+
+        if (upgrade == null)
+            return;
+
+        List<JobDataSO> candidates = currentJob == null
+            ? allJobs
+            : currentJob.nextAbleJobs;
+
+        if (candidates == null)
+            return;
+
+        foreach (JobDataSO job in candidates)
+        {
+            if (job == null || job.requirements == null)
+                continue;
+
+            foreach (var requirement in job.requirements)
+            {
+                var required = requirement.requiredUpgrade;
+
+                if (required == null || required.name != upgrade.name)
+                    continue;
+
+                if (!results.Contains(job))
+                    results.Add(job);
+
+                break;
+            }
+        }
+    }
 
     public void Close()
     {
