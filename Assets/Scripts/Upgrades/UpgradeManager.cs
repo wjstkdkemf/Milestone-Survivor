@@ -18,6 +18,7 @@ public class UpgradeManager : MonoBehaviour
     [SerializeField] private GameObject UpgradePanelObject; // 전체 UI 패널
     public List<GameObject> UpgradeUiSlots; // UI 슬롯들
     public PowerUpScriptableObject PowerUpgrade;
+    private UpgradeUi focusedCard;
 
     [Header("Data Deck")]
     public List<UpgradeScriptableObject> MasterDeck;
@@ -63,6 +64,8 @@ public class UpgradeManager : MonoBehaviour
     }
     public void SetUpgradeUICount()
     {
+        ClearCardFocus();
+        
         foreach (Transform child in UpgradeUIContainer) Destroy(child.gameObject);
 
         for(int i = 0 ; i < UpgradeCount ; i++)
@@ -103,6 +106,8 @@ public class UpgradeManager : MonoBehaviour
 
     public void DisplayUpgrades()
     {
+        ClearCardFocus();
+
         for (int i = UpgradeDeck.Count - 1; i >= 0; i--)
         {
             if (UpgradeDeck[i].Points >= UpgradeDeck[i].MaxPoints)
@@ -211,6 +216,42 @@ public class UpgradeManager : MonoBehaviour
 
         // 창 닫기
         ProcessNextUpgrade();
+    }
+    public void HandleCardClick(UpgradeUi card)
+    {
+        if (!InGameUpgrade || card == null ||
+            !card.isActiveAndEnabled || card.Upgrade == null)
+            return;
+
+        if (!UpgradeUiSlots.Contains(card.gameObject))
+            return;
+
+        if (focusedCard == card)
+        {
+            var upgrade = card.Upgrade;
+            ClearCardFocus();
+            OnUpgradeSelected(upgrade);
+            return;
+        }
+
+        ClearCardFocus();
+        focusedCard = card;
+        focusedCard.SetFocused(true);
+    }
+
+    private void ClearCardFocus()
+    {
+        var previous = focusedCard;
+        focusedCard = null;
+
+        if (previous != null)
+            previous.SetFocused(false);
+    }
+
+    public void ReleaseCardFocus(UpgradeUi card)
+    {
+        if (focusedCard == card)
+            ClearCardFocus();
     }
 
     private void ApplyStatBonus(UpgradeScriptableObject upgrade)
@@ -351,6 +392,7 @@ public class UpgradeManager : MonoBehaviour
 
     public void Close()
     {
+        ClearCardFocus();
         if (GameManager.Instance != null) GameManager.Instance.RequestPause(this, false);
         InGameUpgrade = false;
         

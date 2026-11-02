@@ -33,6 +33,8 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private GradeVisualSet currentGradeVisuals;
     private bool isSelected;
+    private bool isHovered;
+    private bool isFocused;
     [SerializeField] private UpgradeDescriptionPanel descriptionPanel;
     [SerializeField] private UpgradeJobPanel jobPanel;
     [SerializeField] private TMP_Text ShortDescription;
@@ -48,8 +50,9 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
 
-        if (jobPanel != null)
-            jobPanel.SetVisible(false);
+        if (UpgradeManager.Instance != null)
+            UpgradeManager.Instance.ReleaseCardFocus(this);
+        ResetInteractionState();
     }
 
     public void SetInfo(
@@ -90,37 +93,57 @@ public class UpgradeUi : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             }
         }
 
-        if (hoverBorder != null)
-            hoverBorder.SetActive(false);
         if (jobPanel != null)
             jobPanel.SetInfo(Upgrade, UpgradeManager.Instance);
+        
         ApplyGradeVisuals();
         RefreshPoints();
         RefreshLocalizedText();
+        ResetInteractionState();
     }
     public void UpgradeFunction()
     {
         if (UpgradeManager.Instance != null)
         {
-            UpgradeManager.Instance.OnUpgradeSelected(Upgrade);
+            UpgradeManager.Instance.HandleCardClick(this);
         }
 
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!isSelected && hoverBorder != null)
-            hoverBorder.SetActive(true);
-        if (jobPanel != null)
-            jobPanel.SetVisible(true);
+        isHovered = true;
+        RefreshInteractionVisuals();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        isHovered = false;
+        RefreshInteractionVisuals();
+    }
+
+    public void SetFocused(bool focused)
+    {
+        isFocused = focused;
+        RefreshInteractionVisuals();
+    }
+
+    private void RefreshInteractionVisuals()
+    {
         if (hoverBorder != null)
-            hoverBorder.SetActive(false);
+            hoverBorder.SetActive(isHovered && !isFocused);
+
+        if (selectedBorder != null)
+            selectedBorder.SetActive(isFocused);
 
         if (jobPanel != null)
-            jobPanel.SetVisible(false);
+            jobPanel.SetVisible(isHovered || isFocused);
+    }
+
+    private void ResetInteractionState()
+    {
+        isHovered = false;
+        isFocused = false;
+        RefreshInteractionVisuals();
     }
 
     private void HandleLocaleChanged(Locale locale)
