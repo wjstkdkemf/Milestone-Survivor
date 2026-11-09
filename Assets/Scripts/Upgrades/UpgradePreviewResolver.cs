@@ -75,7 +75,7 @@ public static class UpgradePreviewFactory
             return;
         }
 
-        long baseDamage = data is SpreadingFlameDataSO flame ? flame.damagePerTick : data.baseDamage;
+        long baseDamage = data is SpreadingFlameDataSO flame ? flame.baseDamage : data.baseDamage;
         preview.Lines.Add(new UpgradePreviewLine("upgrade.stat.damage", "-",
             WeaponBase.CalculateLevelDamage(data, baseDamage, firstLevel).ToString()));
 

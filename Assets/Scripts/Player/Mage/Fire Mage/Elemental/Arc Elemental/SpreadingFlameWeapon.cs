@@ -36,7 +36,7 @@ public class SpreadingFlameWeapon : WeaponBase
         spreadRadius = flameData.spreadRadius;
         spreadDelay = Mathf.Max(0f, flameData.spreadDelay);
         currentCooldown = Mathf.Max(0.1f, flameData.baseCooldown);
-        currentDamage = flameData.damagePerTick;
+        currentDamage = flameData.baseDamage;
         flameEffectPrefab = flameData.flameEffectPrefab;
         cooldownTimer = 0f;
         pendingFlames = 0;
@@ -138,7 +138,7 @@ public class SpreadingFlameWeapon : WeaponBase
     {
         if (!(myData is SpreadingFlameDataSO data)) return;
         flameCount = CalculateCount(SkillStatType.ProjectileCount, Mathf.Max(1, data.flameCount), CurrentLevel);
-        currentDamage = CalculateLevelDamage(data.damagePerTick, CurrentLevel);
+        currentDamage = CalculateLevelDamage(data.baseDamage, CurrentLevel);
         spreadRadius = CalculateLevelStat(SkillStatType.Radius, data.spreadRadius, CurrentLevel);
 
         SetupRangeIndicator();
@@ -158,7 +158,7 @@ public class SpreadingFlameWeapon : WeaponBase
         preview.Lines.Add(new UpgradePreviewLine(
             "upgrade.stat.damage",
             currentDamage.ToString(),
-            CalculateLevelDamage(data.damagePerTick, CurrentLevel + 1).ToString()
+            CalculateLevelDamage(data.baseDamage, CurrentLevel + 1).ToString()
         ));
 
         preview.Lines.Add(new UpgradePreviewLine(

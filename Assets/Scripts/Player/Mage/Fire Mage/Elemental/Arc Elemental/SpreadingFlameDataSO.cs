@@ -10,6 +10,5 @@ public class SpreadingFlameDataSO : WeaponDataSO
     public float tickInterval = 1f;
     public float spreadRadius = 5f;
     public float spreadDelay = 0f;
-    public long damagePerTick = 5;
     public GameObject flameEffectPrefab;
 }

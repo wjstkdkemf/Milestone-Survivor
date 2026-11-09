@@ -76,7 +76,11 @@ public class MeteorWeapon : WeaponBase
         // 물리 엔진 대신 초고속 광역 레이더 가동
         EnemySwarmSystem.Instance.GetEnemiesInRadius(transform.position, searchRadius, searchResults);
 
-        if (searchResults.Count == 0) return; // 주변에 적이 없음
+        if (searchResults.Count == 0)
+        {
+            cooldownTimer = 3.0f;//없다면 평소보다는 짧은 간격으로 재 탐색 대기.
+            return; // 주변에 적이 없음
+        }
 
         FindTargetPoints(); // 타겟팅 좌표 계산
 

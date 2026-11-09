@@ -39,12 +39,12 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
 
     // ******************** Flash Stuff*********************
     public Material flashMaterial;
-    private BarrierWeapon myBarrierSkill;
     public float duration = .1f;
     private SpriteRenderer spriteRenderer;
     private Material originalMaterial;
     protected Coroutine flashRoutine;
     private PlayerStats playerStats;
+    private PlayerBarrierController playerBarrierController;
     //private bool FirstSetting = false;
 
     void Start()
@@ -68,8 +68,8 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
             spriteRenderer = transform.GetChild(0)?.GetComponent<SpriteRenderer>();
             if(spriteRenderer != null) originalMaterial = spriteRenderer.material;
             player_Controller = GetComponent<Player_Controller>();
+            playerBarrierController = GetComponent<PlayerBarrierController>();
         }
-        myBarrierSkill = GetComponentInChildren<BarrierWeapon>();
 
         UpdateHealthUI();
     }
@@ -109,29 +109,15 @@ public class PlayerHealth : MonoBehaviour ,IDamageable
         }
 
     }
-    public void SetBarrier(GameObject gameObject)
-    {
-        myBarrierSkill = gameObject != null ? gameObject.GetComponent<BarrierWeapon>() : null;
-    }
-
-    public void RegisterBarrier(BarrierWeapon barrier)
-    {
-        if (barrier != null && barrier.isActiveAndEnabled)
-            myBarrierSkill = barrier;
-    }
-
-    public void UnregisterBarrier(BarrierWeapon barrier)
-    {
-        if (myBarrierSkill == barrier) myBarrierSkill = null;
-    }
-
     public void TakeDamage(float damage, float knockBackDuration = 0f)
     {
         if (isInvincible || Dashing) return;
 
-        if (myBarrierSkill != null && myBarrierSkill.TryBlockDamage())
+        if (playerBarrierController != null && playerBarrierController.TryBlockDamage())
+        {
+            SetInvincible(0.2f);//무적시간
             return;
-
+        }
 
         CurrentHealth -= DamageCal(damage);
         UpdateHealthUI();

@@ -16,7 +16,6 @@ public class TeleportData : ScriptableObject
     public string displayName;
     [SerializeField] private LocalizedString localizedDisplayName;
     [SerializeField] private LocalizedString localizedMapLabel;
-    public Sprite mapIcon;
 
     [Header("Progress")]
     public bool isUnlocked;

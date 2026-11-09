@@ -10,8 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 164a633abf62bf44ebc19fd9353ed083, type: 3}
-  m_Name: W_Barrier Data
+  m_Name: W_Item Barrier Data
   m_EditorClassIdentifier: 
+  weaponId: 
+  weaponPrefab: {fileID: 5967004975636487340, guid: 5f0c2ea0a3dd3ec49b467b4a1ace02ef, type: 3}
+  upgradeData: {fileID: 11400000, guid: 037b6704fac6d234695981bfe24f249b, type: 2}
+  baseDamage: 0
+  baseCooldown: 0
+  hitRadius: 0.5
+  maxHits: 1
+  projectileSpeed: 5
+  fusionWeaponData: []
+  attackMotion: {fileID: 0}
   growthRules:
   - stat: 5
     mode: 0
@@ -19,21 +29,8 @@ MonoBehaviour:
   - stat: 6
     mode: 0
     valuePerLevel: 2
-  weaponName: Barrier
-  icon: {fileID: 6157748173069639754, guid: 315906bd04ec2314cbfcfb9d4fa8e3c1, type: 3}
-  description: 
-  weaponPrefab: {fileID: 5967004975636487340, guid: 88813ef3b0e696b4f9fffc84a9f010e4, type: 3}
-  baseDamage: 0
-  baseCooldown: 0
-  fusionWeaponData: []
   chargeTime: 5
   knockbackRadius: 3
   knockbackForce: 0.001
   barrierPrefab: {fileID: 3392388717453022646, guid: e6fc3bd5bdf638c42acaa273e915e6a9, type: 3}
   explosionEffectPrefab: {fileID: 0}
-  enemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 256
-  projectileLayerMask:
-    serializedVersion: 2
-    m_Bits: 256

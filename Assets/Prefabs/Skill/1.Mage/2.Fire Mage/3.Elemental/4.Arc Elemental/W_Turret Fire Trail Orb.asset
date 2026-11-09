@@ -12,39 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e34eabbecf79fb4e8ec5f3c2e10edbc, type: 3}
   m_Name: W_Turret Fire Trail Orb
   m_EditorClassIdentifier: 
-  growthRules:
-  - stat: 1
-    mode: 0
-    valuePerLevel: 1
   weaponId: 4_Orb
-  weaponName:
-    m_TableReference:
-      m_TableCollectionName: 
-    m_TableEntryReference:
-      m_KeyId: 0
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  weaponDescription:
-    m_TableReference:
-      m_TableCollectionName: 
-    m_TableEntryReference:
-      m_KeyId: 0
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
   weaponPrefab: {fileID: 8133142474223884936, guid: 4996d044a893ceb4fa2aff921997f44d, type: 3}
   upgradeData: {fileID: 11400000, guid: 4de550dfb1b50ec46b910e84a14066ed, type: 2}
   baseDamage: 5
-  baseCooldown: 3
+  baseCooldown: 1.5
   hitRadius: 0.5
   maxHits: 1
   projectileSpeed: 5
   fusionWeaponData:
   - {fileID: 11400000, guid: ff9f8742b97a78b498e3c35da5369668, type: 2}
   - {fileID: 11400000, guid: 33e5ad923a914314eb30fb0c7d6edbe3, type: 2}
+  attackMotion: {fileID: 0}
+  growthRules:
+  - stat: 1
+    mode: 0
+    valuePerLevel: 1
   orbCount: 5
   radius: 2
   rotationSpeed: 50
@@ -54,9 +37,5 @@ MonoBehaviour:
   trailDuration: 2
   trailDamageScaling: 2
   projectilePrefab: {fileID: 5356050523648152410, guid: 3933d887ac7dd514f8fdf3c18ca2e79b, type: 3}
-  fireRate: 1.5
   fireRange: 8
   projectileDamageScaling: 1
-  references:
-    version: 2
-    RefIds: []

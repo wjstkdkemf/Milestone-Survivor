@@ -7,7 +7,6 @@ public class MeteorWeaponSO : WeaponDataSO
     public int MeteorNumber = 1;          // 발사체 개수
     public float range = 15f;              // 사거리 (Distance)
     public float densityCheckRadius = 4.0f;
-    public float targetUpdateRate = 0.5f; // 타겟 검색 주기
     public float warningDuration = 1f;
     public float volleyDelay = 0.3f; 
     public GameObject MeteorPrefab;

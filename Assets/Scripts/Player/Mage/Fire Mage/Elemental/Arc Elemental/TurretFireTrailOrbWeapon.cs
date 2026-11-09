@@ -16,7 +16,7 @@ public class TurretFireTrailOrbWeapon : FireTrailOrbWeapon
         if (data is TurretFireTrailOrbDataSO turretData)
         {
             projectilePrefab = turretData.projectilePrefab;
-            fireRate = turretData.fireRate;
+            fireRate = turretData.baseCooldown;
             fireRange = turretData.fireRange;
             projectileDamageScaling = turretData.projectileDamageScaling;
             projectileSpeed = turretData.projectileSpeed;

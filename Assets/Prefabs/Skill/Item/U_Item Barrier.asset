@@ -10,18 +10,41 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ced95ca00ea0fa4ab8b26e0666bf493, type: 3}
-  m_Name: U_Barrier
+  m_Name: U_Item Barrier
   m_EditorClassIdentifier: 
   Icon: {fileID: 6157748173069639754, guid: 315906bd04ec2314cbfcfb9d4fa8e3c1, type: 3}
   Title: Barrier
   Description: 
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   TitleLocalizationKey: skill.title.barrier
-  DescriptionLocalizationKey:
+  DescriptionLocalizationKey: 
+  Grade: 0
   Points: 0
   MaxPoints: 1
   UpgradesList: []
   Chance: 0
   InitialChance: 0
-  linkedWeaponData: {fileID: 11400000, guid: 14c7929e87d4cfb4789a3ba548705a7d, type: 2}
+  linkedWeaponData: {fileID: 11400000, guid: 6fb6a5ce59a34c74c864984f64c3b749, type: 2}
   upgradeType: 0
+  bonusMode: 0
   statValue: 0
+  references:
+    version: 2
+    RefIds: []

@@ -8,9 +8,6 @@ public class TurretFireTrailOrbDataSO : FireTrailOrbDataSO
     [Tooltip("발사할 미사일 프리팹 (TurretBullet, DoDamage 포함)")]
     public GameObject projectilePrefab;
     
-    [Tooltip("미사일 발사 쿨타임")]
-    public float fireRate = 1.5f;
-    
     [Tooltip("적 탐지 사거리 (오브 기준)")]
     public float fireRange = 8f;
     

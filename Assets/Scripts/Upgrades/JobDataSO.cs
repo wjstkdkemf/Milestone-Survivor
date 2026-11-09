@@ -6,7 +6,7 @@ public class JobDataSO : ScriptableObject
 {
     [Header("Basic Info")]
     public string jobName; // 예: Mage, Shooter
-    public string description;
+    public string description;// 인스펙터 설명용
     public int jobTier; // 1차 , 2차 구분용
 
     [System.Serializable]

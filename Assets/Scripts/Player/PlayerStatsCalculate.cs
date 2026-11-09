@@ -88,7 +88,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         }
     }
 
-    public void SetBaseStats(float maxHealth,float Armor ,float speed, float healthRegen, float luck, float damage, List<StatModifier> statModifiers, float cooldownReduction = 0f)
+    public void SetBaseStats(float maxHealth,float Armor ,float speed, float healthRegen, float luck, float damage,float doubleDamageChance ,List<StatModifier> statModifiers, float cooldownReduction = 0f)
     {
         baseMaxHealth = maxHealth;
         baseSpeed = speed;
@@ -97,6 +97,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         baseLuck = luck;
         baseDamage = damage;
         baseCooldownReduction = cooldownReduction;
+        baseDoubleDamageChance = doubleDamageChance * 0.01f;
         baseStatModifiers = statModifiers != null
             ? new List<StatModifier>(statModifiers)
             : new List<StatModifier>();

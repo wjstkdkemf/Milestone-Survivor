@@ -11,12 +11,16 @@ public class BarrierWeapon : WeaponBase
     private float currentKnockbackRadius;
     public bool isBarrierActive = false;
 
+    public bool CanBlockDamage => isActiveAndEnabled && isBarrierActive;
+
+    public float RechargeDuration => GetCooldown(currentChargeTimeLimit);
+
     // [내부 변수]
     private GameObject barrierInstance; // 생성된 배리어 객체
     private BarrierShield barrierScript; // 배리어 로직 스크립트
     private GameObject explosionEffect;
 
-    private PlayerHealth playerHealthScript;
+    private PlayerBarrierController playerBarrierController;
 
     private readonly List<int> knockbackTargets = new List<int>(64);
 
@@ -27,43 +31,51 @@ public class BarrierWeapon : WeaponBase
 
     private void OnDisable()
     {
-        if (playerHealthScript != null) playerHealthScript.UnregisterBarrier(this);
+        if (playerBarrierController != null) playerBarrierController.UnregisterBarrier(this);
     }
 
     private void RegisterWithPlayer()
     {
-        playerHealthScript = GetComponentInParent<PlayerHealth>();
-        if (playerHealthScript != null) playerHealthScript.RegisterBarrier(this);
+        playerBarrierController = GetComponentInParent<PlayerBarrierController>();
+        if (playerBarrierController != null) playerBarrierController.RegisterBarrier(this);
     }
 
     // 1. 초기화
     public override void Initialize(WeaponDataSO data)
     {
-        if (data is BarrierDataSO barrierData)
+        if (!(data is BarrierDataSO barrierData))
         {
-            currentChargeTimeLimit = barrierData.chargeTime;
-            currentKnockbackRadius = barrierData.knockbackRadius;
-            currentKnockbackForce = barrierData.knockbackForce;
-            explosionEffect = barrierData.explosionEffectPrefab;
-
-            // 배리어 프리팹을 플레이어 자식으로 생성
-            if (barrierData.barrierPrefab != null)
-            {
-                barrierInstance = Instantiate(barrierData.barrierPrefab, transform.position, Quaternion.identity, transform);
-                
-                // 배리어 스크립트 가져오기 및 설정
-                barrierScript = barrierInstance.GetComponent<BarrierShield>();
-                if (barrierScript == null) barrierScript = barrierInstance.AddComponent<BarrierShield>();
-                
-                barrierScript.Setup(this, explosionEffect);
-                
-                // 시작은 비활성화
-                barrierInstance.SetActive(false);
-            }
+            Debug.LogError("BarrierDataSO가 필요합니다.", this);
+            enabled = false;
+            return;
         }
-        else
+
+        if (barrierData.barrierPrefab == null)
         {
-            Debug.LogError("잘못된 데이터! BarrierDataSO가 필요합니다.");
+            Debug.LogError("베리어 프리팹이 설정되지 않았습니다.", this);
+            enabled = false;
+            return;
+        }
+
+
+        currentChargeTimeLimit = barrierData.chargeTime;
+        currentKnockbackRadius = barrierData.knockbackRadius;
+        currentKnockbackForce = barrierData.knockbackForce;
+        explosionEffect = barrierData.explosionEffectPrefab;
+
+        // 배리어 프리팹을 플레이어 자식으로 생성
+        if (barrierData.barrierPrefab != null)
+        {
+            barrierInstance = Instantiate(barrierData.barrierPrefab, transform.position, Quaternion.identity, transform);
+            
+            // 배리어 스크립트 가져오기 및 설정
+            barrierScript = barrierInstance.GetComponent<BarrierShield>();
+            if (barrierScript == null) barrierScript = barrierInstance.AddComponent<BarrierShield>();
+            
+            barrierScript.Setup(this, explosionEffect);
+            
+            // 시작은 비활성화
+            barrierInstance.SetActive(false);
         }
 
         RegisterWithPlayer();
@@ -119,17 +131,12 @@ public class BarrierWeapon : WeaponBase
         chargeTimer = 0f; // 타이머 리셋
         if (barrierInstance != null) barrierInstance.SetActive(false);
 
-        if (playerHealthScript != null)
-        {
-            playerHealthScript.SetInvincible(0.2f);
-        }
-        DevLog.Log("베리어!");
-
         // 2. 넉백 발생 및 데미지 무효화 처리
         PerformKnockback();
 
         // 3. 이펙트 재생
-        barrierScript.PlayExplosion();
+        if (barrierScript != null)
+            barrierScript.PlayExplosion();
     }
 
     // 주변 적 밀어내기

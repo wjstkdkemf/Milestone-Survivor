@@ -40,6 +40,7 @@ public class CharacterSelection : MonoBehaviour
                 characterDatas.HealthRegeneration,
                 characterDatas.LuckBoost,
                 characterDatas.Damage,
+                characterDatas.DobleDamageChance,
                 characterDatas.statModifiers,
                 characterDatas.CooldownReduction
             );
