@@ -10,38 +10,37 @@ public class RangedEnemy : Enemy
 
     public override void Attack()
     {
-        // Calculate the direction to the player
-        Vector2 directionToPlayer = (player.position - firepoint.position).normalized;
+        var poolManager = ObjectPoolingManager.Instance;
+        if (poolManager == null || projectilePrefab == null ||
+            firepoint == null || player == null)
+            return;
 
-        // Base angle to the player
-        float baseAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
+        Vector2 direction = player.position - firepoint.position;
+        float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Loop to shoot multiple projectiles
         for (int i = 0; i < projectileCount; i++)
         {
-            // Calculate angle for each projectile
-            float angleOffset = spreadAngle * ((i - (projectileCount - 1) / 2f) / Mathf.Max(1, (projectileCount - 1)));
-            float finalAngle = baseAngle + angleOffset;
+            float offset = spreadAngle *
+                ((i - (projectileCount - 1) / 2f) /
+                Mathf.Max(1, projectileCount - 1));
+            float angle = baseAngle + offset;
 
-            // Rotate firepoint for this projectile
-            Quaternion projectileRotation = Quaternion.Euler(0, 0, finalAngle);
+            GameObject bullet = poolManager.spawnGameObject(
+                projectilePrefab, firepoint.position,
+                Quaternion.Euler(0f, 0f, angle), PoolScope.Theme);
 
-            // Instantiate the projectile
-            GameObject bullet = Instantiate(projectilePrefab, firepoint.position, projectileRotation);
-
-            // Ensure the projectile has a Rigidbody2D
-            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-            if (rb == null)
+            if (bullet == null) return;
+            if (!bullet.TryGetComponent<Rigidbody2D>(out var rb))
             {
-                Debug.LogError("Projectile prefab is missing a Rigidbody2D component!");
+                Debug.LogError("Projectile prefab requires Rigidbody2D.", projectilePrefab);
+                poolManager.ReturnObjectToPool(bullet);
                 return;
             }
 
-            // Calculate the final direction based on the angle
-            Vector2 finalDirection = new Vector2(Mathf.Cos(finalAngle * Mathf.Deg2Rad), Mathf.Sin(finalAngle * Mathf.Deg2Rad)).normalized;
-
-            // Apply force to the projectile
-            rb.velocity = finalDirection * projectileSpeed;
+            float radians = angle * Mathf.Deg2Rad;
+            rb.angularVelocity = 0f;
+            rb.velocity = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians))
+                * projectileSpeed;
         }
     }
 }

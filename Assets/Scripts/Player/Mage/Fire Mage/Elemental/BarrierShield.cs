@@ -2,21 +2,29 @@ using UnityEngine;
 
 public class BarrierShield : MonoBehaviour
 {
-    private BarrierWeapon parentWeapon;
     private GameObject explosionEffect;
 
 
-    public void Setup(BarrierWeapon weapon, GameObject ExplosionEffect)
+    public void Setup(GameObject ExplosionEffect)
     {
-        parentWeapon = weapon;
         explosionEffect = ExplosionEffect;
     }
 
-    public void PlayExplosion()
+    public void PlayExplosion(Vector3 position, float radius)
     {
-        if(explosionEffect == null)
+        if (explosionEffect == null)
             return;
-        
-        Instantiate(explosionEffect, transform.position, Quaternion.identity);
+
+        GameObject effect = Instantiate(explosionEffect, position, Quaternion.identity);
+
+        if (effect.TryGetComponent<BarrierExplosionEffect>(out var visual))
+        {
+            visual.Play(radius);
+        }
+        else
+        {
+            Debug.LogError("BarrierExplosionEffect가 필요합니다.", effect);
+            Destroy(effect);
+        }
     }
 }

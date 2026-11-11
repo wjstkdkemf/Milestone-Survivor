@@ -32,6 +32,11 @@ public class WaveSpawner : MonoBehaviour
     private IEnumerator spawnCoroutine;
     private bool LastSpawn = false;
     private bool isClearingStage = false;
+
+    private int pendingWaveLoads;
+    public bool HasPendingWaveLoads => pendingWaveLoads > 0;
+
+
     // 벽을 감지하기 위한 레이어 마스크
     [Header("Spawn Validation")]
     [SerializeField] private LayerMask wallLayerMask;
@@ -264,11 +269,15 @@ public class WaveSpawner : MonoBehaviour
 
         isMassiveSpawning = false; 
     }
-    public IEnumerator PreloadWaveAssets(List<Wave> newWaves)
+    public IEnumerator PreloadWaveAssets(List<Wave> newWaves, System.Func<bool> isRequestValid, System.Action<bool> onCompleted = null)
     {
+        if (isRequestValid == null || !isRequestValid())
+            yield break;
+
         if (newWaves == null || newWaves.Count == 0)
         {
             Debug.LogError("New waves list is null or empty.");
+            onCompleted?.Invoke(false);
             yield break;
         }
 
@@ -278,16 +287,27 @@ public class WaveSpawner : MonoBehaviour
         isClearingStage = false;
 
         // 이번 전투에 필요한 몬스터 참조(AssetReference) 수집 (중복 방지용 HashSet)
+        bool hasFailure = false;
         HashSet<AssetReference> assetsToLoad = new HashSet<AssetReference>();
         foreach (var wave in WavesList)
         {
+            if (wave == null || wave.Enemys == null || wave.Enemys.Count == 0)
+            {
+                hasFailure = true;
+                continue;
+            }
+
             foreach (var enemyInfo in wave.Enemys)
             {
-                if (enemyInfo.Enemy != null && enemyInfo.Enemy.RuntimeKeyIsValid())
+                if (enemyInfo == null || enemyInfo.Enemy == null ||
+                    !enemyInfo.Enemy.RuntimeKeyIsValid())
                 {
-                    assetsToLoad.Add(enemyInfo.Enemy);
-                    _activeAssetRefs.Add(enemyInfo.Enemy);
+                    hasFailure = true;
+                    continue;
                 }
+
+                assetsToLoad.Add(enemyInfo.Enemy);
+                _activeAssetRefs.Add(enemyInfo.Enemy);
             }
         }
 
@@ -300,28 +320,44 @@ public class WaveSpawner : MonoBehaviour
             string guid = assetRef.AssetGUID;
             
             // 이미 내 장부에 있다면 굳이 다시 안 부릅니다.
-            if (_loadedEnemyPrefabs.ContainsKey(guid))
+            if (_loadedEnemyPrefabs.TryGetValue(guid, out var cached) && cached != null)
             {
                 loadedCount++;
                 continue;
             }
 
-            // 직접 로드하지 않고 ResourceManager에게 콜백( Action )으로 부탁합니다.
-            ResourceManager.Instance.LoadAsset(assetRef, (prefab) =>
+            pendingWaveLoads++;
+
+            ResourceManager.Instance.LoadAsset(assetRef, prefab =>
             {
-                if (prefab != null)
+                pendingWaveLoads--;
+                loadedCount++;
+
+                if (this == null || !isRequestValid())
+                    return;
+
+                var poolManager = ObjectPoolingManager.Instance;
+                if (prefab == null || poolManager == null ||
+                    poolManager.GetOrCreatePool(prefab, PoolScope.Theme) == null)
                 {
-                    // 로딩이 완료되면 내 장부에 등록!
-                    _loadedEnemyPrefabs[guid] = prefab;
+                    hasFailure = true;
+                    return;
                 }
-                loadedCount++; // 완료 카운트 증가
+
+                _loadedEnemyPrefabs[guid] = prefab;
             });
         }
 
         // 리소스 매니저가 모든 몬스터 로딩을 끝낼 때까지 코루틴을 잠시 멈추고 기다립니다.
-        yield return new WaitUntil(() => loadedCount == totalAssets);
+        yield return new WaitUntil(() => !isRequestValid() || loadedCount == totalAssets);
 
-        Debug.Log("모든 몬스터 에셋 로드 완료 (ResourceManager 위임).");
+        if (!isRequestValid())
+            yield break;
+
+        if (hasFailure)
+            Debug.LogError("[WaveSpawner] Wave preparation failed.");
+
+        onCompleted?.Invoke(!hasFailure);
     }
 
     public void StartWaves()
@@ -339,7 +375,7 @@ public class WaveSpawner : MonoBehaviour
         waveTimer = 0;
         spawnTimer = 0;
         LastSpawn = false;
-        stageClearController.CancelAndReset();
+        stageClearController?.CancelAndReset();
         isClearingStage = false;
 
         StopAllCoroutines(); // Stop any running coroutines like ClearStageAfterItemCollection

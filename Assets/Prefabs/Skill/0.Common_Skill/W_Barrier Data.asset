@@ -12,32 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 164a633abf62bf44ebc19fd9353ed083, type: 3}
   m_Name: W_Barrier Data
   m_EditorClassIdentifier: 
-  growthRules:
-  - stat: 5
-    mode: 0
-    valuePerLevel: -0.5
-  - stat: 6
-    mode: 0
-    valuePerLevel: 2
   weaponId: 0_Barrier
-  weaponName:
-    m_TableReference:
-      m_TableCollectionName: 
-    m_TableEntryReference:
-      m_KeyId: 0
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  weaponDescription:
-    m_TableReference:
-      m_TableCollectionName: 
-    m_TableEntryReference:
-      m_KeyId: 0
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
   weaponPrefab: {fileID: 5967004975636487340, guid: 88813ef3b0e696b4f9fffc84a9f010e4, type: 3}
   upgradeData: {fileID: 11400000, guid: 2f2b62e60bd49984bbb699095af6c08d, type: 2}
   baseDamage: 0
@@ -46,17 +21,16 @@ MonoBehaviour:
   maxHits: 1
   projectileSpeed: 5
   fusionWeaponData: []
+  attackMotion: {fileID: 0}
+  growthRules:
+  - stat: 5
+    mode: 0
+    valuePerLevel: -0.5
+  - stat: 6
+    mode: 0
+    valuePerLevel: 2
   chargeTime: 5
-  knockbackRadius: 3
-  knockbackForce: 0.001
+  knockbackRadius: 5
+  knockbackForce: 10
   barrierPrefab: {fileID: 3392388717453022646, guid: d439ba3500a7d13439f83f0f17247635, type: 3}
-  explosionEffectPrefab: {fileID: 0}
-  enemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 67133440
-  projectileLayerMask:
-    serializedVersion: 2
-    m_Bits: 134217728
-  references:
-    version: 2
-    RefIds: []
+  explosionEffectPrefab: {fileID: 4299425451106838030, guid: d411fbd617d663645bfcead436db1647, type: 3}

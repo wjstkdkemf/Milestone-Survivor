@@ -49,7 +49,15 @@ public class GoblinArcherScript : NavEnemy
     }
     public void SpawnArrow()
     {
-        GameObject arrow = ObjectPoolingManager.Instance.spawnGameObject(arrowPrefab, firePoint.position, Quaternion.identity);
+        var poolManager = ObjectPoolingManager.Instance;
+        if (poolManager == null || arrowPrefab == null || firePoint == null)
+            return;
+
+        GameObject arrow = poolManager.spawnGameObject( arrowPrefab,
+                                                        firePoint.position,
+                                                        Quaternion.identity,
+                                                        PoolScope.Theme);
+
         if (arrow == null) return;
 
         EnemyProjectile arrowScript = arrow.GetComponent<EnemyProjectile>();

@@ -7,6 +7,11 @@ public class ClearButton : MonoBehaviour
 {
 	public void EndDungeun()
 	{
+		if (LoadingManager.Instance == null)
+		{
+			Debug.LogError("[ClearButton] LoadingManager is missing.");
+			return;
+		}
 		if (InventoryManager.Instance == null || !InventoryManager.Instance.StoreInventoryFrom("ClearInventory"))
 		{
 			Debug.LogError("[ClearButton] Items could not be stored. Return to village was cancelled.");
@@ -14,15 +19,7 @@ public class ClearButton : MonoBehaviour
 		}
 		if(GameManager.Instance != null)
 			GameManager.Instance.StopMoveing = false;
-		if(GameOver.Instance != null)
-			GameOver.Instance.RequestPauseFalse();
-		if(WaveSpawner.Instance != null)
-			WaveSpawner.Instance.ReleaseWaveAssets();
-		if(ObjectPoolingManager.Instance != null)
-			ObjectPoolingManager.Instance.ClearAllPools();
 		if(LoadingManager.Instance != null)
 			LoadingManager.Instance.LoadScene("Village");
-		else
-			SceneManager.LoadScene("Village");
 	}
 }

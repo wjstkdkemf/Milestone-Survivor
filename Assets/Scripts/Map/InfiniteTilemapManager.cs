@@ -88,15 +88,39 @@ public class InfiniteTilemapManager : MonoBehaviour
         }
     }
 
-    public void GenerateMap(string themeName)
+    public bool TryGenerateMap(string themeName)
     {
-        currentTheme = mapThemes.FirstOrDefault(t => t.themeName == themeName);
-        if (currentTheme == null)
-        {
-            Debug.LogError($"Map theme '{themeName}' not found.");
-            return;
-        } 
+        var theme = mapThemes?.FirstOrDefault(
+            t => t != null && t.themeName == themeName);
 
+        if (string.IsNullOrEmpty(themeName) || theme == null)
+        {
+            Debug.LogError($"[Map] Theme not found: {themeName}");
+            return false;
+        }
+
+        if (player == null || mapChunkManager == null ||
+            mapChunkManager.surface == null ||
+            theme.chunkPrefab == null || theme.borderWallPrefab == null)
+        {
+            Debug.LogError($"[Map] Required reference missing: {themeName}");
+            return false;
+        }
+
+        if (chunkSize <= 0 || loadRadius < 0 || resourcePoolInitialSize < 0)
+        {
+            Debug.LogError("[Map] Invalid map configuration.");
+            return false;
+        }
+
+        if (theme.resourcePrefabs != null &&
+            theme.resourcePrefabs.Any(prefab => prefab == null))
+        {
+            Debug.LogError($"[Map] Resource list contains a missing prefab: {themeName}");
+            return false;
+        }
+
+        currentTheme = theme;
         currentMapSeed = UnityEngine.Random.Range(0, int.MaxValue);
 
         if (player != null)
@@ -127,6 +151,8 @@ public class InfiniteTilemapManager : MonoBehaviour
         );
         UpdateChunks(lastPlayerChunkCoord);
         mapChunkManager.OnMapChunkUpdated();
+
+        return true;
     }
 
     public void ClearMap()

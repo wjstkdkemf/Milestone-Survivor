@@ -7,7 +7,15 @@ public class ObjectPoolingManager : MonoBehaviour
     public static ObjectPoolingManager Instance;
     private Dictionary<string, PooledObjectInfo> poolDictionary = new Dictionary<string, PooledObjectInfo>();
     public List<PooledObjectInfo> objectPools = new List<PooledObjectInfo>(); // 인스펙터 확인용
+    private Transform creationRoot;
     private static GameObject ObjectPooledParent;
+    private bool isClearingAllPools;
+    private bool isReturningAllPools;
+    private bool IsPoolCreationBlocked =>isClearingAllPools || isReturningAllPools;
+
+    public void ClearAllPools() => ClearPools(null);
+
+    public void ClearThemePools() => ClearPools(PoolScope.Theme);
 
     public Dictionary<int, IDamageable> damageableCache = new Dictionary<int, IDamageable>();
 
@@ -47,183 +55,237 @@ public class ObjectPoolingManager : MonoBehaviour
     }
     public void PrewarmDamageText(int amount)
     {
-        if (DamageTextOrigin == null) return;
+        if (IsPoolCreationBlocked || DamageTextOrigin == null) return;
 
-        DamageTextOrigin.SetActive(false);
-
-        string prefabName = DamageTextOrigin.name;
-        PooledObjectInfo pool;
-
-        if (!poolDictionary.TryGetValue(prefabName, out pool))
-        {
-            pool = new PooledObjectInfo { name = prefabName };
-            objectPools.Add(pool);
-            poolDictionary.Add(prefabName, pool);
-        }
+        PooledObjectInfo pool = GetOrCreatePool(DamageTextOrigin, PoolScope.Run);
+        if (pool == null) return;
 
         for (int i = 0; i < amount; i++)
         {
-            GameObject obj = Instantiate(DamageTextOrigin);
-            obj.name = prefabName;
-            
-            if (ObjectPooledParent != null)
-                obj.transform.SetParent(ObjectPooledParent.transform);
-                
-            pool.gameObjects.Add(obj);
+            PoolMember member = CreatePoolMember(DamageTextOrigin, pool);
+            if (member == null)
+                break;
+
+            pool.gameObjects.Add(member.gameObject);
         }
     }
-
-    private void Update()
+    public GameObject spawnGameObject(GameObject ObjectToSpawn, Vector3 Position, Quaternion Rotation, PoolScope? requestedScope = null)
     {
-        // Debugging pooled objects (optional)
-#if UNITY_EDITOR
-        // if (Input.GetMouseButtonDown(0))
-        // {
-        //     foreach (PooledObjectInfo obj in objectPools)
-        //     {
-        //         Debug.Log($"Pool: {obj.name}, Count: {obj.gameObjects.Count}");
-        //     }
-        // }
-#endif
-    }
+        if (IsPoolCreationBlocked || ObjectToSpawn == null ||
+            GameManager.Instance == null || GameManager.Instance.Pause)
+            return null;
 
+        PooledObjectInfo pool = GetOrCreatePool(ObjectToSpawn, requestedScope);
 
-    public GameObject spawnGameObject(GameObject ObjectToSpawn, Vector3 Position, Quaternion Rotation)
-    {
-        if (ObjectToSpawn == null || GameManager.Instance.Pause)
-        {         
+        if (pool == null) return null;
+
+        if (pool.IsClearing) return null;
+        if (pool.Prefab != null && pool.Prefab != ObjectToSpawn)
+        {
+            Debug.LogError($"Different prefabs share pool name: {pool.name}");
             return null;
         }
 
-        string prefabName = ObjectToSpawn.name;
-        PooledObjectInfo pool;
+        pool.gameObjects.RemoveAll(go => go == null);
 
-        if (!poolDictionary.TryGetValue(prefabName, out pool))
-        {
-            pool = new PooledObjectInfo { name = prefabName };
-            objectPools.Add(pool);
-            poolDictionary.Add(prefabName, pool);
-        }
+        GameObject obj = pool.gameObjects.FirstOrDefault();
+        PoolMember member = obj != null
+            ? obj.GetComponent<PoolMember>()
+            : CreatePoolMember(ObjectToSpawn, pool);
+        if (member == null || member.Owner != this ||
+            member.Pool != pool || !member.TryMarkRented())
+            return null;
 
-        // Clean up any null entries in the pool (안전장치)
-        if (pool.gameObjects != null)
-        {
-            pool.gameObjects.RemoveAll(go => go == null);
-        }
+        obj = member.gameObject;
+        pool.gameObjects.Remove(obj);
+        obj.transform.SetPositionAndRotation(Position, Rotation);
+        obj.SetActive(true);
 
-        // Try to find an inactive object in the pool
-        GameObject spawnableObject = pool.gameObjects.FirstOrDefault();
-
-        if (spawnableObject == null)
-        {
-            if (ObjectPooledParent == null || GameManager.Instance.Pause)
-            {
-                return null;
-            }
-            spawnableObject = Instantiate(ObjectToSpawn, Position, Rotation);
-            spawnableObject.name = prefabName; 
-            spawnableObject.transform.SetParent(ObjectPooledParent.transform);
-
-            if (spawnableObject.TryGetComponent<IDamageable>(out var damageable))
-            {
-                damageableCache[spawnableObject.GetInstanceID()] = damageable;
-            }
-
-            spawnableObject.SetActive(true);
-        }
-        else
-        {
-            spawnableObject.transform.position = Position;
-            spawnableObject.transform.rotation = Rotation;
-            pool.gameObjects.Remove(spawnableObject);
-            spawnableObject.SetActive(true);
-        }
-
-        return spawnableObject;
+        return obj != null && member.IsRented && obj.activeInHierarchy ? obj : null;
     }
-    public void ReturnObjectToPool(GameObject Obj)
+    private PoolMember CreatePoolMember(GameObject prefab, PooledObjectInfo pool)
     {
-        if (Obj == null)
+        if (IsPoolCreationBlocked || prefab == null || pool == null ||
+            pool.IsClearing || ObjectPooledParent == null)
+            return null;
+
+        if (pool.Prefab != null && pool.Prefab != prefab)
         {
-            Debug.LogWarning("Attempted to return a null object to the pool.");
+            Debug.LogError($"Different prefabs share pool name: {pool.name}");
+            return null;
+        }
+
+        if (creationRoot == null)
+        {
+            GameObject root = new GameObject("PoolCreationRoot");
+            root.SetActive(false);
+            root.transform.SetParent(transform, false);
+            creationRoot = root.transform;
+        }
+
+        GameObject obj = Instantiate(prefab, creationRoot);
+        obj.SetActive(false);
+        obj.name = pool.name;
+
+        if (!obj.TryGetComponent<PoolMember>(out var member))
+            member = obj.AddComponent<PoolMember>();
+
+        pool.Prefab = prefab;
+        member.Bind(this, pool);
+        pool.AllMembers.Add(member);
+
+        if (obj.TryGetComponent<IDamageable>(out var damageable))
+            damageableCache[obj.GetInstanceID()] = damageable;
+
+        obj.transform.SetParent(ObjectPooledParent.transform, false);
+        return member;
+    }
+    public void ReturnObjectToPool(GameObject obj)
+    {
+        if (obj == null) return;
+        if (!obj.TryGetComponent<PoolMember>(out var member) ||
+            member.Owner == null || member.Pool == null)
+        {
+            damageableCache.Remove(obj.GetInstanceID());
+            obj.SetActive(false);
+            Destroy(obj);
             return;
         }
+        if (member.Owner != this)
+        {
+            member.Owner.ReturnObjectToPool(obj);
+            return;
+        }
+        if (!member.TryMarkReturned()) return;
 
-        string goName = Obj.name;
-        while (goName.EndsWith("(Clone)"))
+        PooledObjectInfo pool = member.Pool;
+        obj.SetActive(false);
+        if (pool.IsClearing || ObjectPooledParent == null ||
+            !poolDictionary.TryGetValue(pool.name, out var registeredPool) ||
+            !ReferenceEquals(pool, registeredPool))
         {
-            goName = goName.Substring(0, goName.Length - 7);
+            pool.AllMembers.Remove(member);
+            damageableCache.Remove(obj.GetInstanceID());
+            Destroy(obj);
+            return;
         }
-        goName = goName.Trim();
-
-        if (poolDictionary.TryGetValue(goName, out PooledObjectInfo pool))
-        {
-            Obj.SetActive(false);
-            if (ObjectPooledParent != null)
-                Obj.transform.SetParent(ObjectPooledParent.transform);
-                
-            pool.gameObjects.Add(Obj);
-        }
-        else
-        {
-            int id = Obj.GetInstanceID();
-            if (damageableCache.ContainsKey(id))
-            {
-                damageableCache.Remove(id);
-            }
-            Debug.LogWarning($"Pool not found for '{goName}'. Destroying.");
-            Destroy(Obj);
-        }
+        obj.transform.SetParent(ObjectPooledParent.transform, true);
+        pool.gameObjects.Add(obj);
     }
     public void ReturnAllActiveObjectsToPool()
     {
-        if (ObjectPooledParent != null)
+        if (IsPoolCreationBlocked) return;
+        isReturningAllPools = true;
+
+        try
         {
-            // PoolParent 아래에 있는 모든 활성 오브젝트를 찾아서 반환
-            // (리스트를 역순으로 돌 필요 없이, 자식 트랜스폼을 순회)
-            foreach (Transform child in ObjectPooledParent.transform)
+            PoolMember[] members = objectPools
+                .Where(pool => pool != null && !pool.IsClearing)
+                .SelectMany(pool => pool.AllMembers)
+                .ToArray();
+
+            foreach (var member in members)
             {
-                if (child.gameObject.activeSelf)
-                {
-                    ReturnObjectToPool(child.gameObject);
-                }
+                if (member == null || member.Owner != this ||
+                    member.Pool == null || member.Pool.IsClearing ||
+                    !member.IsRented)
+                    continue;
+
+                ReturnObjectToPool(member.gameObject);
             }
+        }
+        finally
+        {
+            isReturningAllPools = false;
         }
     }
-    public void ClearAllPools()
+    private void ClearPools(PoolScope? scope)
     {
-        // 모든 풀의 오브젝트 파괴
-        foreach (var pool in objectPools)
+        if (IsPoolCreationBlocked)
         {
-            if (pool.gameObjects != null)
+            Debug.LogWarning("Pool cleanup requested during another pool operation.");
+            return;
+        }
+        isClearingAllPools = true;
+        try
+        {
+            PooledObjectInfo[] targets = objectPools
+                .Where(pool => pool != null &&
+                    (!scope.HasValue || pool.Scope == scope.Value))
+                .ToArray();
+
+            foreach (var pool in targets)
+                pool.IsClearing = true;
+
+            foreach (var pool in targets)
             {
-                foreach (var obj in pool.gameObjects)
+                foreach (var member in pool.AllMembers.ToArray())
                 {
-                    if (obj != null) Destroy(obj);
+                    if (member == null) continue;
+
+                    GameObject obj = member.gameObject;
+                    member.TryMarkReturned();
+                    damageableCache.Remove(obj.GetInstanceID());
+                    obj.SetActive(false);
+                    Destroy(obj);
                 }
+                pool.AllMembers.Clear();
                 pool.gameObjects.Clear();
+                pool.Prefab = null;
+
+                if (poolDictionary.TryGetValue(pool.name, out var registered) &&
+                    ReferenceEquals(pool, registered))
+                    poolDictionary.Remove(pool.name);
+
+                objectPools.Remove(pool);
             }
+
+            if (!scope.HasValue)
+                damageableCache.Clear();
         }
-        
-        // 화면에 활성화되어 있는(풀에 안 들어온) 오브젝트들도 파괴
-        if (ObjectPooledParent != null)
+        finally
         {
-            foreach (Transform child in ObjectPooledParent.transform)
-            {
-                Destroy(child.gameObject);
-            }
+            isClearingAllPools = false;
         }
-
-        // 딕셔너리 및 캐시 초기화
-        poolDictionary.Clear();
-        objectPools.Clear();
-        damageableCache.Clear(); // IDamageable 캐시도 비움
-
-        Debug.Log("ObjectPoolingManager: 모든 풀 완전 초기화 완료");
+    }
+    public PooledObjectInfo GetOrCreatePool(GameObject prefab, PoolScope? requestedScope = null)
+    {
+        if (IsPoolCreationBlocked || prefab == null) return null;
+        if (poolDictionary.TryGetValue(prefab.name, out var pool))
+        {
+            if (pool.IsClearing) return null;
+            if ((pool.Prefab != null && pool.Prefab != prefab) ||
+                (requestedScope.HasValue && pool.Scope != requestedScope.Value))
+            {
+                Debug.LogError($"Conflicting pool registration: {prefab.name}");
+                return null;
+            }
+            pool.Prefab = prefab;
+            return pool;
+        }
+        pool = new PooledObjectInfo
+        {
+            name = prefab.name,
+            Prefab = prefab,
+            Scope = requestedScope ?? PoolScope.Run
+        };
+        poolDictionary.Add(pool.name, pool);
+        objectPools.Add(pool);
+        return pool;
     }
 }
 public class PooledObjectInfo
 {
     public string name;
+    public GameObject Prefab;
+    public bool IsClearing;
+    public PoolScope Scope = PoolScope.Run;
+
     public List<GameObject> gameObjects = new List<GameObject>();
+    public HashSet<PoolMember> AllMembers = new HashSet<PoolMember>();
+}
+public enum PoolScope
+{
+    Run,   // 던전 플레이 동안 유지하는 공통 풀
+    Theme  // 현재 테마를 떠날 때 정리하는 풀
 }

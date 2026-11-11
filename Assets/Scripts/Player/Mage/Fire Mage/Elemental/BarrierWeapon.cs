@@ -72,7 +72,7 @@ public class BarrierWeapon : WeaponBase
             barrierScript = barrierInstance.GetComponent<BarrierShield>();
             if (barrierScript == null) barrierScript = barrierInstance.AddComponent<BarrierShield>();
             
-            barrierScript.Setup(this, explosionEffect);
+            barrierScript.Setup(explosionEffect);
             
             // 시작은 비활성화
             barrierInstance.SetActive(false);
@@ -115,7 +115,7 @@ public class BarrierWeapon : WeaponBase
     }
     public bool TryBlockDamage()
     {
-        if (!isActiveAndEnabled || !isBarrierActive)
+        if (!CanBlockDamage)
             return false;
 
         BreakBarrier();
@@ -131,12 +131,14 @@ public class BarrierWeapon : WeaponBase
         chargeTimer = 0f; // 타이머 리셋
         if (barrierInstance != null) barrierInstance.SetActive(false);
 
+        DevLog.Log("베리어 실행 체크");
+
         // 2. 넉백 발생 및 데미지 무효화 처리
         PerformKnockback();
 
         // 3. 이펙트 재생
         if (barrierScript != null)
-            barrierScript.PlayExplosion();
+            barrierScript.PlayExplosion(transform.position, currentKnockbackRadius);
     }
 
     // 주변 적 밀어내기

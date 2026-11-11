@@ -124,6 +124,13 @@ public class DoDamage : MonoBehaviour
 
     private void HandleSelfDestruction()
     {
+        if (TryGetComponent<PoolMember>(out var member) &&
+            member.Owner != null && member.Pool != null)
+        {
+            member.Owner.ReturnObjectToPool(gameObject);
+            return;
+        }
+        
         if (selfDestroy)
         {
             if (IsUsingObjetPooling)

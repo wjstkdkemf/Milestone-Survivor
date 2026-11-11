@@ -175,7 +175,7 @@ public static class UpgradePreviewFactory
         switch (type)
         {
             case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed: return "upgrade.stat.move_speed_bonus";
-            case UpgradeScriptableObject.UpgradeType.Stat_Might: return "upgrade.stat.damage_bonus";
+            case UpgradeScriptableObject.UpgradeType.Stat_Damage: return "upgrade.stat.damage_bonus";
             case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth: return "upgrade.stat.max_health_bonus";
             case UpgradeScriptableObject.UpgradeType.Stat_Heal: return "upgrade.stat.health_regen_bonus";
             case UpgradeScriptableObject.UpgradeType.Stat_Cooldown: return "upgrade.stat.cooldown_bonus";

@@ -466,57 +466,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
         }
     }
 
-    /*protected virtual void HandleMovement(float distanceSqrToPlayer, Vector3 delta)
-    {
-        if (knockBackTime > 0 && !CantBeKnocked)
-        {
-            float knockBackBonus = PlayerStats.Instance != null ? PlayerStats.Instance.KnockBackBonus : 0f;
-            float finalKnockBack = knockBackForce * (1 + knockBackBonus);
-            Vector3 knockbackDir = -delta.normalized;
-            velocity = knockbackDir * finalKnockBack;
-            return;
-        }
-
-        switch (currentNormalState)
-        {
-            case EnemyState.Chasing:
-            {
-                Vector3 targetDir = delta.normalized;
-
-                Vector3 separation = ComputeSeparation();
-
-                Vector3 finalDir = targetDir * targetWeight + separation * separationWeight;
-
-                Vector3 desiredVelocity = finalDir.normalized * speed;
-
-                velocity = Vector3.Lerp(velocity, desiredVelocity, Time.deltaTime * 6f);
-                break;
-            }
-
-            case EnemyState.Attacking:
-            {
-                velocity = Vector3.zero;
-
-                if (coolDownTimer <= 0)
-                {
-                    Attack();
-                    coolDownTimer = coolDown;
-                }
-                break;
-            }
-
-            case EnemyState.Idle:
-            {
-                velocity = Vector3.Lerp(velocity, Vector3.zero, Time.deltaTime * 5f);
-                break;
-            }
-        }
-
-        if (velocity.sqrMagnitude > 0.1f)
-            lastVelocity = velocity;
-    }
-    */
-
     public abstract void Attack();
 
     public virtual void TakeDamage(float amount, float knockBackDuration = .2f)
@@ -559,10 +508,6 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     {
         currentNormalState = EnemyState.Dead;
 
-        //if (EnemyRigidbody2D != null) 
-        //{
-          //  EnemyRigidbody2D.simulated = false; 
-        //}
         if (GameManager.Instance != null)
             GameManager.Instance.NumberOfKills++;
 

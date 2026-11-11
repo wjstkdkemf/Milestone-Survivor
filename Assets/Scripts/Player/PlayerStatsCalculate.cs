@@ -189,7 +189,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         {
             switch (type)
             {
-                case UpgradeScriptableObject.UpgradeType.Stat_Might: realTimeDamage += value; break;
+                case UpgradeScriptableObject.UpgradeType.Stat_Damage: realTimeDamage += value; break;
                 case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth: realTimeMaxHealth += value; break;
                 case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed: realTimeSpeed += value; break;
                 case UpgradeScriptableObject.UpgradeType.Stat_Heal: realTimeHealthRegen += value; break;
@@ -201,7 +201,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         {
             switch (type)
             {
-                case UpgradeScriptableObject.UpgradeType.Stat_Might: realTimePercentageDamage += value; break;
+                case UpgradeScriptableObject.UpgradeType.Stat_Damage: realTimePercentageDamage += value; break;
                 case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth: realTimePercentageMaxHealth += value; break;
                 case UpgradeScriptableObject.UpgradeType.Stat_MoveSpeed: realTimePercentageSpeed += value; break;
                 case UpgradeScriptableObject.UpgradeType.Stat_Heal: realTimePercentageHealthRegen += value; break;
@@ -224,7 +224,7 @@ public class PlayerStatsCalculate : MonoBehaviour
         bool isPercent = mode == BonusMode.Percent;
         switch (type)
         {
-            case UpgradeScriptableObject.UpgradeType.Stat_Might:
+            case UpgradeScriptableObject.UpgradeType.Stat_Damage:
                 value = isPercent ? realTimePercentageDamage : realTimeDamage;
                 return true;
             case UpgradeScriptableObject.UpgradeType.Stat_MaxHealth:

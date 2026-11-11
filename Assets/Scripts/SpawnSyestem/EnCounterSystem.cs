@@ -16,6 +16,7 @@ public class EnCounterSystem : MonoBehaviour
     public int normalMaxEncounter = 3;
     public int maxEncounter = 0;
     private int CurEncounter = 0;
+    private int encounterVersion;
 
     public MapMaker currentMap;
     private Vector3 lastPos;
@@ -117,33 +118,34 @@ public class EnCounterSystem : MonoBehaviour
 
     public void StartEncount()
     {
+        if (isEncounterActive) return;
+
         StartCoroutine(StartEncountCoroutine());
     }
 
     IEnumerator StartEncountCoroutine()
     {
-        if (currentMap == null || tilemapManager == null || waveSpawner == null)
+        if (currentMap == null || tilemapManager == null || waveSpawner == null || PlayerTransform == null)
         {
             Debug.LogError("Cannot start encounter: a required component is missing.");
             yield break;
         }
+        MapMaker encounterMap = currentMap;
+
+        int requestVersion = ++encounterVersion;
+        isEncounterActive = true;
+
         if(InventoryIcon != null)
         {
             InventoryIcon.SetActive(false);
         }
-        if(RunStatisticsManager.Instance != null)
+
+        string SceneName = encounterMap.SceneName;
+        List<Wave> SceneWave = encounterMap.waves == null ? null : new List<Wave>(encounterMap.waves);
+
+        if (encounterMap.battleBGM != null && AudioManager.Instance != null)
         {
-            RunStatisticsManager.Instance.AddEncounter();
-        }
-
-        string SceneName = currentMap.SceneName;
-        List<Wave> SceneWave = new List<Wave>(currentMap.waves);
-
-        isEncounterActive = true;
-
-        if (currentMap.battleBGM != null && AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayBGMWithFade(currentMap.battleBGM);
+            AudioManager.Instance.PlayBGMWithFade(encounterMap.battleBGM);
         }
 
         if(MenuButtonController.Instance != null)
@@ -152,13 +154,34 @@ public class EnCounterSystem : MonoBehaviour
         }
         enCounterPos = PlayerTransform.position; // Save player's current position
 
-        tilemapManager.GenerateMap(SceneName);
+        if (!tilemapManager.TryGenerateMap(SceneName))
+        {
+            RestoreAfterPreparationFailure(encounterMap);
+            yield break;
+        }
 
-        yield return StartCoroutine(waveSpawner.PreloadWaveAssets(SceneWave));
+        bool prepared = false;
+        yield return StartCoroutine(waveSpawner.PreloadWaveAssets(SceneWave, () => this != null && requestVersion == encounterVersion, success => prepared = success));
+
+        if (requestVersion != encounterVersion)
+            yield break;
+
+        if (!prepared)
+        {
+            RestoreAfterPreparationFailure(encounterMap);
+            yield break;
+        }
 
         yield return null;
 
+        if (requestVersion != encounterVersion)
+            yield break;
+
         waveSpawner.StartWaves();
+
+        if (RunStatisticsManager.Instance != null)
+            RunStatisticsManager.Instance.AddEncounter();
+
         if (UpgradeManager.Instance != null) UpgradeManager.Instance.SetCombatState(true);
 
         CurEncounter++;
@@ -198,6 +221,47 @@ public class EnCounterSystem : MonoBehaviour
 
         if(InventoryIcon != null)
             InventoryIcon.SetActive(true);
+    }
+    public void CancelEncounterForMapChange()
+    {
+        ++encounterVersion;
+        currentMap = null;
+        isEncounterActive = false;
+        walkedDistance = 0f;
+
+        if (tilemapManager != null)
+            tilemapManager.ClearMap();
+
+        if (UpgradeManager.Instance != null)
+            UpgradeManager.Instance.SetCombatState(false);
+
+        if (InventoryIcon != null)
+            InventoryIcon.SetActive(true);
+    }
+    private void RestoreAfterPreparationFailure(MapMaker encounterMap)
+    {
+        if (waveSpawner != null)
+            waveSpawner.StopWaves();
+
+        if (tilemapManager != null)
+            tilemapManager.ClearMap();
+
+        if (UpgradeManager.Instance != null)
+            UpgradeManager.Instance.SetCombatState(false);
+
+        if (PlayerTransform != null)
+            PlayerTransform.position = enCounterPos;
+
+        EnterMap(encounterMap);
+
+        if (encounterMap != null && encounterMap.explorationBGM != null &&
+            AudioManager.Instance != null)
+            AudioManager.Instance.PlayBGMWithFade(encounterMap.explorationBGM);
+
+        if (InventoryIcon != null)
+            InventoryIcon.SetActive(true);
+
+        isEncounterActive = false;
     }
     public void PlusMaxEncount(int PlusEn)
     {

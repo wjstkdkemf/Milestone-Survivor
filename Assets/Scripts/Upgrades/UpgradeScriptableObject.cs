@@ -131,7 +131,7 @@ public class UpgradeScriptableObject : ScriptableObject
         Stat_MaxHealth,     // 체력 증가
         Stat_Heal,          // 체력 회복
         Stat_MoveSpeed,     // 이동 속도
-        Stat_Might,         // 공격력(Damage)
+        Stat_Damage,         // 공격력(Damage)
         Stat_Area,          // 범위
         Stat_Speed,         // 투사체 속도
         Stat_Duration,      // 지속 시간
