@@ -172,10 +172,24 @@ public class EnCounterSystem : MonoBehaviour
             yield break;
         }
 
-        yield return null;
+        var navigation = tilemapManager.mapChunkManager;
+
+        yield return new WaitUntil(() =>
+            requestVersion != encounterVersion ||
+            navigation == null || !navigation.isActiveAndEnabled ||
+            navigation.surface == null || !navigation.surface.isActiveAndEnabled ||
+            navigation.State != MapChunkManager.NavigationState.Updating);
 
         if (requestVersion != encounterVersion)
             yield break;
+
+        if (navigation == null || !navigation.isActiveAndEnabled ||
+            navigation.surface == null || !navigation.surface.isActiveAndEnabled ||
+            navigation.State != MapChunkManager.NavigationState.Ready)
+        {
+            RestoreAfterPreparationFailure(encounterMap);
+            yield break;
+        }
 
         waveSpawner.StartWaves();
 

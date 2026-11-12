@@ -8,13 +8,31 @@ using Unity.VisualScripting;
 public class MapChunkManager : MonoBehaviour
 {
     // 인스펙터에서 NavMeshPlus의 Surface 컴포넌트를 연결해주세요.
+    public enum NavigationState { Idle, Updating, Ready, Failed }
+    public NavigationState State { get; private set; }
     public NavMeshSurface surface;
     private bool isUpdating = false;
     private bool updateRequested = false;
+    private int mapVersion;
+    private NavMeshData updatingData;
+
+    public void InvalidateMap()
+    {
+        ++mapVersion;
+        State = NavigationState.Idle;
+        updateRequested = false;
+    }
 
     // 맵이 변경되었을 때 호출되는 함수
     public void OnMapChunkUpdated()
     {
+        if (!isActiveAndEnabled || surface == null || !surface.isActiveAndEnabled)
+        {
+            State = NavigationState.Failed;
+            return;
+        }
+        State = NavigationState.Updating;
+
         if(isUpdating)
         {
             updateRequested = true;
@@ -24,40 +42,76 @@ public class MapChunkManager : MonoBehaviour
         StartCoroutine(RebakeNavMeshSequence());
     }
 
-    IEnumerator RebakeNavMeshSequence()
+    private IEnumerator RebakeNavMeshSequence()
     {
-        /*// 비동기로 NavMesh 굽기 시작
-        var asyncOp = surface.BuildNavMeshAsync();
-
-        // 굽기가 완료될 때까지 대기
-        yield return asyncOp; */
-        AsyncOperation operation;
+        int version = mapVersion;
         isUpdating = true;
-
-        if (surface.navMeshData == null)
-            operation = surface.BuildNavMeshAsync();
-        else
-            operation = surface.UpdateNavMesh(surface.navMeshData);
-
-        yield return operation;
-
-        // 물리 엔진과 NavMesh가 동기화되도록 프레임 끝까지 대기 (중요!)
-        yield return new WaitForEndOfFrame();
-
-        isUpdating = false;
-
-        // 모든 몬스터를 찾아 '새로고침' 명령 내리기
-        RefreshAllEnemies();
-    }
-
-    void RefreshAllEnemies()
-    {
-        WaveSpawner.Instance.RefreshAllEnemies();
-
-        if(updateRequested)
+        updateRequested = false;
+        bool completed = false;
+        try
         {
-            updateRequested = false;
-            OnMapChunkUpdated();
+            var targetSurface = surface;
+            updatingData = targetSurface.navMeshData;
+
+            AsyncOperation operation;
+            if (updatingData == null)
+            {
+                operation = targetSurface.BuildNavMeshAsync();
+                updatingData = targetSurface.navMeshData;
+            }
+            else
+            {
+                operation = targetSurface.UpdateNavMesh(updatingData);
+            }
+
+            if (operation == null)
+            {
+                Debug.LogError("[NavMesh] Update could not start.", this);
+                yield break;
+            }
+
+            yield return operation;
+            yield return null;
+
+            if (version != mapVersion || updateRequested)
+                yield break;
+
+            completed = true;
+            State = NavigationState.Ready;
+
+            if (WaveSpawner.Instance != null)
+                WaveSpawner.Instance.RefreshAllEnemies();
         }
+        finally
+        {
+            updatingData = null;
+            if (version == mapVersion && !updateRequested && !completed)
+                State = NavigationState.Failed;
+
+            isUpdating = false;
+
+            if (updateRequested && isActiveAndEnabled)
+            {
+                updateRequested = false;
+                OnMapChunkUpdated();
+            }
+        }
+    }
+    private void OnDisable() => CancelNavigationUpdate();
+    private void OnDestroy() => CancelNavigationUpdate();
+    private void CancelNavigationUpdate()
+    {
+        ++mapVersion;
+        updateRequested = false;
+        State = NavigationState.Failed;
+
+        NavMeshData data = updatingData;
+        StopAllCoroutines();
+
+        if (data != null)
+            UnityEngine.AI.NavMeshBuilder.Cancel(data);
+
+        updatingData = null;
+        isUpdating = false;
     }
 }

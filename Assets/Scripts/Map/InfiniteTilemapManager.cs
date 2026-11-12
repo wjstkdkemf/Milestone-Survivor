@@ -119,44 +119,56 @@ public class InfiniteTilemapManager : MonoBehaviour
             Debug.LogError($"[Map] Resource list contains a missing prefab: {themeName}");
             return false;
         }
+        isMapActive = false;
 
-        currentTheme = theme;
-        currentMapSeed = UnityEngine.Random.Range(0, int.MaxValue);
-
-        if (player != null)
+        try
         {
-            player.transform.position = battleMapStartPosition;
+            currentTheme = theme;
+            currentMapSeed = UnityEngine.Random.Range(0, int.MaxValue);
+
+            if (player != null)
+            {
+                player.transform.position = battleMapStartPosition;
+            }
+            
+            transform.position = battleMapStartPosition;
+
+            InitializeChunkPool();
+            InitializeResourcePools();
+
+            BorderWall = Instantiate(currentTheme.borderWallPrefab);
+            BorderWall.transform.position = battleMapStartPosition;
+
+            CinemachineVirtualCamera encounterCam = BorderWall.GetComponentInChildren<CinemachineVirtualCamera>();
+
+            if (encounterCam != null)
+            {
+                encounterCam.Follow = player;
+            }
+
+            lastPlayerChunkCoord = new Vector2Int(
+                Mathf.FloorToInt(player.position.x / chunkSize),
+                Mathf.FloorToInt(player.position.y / chunkSize)
+            );
+            UpdateChunks(lastPlayerChunkCoord);
+            mapChunkManager.OnMapChunkUpdated();
+
+            isMapActive = true;
+            return true;
         }
-        
-        transform.position = battleMapStartPosition;
-
-        InitializeChunkPool();
-        InitializeResourcePools();
-
-        BorderWall = Instantiate(currentTheme.borderWallPrefab);
-        BorderWall.transform.position = battleMapStartPosition;
-
-        CinemachineVirtualCamera encounterCam = BorderWall.GetComponentInChildren<CinemachineVirtualCamera>();
-
-        if (encounterCam != null)
+        catch (System.Exception exception)
         {
-            encounterCam.Follow = player;
+            isMapActive = false;
+            Debug.LogException(exception, this);
+            return false;
         }
-
-        isMapActive = true;
-
-        lastPlayerChunkCoord = new Vector2Int(
-            Mathf.FloorToInt(player.position.x / chunkSize),
-            Mathf.FloorToInt(player.position.y / chunkSize)
-        );
-        UpdateChunks(lastPlayerChunkCoord);
-        mapChunkManager.OnMapChunkUpdated();
-
-        return true;
     }
 
     public void ClearMap()
     {
+        if (mapChunkManager != null)
+            mapChunkManager.InvalidateMap();
+
         isMapActive = false;
         globalWallMap.Clear();
 
@@ -212,9 +224,9 @@ public class InfiniteTilemapManager : MonoBehaviour
         for (int i = 0; i < initialPoolSize; i++)
         {
             GameObject pooledChunk = Instantiate(currentTheme.chunkPrefab);
+            chunkPool.Enqueue(pooledChunk);
             pooledChunk.transform.SetParent(transform);
             pooledChunk.SetActive(false);
-            chunkPool.Enqueue(pooledChunk);
         }
     }
     //리소스 풀을 초기화하는 함수
@@ -250,6 +262,7 @@ public class InfiniteTilemapManager : MonoBehaviour
             for (int i = 0; i < size; i++)
             {
                 GameObject instance = Instantiate(prefab);
+                resourcePools[prefab].Enqueue(instance);
                 instance.transform.SetParent(transform); // Manager 하위에 둠
                 instance.SetActive(false);
                 
@@ -257,8 +270,6 @@ public class InfiniteTilemapManager : MonoBehaviour
                 PooledResource pr = instance.GetComponent<PooledResource>();
                 if (pr == null) pr = instance.AddComponent<PooledResource>();
                 pr.originalPrefab = prefab;
-                
-                resourcePools[prefab].Enqueue(instance);
             }
         }
     }
@@ -304,24 +315,23 @@ public class InfiniteTilemapManager : MonoBehaviour
     {
         if (currentTheme == null) return;
 
-        GameObject chunk;
-        Vector3 position = new Vector3(coord.x * chunkSize, coord.y * chunkSize, 0);
+        if (activeChunks.ContainsKey(coord)) return;
 
-        if (chunkPool.Count > 0)
-        {
-            chunk = chunkPool.Dequeue();
-        }
-        else
-        {
-            chunk = Instantiate(currentTheme.chunkPrefab);
-            chunk.transform.SetParent(transform);
-        }
+        GameObject chunk = chunkPool.Count > 0
+            ? chunkPool.Dequeue()
+            : Instantiate(currentTheme.chunkPrefab);
 
-        chunk.transform.position = position;
+        if (chunk == null)
+            throw new System.InvalidOperationException("Chunk instance is missing.");
+
+        activeChunks.Add(coord, chunk);
+
+        chunk.transform.SetParent(transform);
+        chunk.transform.position = new Vector3(
+            coord.x * chunkSize, coord.y * chunkSize, 0);
         chunk.SetActive(true);
 
-        GenerateChunkContent(chunk, coord); //내용물 생성 로직 호출
-        activeChunks.Add(coord, chunk);
+        GenerateChunkContent(chunk, coord);
 
         TilemapGridChunk gridChunk = chunk.GetComponentInChildren<TilemapGridChunk>();
         if (gridChunk != null)
@@ -334,6 +344,12 @@ public class InfiniteTilemapManager : MonoBehaviour
     {
         if (activeChunks.TryGetValue(coord, out GameObject chunk))
         {
+            if (chunk == null)
+            {
+                activeChunks.Remove(coord);
+                return;
+            }
+
             TilemapGridChunk gridChunk = chunk.GetComponentInChildren<TilemapGridChunk>();
             if (gridChunk != null)
             {
